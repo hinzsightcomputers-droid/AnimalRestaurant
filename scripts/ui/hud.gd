@@ -1,5 +1,5 @@
-# HUD: on-screen info. Lists current orders and shows short messages from
-# GameEvents. Display only.
+# HUD: on-screen info. Shows the day and money, lists current orders, and shows
+# short messages from GameEvents. Display only.
 extends CanvasLayer
 
 const MESSAGE_TIME := 3.0
@@ -12,6 +12,7 @@ const STATE_NAMES := {
 @export var order_board: OrderBoard
 
 @onready var orders_label: Label = $OrdersLabel
+@onready var money_label: Label = $MoneyLabel
 @onready var message_label: Label = $MessageLabel
 
 var _message_timer := 0.0
@@ -20,8 +21,14 @@ var _message_timer := 0.0
 func _ready() -> void:
 	order_board.changed.connect(_refresh_orders)
 	GameEvents.message.connect(_show_message)
+	GameState.money_changed.connect(_refresh_money.unbind(1))
 	_refresh_orders()
+	_refresh_money()
 	message_label.text = ""
+
+
+func _refresh_money() -> void:
+	money_label.text = "Day %d   $%d" % [GameState.day, GameState.money]
 
 
 func _process(delta: float) -> void:

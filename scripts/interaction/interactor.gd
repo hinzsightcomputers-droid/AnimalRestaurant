@@ -1,5 +1,5 @@
-# Interactor: lives on a player and keeps track of the closest Interactable in range.
-# The player tells it when to interact; it never reads input itself.
+# Interactor: lives on a player and keeps track of the best Interactable in range
+# (highest priority, then closest). The player tells it when to interact; it never reads input itself.
 class_name Interactor
 extends Node3D
 
@@ -17,7 +17,11 @@ func _physics_process(_delta: float) -> void:
 		if interactable == null or not interactable.enabled:
 			continue
 		var distance := _flat_distance(global_position, interactable.global_position)
-		if distance <= interactable.radius and distance < best_distance:
+		if distance > interactable.radius:
+			continue
+		var better_priority := best == null or interactable.priority > best.priority
+		var same_priority_but_closer := best != null and interactable.priority == best.priority and distance < best_distance
+		if better_priority or same_priority_but_closer:
 			best = interactable
 			best_distance = distance
 

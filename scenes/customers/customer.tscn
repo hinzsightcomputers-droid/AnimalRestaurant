@@ -2,6 +2,20 @@
 
 [ext_resource type="Script" path="res://scripts/customers/customer.gd" id="1_customer"]
 [ext_resource type="Script" path="res://scripts/customers/customer_display.gd" id="2_display"]
+[ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="3_interactable"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_plate"]
+albedo_color = Color(0.97, 0.96, 0.93, 1)
+
+[sub_resource type="CylinderMesh" id="Mesh_plate"]
+material = SubResource("Mat_plate")
+top_radius = 0.22
+bottom_radius = 0.18
+height = 0.04
+
+[sub_resource type="SphereMesh" id="Mesh_food"]
+radius = 0.13
+height = 0.16
 
 [sub_resource type="CapsuleMesh" id="Mesh_body"]
 radius = 0.32
@@ -44,3 +58,23 @@ outline_modulate = Color(1, 0.98, 0.92, 1)
 font_size = 40
 outline_size = 18
 text = "..."
+horizontal_alignment = 1
+
+[node name="Meal" type="Node3D" parent="Display"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.34, 0.75)
+visible = false
+
+[node name="Plate" type="MeshInstance3D" parent="Display/Meal"]
+mesh = SubResource("Mesh_plate")
+
+[node name="Food" type="MeshInstance3D" parent="Display/Meal"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.07, 0)
+mesh = SubResource("Mesh_food")
+
+[node name="Interactable" type="Node3D" parent="."]
+script = ExtResource("3_interactable")
+prompt = "Serve"
+radius = 1.3
+prompt_height = 2.15
+enabled = false
+priority = 1

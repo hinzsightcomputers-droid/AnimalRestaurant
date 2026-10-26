@@ -1,0 +1,32 @@
+{
+	"quality_weight": 0.7,
+	"wait_weight": 0.3,
+	"patient_seconds": 40,
+	"max_wait_seconds": 100,
+	"reactions": [
+		{
+			"id": "delighted",
+			"min_satisfaction": 0.85,
+			"payment_percent": 150,
+			"lines": ["This is the best meal I've had all week!", "Wonderful! I'll tell all my friends!", "Oh my, that was perfect!"]
+		},
+		{
+			"id": "happy",
+			"min_satisfaction": 0.6,
+			"payment_percent": 120,
+			"lines": ["That hit the spot, thank you!", "Lovely, just lovely.", "Yum! I'll be back."]
+		},
+		{
+			"id": "okay",
+			"min_satisfaction": 0.35,
+			"payment_percent": 100,
+			"lines": ["It was fine, I suppose.", "Not bad... not great.", "Hm, filling enough."]
+		},
+		{
+			"id": "unhappy",
+			"min_satisfaction": 0.0,
+			"payment_percent": 75,
+			"lines": ["Hmm... that took a while.", "I think something was burnt.", "Maybe next time."]
+		}
+	]
+}

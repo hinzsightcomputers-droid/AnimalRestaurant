@@ -1,29 +1,44 @@
-# Customer: one animal guest. Holds its state (arriving, waiting, seated...) and
-# walks along the waypoints it is given. CustomerManager decides where customers go;
-# CustomerDisplay decides how they look.
+# Customer: one animal guest. Holds its state (arriving, waiting, eating...) and
+# walks along the waypoints it is given. CustomerManager decides where customers go
+# and what happens when they're served; CustomerDisplay decides how they look.
 class_name Customer
 extends Node3D
 
-enum State { ARRIVING, WAITING_TO_ORDER, WALKING_TO_SEAT, WAITING_FOR_FOOD }
+enum State { ARRIVING, WAITING_TO_ORDER, WALKING_TO_SEAT, WAITING_FOR_FOOD, EATING, LEAVING, GONE }
 
 signal state_changed(customer: Customer)
+signal finished_eating(customer: Customer)
 
 @export var walk_speed := 2.0
 @export var turn_speed := 10.0
+@export var eat_duration := 4.0
 
 var state: State = State.ARRIVING
 var species: Dictionary = {}  # From data/species.json
 var dish: Dictionary = {}     # From data/dishes.json. Picked on arrival, revealed when ordering.
 var seat: Station = null      # The chair reserved for this customer.
 
+var wait_seconds := 0.0       # From reaching the counter until the food arrives.
+var served_quality := 0.0     # Quality of the dish they were served (0..1).
+var reaction_line := ""       # What they say when leaving.
+var payment := 0              # What they paid.
+
 var _path: Array[Vector3] = []
 var _state_after_path: State = State.ARRIVING
+var _eat_time_left := 0.0
+var _done_eating := false
+
+@onready var interactable: Interactable = $Interactable
 
 
 func setup(species_data: Dictionary, dish_data: Dictionary, reserved_seat: Station) -> void:
 	species = species_data
 	dish = dish_data
 	seat = reserved_seat
+
+
+func _ready() -> void:
+	_update_interactable()
 
 
 # Walk through the given points in order, then switch to `state_on_arrival`.
@@ -41,7 +56,35 @@ func place_order() -> void:
 	_set_state(State.WALKING_TO_SEAT)
 
 
+# Called when a player brings the food.
+func serve(quality: float) -> void:
+	served_quality = quality
+	_eat_time_left = eat_duration
+	_set_state(State.EATING)
+
+
+# Walk out along `points` saying `line`, having paid `amount`.
+func leave(points: Array[Vector3], line: String, amount: int) -> void:
+	reaction_line = line
+	payment = amount
+	walk_to(points, State.GONE)
+	_set_state(State.LEAVING)
+
+
 func _physics_process(delta: float) -> void:
+	match state:
+		State.WAITING_TO_ORDER, State.WALKING_TO_SEAT, State.WAITING_FOR_FOOD:
+			wait_seconds += delta
+		State.EATING:
+			_eat_time_left -= delta
+			if _eat_time_left <= 0.0 and not _done_eating:
+				_done_eating = true
+				finished_eating.emit(self)
+
+	_follow_path(delta)
+
+
+func _follow_path(delta: float) -> void:
 	if _path.is_empty():
 		return
 
@@ -69,4 +112,10 @@ func _on_path_finished() -> void:
 
 func _set_state(new_state: State) -> void:
 	state = new_state
+	_update_interactable()
 	state_changed.emit(self)
+
+
+# Players can only interact with a customer who is waiting for food.
+func _update_interactable() -> void:
+	interactable.enabled = state == State.WAITING_FOR_FOOD

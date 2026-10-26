@@ -12,6 +12,7 @@ signal interacted(player_index: int)
 @export var radius := 1.2            # How close (in meters, ignoring height) a player must be.
 @export var prompt_height := 1.6     # How high above this point the prompt appears.
 @export var enabled := true
+@export var priority := 0            # When several are in range, higher priority wins (e.g. a customer over their chair).
 
 
 func _ready() -> void:
