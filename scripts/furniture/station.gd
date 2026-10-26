@@ -19,7 +19,7 @@ func _ready() -> void:
 
 
 func _on_interacted(player_index: int) -> void:
-	print("Player %d used %s" % [player_index, display_name])
+	print("Player %d used %s" % [player_index + 1, display_name])
 	used.emit(self, player_index)
 	_play_bounce()
 

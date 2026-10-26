@@ -8,6 +8,7 @@ const CUSTOMER_SCENE := preload("res://scenes/customers/customer.tscn")
 const SEAT_GROUP := "seats"
 
 @export var order_counter: Station
+@export var order_board: OrderBoard
 @export var spawn_point: Marker3D   # Outside the front door.
 @export var door_point: Marker3D    # Just inside the front door.
 @export var first_arrival_delay := 3.0
@@ -46,12 +47,12 @@ func _try_spawn_customer() -> void:
 	_queue.append(customer)
 	var path: Array[Vector3] = [door_point.global_position, _queue_spot(_queue.size() - 1)]
 	customer.walk_to(path, Customer.State.WAITING_TO_ORDER)
-	print("A %s walked in." % customer.species.get("name", "customer"))
+	GameEvents.announce("A %s walked in." % customer.species.get("name", "customer"))
 
 
 func _on_order_counter_used(_station: Station, player_index: int) -> void:
 	if _queue.is_empty():
-		print("Nobody is waiting to order.")
+		GameEvents.announce("Nobody is waiting to order.")
 		return
 
 	var customer := _queue[0]
@@ -60,8 +61,9 @@ func _on_order_counter_used(_station: Station, player_index: int) -> void:
 
 	_queue.pop_front()
 	customer.place_order()
-	print("Player %d took an order: %s wants %s." % [
-		player_index, customer.species.get("name", "?"), customer.dish.get("name", "?")])
+	order_board.add_order(customer)
+	GameEvents.announce("Player %d took an order: %s wants %s." % [
+		player_index + 1, customer.species.get("name", "?"), customer.dish.get("name", "?")])
 
 	var path: Array[Vector3] = [
 		customer.seat.get_node("ApproachPoint").global_position,

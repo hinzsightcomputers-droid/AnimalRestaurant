@@ -1,25 +1,46 @@
-# Player: moves a capsule around the restaurant.
+# Player: moves a capsule around the restaurant and carries one item at a time.
 # Movement logic only. Where the input comes from is the PlayerInput child's job.
 class_name Player
 extends CharacterBody3D
+
+const GROUP := "players"
+
+signal held_item_changed(item: RefCounted)
 
 @export var player_index := 0
 @export var move_speed := 4.0
 @export var acceleration := 25.0  # How quickly we reach full speed / stop.
 @export var turn_speed := 12.0    # How quickly the body turns to face the move direction.
 
+var movement_locked := false      # True while busy (e.g. cooking).
+var held_item: RefCounted = null  # What the player is carrying, e.g. a CookedDish.
+
 @onready var input: PlayerInput = $PlayerInput
 @onready var visual: Node3D = $Visual
 @onready var interactor: Interactor = $Interactor
 
 
+# Finds the player with the given index, or null.
+static func find(tree: SceneTree, index: int) -> Player:
+	for node in tree.get_nodes_in_group(GROUP):
+		if node is Player and node.player_index == index:
+			return node
+	return null
+
+
 func _ready() -> void:
+	add_to_group(GROUP)
 	input.player_index = player_index
+
+
+func set_held_item(item: RefCounted) -> void:
+	held_item = item
+	held_item_changed.emit(item)
 
 
 func _physics_process(delta: float) -> void:
 	# The camera always looks toward -Z, so "up" on the stick is -Z in the world.
-	var input_vector := input.get_move_vector()
+	var input_vector := Vector2.ZERO if movement_locked else input.get_move_vector()
 	var direction := Vector3(input_vector.x, 0.0, input_vector.y)
 
 	var target_velocity := direction * move_speed

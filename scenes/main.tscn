@@ -8,6 +8,8 @@
 [ext_resource type="PackedScene" path="res://scenes/furniture/order_counter.tscn" id="6_counter"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/cooking_station.tscn" id="7_stove"]
 [ext_resource type="Script" path="res://scripts/customers/customer_manager.gd" id="8_customers"]
+[ext_resource type="Script" path="res://scripts/kitchen/order_board.gd" id="9_orders"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="10_hud"]
 
 [sub_resource type="Environment" id="Env"]
 background_mode = 1
@@ -40,12 +42,17 @@ transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -4.1, 0, 1.5)
 [node name="OrderCounter" parent="Furniture" instance=ExtResource("6_counter")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0, -3)
 
-[node name="CookingStation" parent="Furniture" instance=ExtResource("7_stove")]
+[node name="CookingStation" parent="Furniture" node_paths=PackedStringArray("order_board") instance=ExtResource("7_stove")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, -4.6)
+order_board = NodePath("../../OrderBoard")
 
-[node name="CustomerManager" type="Node3D" parent="." node_paths=PackedStringArray("order_counter", "spawn_point", "door_point")]
+[node name="OrderBoard" type="Node" parent="."]
+script = ExtResource("9_orders")
+
+[node name="CustomerManager" type="Node3D" parent="." node_paths=PackedStringArray("order_counter", "order_board", "spawn_point", "door_point")]
 script = ExtResource("8_customers")
 order_counter = NodePath("../Furniture/OrderCounter")
+order_board = NodePath("../OrderBoard")
 spawn_point = NodePath("CustomerSpawn")
 door_point = NodePath("CustomerDoor")
 
@@ -63,3 +70,6 @@ current = true
 script = ExtResource("3_camera")
 target = NodePath("../Player")
 follow_offset = Vector3(0, 6.3, 4.5)
+
+[node name="HUD" parent="." node_paths=PackedStringArray("order_board") instance=ExtResource("10_hud")]
+order_board = NodePath("../OrderBoard")

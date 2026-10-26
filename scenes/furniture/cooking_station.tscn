@@ -1,7 +1,32 @@
 [gd_scene format=3]
 
-[ext_resource type="Script" path="res://scripts/furniture/station.gd" id="1_station"]
+[ext_resource type="Script" path="res://scripts/furniture/cooking_station.gd" id="1_station"]
 [ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
+[ext_resource type="Script" path="res://scripts/cooking/cooking_display.gd" id="3_display"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_bar_bg"]
+shading_mode = 0
+albedo_color = Color(0.3, 0.22, 0.18, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_bar_zone"]
+shading_mode = 0
+albedo_color = Color(0.45, 0.85, 0.4, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_bar_marker"]
+shading_mode = 0
+albedo_color = Color(1, 0.97, 0.9, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_bar_bg"]
+material = SubResource("Mat_bar_bg")
+size = Vector3(1.7, 0.28, 0.02)
+
+[sub_resource type="BoxMesh" id="Mesh_bar_zone"]
+material = SubResource("Mat_bar_zone")
+size = Vector3(1.6, 0.2, 0.02)
+
+[sub_resource type="BoxMesh" id="Mesh_bar_marker"]
+material = SubResource("Mat_bar_marker")
+size = Vector3(0.06, 0.36, 0.03)
 
 [sub_resource type="StandardMaterial3D" id="Mat_body"]
 albedo_color = Color(0.35, 0.35, 0.38, 1)
@@ -64,3 +89,28 @@ script = ExtResource("2_interactable")
 prompt = "Cook"
 radius = 1.0
 prompt_height = 1.8
+
+[node name="CookingDisplay" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.707, 0.707, 0, -0.707, 0.707, 0, 2.1, 0.3)
+script = ExtResource("3_display")
+
+[node name="Background" type="MeshInstance3D" parent="CookingDisplay"]
+mesh = SubResource("Mesh_bar_bg")
+
+[node name="Zone" type="MeshInstance3D" parent="CookingDisplay"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.015)
+mesh = SubResource("Mesh_bar_zone")
+
+[node name="Marker" type="MeshInstance3D" parent="CookingDisplay"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.035)
+mesh = SubResource("Mesh_bar_marker")
+
+[node name="Status" type="Label3D" parent="CookingDisplay"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0)
+billboard = 1
+no_depth_test = true
+modulate = Color(1, 1, 1, 1)
+outline_modulate = Color(0.2, 0.15, 0.1, 1)
+font_size = 44
+outline_size = 14
+text = "Stir 1 / 3"

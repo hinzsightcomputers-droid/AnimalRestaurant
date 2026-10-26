@@ -18,11 +18,10 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if _target != null:
 		global_position = _target.global_position + Vector3.UP * _target.prompt_height
+		text = "[%s] %s" % [button_hint, _target.prompt]  # Prompts can change, e.g. "Cook" -> "Stir!"
 
 
 func _on_focus_changed(interactable: Interactable) -> void:
 	_target = interactable
 	visible = interactable != null
-	if interactable != null:
-		text = "[%s] %s" % [button_hint, interactable.prompt]
-		_process(0.0)
+	_process(0.0)

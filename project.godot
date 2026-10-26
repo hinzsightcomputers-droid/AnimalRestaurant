@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 InputSetup="*res://scripts/autoload/input_setup.gd"
 GameData="*res://scripts/autoload/game_data.gd"
+GameEvents="*res://scripts/autoload/game_events.gd"
 
 [display]
 
