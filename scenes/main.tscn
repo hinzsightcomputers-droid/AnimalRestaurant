@@ -1,8 +1,8 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://cxf2o2ehvmjsa"]
 
 [ext_resource type="PackedScene" path="res://scenes/world/restaurant_room.tscn" id="1_room"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
-[ext_resource type="Script" path="res://scripts/camera/follow_camera.gd" id="3_camera"]
+[ext_resource type="Script" uid="uid://qky8gc3o0256" path="res://scripts/camera/follow_camera.gd" id="3_camera"]
 
 [sub_resource type="Environment" id="Env"]
 background_mode = 1
@@ -12,22 +12,23 @@ ambient_light_color = Color(1, 0.94, 0.85, 1)
 ambient_light_energy = 0.6
 tonemap_mode = 2
 
-[node name="Main" type="Node3D"]
+[node name="Main" type="Node3D" unique_id=1251438548]
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1666206066]
 environment = SubResource("Env")
 
-[node name="Sun" type="DirectionalLight3D" parent="."]
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=1445453579]
 transform = Transform3D(0.866, 0, -0.5, -0.383, 0.643, -0.663, 0.321, 0.766, 0.557, 0, 8, 0)
 light_color = Color(1, 0.93, 0.82, 1)
 shadow_enabled = true
 
-[node name="RestaurantRoom" parent="." instance=ExtResource("1_room")]
+[node name="RestaurantRoom" parent="." unique_id=1936189576 instance=ExtResource("1_room")]
 
-[node name="Player" parent="." instance=ExtResource("2_player")]
+[node name="Player" parent="." unique_id=1623961091 instance=ExtResource("2_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.5)
 
-[node name="FollowCamera" type="Camera3D" parent="." node_paths=PackedStringArray("target")]
+[node name="FollowCamera" type="Camera3D" parent="." unique_id=1999012439 node_paths=PackedStringArray("target")]
+current = true
 script = ExtResource("3_camera")
 target = NodePath("../Player")
-current = true
+follow_offset = Vector3(0, 6.3, 4.5)
