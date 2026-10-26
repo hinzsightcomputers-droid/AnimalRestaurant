@@ -1,0 +1,8 @@
+{
+	"dishes": [
+		{ "id": "carrot_soup", "name": "Carrot Soup", "price": 12, "cook_speed": 1.0 },
+		{ "id": "berry_pancakes", "name": "Berry Pancakes", "price": 15, "cook_speed": 1.2 },
+		{ "id": "fish_stew", "name": "Fish Stew", "price": 18, "cook_speed": 1.4 },
+		{ "id": "acorn_cookies", "name": "Acorn Cookies", "price": 8, "cook_speed": 0.8 }
+	]
+}

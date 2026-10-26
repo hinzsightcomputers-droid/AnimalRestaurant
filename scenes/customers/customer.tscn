@@ -1,0 +1,46 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/customers/customer.gd" id="1_customer"]
+[ext_resource type="Script" path="res://scripts/customers/customer_display.gd" id="2_display"]
+
+[sub_resource type="CapsuleMesh" id="Mesh_body"]
+radius = 0.32
+height = 1.2
+
+[sub_resource type="BoxMesh" id="Mesh_ear"]
+size = Vector3(0.1, 0.25, 0.08)
+
+[sub_resource type="BoxMesh" id="Mesh_snout"]
+size = Vector3(0.16, 0.12, 0.14)
+
+[node name="Customer" type="Node3D"]
+script = ExtResource("1_customer")
+
+[node name="Display" type="Node3D" parent="."]
+script = ExtResource("2_display")
+
+[node name="Body" type="MeshInstance3D" parent="Display"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+mesh = SubResource("Mesh_body")
+
+[node name="EarLeft" type="MeshInstance3D" parent="Display"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.14, 1.27, 0)
+mesh = SubResource("Mesh_ear")
+
+[node name="EarRight" type="MeshInstance3D" parent="Display"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.14, 1.27, 0)
+mesh = SubResource("Mesh_ear")
+
+[node name="Snout" type="MeshInstance3D" parent="Display"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0.32)
+mesh = SubResource("Mesh_snout")
+
+[node name="Bubble" type="Label3D" parent="Display"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.75, 0)
+billboard = 1
+no_depth_test = true
+modulate = Color(0.25, 0.18, 0.12, 1)
+outline_modulate = Color(1, 0.98, 0.92, 1)
+font_size = 40
+outline_size = 18
+text = "..."

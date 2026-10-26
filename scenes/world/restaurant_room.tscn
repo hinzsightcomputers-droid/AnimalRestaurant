@@ -33,9 +33,29 @@ size = Vector3(0.3, 3, 10)
 [sub_resource type="BoxShape3D" id="Shape_side_wall"]
 size = Vector3(0.3, 3, 10)
 
-[sub_resource type="BoxMesh" id="Mesh_front_wall"]
+[sub_resource type="BoxMesh" id="Mesh_front_wall_left"]
 material = SubResource("Mat_wall")
-size = Vector3(14.6, 0.6, 0.3)
+size = Vector3(11.6, 0.6, 0.3)
+
+[sub_resource type="BoxMesh" id="Mesh_front_wall_right"]
+material = SubResource("Mat_wall")
+size = Vector3(1.6, 0.6, 0.3)
+
+[sub_resource type="StandardMaterial3D" id="Mat_path"]
+albedo_color = Color(0.7, 0.68, 0.62, 1)
+roughness = 1.0
+
+[sub_resource type="BoxMesh" id="Mesh_porch"]
+material = SubResource("Mat_path")
+size = Vector3(1.6, 0.2, 3.2)
+
+[sub_resource type="StandardMaterial3D" id="Mat_doormat"]
+albedo_color = Color(0.45, 0.55, 0.35, 1)
+roughness = 1.0
+
+[sub_resource type="BoxMesh" id="Mesh_doormat"]
+material = SubResource("Mat_doormat")
+size = Vector3(1.2, 0.02, 0.7)
 
 [sub_resource type="BoxShape3D" id="Shape_front_wall"]
 size = Vector3(14.6, 3, 0.3)
@@ -58,6 +78,14 @@ shape = SubResource("Shape_floor")
 [node name="Rug" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, 0)
 mesh = SubResource("Mesh_rug")
+
+[node name="Porch" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, -0.1, 6.6)
+mesh = SubResource("Mesh_porch")
+
+[node name="Doormat" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.01, 4.5)
+mesh = SubResource("Mesh_doormat")
 
 [node name="Walls" type="Node3D" parent="."]
 
@@ -91,9 +119,13 @@ shape = SubResource("Shape_side_wall")
 [node name="FrontWall" type="StaticBody3D" parent="Walls"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5.15)
 
-[node name="Mesh" type="MeshInstance3D" parent="Walls/FrontWall"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
-mesh = SubResource("Mesh_front_wall")
+[node name="MeshLeft" type="MeshInstance3D" parent="Walls/FrontWall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 0.3, 0)
+mesh = SubResource("Mesh_front_wall_left")
+
+[node name="MeshRight" type="MeshInstance3D" parent="Walls/FrontWall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 0.3, 0)
+mesh = SubResource("Mesh_front_wall_right")
 
 [node name="Collision" type="CollisionShape3D" parent="Walls/FrontWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)

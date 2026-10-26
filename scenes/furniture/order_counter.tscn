@@ -49,8 +49,11 @@ mesh = SubResource("Mesh_register")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.53, 0)
 shape = SubResource("Shape_counter")
 
-[node name="Interactable" type="Node3D" parent="."]
+[node name="CustomerSpot" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.9)
+
+[node name="Interactable" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.9)
 script = ExtResource("2_interactable")
 prompt = "Take order"
 radius = 1.0

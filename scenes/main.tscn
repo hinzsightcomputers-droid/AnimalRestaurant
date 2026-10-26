@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://scenes/furniture/chair.tscn" id="5_chair"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/order_counter.tscn" id="6_counter"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/cooking_station.tscn" id="7_stove"]
+[ext_resource type="Script" path="res://scripts/customers/customer_manager.gd" id="8_customers"]
 
 [sub_resource type="Environment" id="Env"]
 background_mode = 1
@@ -34,13 +35,25 @@ shadow_enabled = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, 1.5)
 
 [node name="Chair" parent="Furniture" instance=ExtResource("5_chair")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -4.1, 0, 1.5)
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -4.1, 0, 1.5)
 
 [node name="OrderCounter" parent="Furniture" instance=ExtResource("6_counter")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0, -3)
 
 [node name="CookingStation" parent="Furniture" instance=ExtResource("7_stove")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, -4.6)
+
+[node name="CustomerManager" type="Node3D" parent="." node_paths=PackedStringArray("order_counter", "spawn_point", "door_point")]
+script = ExtResource("8_customers")
+order_counter = NodePath("../Furniture/OrderCounter")
+spawn_point = NodePath("CustomerSpawn")
+door_point = NodePath("CustomerDoor")
+
+[node name="CustomerSpawn" type="Marker3D" parent="CustomerManager"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 7.6)
+
+[node name="CustomerDoor" type="Marker3D" parent="CustomerManager"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 4.3)
 
 [node name="Player" parent="." unique_id=1623961091 instance=ExtResource("2_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.5)
