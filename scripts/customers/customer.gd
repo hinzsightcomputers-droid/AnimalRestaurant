@@ -16,7 +16,7 @@ signal finished_eating(customer: Customer)
 var state: State = State.ARRIVING
 var species: Dictionary = {}  # From data/species.json
 var dish: Dictionary = {}     # From data/dishes.json. Picked on arrival, revealed when ordering.
-var seat: Station = null      # The chair reserved for this customer.
+var seat: Seat = null         # The chair reserved for this customer.
 
 var wait_seconds := 0.0       # From reaching the counter until the food arrives.
 var served_quality := 0.0     # Quality of the dish they were served (0..1).
@@ -31,7 +31,7 @@ var _done_eating := false
 @onready var interactable: Interactable = $Interactable
 
 
-func setup(species_data: Dictionary, dish_data: Dictionary, reserved_seat: Station) -> void:
+func setup(species_data: Dictionary, dish_data: Dictionary, reserved_seat: Seat) -> void:
 	species = species_data
 	dish = dish_data
 	seat = reserved_seat

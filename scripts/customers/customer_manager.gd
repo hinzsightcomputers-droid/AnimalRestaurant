@@ -1,6 +1,6 @@
-# CustomerManager: runs each customer's visit. Spawns them (only if a seat is free),
-# lines them up at the order counter, seats them once their order is taken,
-# handles serving, then has them pay and walk out.
+# CustomerManager: runs each customer's visit. Spawns them (only if a seat at a
+# clean table is free), lines them up at the order counter, seats them once their
+# order is taken, handles serving, then has them pay, leave a dirty table, and walk out.
 class_name CustomerManager
 extends Node3D
 
@@ -70,8 +70,8 @@ func _on_order_counter_used(_station: Station, player_index: int) -> void:
 		player_index + 1, customer.species.get("name", "?"), customer.dish.get("name", "?")])
 
 	var path: Array[Vector3] = [
-		customer.seat.get_node("ApproachPoint").global_position,
-		customer.seat.get_node("SeatPoint").global_position,
+		customer.seat.approach_point.global_position,
+		customer.seat.seat_point.global_position,
 	]
 	customer.walk_to(path, Customer.State.WAITING_FOR_FOOD)
 	_move_queue_forward()
@@ -116,9 +116,13 @@ func _on_customer_finished_eating(customer: Customer) -> void:
 		"payment": amount,
 	})
 
+	# They leave their plate behind; the seat isn't reused until the table is cleaned.
 	_seat_owners.erase(customer.seat)
+	if customer.seat.table != null:
+		customer.seat.table.make_dirty(customer.seat.meal_position())
+
 	var path: Array[Vector3] = [
-		customer.seat.get_node("ApproachPoint").global_position,
+		customer.seat.approach_point.global_position,
 		door_point.global_position,
 		spawn_point.global_position,
 	]
@@ -145,8 +149,10 @@ func _queue_spot(index: int) -> Vector3:
 	return front + Vector3(0.0, 0.0, queue_spacing * index)
 
 
-func _find_free_seat() -> Station:
-	for seat in get_tree().get_nodes_in_group(SEAT_GROUP):
-		if not _seat_owners.has(seat):
+# A seat nobody has claimed, at a clean table.
+func _find_free_seat() -> Seat:
+	for node in get_tree().get_nodes_in_group(SEAT_GROUP):
+		var seat := node as Seat
+		if seat != null and not _seat_owners.has(seat) and seat.is_table_clean():
 			return seat
 	return null

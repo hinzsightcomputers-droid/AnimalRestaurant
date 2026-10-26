@@ -2,7 +2,8 @@
 # short messages from GameEvents. Display only.
 extends CanvasLayer
 
-const MESSAGE_TIME := 3.0
+const MESSAGE_TIME := 4.0
+const MAX_MESSAGES := 3
 const STATE_NAMES := {
 	Order.State.WAITING: "waiting",
 	Order.State.COOKING: "cooking",
@@ -15,7 +16,7 @@ const STATE_NAMES := {
 @onready var money_label: Label = $MoneyLabel
 @onready var message_label: Label = $MessageLabel
 
-var _message_timer := 0.0
+var _messages: Array[Dictionary] = []  # Recent messages, oldest first: { text, time_left }
 
 
 func _ready() -> void:
@@ -32,10 +33,14 @@ func _refresh_money() -> void:
 
 
 func _process(delta: float) -> void:
-	if _message_timer > 0.0:
-		_message_timer -= delta
-		if _message_timer <= 0.0:
-			message_label.text = ""
+	if _messages.is_empty():
+		return
+	for message in _messages:
+		message["time_left"] -= delta
+	var count_before := _messages.size()
+	_messages = _messages.filter(func(m): return m["time_left"] > 0.0)
+	if _messages.size() != count_before:
+		_refresh_messages()
 
 
 func _refresh_orders() -> void:
@@ -49,5 +54,14 @@ func _refresh_orders() -> void:
 
 
 func _show_message(text: String) -> void:
-	message_label.text = text
-	_message_timer = MESSAGE_TIME
+	_messages.append({"text": text, "time_left": MESSAGE_TIME})
+	if _messages.size() > MAX_MESSAGES:
+		_messages.pop_front()
+	_refresh_messages()
+
+
+func _refresh_messages() -> void:
+	var lines := PackedStringArray()
+	for message in _messages:
+		lines.append(message["text"])
+	message_label.text = "\n".join(lines)
