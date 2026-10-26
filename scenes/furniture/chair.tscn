@@ -1,0 +1,53 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/furniture/station.gd" id="1_station"]
+[ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_wood"]
+albedo_color = Color(0.66, 0.45, 0.3, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_seat"]
+material = SubResource("Mat_wood")
+size = Vector3(0.5, 0.08, 0.5)
+
+[sub_resource type="BoxMesh" id="Mesh_back"]
+material = SubResource("Mat_wood")
+size = Vector3(0.5, 0.6, 0.08)
+
+[sub_resource type="BoxMesh" id="Mesh_leg"]
+material = SubResource("Mat_wood")
+size = Vector3(0.12, 0.42, 0.12)
+
+[sub_resource type="BoxShape3D" id="Shape_chair"]
+size = Vector3(0.5, 1, 0.5)
+
+[node name="Chair" type="StaticBody3D"]
+script = ExtResource("1_station")
+display_name = "Chair"
+
+[node name="Visual" type="Node3D" parent="."]
+
+[node name="Seat" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+mesh = SubResource("Mesh_seat")
+
+[node name="Back" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.79, -0.21)
+mesh = SubResource("Mesh_back")
+
+[node name="Leg" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.21, 0)
+mesh = SubResource("Mesh_leg")
+
+[node name="Collision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("Shape_chair")
+
+[node name="SeatPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.49, 0)
+
+[node name="Interactable" type="Node3D" parent="."]
+script = ExtResource("2_interactable")
+prompt = "Check chair"
+radius = 0.9
+prompt_height = 1.4

@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/player/player_input.gd" id="2_input"]
+[ext_resource type="Script" path="res://scripts/interaction/interactor.gd" id="3_interactor"]
+[ext_resource type="Script" path="res://scripts/ui/interact_prompt.gd" id="4_prompt"]
 
 [sub_resource type="CapsuleShape3D" id="Shape_body"]
 radius = 0.35
@@ -41,3 +43,16 @@ mesh = SubResource("Mesh_nose")
 
 [node name="PlayerInput" type="Node" parent="."]
 script = ExtResource("2_input")
+
+[node name="Interactor" type="Node3D" parent="."]
+script = ExtResource("3_interactor")
+
+[node name="InteractPrompt" type="Label3D" parent="." node_paths=PackedStringArray("interactor")]
+billboard = 1
+no_depth_test = true
+modulate = Color(1, 1, 1, 1)
+outline_modulate = Color(0.2, 0.15, 0.1, 1)
+font_size = 48
+outline_size = 14
+script = ExtResource("4_prompt")
+interactor = NodePath("../Interactor")

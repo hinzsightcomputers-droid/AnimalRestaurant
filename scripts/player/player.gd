@@ -10,6 +10,7 @@ extends CharacterBody3D
 
 @onready var input: PlayerInput = $PlayerInput
 @onready var visual: Node3D = $Visual
+@onready var interactor: Interactor = $Interactor
 
 
 func _ready() -> void:
@@ -34,3 +35,6 @@ func _physics_process(delta: float) -> void:
 	if direction.length() > 0.1:
 		var target_yaw := atan2(direction.x, direction.z)
 		visual.rotation.y = lerp_angle(visual.rotation.y, target_yaw, turn_speed * delta)
+
+	if input.is_interact_just_pressed():
+		interactor.try_interact(player_index)
