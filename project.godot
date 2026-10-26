@@ -11,8 +11,13 @@ config_version=5
 [application]
 
 config/name="AnimalRestaurant"
+run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+InputSetup="*res://scripts/autoload/input_setup.gd"
 
 [display]
 
@@ -21,6 +26,7 @@ window/stretch/aspect="expand"
 
 [physics]
 
+common/physics_interpolation=true
 3d/physics_engine="Jolt Physics"
 
 [rendering]
