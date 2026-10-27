@@ -1,12 +1,12 @@
-# HeldItemDisplay: shows what a player is carrying (a plate or an ingredient
-# crate in their hands, and a label above their head). Display only: it listens
-# to the Player.
+# HeldItemDisplay: shows what something is holding (a plate or an ingredient
+# crate, and a label above it). Works for a Player or a PassCounter: anything
+# with `held_item` and a `held_item_changed` signal. Display only.
 extends Node3D
 
-@export var player: Player
-@export var plate: Node3D       # The plate model in the player's hands.
+@export var holder: Node        # A Player or PassCounter.
+@export var plate: Node3D       # The plate model.
 @export var food: MeshInstance3D
-@export var crate: Node3D       # The ingredient crate model in the player's hands.
+@export var crate: Node3D       # The ingredient crate model.
 @export var crate_contents: MeshInstance3D
 
 @onready var label: Label3D = $Label
@@ -18,8 +18,8 @@ var _contents_material := StandardMaterial3D.new()
 func _ready() -> void:
 	food.material_override = _food_material
 	crate_contents.material_override = _contents_material
-	player.held_item_changed.connect(_on_held_item_changed)
-	_on_held_item_changed(player.held_item)
+	holder.held_item_changed.connect(_on_held_item_changed)
+	_on_held_item_changed(holder.held_item)
 
 
 func _on_held_item_changed(item: RefCounted) -> void:

@@ -111,9 +111,9 @@ outline_size = 14
 script = ExtResource("4_prompt")
 interactor = NodePath("../Interactor")
 
-[node name="HeldItemDisplay" type="Node3D" parent="." node_paths=PackedStringArray("player", "plate", "food", "crate", "crate_contents")]
+[node name="HeldItemDisplay" type="Node3D" parent="." node_paths=PackedStringArray("holder", "plate", "food", "crate", "crate_contents")]
 script = ExtResource("5_held")
-player = NodePath("..")
+holder = NodePath("..")
 plate = NodePath("../Visual/Plate")
 food = NodePath("../Visual/Plate/Food")
 crate = NodePath("../Visual/Crate")
