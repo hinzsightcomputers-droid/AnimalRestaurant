@@ -7,11 +7,12 @@
 [ext_resource type="PackedScene" path="res://scenes/furniture/chair.tscn" id="5_chair"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/order_counter.tscn" id="6_counter"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/cooking_station.tscn" id="7_stove"]
-[ext_resource type="Script" path="res://scripts/customers/customer_manager.gd" id="8_customers"]
-[ext_resource type="Script" path="res://scripts/kitchen/order_board.gd" id="9_orders"]
+[ext_resource type="Script" uid="uid://bvay6nbtcfa3" path="res://scripts/customers/customer_manager.gd" id="8_customers"]
+[ext_resource type="Script" uid="uid://dxc7wbrvnnqlt" path="res://scripts/kitchen/order_board.gd" id="9_orders"]
 [ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="10_hud"]
-[ext_resource type="Script" path="res://scripts/day/day_manager.gd" id="11_day"]
+[ext_resource type="Script" uid="uid://bpsdhkvk6wmt6" path="res://scripts/day/day_manager.gd" id="11_day"]
 [ext_resource type="PackedScene" path="res://scenes/ui/summary_screen.tscn" id="12_summary"]
+[ext_resource type="PackedScene" path="res://scenes/ui/name_entry_screen.tscn" id="13_name"]
 
 [sub_resource type="Environment" id="Env"]
 background_mode = 1
@@ -33,36 +34,36 @@ shadow_enabled = true
 
 [node name="RestaurantRoom" parent="." unique_id=1936189576 instance=ExtResource("1_room")]
 
-[node name="Furniture" type="Node3D" parent="."]
+[node name="Furniture" type="Node3D" parent="." unique_id=879784550]
 
-[node name="Table" parent="Furniture" instance=ExtResource("4_table")]
+[node name="Table" parent="Furniture" unique_id=1059582218 instance=ExtResource("4_table")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, 1.5)
 
-[node name="Chair" parent="Furniture" node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
+[node name="Chair" parent="Furniture" unique_id=138738923 node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -4.1, 0, 1.5)
 table = NodePath("../Table")
 
-[node name="OrderCounter" parent="Furniture" instance=ExtResource("6_counter")]
+[node name="OrderCounter" parent="Furniture" unique_id=1832335301 instance=ExtResource("6_counter")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0, -3)
 
-[node name="CookingStation" parent="Furniture" node_paths=PackedStringArray("order_board") instance=ExtResource("7_stove")]
+[node name="CookingStation" parent="Furniture" unique_id=1688967000 node_paths=PackedStringArray("order_board") instance=ExtResource("7_stove")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, -4.6)
 order_board = NodePath("../../OrderBoard")
 
-[node name="OrderBoard" type="Node" parent="."]
+[node name="OrderBoard" type="Node" parent="." unique_id=1808753145]
 script = ExtResource("9_orders")
 
-[node name="CustomerManager" type="Node3D" parent="." node_paths=PackedStringArray("order_counter", "order_board", "spawn_point", "door_point")]
+[node name="CustomerManager" type="Node3D" parent="." unique_id=1218034980 node_paths=PackedStringArray("order_counter", "order_board", "spawn_point", "door_point")]
 script = ExtResource("8_customers")
 order_counter = NodePath("../Furniture/OrderCounter")
 order_board = NodePath("../OrderBoard")
 spawn_point = NodePath("CustomerSpawn")
 door_point = NodePath("CustomerDoor")
 
-[node name="CustomerSpawn" type="Marker3D" parent="CustomerManager"]
+[node name="CustomerSpawn" type="Marker3D" parent="CustomerManager" unique_id=812259080]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 7.6)
 
-[node name="CustomerDoor" type="Marker3D" parent="CustomerManager"]
+[node name="CustomerDoor" type="Marker3D" parent="CustomerManager" unique_id=76533005]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 4.3)
 
 [node name="Player" parent="." unique_id=1623961091 instance=ExtResource("2_player")]
@@ -74,13 +75,16 @@ script = ExtResource("3_camera")
 target = NodePath("../Player")
 follow_offset = Vector3(0, 6.3, 4.5)
 
-[node name="DayManager" type="Node" parent="." node_paths=PackedStringArray("customer_manager")]
+[node name="DayManager" type="Node" parent="." unique_id=297707749 node_paths=PackedStringArray("customer_manager")]
 script = ExtResource("11_day")
 customer_manager = NodePath("../CustomerManager")
+day_length_seconds = 30.0
 
-[node name="HUD" parent="." node_paths=PackedStringArray("order_board", "day_manager") instance=ExtResource("10_hud")]
+[node name="HUD" parent="." unique_id=1664110998 node_paths=PackedStringArray("order_board", "day_manager") instance=ExtResource("10_hud")]
 order_board = NodePath("../OrderBoard")
 day_manager = NodePath("../DayManager")
 
-[node name="SummaryScreen" parent="." node_paths=PackedStringArray("day_manager") instance=ExtResource("12_summary")]
+[node name="SummaryScreen" parent="." unique_id=1988595136 node_paths=PackedStringArray("day_manager") instance=ExtResource("12_summary")]
 day_manager = NodePath("../DayManager")
+
+[node name="NameEntryScreen" parent="." instance=ExtResource("13_name")]

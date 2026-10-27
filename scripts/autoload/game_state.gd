@@ -13,6 +13,7 @@ const REGULAR_MEMORY_FIELDS := ["relationship", "times_visited", "last_seen", "k
 var money := 0
 var day := 1
 var player_name := "Chef"  # What regulars call you once they learn your name.
+var has_chosen_name := false  # False on a new game, so the name entry screen shows.
 # One entry per served customer today:
 # { species, regular, dish, price, quality, wait_seconds, satisfaction, reaction, payment }
 var services_today: Array[Dictionary] = []
@@ -38,6 +39,14 @@ func reset_regulars() -> void:
 func finish_day() -> void:
 	day += 1
 	services_today.clear()
+	SaveGame.save_game()
+
+
+# From the name entry screen. Saved straight away so the name sticks even if
+# you quit during the first day.
+func set_player_name(new_name: String) -> void:
+	player_name = new_name
+	has_chosen_name = true
 	SaveGame.save_game()
 
 
@@ -71,6 +80,7 @@ func to_save_data() -> Dictionary:
 		"money": money,
 		"day": day,
 		"player_name": player_name,
+		"has_chosen_name": has_chosen_name,
 		"regulars": regular_memory,
 	}
 
@@ -81,6 +91,7 @@ func apply_save_data(data: Dictionary) -> void:
 	money = int(data.get("money", money))
 	day = int(data.get("day", day))
 	player_name = data.get("player_name", player_name)
+	has_chosen_name = data.get("has_chosen_name", false)
 	var saved_regulars: Dictionary = data.get("regulars", {})
 	for id in saved_regulars:
 		if not regulars.has(id):

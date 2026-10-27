@@ -24,7 +24,7 @@ var _regulars_today: Array = []     # Ids of regulars who already came in today 
 func _ready() -> void:
 	order_counter.used.connect(_on_order_counter_used)
 
-	await get_tree().create_timer(first_arrival_delay).timeout
+	await get_tree().create_timer(first_arrival_delay, false).timeout  # false: waits while paused (e.g. name entry).
 	_try_spawn_customer()
 
 	var timer := Timer.new()

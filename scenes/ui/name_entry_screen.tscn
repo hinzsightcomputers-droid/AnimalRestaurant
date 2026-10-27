@@ -1,0 +1,73 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/name_entry_screen.gd" id="1_name"]
+
+[sub_resource type="StyleBoxFlat" id="Style_panel"]
+bg_color = Color(0.99, 0.95, 0.86, 1)
+border_width_left = 6
+border_width_top = 6
+border_width_right = 6
+border_width_bottom = 6
+border_color = Color(0.55, 0.38, 0.25, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+content_margin_left = 36.0
+content_margin_top = 28.0
+content_margin_right = 36.0
+content_margin_bottom = 28.0
+
+[node name="NameEntryScreen" type="CanvasLayer"]
+process_mode = 3
+layer = 11
+script = ExtResource("1_name")
+
+[node name="Dim" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.1, 0.07, 0.05, 0.55)
+
+[node name="Panel" type="PanelContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -150.0
+offset_right = 260.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("Style_panel")
+
+[node name="Content" type="VBoxContainer" parent="Panel"]
+theme_override_constants/separation = 18
+
+[node name="Title" type="Label" parent="Panel/Content"]
+theme_override_colors/font_color = Color(0.45, 0.28, 0.16, 1)
+theme_override_font_sizes/font_size = 34
+text = "Welcome, new chef!"
+horizontal_alignment = 1
+
+[node name="Prompt" type="Label" parent="Panel/Content"]
+theme_override_colors/font_color = Color(0.3, 0.22, 0.15, 1)
+theme_override_font_sizes/font_size = 22
+text = "What should your customers call you?"
+horizontal_alignment = 1
+
+[node name="NameEdit" type="LineEdit" parent="Panel/Content"]
+custom_minimum_size = Vector2(0, 52)
+theme_override_font_sizes/font_size = 26
+placeholder_text = "Chef"
+alignment = 1
+max_length = 14
+
+[node name="OpenButton" type="Button" parent="Panel/Content"]
+custom_minimum_size = Vector2(0, 52)
+theme_override_font_sizes/font_size = 24
+text = "Open the restaurant"
