@@ -1,19 +1,42 @@
 # Ingredients: what a player carries from the freezer to the stove. Belongs to
-# one order, so the stove knows which dish to cook.
+# one order, so the stove knows which dish to cook. Some need chopping at the
+# chopping board first (the dish's ingredient has a "chop" entry).
 class_name Ingredients
 extends RefCounted
 
 var order: Order
+var chopped := false
 
 
 func _init(for_order: Order) -> void:
 	order = for_order
 
 
-# e.g. "Frozen Fish", from the dish's "ingredient" in data/dishes.json.
+# e.g. "Frozen Fish", or "Chopped Carrots" once chopped. From the dish's
+# "ingredient" in data/dishes.json.
 func display_name() -> String:
-	return order.dish.get("ingredient", {}).get("name", "Ingredients")
+	if chopped:
+		return _chop().get("name", "Chopped " + _ingredient().get("name", "Ingredients"))
+	return _ingredient().get("name", "Ingredients")
 
 
 func color() -> Color:
-	return Color.html(order.dish.get("ingredient", {}).get("color", "#cccccc"))
+	return Color.html(_ingredient().get("color", "#cccccc"))
+
+
+# True until they've been chopped, for ingredients that need it.
+func needs_chopping() -> bool:
+	return not chopped and not _chop().is_empty()
+
+
+# How many presses at the chopping board.
+func chops_needed() -> int:
+	return int(_chop().get("chops", 5))
+
+
+func _ingredient() -> Dictionary:
+	return order.dish.get("ingredient", {})
+
+
+func _chop() -> Dictionary:
+	return _ingredient().get("chop", {})

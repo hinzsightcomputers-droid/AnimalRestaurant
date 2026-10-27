@@ -79,6 +79,12 @@ placeholder_text = "Chef"
 alignment = 1
 max_length = 14
 
+[node name="Letters" type="GridContainer" parent="Panel/Content"]
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+columns = 7
+
 [node name="NewButton" type="Button" parent="Panel/Content"]
 custom_minimum_size = Vector2(0, 52)
 theme_override_font_sizes/font_size = 24

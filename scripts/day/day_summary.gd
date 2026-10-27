@@ -4,8 +4,11 @@ class_name DaySummary
 extends RefCounted
 
 
-static func build(services: Array[Dictionary]) -> Dictionary:
+# `chef_actions`: account id -> { chopped, cooked, served, cleaned } (from GameState).
+static func build(services: Array[Dictionary], chef_actions: Dictionary = {}) -> Dictionary:
 	var summary := {
+		"chefs": chef_actions.duplicate(true),
+		"top_server": _top_server(chef_actions),  # Account id of who served most, or "".
 		"customers_served": services.size(),
 		"earnings": 0,
 		"tips": 0,              # Money paid above the menu price.
@@ -36,3 +39,15 @@ static func build(services: Array[Dictionary]) -> Dictionary:
 			best_count = dish_counts[dish_id]
 			summary["top_dish"] = dish_id
 	return summary
+
+
+# Who served the most customers (first found wins a tie), or "" if nobody served.
+static func _top_server(chef_actions: Dictionary) -> String:
+	var best := ""
+	var best_count := 0
+	for account_id in chef_actions:
+		var count: int = chef_actions[account_id].get("served", 0)
+		if count > best_count:
+			best = account_id
+			best_count = count
+	return best

@@ -1,13 +1,17 @@
 # AccountPicker: asks each player who they are. Player 1 sees it before the
 # first day, and anyone who joins later sees it as soon as they join. Pick one
-# of the saved chefs (with their playtime) or type a new name. The game stays
-# paused while it's up; several players waiting are asked one after another.
-# Players keep their account across days, so it only shows once per session.
+# of the saved chefs (with their playtime) or type a new name, with the keyboard
+# or the on-screen letters (for gamepads). The game stays paused while it's up;
+# several players waiting are asked one after another. Players keep their
+# account across days, so it only shows once per session.
 extends CanvasLayer
 
 const DEFAULT_NAME := "Chef"
 const ROW_HEIGHT := 52
 const MAX_LIST_HEIGHT := 240
+const LETTERS := "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const SPACE_KEY := "Space"
+const DELETE_KEY := "Del"
 
 @export var player_manager: PlayerManager
 
@@ -17,16 +21,19 @@ const MAX_LIST_HEIGHT := 240
 @onready var account_list: VBoxContainer = $Panel/Content/AccountScroll/AccountList
 @onready var new_label: Label = $Panel/Content/NewLabel
 @onready var name_edit: LineEdit = $Panel/Content/NameEdit
+@onready var letters: GridContainer = $Panel/Content/Letters
 @onready var new_button: Button = $Panel/Content/NewButton
 @onready var error_label: Label = $Panel/Content/Error
 
 var _waiting: Array[int] = []  # Players who still need an account; the first is being asked.
+var _typed_on_keyboard := false  # True once this player typed on a real keyboard (then Enter submits).
 
 
 func _ready() -> void:
 	visible = false
 	name_edit.text_submitted.connect(func(_text): _create_new())
 	new_button.pressed.connect(_create_new)
+	_build_letters()
 	player_manager.player_joined.connect(_on_player_joined)
 	# Players spawned before we were ready (e.g. Player 1 on startup).
 	for player_index in InputSetup.active_players():
@@ -63,6 +70,7 @@ func _show_next() -> void:
 	new_button.text = "Open the restaurant" if first_ever else "Start as a new chef"
 	error_label.visible = false
 	name_edit.clear()
+	_typed_on_keyboard = false
 
 	for child in account_list.get_children():
 		child.queue_free()
@@ -77,9 +85,69 @@ func _show_next() -> void:
 	account_scroll.custom_minimum_size.y = mini(choices.size() * ROW_HEIGHT, MAX_LIST_HEIGHT)
 
 	if choices.is_empty():
-		name_edit.grab_focus()
+		# Start on the letters, so a gamepad can type right away (see _input for keyboards).
+		(letters.get_child(0) as Button).grab_focus()
 	else:
 		(account_list.get_child(account_list.get_child_count() - choices.size()) as Button).grab_focus()
+
+
+# Typing on a keyboard always goes into the name box, whatever has focus (so
+# Space types a space instead of pressing the focused letter button).
+func _input(event: InputEvent) -> void:
+	if not visible or name_edit.has_focus():
+		return
+	var key := event as InputEventKey
+	if key == null or not key.pressed:
+		return
+	if key.keycode == KEY_BACKSPACE:
+		_delete_letter()
+	elif key.unicode >= 32:
+		_type(char(key.unicode))
+		_typed_on_keyboard = true
+	elif key.keycode in [KEY_ENTER, KEY_KP_ENTER] and _typed_on_keyboard:
+		_create_new()  # Someone typing wants Enter to finish, not press the focused letter.
+	else:
+		return
+	get_viewport().set_input_as_handled()
+
+
+# On-screen keyboard: A-Z, space and delete, as focusable buttons.
+func _build_letters() -> void:
+	var keys: Array[String] = []
+	for letter in LETTERS:
+		keys.append(letter)
+	keys.append_array([SPACE_KEY, DELETE_KEY])
+	for key in keys:
+		var button := Button.new()
+		button.text = key
+		button.custom_minimum_size = Vector2(56, 40)
+		button.add_theme_font_size_override("font_size", 20)
+		button.pressed.connect(_on_letter_pressed.bind(key))
+		letters.add_child(button)
+
+
+func _on_letter_pressed(key: String) -> void:
+	match key:
+		SPACE_KEY:
+			_type(" ")
+		DELETE_KEY:
+			_delete_letter()
+		_:
+			# Capital first letter, lowercase after.
+			_type(key if name_edit.text.is_empty() else key.to_lower())
+
+
+func _type(text: String) -> void:
+	if name_edit.text.length() + text.length() > name_edit.max_length:
+		return
+	name_edit.text += text
+	name_edit.caret_column = name_edit.text.length()
+	error_label.visible = false
+
+
+func _delete_letter() -> void:
+	name_edit.text = name_edit.text.left(-1)
+	name_edit.caret_column = name_edit.text.length()
 
 
 func _create_new() -> void:

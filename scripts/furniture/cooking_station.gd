@@ -32,7 +32,7 @@ func _prompt_for(player_index: int) -> String:
 		return ""
 	var ingredients := player.held_item as Ingredients
 	if ingredients != null:
-		return "Cook %s" % ingredients.order.dish.get("name", "")
+		return "Chop first!" if ingredients.needs_chopping() else "Cook %s" % ingredients.order.dish.get("name", "")
 	return interactable.prompt if player.held_item == null else ""
 
 
@@ -61,6 +61,9 @@ func _try_start_cooking(player_index: int) -> void:
 		else:
 			GameEvents.announce("Grab ingredients from the freezer first.")
 		return
+	if ingredients.needs_chopping():
+		GameEvents.announce("The %s need chopping first. Use the chopping board!" % ingredients.display_name().to_lower())
+		return
 	var order := ingredients.order
 
 	player.set_held_item(null)
@@ -86,6 +89,7 @@ func _on_minigame_finished(quality: float) -> void:
 
 	order_board.set_state(_order, Order.State.READY)
 	_cook.set_held_item(CookedDish.new(_order, quality))
+	GameState.record_chef_action(_cook.player_index, "cooked")
 	_cook.movement_locked = false
 	_cook.interactor.unlock()
 	_cook.release_camera_focus()

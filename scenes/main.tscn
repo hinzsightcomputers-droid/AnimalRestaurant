@@ -16,6 +16,7 @@
 [ext_resource type="Script" path="res://scripts/camera/camera_zoom_settings.gd" id="14_zoom"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/freezer.tscn" id="15_freezer"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/pass_counter.tscn" id="16_pass"]
+[ext_resource type="PackedScene" path="res://scenes/furniture/chopping_board.tscn" id="17_board"]
 
 [sub_resource type="Resource" id="Zoom_order_chat"]
 script = ExtResource("14_zoom")
@@ -107,6 +108,9 @@ order_board = NodePath("../../OrderBoard")
 [node name="Freezer" parent="Furniture" node_paths=PackedStringArray("order_board") instance=ExtResource("15_freezer")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.1, 0, -8.5)
 order_board = NodePath("../../OrderBoard")
+
+[node name="ChoppingBoard" parent="Furniture" instance=ExtResource("17_board")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8, 0, -8.55)
 
 [node name="PassCounter" parent="Furniture" instance=ExtResource("16_pass")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, -5.15)

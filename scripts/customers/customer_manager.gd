@@ -189,6 +189,7 @@ func _on_customer_interacted(player_index: int, customer: Customer) -> void:
 	player.set_held_item(null)
 	order_board.remove_order(plate.order)
 	customer.served_by_account = Accounts.id_of(player_index)
+	GameState.record_chef_action(player_index, "served")
 	customer.serve(plate.quality)
 	GameEvents.announce("Served %s to %s." % [plate.dish_name(), customer_name])
 

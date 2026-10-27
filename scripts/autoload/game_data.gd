@@ -10,7 +10,8 @@ const REACTIONS_PATH := "res://data/reactions.json"
 const REGULARS_PATH := "res://data/regulars.json"
 const DIALOGUE_PATH := "res://data/dialogue.json"
 
-# Each dish: { id, name, price, cook_speed }
+# Each dish: { id, name, price, cook_speed, ingredient: { name, color, chop? } }.
+# "chop" ({ name, chops }) means the ingredient goes to the chopping board first.
 var dishes: Array[Dictionary] = []
 # Each species: { id, name, color }
 var species: Array[Dictionary] = []

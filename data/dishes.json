@@ -1,7 +1,8 @@
 {
 	"dishes": [
 		{ "id": "carrot_soup", "name": "Carrot Soup", "price": 12, "cook_speed": 1.0,
-			"ingredient": { "name": "Carrots", "color": "#f08a2c" } },
+			"ingredient": { "name": "Carrots", "color": "#f08a2c",
+				"chop": { "name": "Chopped Carrots", "chops": 5 } } },
 		{ "id": "berry_pancakes", "name": "Berry Pancakes", "price": 15, "cook_speed": 1.2,
 			"ingredient": { "name": "Berries & Batter", "color": "#9b4fb8" } },
 		{ "id": "fish_stew", "name": "Fish Stew", "price": 18, "cook_speed": 1.4,

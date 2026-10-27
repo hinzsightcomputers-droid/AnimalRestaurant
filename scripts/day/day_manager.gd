@@ -47,7 +47,7 @@ func _close() -> void:
 func _end_day() -> void:
 	_has_ended = true
 	get_tree().paused = true
-	var summary := DaySummary.build(GameState.services_today)
+	var summary := DaySummary.build(GameState.services_today, GameState.chef_actions_today)
 	summary["day"] = GameState.day
 	GameState.finish_day()  # Next day + save.
 	day_ended.emit(summary)

@@ -33,5 +33,5 @@ func _on_held_item_changed(item: RefCounted) -> void:
 		# Better food looks golden, burnt food looks dark.
 		_food_material.albedo_color = Color(0.3, 0.2, 0.15).lerp(Color(0.95, 0.7, 0.3), dish.quality)
 	elif ingredients != null:
-		label.text = ingredients.display_name()
+		label.text = ingredients.display_name() + (" (chop first)" if ingredients.needs_chopping() else "")
 		_contents_material.albedo_color = ingredients.color()

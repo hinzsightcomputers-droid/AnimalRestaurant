@@ -16,6 +16,8 @@ var day := 1
 # One entry per served customer today:
 # { species, regular, dish, price, quality, wait_seconds, satisfaction, reaction, payment }
 var services_today: Array[Dictionary] = []
+# What each chef did today, for the summary: account id -> { chopped, cooked, served, cleaned }.
+var chef_actions_today: Dictionary = {}
 # Regular id -> that regular's current record (same fields as data/regulars.json).
 var regulars: Dictionary = {}
 
@@ -38,7 +40,17 @@ func reset_regulars() -> void:
 func finish_day() -> void:
 	day += 1
 	services_today.clear()
+	chef_actions_today.clear()
 	SaveGame.save_game()
+
+
+# Count one thing a player did today, e.g. record_chef_action(1, "cooked").
+func record_chef_action(player_index: int, action: String) -> void:
+	var account_id := Accounts.id_of(player_index)
+	if account_id.is_empty():
+		return
+	var actions: Dictionary = chef_actions_today.get_or_add(account_id, {})
+	actions[action] = actions.get(action, 0) + 1
 
 
 func add_money(amount: int) -> void:

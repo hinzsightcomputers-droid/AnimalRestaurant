@@ -56,6 +56,7 @@ func _on_interacted(player_index: int) -> void:
 		mess_positions.clear()
 		_finish_cleaning()
 		GameEvents.announce("%s cleaned the table." % Accounts.name_of(player_index))
+		GameState.record_chef_action(player_index, "cleaned")
 	_update_interactable()
 	cleanliness_changed.emit(self)
 	used.emit(self, player_index)

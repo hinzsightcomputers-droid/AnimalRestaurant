@@ -1,0 +1,99 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/furniture/chopping_board.gd" id="1_board"]
+[ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
+[ext_resource type="Script" path="res://scripts/camera/camera_zoom_settings.gd" id="3_zoom"]
+
+[sub_resource type="Resource" id="Zoom_chopping"]
+script = ExtResource("3_zoom")
+distance = 3.0
+pitch_degrees = 45.0
+yaw_degrees = 0.0
+duration = 0.4
+
+[sub_resource type="StandardMaterial3D" id="Mat_body"]
+albedo_color = Color(0.42, 0.6, 0.5, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_top"]
+albedo_color = Color(0.92, 0.87, 0.77, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_board"]
+albedo_color = Color(0.78, 0.6, 0.4, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_blade"]
+albedo_color = Color(0.82, 0.84, 0.86, 1)
+metallic = 0.7
+roughness = 0.3
+
+[sub_resource type="StandardMaterial3D" id="Mat_handle"]
+albedo_color = Color(0.35, 0.24, 0.16, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_body"]
+material = SubResource("Mat_body")
+size = Vector3(1.2, 0.86, 0.7)
+
+[sub_resource type="BoxMesh" id="Mesh_top"]
+material = SubResource("Mat_top")
+size = Vector3(1.26, 0.05, 0.76)
+
+[sub_resource type="BoxMesh" id="Mesh_board"]
+material = SubResource("Mat_board")
+size = Vector3(0.7, 0.04, 0.45)
+
+[sub_resource type="BoxMesh" id="Mesh_blade"]
+material = SubResource("Mat_blade")
+size = Vector3(0.28, 0.015, 0.07)
+
+[sub_resource type="BoxMesh" id="Mesh_handle"]
+material = SubResource("Mat_handle")
+size = Vector3(0.14, 0.03, 0.04)
+
+[sub_resource type="SphereMesh" id="Mesh_pile"]
+radius = 0.16
+height = 0.14
+
+[sub_resource type="BoxShape3D" id="Shape_board"]
+size = Vector3(1.26, 0.9, 0.76)
+
+[node name="ChoppingBoard" type="StaticBody3D"]
+script = ExtResource("1_board")
+display_name = "Chopping Board"
+camera_zoom = SubResource("Zoom_chopping")
+
+[node name="Visual" type="Node3D" parent="."]
+
+[node name="Body" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.43, 0)
+mesh = SubResource("Mesh_body")
+
+[node name="Top" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.885, 0)
+mesh = SubResource("Mesh_top")
+
+[node name="Board" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, 0.93, 0.05)
+mesh = SubResource("Mesh_board")
+
+[node name="Blade" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42, 0.92, 0.1)
+mesh = SubResource("Mesh_blade")
+
+[node name="Handle" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42, 0.925, -0.04)
+mesh = SubResource("Mesh_handle")
+
+[node name="Pile" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, 1.0, 0.05)
+visible = false
+mesh = SubResource("Mesh_pile")
+
+[node name="Collision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+shape = SubResource("Shape_board")
+
+[node name="Interactable" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.9)
+script = ExtResource("2_interactable")
+prompt = "Chop"
+radius = 1.0
+prompt_height = 1.8
