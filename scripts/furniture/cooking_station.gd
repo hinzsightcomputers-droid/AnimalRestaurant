@@ -1,5 +1,5 @@
-# CookingStation: the stove. Using it starts the timing minigame for the next
-# order on the OrderBoard; pressing interact again while cooking "stirs".
+# CookingStation: the stove. Using it while carrying Ingredients starts the
+# timing minigame for that order; pressing interact again while cooking "stirs".
 # When the minigame ends, the cook is handed the finished dish.
 class_name CookingStation
 extends Station
@@ -34,14 +34,16 @@ func _try_start_cooking(player_index: int) -> void:
 	var player := Player.find(get_tree(), player_index)
 	if player == null:
 		return
-	if player.held_item != null:
-		GameEvents.announce("Your hands are full.")
+	var ingredients := player.held_item as Ingredients
+	if ingredients == null:
+		if player.held_item != null:
+			GameEvents.announce("Your hands are full.")
+		else:
+			GameEvents.announce("Grab ingredients from the freezer first.")
 		return
-	var order := order_board.next_to_cook()
-	if order == null:
-		GameEvents.announce("No orders to cook right now.")
-		return
+	var order := ingredients.order
 
+	player.set_held_item(null)
 	_cook = player
 	_order = order
 	order_board.set_state(order, Order.State.COOKING)

@@ -6,6 +6,7 @@ const MESSAGE_TIME := 4.0
 const MAX_MESSAGES := 3
 const STATE_NAMES := {
 	Order.State.WAITING: "waiting",
+	Order.State.GATHERED: "ingredients out",
 	Order.State.COOKING: "cooking",
 	Order.State.READY: "ready to serve",
 }

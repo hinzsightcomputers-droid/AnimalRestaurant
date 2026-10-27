@@ -1,5 +1,6 @@
 # OrderBoard: the list of orders the kitchen is working on, oldest first.
-# The counter adds orders, the stove picks the next one to cook.
+# The counter adds orders, the freezer picks the next one to gather ingredients
+# for, and the stove cooks whichever order's ingredients it's handed.
 class_name OrderBoard
 extends Node
 
@@ -15,8 +16,8 @@ func add_order(customer: Customer) -> Order:
 	return order
 
 
-# The oldest order nobody has started cooking yet, or null.
-func next_to_cook() -> Order:
+# The oldest order nobody has gathered ingredients for yet, or null.
+func next_to_gather() -> Order:
 	for order in orders:
 		if order.state == Order.State.WAITING:
 			return order
