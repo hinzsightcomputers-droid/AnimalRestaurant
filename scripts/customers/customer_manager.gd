@@ -17,11 +17,15 @@ const SEAT_GROUP := "seats"
 @export var first_arrival_delay := 3.0
 @export var arrival_interval := 8.0
 @export var queue_spacing := 0.9    # Gap between customers waiting in line.
+@export_group("Order chat")
+@export var order_chat_seconds := 1.8         # How long the player and customer chat when ordering.
+@export var order_chat_zoom: CameraZoomSettings  # The ordering player's camera during the chat.
 
 var accepting_customers := true     # False after closing time.
 var _queue: Array[Customer] = []    # Customers waiting to order, front of the line first.
 var _seat_owners: Dictionary = {}   # seat (Station) -> Customer sitting there or walking to it.
 var _regulars_today: Array = []     # Ids of regulars who already came in today (one visit a day each).
+var _chatting := false              # True while someone is taking an order.
 
 
 func _ready() -> void:
@@ -102,6 +106,8 @@ func _setup_regular(customer: Customer, record: Dictionary, seat: Seat) -> void:
 
 
 func _on_order_counter_used(_station: Station, player_index: int) -> void:
+	if _chatting:
+		return
 	if _queue.is_empty():
 		GameEvents.announce("Nobody is waiting to order.")
 		return
@@ -115,6 +121,7 @@ func _on_order_counter_used(_station: Station, player_index: int) -> void:
 	order_board.add_order(customer)
 	GameEvents.announce("Player %d took an order: %s wants %s." % [
 		player_index + 1, customer.display_name, customer.dish.get("name", "?")])
+	await _order_chat(player_index, customer)
 
 	var approach := customer.seat.approach_point.global_position
 	var path: Array[Vector3] = [
@@ -124,6 +131,26 @@ func _on_order_counter_used(_station: Station, player_index: int) -> void:
 	]
 	customer.walk_to(path, Customer.State.WAITING_FOR_FOOD)
 	_move_queue_forward()
+
+
+# A short chat while the customer says their order: the player stays at the
+# counter and their camera zooms in on the two of them.
+func _order_chat(player_index: int, customer: Customer) -> void:
+	var player := Player.find(get_tree(), player_index)
+	if player == null:
+		return
+	_chatting = true
+	player.movement_locked = true
+	player.interactor.lock_to(order_counter.interactable)
+	var between := (player.global_position + customer.global_position) * 0.5 + Vector3.UP * 1.2
+	player.request_camera_focus(between, order_chat_zoom)
+
+	await get_tree().create_timer(order_chat_seconds, false).timeout
+
+	player.movement_locked = false
+	player.interactor.unlock()
+	player.release_camera_focus()
+	_chatting = false
 
 
 # A player pressed interact on a seated customer: serve them if holding their dish.

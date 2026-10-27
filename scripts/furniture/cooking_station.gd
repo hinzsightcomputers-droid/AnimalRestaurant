@@ -49,6 +49,7 @@ func _try_start_cooking(player_index: int) -> void:
 	minigame.finished.connect(_on_minigame_finished)
 
 	player.movement_locked = true
+	player.interactor.lock_to(interactable)
 	player.request_camera_focus(global_position + zoom_look_offset, camera_zoom)  # Only this player's camera.
 	interactable.prompt = "Stir!"
 	_play_bounce()
@@ -65,6 +66,7 @@ func _on_minigame_finished(quality: float) -> void:
 	order_board.set_state(_order, Order.State.READY)
 	_cook.set_held_item(CookedDish.new(_order, quality))
 	_cook.movement_locked = false
+	_cook.interactor.unlock()
 	_cook.release_camera_focus()
 	_cook = null
 	_order = null

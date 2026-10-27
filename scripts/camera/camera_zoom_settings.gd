@@ -6,7 +6,7 @@ extends Resource
 
 @export var distance := 3.6            # Meters from the camera to the point it looks at.
 @export_range(10.0, 89.0) var pitch_degrees := 40.0  # How steeply it looks down (follow view is ~55).
-@export_range(-90.0, 90.0) var yaw_degrees := 0.0    # Swing around to the side (0 = straight from the front).
+@export_range(-180.0, 180.0) var yaw_degrees := 0.0  # Swing around (0 = from the front, 180 = from behind the counter).
 @export var duration := 0.4            # Seconds to tween in (and back out).
 
 

@@ -3,6 +3,14 @@
 [ext_resource type="Script" path="res://scripts/furniture/dining_table.gd" id="1_table"]
 [ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
 [ext_resource type="Script" path="res://scripts/furniture/table_mess_display.gd" id="3_mess"]
+[ext_resource type="Script" path="res://scripts/camera/camera_zoom_settings.gd" id="4_zoom"]
+
+[sub_resource type="Resource" id="Zoom_cleaning"]
+script = ExtResource("4_zoom")
+distance = 3.2
+pitch_degrees = 55.0
+yaw_degrees = 0.0
+duration = 0.4
 
 [sub_resource type="StandardMaterial3D" id="Mat_wood"]
 albedo_color = Color(0.85, 0.67, 0.45, 1)
@@ -37,6 +45,7 @@ size = Vector3(0.06, 0.03, 0.05)
 [node name="Table" type="StaticBody3D"]
 script = ExtResource("1_table")
 display_name = "Table"
+camera_zoom = SubResource("Zoom_cleaning")
 
 [node name="Visual" type="Node3D" parent="."]
 

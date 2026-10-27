@@ -6,9 +6,26 @@ extends Node3D
 signal focus_changed(interactable: Interactable)
 
 var focused: Interactable = null
+var locked_to: Interactable = null  # While set (e.g. mid-scrub), always use this one.
+
+
+# Stick to one interactable until unlock(), so a busy player's presses can't
+# drift to something else nearby.
+func lock_to(interactable: Interactable) -> void:
+	locked_to = interactable
+
+
+func unlock() -> void:
+	locked_to = null
 
 
 func _physics_process(_delta: float) -> void:
+	if locked_to != null:
+		if focused != locked_to:
+			focused = locked_to
+			focus_changed.emit(focused)
+		return
+
 	var best: Interactable = null
 	var best_distance := INF
 

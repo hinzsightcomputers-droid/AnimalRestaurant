@@ -34,6 +34,7 @@ var player: Player = null                 # The player who owns this rig.
 var follow_targets: Array[Node3D] = []    # Who FOLLOW keeps in view.
 var focus_point := Vector3.ZERO           # What FOCUS looks at.
 var zoom: CameraZoomSettings = null       # Settings of the current (or last) zoom-in.
+var focus_requested := false              # The player asked for a zoom-in and hasn't released it.
 
 var _offset := Vector3.ZERO               # Current camera offset from the rig.
 var _blend := 1.0                         # 0 -> 1 while tweening into the current mode.
@@ -65,22 +66,28 @@ func set_player(owner_player: Player) -> void:
 	player.camera_focus_released.connect(release_focus)
 
 
+# A shared view never zooms (it would hide everyone else). A zoom requested
+# while sharing waits until the ViewManager gives this rig just its own player.
 func set_follow_targets(targets: Array[Node3D]) -> void:
 	follow_targets = targets
+	if targets.size() <= 1 and focus_requested and mode != Mode.FOCUS:
+		_change_mode(Mode.FOCUS, zoom.duration)
+	elif targets.size() > 1 and mode == Mode.FOCUS:
+		_change_mode(Mode.FOLLOW, zoom.duration)
 
 
-# Zoom in on `point`. Ignored while the rig is showing several players at once
-# (zooming a shared view would hide everyone else).
+# Zoom in on `point` with `settings` (null = default_zoom).
 func focus_on(point: Vector3, settings: CameraZoomSettings = null) -> void:
-	if follow_targets.size() > 1:
-		return
 	focus_point = point
 	zoom = settings if settings != null else default_zoom
-	_change_mode(Mode.FOCUS, zoom.duration)
+	focus_requested = true
+	if follow_targets.size() <= 1:
+		_change_mode(Mode.FOCUS, zoom.duration)
 
 
 # Back to following, taking as long as the zoom-in did.
 func release_focus() -> void:
+	focus_requested = false
 	if mode == Mode.FOCUS:
 		_change_mode(Mode.FOLLOW, zoom.duration)
 

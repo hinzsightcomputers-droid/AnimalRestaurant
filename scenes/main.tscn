@@ -13,6 +13,14 @@
 [ext_resource type="Script" uid="uid://bpsdhkvk6wmt6" path="res://scripts/day/day_manager.gd" id="11_day"]
 [ext_resource type="PackedScene" path="res://scenes/ui/summary_screen.tscn" id="12_summary"]
 [ext_resource type="PackedScene" path="res://scenes/ui/name_entry_screen.tscn" id="13_name"]
+[ext_resource type="Script" path="res://scripts/camera/camera_zoom_settings.gd" id="14_zoom"]
+
+[sub_resource type="Resource" id="Zoom_order_chat"]
+script = ExtResource("14_zoom")
+distance = 3.4
+pitch_degrees = 60.0
+yaw_degrees = 160.0
+duration = 0.4
 
 [sub_resource type="Environment" id="Env"]
 background_mode = 1
@@ -96,6 +104,7 @@ order_counter = NodePath("../Furniture/OrderCounter")
 order_board = NodePath("../OrderBoard")
 spawn_point = NodePath("CustomerSpawn")
 door_point = NodePath("CustomerDoor")
+order_chat_zoom = SubResource("Zoom_order_chat")
 
 [node name="CustomerSpawn" type="Marker3D" parent="CustomerManager" unique_id=812259080]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 7.6)
