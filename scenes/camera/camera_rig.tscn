@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/camera/camera_rig.gd" id="1_rig"]
+
+[node name="CameraRig" type="Node3D"]
+script = ExtResource("1_rig")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+current = true

@@ -3,9 +3,10 @@
 extends Label3D
 
 @export var interactor: Interactor
-@export var button_hint := "E"  # Display text only; real bindings live in InputSetup.
 
 var _target: Interactable = null
+
+@onready var _player: Player = get_parent()
 
 
 func _ready() -> void:
@@ -18,7 +19,8 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if _target != null:
 		global_position = _target.global_position + Vector3.UP * _target.prompt_height
-		text = "[%s] %s" % [button_hint, _target.prompt]  # Prompts can change, e.g. "Cook" -> "Stir!"
+		# Prompts can change ("Cook" -> "Stir!"), and so can the button if the player switches device.
+		text = "[%s] %s" % [InputSetup.interact_hint(_player.player_index), _target.prompt]
 
 
 func _on_focus_changed(interactable: Interactable) -> void:

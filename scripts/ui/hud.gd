@@ -16,6 +16,7 @@ const STATE_NAMES := {
 @onready var orders_label: Label = $OrdersLabel
 @onready var money_label: Label = $MoneyLabel
 @onready var message_label: Label = $MessageLabel
+@onready var join_label: Label = $JoinLabel
 
 var _messages: Array[Dictionary] = []  # Recent messages, oldest first: { text, time_left }
 
@@ -29,6 +30,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_refresh_day_and_money()
+	_refresh_join_hint()
 	if _messages.is_empty():
 		return
 	for message in _messages:
@@ -46,6 +48,18 @@ func _refresh_day_and_money() -> void:
 		var seconds := ceili(day_manager.time_left)
 		clock = "%d:%02d" % [floori(seconds / 60.0), seconds % 60]
 	money_label.text = "Day %d   %s   $%d" % [GameState.day, clock, GameState.money]
+
+
+# e.g. "More players: Enter (arrow keys) or A (gamepad) to join". Hidden when full.
+func _refresh_join_hint() -> void:
+	var options := PackedStringArray()
+	if not InputSetup.is_device_used("keys_left"):
+		options.append("E (WASD)")
+	if not InputSetup.is_device_used("keys_right"):
+		options.append("Enter (arrow keys)")
+	options.append("A (gamepad)")
+	join_label.visible = InputSetup.active_players().size() < InputSetup.MAX_PLAYERS
+	join_label.text = "More players: press %s to join" % " or ".join(options)
 
 
 func _refresh_orders() -> void:

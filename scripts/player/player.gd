@@ -6,6 +6,10 @@ extends CharacterBody3D
 const GROUP := "players"
 
 signal held_item_changed(item: RefCounted)
+# Asks this player's camera to zoom in on a point / go back to following.
+# Stations and conversations use these so they never touch cameras directly.
+signal camera_focus_requested(point: Vector3)
+signal camera_focus_released
 
 @export var player_index := 0
 @export var move_speed := 4.0
@@ -13,6 +17,7 @@ signal held_item_changed(item: RefCounted)
 @export var turn_speed := 12.0    # How quickly the body turns to face the move direction.
 
 var movement_locked := false      # True while busy (e.g. cooking).
+var has_acted := false            # Becomes true the first time this player moves or interacts.
 var held_item: RefCounted = null  # What the player is carrying, e.g. a CookedDish.
 
 @onready var input: PlayerInput = $PlayerInput
@@ -31,6 +36,14 @@ static func find(tree: SceneTree, index: int) -> Player:
 func _ready() -> void:
 	add_to_group(GROUP)
 	input.player_index = player_index
+
+
+func request_camera_focus(point: Vector3) -> void:
+	camera_focus_requested.emit(point)
+
+
+func release_camera_focus() -> void:
+	camera_focus_released.emit()
 
 
 func set_held_item(item: RefCounted) -> void:
@@ -57,5 +70,8 @@ func _physics_process(delta: float) -> void:
 		var target_yaw := atan2(direction.x, direction.z)
 		visual.rotation.y = lerp_angle(visual.rotation.y, target_yaw, turn_speed * delta)
 
+	if input_vector != Vector2.ZERO:
+		has_acted = true
 	if input.is_interact_just_pressed():
+		has_acted = true
 		interactor.try_interact(player_index)
