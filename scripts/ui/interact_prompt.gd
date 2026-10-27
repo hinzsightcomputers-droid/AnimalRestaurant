@@ -20,7 +20,7 @@ func _process(_delta: float) -> void:
 	if _target != null:
 		global_position = _target.global_position + Vector3.UP * _target.prompt_height
 		# Prompts can change ("Cook" -> "Stir!"), and so can the button if the player switches device.
-		text = "[%s] %s" % [InputSetup.interact_hint(_player.player_index), _target.prompt]
+		text = "[%s] %s" % [InputSetup.interact_hint(_player.player_index), _target.prompt_for(_player.player_index)]
 
 
 func _on_focus_changed(interactable: Interactable) -> void:

@@ -1,5 +1,7 @@
-# PlayerVisual: gives each player their own body color and a "P1".."P4" tag so
-# players can tell themselves apart. Display only.
+# PlayerVisual: gives each player their own body color and a name tag (their
+# chef name, or "P1".."P4" before they've picked one) so players can tell
+# themselves apart. Display only.
+class_name PlayerVisual
 extends Node3D
 
 const COLORS := [
@@ -14,13 +16,23 @@ const COLORS := [
 @onready var tag: Label3D = $Tag
 
 
+static func color_for(player_index: int) -> Color:
+	return COLORS[player_index % COLORS.size()]
+
+
 func _ready() -> void:
-	var color: Color = COLORS[player.player_index % COLORS.size()]
+	var color := color_for(player.player_index)
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
 	body.material_override = material
-	tag.text = "P%d" % (player.player_index + 1)
 	tag.modulate = color.lightened(0.3)
+	Accounts.player_account_changed.connect(_refresh_tag)
+	_refresh_tag()
+
+
+func _refresh_tag(_changed_index: int = -1) -> void:
+	var account := Accounts.account_of(player.player_index)
+	tag.text = account.get("name", "P%d" % (player.player_index + 1))
 
 
 # The tag only matters once there's more than one player.

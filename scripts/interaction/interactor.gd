@@ -34,6 +34,8 @@ func _physics_process(_delta: float) -> void:
 		var interactable := node as Interactable
 		if interactable == null or not interactable.enabled:
 			continue
+		if interactable.prompt_for(_player_index()).is_empty():
+			continue  # Nothing this player can do there right now.
 		var distance := _flat_distance(global_position, interactable.global_position)
 		if distance > interactable.radius:
 			continue
@@ -46,6 +48,11 @@ func _physics_process(_delta: float) -> void:
 	if best != focused:
 		focused = best
 		focus_changed.emit(focused)
+
+
+func _player_index() -> int:
+	var player := get_parent() as Player
+	return player.player_index if player != null else 0
 
 
 func try_interact(player_index: int) -> void:

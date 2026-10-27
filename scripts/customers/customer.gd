@@ -24,6 +24,7 @@ var order_line := ""          # What a regular says when ordering (empty = gener
 
 var wait_seconds := 0.0       # From reaching the counter until the food arrives.
 var served_quality := 0.0     # Quality of the dish they were served (0..1).
+var served_by_account := ""   # Account id of the chef who brought the food.
 var reaction_line := ""       # What they say when leaving.
 var payment := 0              # What they paid.
 
@@ -47,7 +48,21 @@ func is_regular() -> bool:
 
 
 func _ready() -> void:
+	interactable.prompt_for_player = _prompt_for
 	_update_interactable()
+
+
+# "Serve" for whoever carries this customer's plate, "Check order" for free
+# hands (pressing says what they're waiting for), nothing for anyone carrying
+# something else.
+func _prompt_for(player_index: int) -> String:
+	var player := Player.find(get_tree(), player_index)
+	if player == null:
+		return ""
+	var plate := player.held_item as CookedDish
+	if plate != null:
+		return interactable.prompt if plate.order.customer == self else ""
+	return "Check order" if player.held_item == null else ""
 
 
 # Walk through the given points in order, then switch to `state_on_arrival`.

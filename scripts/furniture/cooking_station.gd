@@ -16,6 +16,26 @@ var _cook: Player = null
 var _order: Order = null
 
 
+func _ready() -> void:
+	super._ready()
+	interactable.prompt_for_player = _prompt_for
+
+
+# While cooking, only the cook sees "Stir!". Otherwise "Cook Fish Stew" for
+# someone carrying ingredients, and plain "Cook" for free hands (pressing then
+# explains you need ingredients). Nothing for anyone carrying a plate.
+func _prompt_for(player_index: int) -> String:
+	if minigame != null:
+		return "Stir!" if _cook != null and player_index == _cook.player_index else ""
+	var player := Player.find(get_tree(), player_index)
+	if player == null:
+		return ""
+	var ingredients := player.held_item as Ingredients
+	if ingredients != null:
+		return "Cook %s" % ingredients.order.dish.get("name", "")
+	return interactable.prompt if player.held_item == null else ""
+
+
 func _on_interacted(player_index: int) -> void:
 	if minigame != null:
 		# Only the player who is cooking can stir.
@@ -53,7 +73,6 @@ func _try_start_cooking(player_index: int) -> void:
 	player.movement_locked = true
 	player.interactor.lock_to(interactable)
 	player.request_camera_focus(global_position + zoom_look_offset, camera_zoom)  # Only this player's camera.
-	interactable.prompt = "Stir!"
 	_play_bounce()
 	used.emit(self, player_index)
 
@@ -73,4 +92,3 @@ func _on_minigame_finished(quality: float) -> void:
 	_cook = null
 	_order = null
 	minigame = null
-	interactable.prompt = "Cook"

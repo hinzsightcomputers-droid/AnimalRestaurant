@@ -24,7 +24,8 @@
 			"relationship": 0,
 			"times_visited": 0,
 			"last_seen": "",
-			"knows_player_name": false,
+			"known_players": [],
+			"served_by": {},
 			"last_service_quality": -1
 		},
 		{
@@ -37,7 +38,8 @@
 			"relationship": 0,
 			"times_visited": 0,
 			"last_seen": "",
-			"knows_player_name": false,
+			"known_players": [],
+			"served_by": {},
 			"last_service_quality": -1
 		},
 		{
@@ -50,7 +52,8 @@
 			"relationship": 5,
 			"times_visited": 6,
 			"last_seen": "2026-10-01T12:00:00",
-			"knows_player_name": true,
+			"known_players": [],
+			"served_by": {},
 			"last_service_quality": 0.8
 		}
 	]

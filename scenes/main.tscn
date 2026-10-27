@@ -12,7 +12,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="10_hud"]
 [ext_resource type="Script" uid="uid://bpsdhkvk6wmt6" path="res://scripts/day/day_manager.gd" id="11_day"]
 [ext_resource type="PackedScene" path="res://scenes/ui/summary_screen.tscn" id="12_summary"]
-[ext_resource type="PackedScene" path="res://scenes/ui/name_entry_screen.tscn" id="13_name"]
+[ext_resource type="PackedScene" path="res://scenes/ui/account_picker.tscn" id="13_picker"]
 [ext_resource type="Script" path="res://scripts/camera/camera_zoom_settings.gd" id="14_zoom"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/freezer.tscn" id="15_freezer"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/pass_counter.tscn" id="16_pass"]
@@ -160,4 +160,5 @@ day_manager = NodePath("../DayManager")
 [node name="SummaryScreen" parent="." unique_id=1988595136 node_paths=PackedStringArray("day_manager") instance=ExtResource("12_summary")]
 day_manager = NodePath("../DayManager")
 
-[node name="NameEntryScreen" parent="." unique_id=981747142 instance=ExtResource("13_name")]
+[node name="AccountPicker" parent="." node_paths=PackedStringArray("player_manager") instance=ExtResource("13_picker")]
+player_manager = NodePath("../PlayerManager")

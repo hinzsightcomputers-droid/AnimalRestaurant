@@ -52,8 +52,10 @@ static func _condition_met(key: String, want: Variant, context: Dictionary) -> b
 			return has_visited and context.get("last_quality", -1.0) >= want
 		"last_quality_max":
 			return has_visited and context.get("last_quality", -1.0) >= 0.0 and context.get("last_quality", -1.0) <= want
-		"knows_player_name", "returned_after_away", "ordered_favorite", "learned_name":
+		"knows_player_name", "returned_after_away", "ordered_favorite", "learned_name", "new_chef_for_them":
 			return context.get(key, false) == want
+		"min_known_here":
+			return context.get("known_here_count", 0) >= want
 		"reaction":
 			return context.get("reaction", "") == want
 	push_warning("Unknown dialogue condition: %s" % key)

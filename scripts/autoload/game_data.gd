@@ -17,7 +17,9 @@ var species: Array[Dictionary] = []
 # Satisfaction tuning plus a "reactions" list: { id, min_satisfaction, payment_percent, lines }
 var reactions: Dictionary = {}
 # Starting state of each regular: { id, name, species, personality, favorite_dish,
-# disliked_dish, relationship, times_visited, last_seen, knows_player_name, last_service_quality }
+# disliked_dish, relationship, times_visited, last_seen, known_players, served_by,
+# last_service_quality }. known_players: account ids whose name they know.
+# served_by: account id -> times that chef served them.
 var regulars: Array[Dictionary] = []
 # Tuning for regulars (visit chance, relationship changes, titles...).
 var regular_settings: Dictionary = {}

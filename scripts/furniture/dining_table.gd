@@ -20,7 +20,15 @@ var _cleaner: Player = null              # Who is scrubbing right now.
 
 func _ready() -> void:
 	super._ready()
+	interactable.prompt_for_player = _prompt_for
 	_update_interactable()
+
+
+# Hidden from everyone but the player already scrubbing it.
+func _prompt_for(player_index: int) -> String:
+	if _cleaner != null and _cleaner.player_index != player_index:
+		return ""
+	return interactable.prompt
 
 
 # Called when a customer leaves; `at` is where their plate was.
@@ -47,7 +55,7 @@ func _on_interacted(player_index: int) -> void:
 		is_dirty = false
 		mess_positions.clear()
 		_finish_cleaning()
-		GameEvents.announce("Player %d cleaned the table." % (player_index + 1))
+		GameEvents.announce("%s cleaned the table." % Accounts.name_of(player_index))
 	_update_interactable()
 	cleanliness_changed.emit(self)
 	used.emit(self, player_index)

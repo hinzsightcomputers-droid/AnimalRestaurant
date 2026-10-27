@@ -14,9 +14,20 @@ signal interacted(player_index: int)
 @export var enabled := true
 @export var priority := 0            # When several are in range, higher priority wins (e.g. a customer over their chair).
 
+# Optional: (player_index) -> String, the prompt for that player, or "" if they
+# can't use this right now (then it's skipped for them, and something else
+# nearby can be picked). Unset = everyone sees `prompt`.
+var prompt_for_player: Callable
+
 
 func _ready() -> void:
 	add_to_group(GROUP)
+
+
+func prompt_for(player_index: int) -> String:
+	if prompt_for_player.is_valid():
+		return prompt_for_player.call(player_index)
+	return prompt
 
 
 func interact(player_index: int) -> void:

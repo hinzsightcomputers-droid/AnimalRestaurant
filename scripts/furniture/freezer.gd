@@ -6,6 +6,17 @@ extends Station
 @export var order_board: OrderBoard
 
 
+func _ready() -> void:
+	super._ready()
+	interactable.prompt_for_player = _prompt_for
+
+
+# Only for players with free hands.
+func _prompt_for(player_index: int) -> String:
+	var player := Player.find(get_tree(), player_index)
+	return interactable.prompt if player != null and player.held_item == null else ""
+
+
 func _on_interacted(player_index: int) -> void:
 	var player := Player.find(get_tree(), player_index)
 	if player == null:

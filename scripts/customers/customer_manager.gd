@@ -94,17 +94,24 @@ func _try_spawn_customer() -> void:
 
 
 # A regular: their own species and name, an order based on their tastes, and
-# lines picked from what they remember (before this visit changes anything).
+# a greeting picked from what they remember (before this visit changes anything),
+# aimed at the chef here they know best.
 func _setup_regular(customer: Customer, record: Dictionary, seat: Seat) -> void:
 	_regulars_today.append(record["id"])
 	var dish := RegularMemory.choose_dish(record)
 	customer.setup(GameData.get_species(record["species"]), dish, seat)
 	customer.regular_id = record["id"]
 	customer.display_name = record["name"]
-	customer.greeting_line = DialoguePicker.pick("greeting", RegularMemory.dialogue_context(record))
-	customer.order_line = DialoguePicker.pick("order", RegularMemory.dialogue_context(record, {
-		"dish": dish.get("name", ""),
-		"ordered_favorite": dish.get("id", "") == record["favorite_dish"],
+	customer.greeting_line = DialoguePicker.pick("greeting",
+		RegularMemory.dialogue_context(record, RegularMemory.favorite_chef_here(record)))
+
+
+# What a regular says when ordering, to the chef taking the order.
+func _pick_order_line(customer: Customer, chef_id: String) -> String:
+	var record: Dictionary = GameState.regulars[customer.regular_id]
+	return DialoguePicker.pick("order", RegularMemory.dialogue_context(record, chef_id, {
+		"dish": customer.dish.get("name", ""),
+		"ordered_favorite": customer.dish.get("id", "") == record["favorite_dish"],
 	}))
 
 
@@ -120,10 +127,12 @@ func _on_order_counter_used(_station: Station, player_index: int) -> void:
 		return  # Front customer hasn't reached the counter yet.
 
 	_queue.pop_front()
+	if customer.is_regular():
+		customer.order_line = _pick_order_line(customer, Accounts.id_of(player_index))
 	customer.place_order()
 	order_board.add_order(customer)
-	GameEvents.announce("Player %d took an order: %s wants %s." % [
-		player_index + 1, customer.display_name, customer.dish.get("name", "?")])
+	GameEvents.announce("%s took an order: %s wants %s." % [
+		Accounts.name_of(player_index), customer.display_name, customer.dish.get("name", "?")])
 	await _order_chat(player_index, customer)
 
 	var approach := customer.seat.approach_point.global_position
@@ -179,6 +188,7 @@ func _on_customer_interacted(player_index: int, customer: Customer) -> void:
 
 	player.set_held_item(null)
 	order_board.remove_order(plate.order)
+	customer.served_by_account = Accounts.id_of(player_index)
 	customer.serve(plate.quality)
 	GameEvents.announce("Served %s to %s." % [plate.dish_name(), customer_name])
 
@@ -232,16 +242,19 @@ func _remember_visit(customer: Customer, reaction_id: String) -> String:
 	var record: Dictionary = GameState.regulars[customer.regular_id]
 	var relationship_before: int = record["relationship"]
 	var now := Time.get_datetime_string_from_system(true)
-	var learned_name := RegularMemory.record_visit(record, customer.served_quality, reaction_id, now)
+	var server_id := customer.served_by_account
+	var learned_name := RegularMemory.record_visit(record, customer.served_quality, reaction_id, now, server_id)
 
 	if record["relationship"] != relationship_before:
 		GameEvents.announce("%s's friendship: %d -> %d" % [record["name"], relationship_before, record["relationship"]])
 	if learned_name:
-		GameEvents.announce("%s learned your name!" % record["name"])
+		GameEvents.announce("%s learned %s's name!" % [record["name"], Accounts.get_account(server_id).get("name", "your")])
 
-	return DialoguePicker.pick("farewell", RegularMemory.dialogue_context(record, {
+	return DialoguePicker.pick("farewell", RegularMemory.dialogue_context(record, server_id, {
 		"reaction": reaction_id,
 		"learned_name": learned_name,
+		# They've been here before, but this is the first time this chef served them.
+		"new_chef_for_them": record["times_visited"] > 1 and record["served_by"].get(server_id, 0) == 1,
 	}))
 
 
