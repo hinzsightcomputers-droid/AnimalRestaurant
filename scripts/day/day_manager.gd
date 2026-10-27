@@ -30,9 +30,9 @@ func _process(delta: float) -> void:
 		_end_day()
 
 
-# Called by the summary screen's button.
+# Called by the summary screen's button. The day number already moved on (and
+# was saved) when the day ended.
 func start_next_day() -> void:
-	GameState.start_next_day()
 	get_tree().paused = false
 	get_tree().reload_current_scene()  # Fresh restaurant; GameState (an autoload) keeps money and day.
 
@@ -47,4 +47,7 @@ func _close() -> void:
 func _end_day() -> void:
 	_has_ended = true
 	get_tree().paused = true
-	day_ended.emit(DaySummary.build(GameState.services_today))
+	var summary := DaySummary.build(GameState.services_today)
+	summary["day"] = GameState.day
+	GameState.finish_day()  # Next day + save.
+	day_ended.emit(summary)

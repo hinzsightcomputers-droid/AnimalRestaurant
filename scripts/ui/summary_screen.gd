@@ -38,9 +38,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _show_summary(summary: Dictionary) -> void:
-	title_label.text = "Day %d complete!" % GameState.day
+	title_label.text = "Day %d complete!" % summary["day"]
 	body_label.text = _summary_text(summary)
-	next_button.text = "Start Day %d" % (GameState.day + 1)
+	next_button.text = "Start Day %d" % GameState.day
 	next_button.disabled = true
 	_input_delay_left = INPUT_DELAY
 	visible = true
