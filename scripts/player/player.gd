@@ -8,7 +8,7 @@ const GROUP := "players"
 signal held_item_changed(item: RefCounted)
 # Asks this player's camera to zoom in on a point / go back to following.
 # Stations and conversations use these so they never touch cameras directly.
-signal camera_focus_requested(point: Vector3)
+signal camera_focus_requested(point: Vector3, settings: CameraZoomSettings)
 signal camera_focus_released
 
 @export var player_index := 0
@@ -38,8 +38,9 @@ func _ready() -> void:
 	input.player_index = player_index
 
 
-func request_camera_focus(point: Vector3) -> void:
-	camera_focus_requested.emit(point)
+# `settings` = how close / what angle / how fast (null = the camera's default zoom).
+func request_camera_focus(point: Vector3, settings: CameraZoomSettings = null) -> void:
+	camera_focus_requested.emit(point, settings)
 
 
 func release_camera_focus() -> void:

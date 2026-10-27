@@ -5,9 +5,11 @@ class_name CookingStation
 extends Station
 
 const RESULT_SHOW_TIME := 1.2  # Seconds the result stays up before the player can move.
-const FOCUS_HEIGHT := Vector3(0.0, 1.6, 0.3)  # The cook's camera zooms in on this point (above the stove).
 
 @export var order_board: OrderBoard
+@export_group("Camera zoom while cooking")
+@export var zoom_look_offset := Vector3(0.0, 1.6, 0.3)  # Point the camera looks at, relative to the stove.
+@export var camera_zoom: CameraZoomSettings              # Distance, angle and tween time of the zoom-in.
 
 var minigame: CookingMinigame = null  # Not null while someone is cooking.
 var _cook: Player = null
@@ -47,7 +49,7 @@ func _try_start_cooking(player_index: int) -> void:
 	minigame.finished.connect(_on_minigame_finished)
 
 	player.movement_locked = true
-	player.request_camera_focus(global_position + FOCUS_HEIGHT)
+	player.request_camera_focus(global_position + zoom_look_offset, camera_zoom)  # Only this player's camera.
 	interactable.prompt = "Stir!"
 	_play_bounce()
 	used.emit(self, player_index)
