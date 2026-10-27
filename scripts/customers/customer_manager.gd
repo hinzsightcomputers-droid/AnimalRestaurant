@@ -15,6 +15,7 @@ const SEAT_GROUP := "seats"
 @export var arrival_interval := 8.0
 @export var queue_spacing := 0.9    # Gap between customers waiting in line.
 
+var accepting_customers := true     # False after closing time.
 var _queue: Array[Customer] = []    # Customers waiting to order, front of the line first.
 var _seat_owners: Dictionary = {}   # seat (Station) -> Customer sitting there or walking to it.
 
@@ -32,7 +33,27 @@ func _ready() -> void:
 	timer.start()
 
 
+# Closing time: no new arrivals, and anyone who hasn't ordered yet heads home.
+# Customers who already ordered stay until they're served.
+func close() -> void:
+	accepting_customers = false
+	for customer in _queue:
+		_seat_owners.erase(customer.seat)
+		var path: Array[Vector3] = [door_point.global_position, spawn_point.global_position]
+		customer.leave(path, "Oh, you're closing? Next time!", 0)
+	_queue.clear()
+
+
+func has_customers() -> bool:
+	for child in get_children():
+		if child is Customer and not child.is_queued_for_deletion():
+			return true
+	return false
+
+
 func _try_spawn_customer() -> void:
+	if not accepting_customers:
+		return
 	var seat := _find_free_seat()
 	if seat == null:
 		return
@@ -109,6 +130,7 @@ func _on_customer_finished_eating(customer: Customer) -> void:
 	GameState.record_service({
 		"species": customer.species.get("id", ""),
 		"dish": customer.dish.get("id", ""),
+		"price": customer.dish.get("price", 0),
 		"quality": customer.served_quality,
 		"wait_seconds": customer.wait_seconds,
 		"satisfaction": satisfaction,

@@ -10,6 +10,8 @@
 [ext_resource type="Script" path="res://scripts/customers/customer_manager.gd" id="8_customers"]
 [ext_resource type="Script" path="res://scripts/kitchen/order_board.gd" id="9_orders"]
 [ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="10_hud"]
+[ext_resource type="Script" path="res://scripts/day/day_manager.gd" id="11_day"]
+[ext_resource type="PackedScene" path="res://scenes/ui/summary_screen.tscn" id="12_summary"]
 
 [sub_resource type="Environment" id="Env"]
 background_mode = 1
@@ -72,5 +74,13 @@ script = ExtResource("3_camera")
 target = NodePath("../Player")
 follow_offset = Vector3(0, 6.3, 4.5)
 
-[node name="HUD" parent="." node_paths=PackedStringArray("order_board") instance=ExtResource("10_hud")]
+[node name="DayManager" type="Node" parent="." node_paths=PackedStringArray("customer_manager")]
+script = ExtResource("11_day")
+customer_manager = NodePath("../CustomerManager")
+
+[node name="HUD" parent="." node_paths=PackedStringArray("order_board", "day_manager") instance=ExtResource("10_hud")]
 order_board = NodePath("../OrderBoard")
+day_manager = NodePath("../DayManager")
+
+[node name="SummaryScreen" parent="." node_paths=PackedStringArray("day_manager") instance=ExtResource("12_summary")]
+day_manager = NodePath("../DayManager")

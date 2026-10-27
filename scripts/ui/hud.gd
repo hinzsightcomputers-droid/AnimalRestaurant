@@ -11,6 +11,7 @@ const STATE_NAMES := {
 }
 
 @export var order_board: OrderBoard
+@export var day_manager: DayManager
 
 @onready var orders_label: Label = $OrdersLabel
 @onready var money_label: Label = $MoneyLabel
@@ -22,17 +23,12 @@ var _messages: Array[Dictionary] = []  # Recent messages, oldest first: { text, 
 func _ready() -> void:
 	order_board.changed.connect(_refresh_orders)
 	GameEvents.message.connect(_show_message)
-	GameState.money_changed.connect(_refresh_money.unbind(1))
 	_refresh_orders()
-	_refresh_money()
 	message_label.text = ""
 
 
-func _refresh_money() -> void:
-	money_label.text = "Day %d   $%d" % [GameState.day, GameState.money]
-
-
 func _process(delta: float) -> void:
+	_refresh_day_and_money()
 	if _messages.is_empty():
 		return
 	for message in _messages:
@@ -41,6 +37,15 @@ func _process(delta: float) -> void:
 	_messages = _messages.filter(func(m): return m["time_left"] > 0.0)
 	if _messages.size() != count_before:
 		_refresh_messages()
+
+
+# e.g. "Day 1   2:35   $18", or "Closed" instead of the clock after closing time.
+func _refresh_day_and_money() -> void:
+	var clock := "Closed"
+	if day_manager.is_open:
+		var seconds := ceili(day_manager.time_left)
+		clock = "%d:%02d" % [floori(seconds / 60.0), seconds % 60]
+	money_label.text = "Day %d   %s   $%d" % [GameState.day, clock, GameState.money]
 
 
 func _refresh_orders() -> void:

@@ -36,7 +36,9 @@ func _on_state_changed(_customer: Customer) -> void:
 			# Same look as the plate the player carried: golden = good, dark = burnt.
 			_food_material.albedo_color = Color(0.3, 0.2, 0.15).lerp(Color(0.95, 0.7, 0.3), customer.served_quality)
 		Customer.State.LEAVING:
-			bubble.text = "\"%s\"\n+$%d" % [customer.reaction_line, customer.payment]
+			bubble.text = "\"%s\"" % customer.reaction_line
+			if customer.payment > 0:
+				bubble.text += "\n+$%d" % customer.payment
 
 
 func _apply_species_color() -> void:

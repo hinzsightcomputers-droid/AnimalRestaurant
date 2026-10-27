@@ -7,8 +7,13 @@ signal money_changed(money: int)
 var money := 0
 var day := 1
 # One entry per served customer today:
-# { species, dish, quality, wait_seconds, satisfaction, reaction, payment }
+# { species, dish, price, quality, wait_seconds, satisfaction, reaction, payment }
 var services_today: Array[Dictionary] = []
+
+
+func start_next_day() -> void:
+	day += 1
+	services_today.clear()
 
 
 func add_money(amount: int) -> void:
