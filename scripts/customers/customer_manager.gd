@@ -1,6 +1,9 @@
 # CustomerManager: runs each customer's visit. Spawns them (only if a seat at a
 # clean table is free), lines them up at the order counter, seats them once their
 # order is taken, handles serving, then has them pay, leave a dirty table, and walk out.
+# Customers walk along lanes so they don't cut through furniture: the front lane
+# (in line with the door), the back lane (in line with the counter), and straight
+# up and down the aisle behind each chair.
 class_name CustomerManager
 extends Node3D
 
@@ -40,7 +43,7 @@ func close() -> void:
 	accepting_customers = false
 	for customer in _queue:
 		_seat_owners.erase(customer.seat)
-		var path: Array[Vector3] = [door_point.global_position, spawn_point.global_position]
+		var path: Array[Vector3] = [_on_front_lane(customer.global_position), door_point.global_position, spawn_point.global_position]
 		customer.leave(path, "Oh, you're closing? Next time!", 0)
 	_queue.clear()
 
@@ -75,7 +78,7 @@ func _try_spawn_customer() -> void:
 
 	_seat_owners[seat] = customer
 	_queue.append(customer)
-	var path: Array[Vector3] = [door_point.global_position, _queue_spot(_queue.size() - 1)]
+	var path: Array[Vector3] = [door_point.global_position, _on_front_lane(_queue_spot(0)), _queue_spot(_queue.size() - 1)]
 	customer.walk_to(path, Customer.State.WAITING_TO_ORDER)
 	if customer.is_regular():
 		GameEvents.announce("%s the %s walked in." % [customer.display_name, customer.species.get("name", "?")])
@@ -113,9 +116,11 @@ func _on_order_counter_used(_station: Station, player_index: int) -> void:
 	GameEvents.announce("Player %d took an order: %s wants %s." % [
 		player_index + 1, customer.display_name, customer.dish.get("name", "?")])
 
+	var approach := customer.seat.approach_point.global_position
 	var path: Array[Vector3] = [
-		customer.seat.approach_point.global_position,
-		customer.seat.seat_point.global_position,
+		Vector3(approach.x, 0.0, _queue_spot(0).z),  # Along the back lane...
+		approach,                                    # ...down the aisle behind the chair...
+		customer.seat.seat_point.global_position,    # ...and sit.
 	]
 	customer.walk_to(path, Customer.State.WAITING_FOR_FOOD)
 	_move_queue_forward()
@@ -170,8 +175,10 @@ func _on_customer_finished_eating(customer: Customer) -> void:
 	if customer.seat.table != null:
 		customer.seat.table.make_dirty(customer.seat.meal_position())
 
+	var approach := customer.seat.approach_point.global_position
 	var path: Array[Vector3] = [
-		customer.seat.approach_point.global_position,
+		approach,
+		_on_front_lane(approach),
 		door_point.global_position,
 		spawn_point.global_position,
 	]
@@ -211,8 +218,7 @@ func _on_customer_state_changed(customer: Customer) -> void:
 # Everyone still in line steps up one spot.
 func _move_queue_forward() -> void:
 	for i in _queue.size():
-		var path: Array[Vector3] = [_queue_spot(i)]
-		_queue[i].walk_to(path, Customer.State.WAITING_TO_ORDER)
+		_queue[i].set_destination(_queue_spot(i))
 
 
 # Position in line: spot 0 is at the counter, later spots line up behind it.
@@ -221,10 +227,16 @@ func _queue_spot(index: int) -> Vector3:
 	return front + Vector3(0.0, 0.0, queue_spacing * index)
 
 
-# A seat nobody has claimed, at a clean table.
+# The point on the front lane (in line with the door) straight ahead of `point`.
+func _on_front_lane(point: Vector3) -> Vector3:
+	return Vector3(point.x, 0.0, door_point.global_position.z)
+
+
+# A random seat nobody has claimed, at a clean table.
 func _find_free_seat() -> Seat:
+	var free_seats: Array[Seat] = []
 	for node in get_tree().get_nodes_in_group(SEAT_GROUP):
 		var seat := node as Seat
 		if seat != null and not _seat_owners.has(seat) and seat.is_table_clean():
-			return seat
-	return null
+			free_seats.append(seat)
+	return free_seats.pick_random() if not free_seats.is_empty() else null

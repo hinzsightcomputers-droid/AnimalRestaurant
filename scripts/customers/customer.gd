@@ -56,6 +56,15 @@ func walk_to(points: Array[Vector3], state_on_arrival: State) -> void:
 	_state_after_path = state_on_arrival
 
 
+# Change where the current walk ends, keeping any waypoints before it
+# (so someone still walking in doesn't cut across the room).
+func set_destination(point: Vector3) -> void:
+	if _path.is_empty():
+		_path = [point]
+	else:
+		_path[-1] = point
+
+
 func is_walking() -> bool:
 	return not _path.is_empty()
 

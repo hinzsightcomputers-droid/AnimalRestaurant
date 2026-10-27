@@ -62,18 +62,20 @@ enabled = false
 [node name="Mess" type="Node3D" parent="."]
 script = ExtResource("3_mess")
 
-[node name="DirtyPlate" type="MeshInstance3D" parent="Mess"]
+[node name="Pile" type="Node3D" parent="Mess"]
+
+[node name="DirtyPlate" type="MeshInstance3D" parent="Mess/Pile"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
 mesh = SubResource("Mesh_dirty_plate")
 
-[node name="Crumb1" type="MeshInstance3D" parent="Mess"]
+[node name="Crumb1" type="MeshInstance3D" parent="Mess/Pile"]
 transform = Transform3D(0.8, 0, 0.6, 0, 1, 0, -0.6, 0, 0.8, 0.28, 0.015, 0.12)
 mesh = SubResource("Mesh_crumb")
 
-[node name="Crumb2" type="MeshInstance3D" parent="Mess"]
+[node name="Crumb2" type="MeshInstance3D" parent="Mess/Pile"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.22, 0.015, -0.2)
 mesh = SubResource("Mesh_crumb")
 
-[node name="Crumb3" type="MeshInstance3D" parent="Mess"]
+[node name="Crumb3" type="MeshInstance3D" parent="Mess/Pile"]
 transform = Transform3D(0.7, 0, -0.7, 0, 1, 0, 0.7, 0, 0.7, 0.05, 0.05, 0.03)
 mesh = SubResource("Mesh_crumb")

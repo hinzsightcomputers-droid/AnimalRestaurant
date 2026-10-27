@@ -36,12 +36,49 @@ shadow_enabled = true
 
 [node name="Furniture" type="Node3D" parent="." unique_id=879784550]
 
-[node name="Table" parent="Furniture" unique_id=1059582218 instance=ExtResource("4_table")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, 1.5)
+[node name="Table1" parent="Furniture" instance=ExtResource("4_table")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0, -0.8)
 
-[node name="Chair" parent="Furniture" unique_id=138738923 node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -4.1, 0, 1.5)
-table = NodePath("../Table")
+[node name="Chair1Left" parent="Furniture" node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -0.8, 0, -0.8)
+table = NodePath("../Table1")
+
+[node name="Chair1Right" parent="Furniture" node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 1.4, 0, -0.8)
+table = NodePath("../Table1")
+
+[node name="Table2" parent="Furniture" instance=ExtResource("4_table")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2, 0, -0.8)
+
+[node name="Chair2Left" parent="Furniture" node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 3.1, 0, -0.8)
+table = NodePath("../Table2")
+
+[node name="Chair2Right" parent="Furniture" node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 5.3, 0, -0.8)
+table = NodePath("../Table2")
+
+[node name="Table3" parent="Furniture" instance=ExtResource("4_table")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0, 2.2)
+
+[node name="Chair3Left" parent="Furniture" node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -0.8, 0, 2.2)
+table = NodePath("../Table3")
+
+[node name="Chair3Right" parent="Furniture" node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 1.4, 0, 2.2)
+table = NodePath("../Table3")
+
+[node name="Table4" parent="Furniture" instance=ExtResource("4_table")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2, 0, 2.2)
+
+[node name="Chair4Left" parent="Furniture" node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 3.1, 0, 2.2)
+table = NodePath("../Table4")
+
+[node name="Chair4Right" parent="Furniture" node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 5.3, 0, 2.2)
+table = NodePath("../Table4")
 
 [node name="OrderCounter" parent="Furniture" unique_id=1832335301 instance=ExtResource("6_counter")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0, -3)
@@ -67,7 +104,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 7.6)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 4.3)
 
 [node name="Player" parent="." unique_id=1623961091 instance=ExtResource("2_player")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.25, 0, 3.8)
 
 [node name="FollowCamera" type="Camera3D" parent="." unique_id=1999012439 node_paths=PackedStringArray("target")]
 current = true
@@ -78,7 +115,6 @@ follow_offset = Vector3(0, 6.3, 4.5)
 [node name="DayManager" type="Node" parent="." unique_id=297707749 node_paths=PackedStringArray("customer_manager")]
 script = ExtResource("11_day")
 customer_manager = NodePath("../CustomerManager")
-day_length_seconds = 30.0
 
 [node name="HUD" parent="." unique_id=1664110998 node_paths=PackedStringArray("order_board", "day_manager") instance=ExtResource("10_hud")]
 order_board = NodePath("../OrderBoard")
@@ -87,4 +123,4 @@ day_manager = NodePath("../DayManager")
 [node name="SummaryScreen" parent="." unique_id=1988595136 node_paths=PackedStringArray("day_manager") instance=ExtResource("12_summary")]
 day_manager = NodePath("../DayManager")
 
-[node name="NameEntryScreen" parent="." instance=ExtResource("13_name")]
+[node name="NameEntryScreen" parent="." unique_id=981747142 instance=ExtResource("13_name")]

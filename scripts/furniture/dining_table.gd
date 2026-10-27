@@ -1,6 +1,6 @@
-# DiningTable: a table that gets dirty after a customer eats. While dirty, players
-# can scrub it (press interact a few times); the seats at it stay unavailable
-# until it is clean.
+# DiningTable: a table that gets dirty after a customer eats (one leftover plate
+# per customer). While dirty, players can scrub it (press interact a few times);
+# its seats aren't given to new customers until it is clean.
 class_name DiningTable
 extends Station
 
@@ -10,7 +10,7 @@ signal cleanliness_changed(table: DiningTable)
 
 var is_dirty := false
 var scrubs_done := 0
-var mess_position := Vector3.ZERO  # Where the leftover plate sits (world space).
+var mess_positions: Array[Vector3] = []  # Where each leftover plate sits (world space).
 
 
 func _ready() -> void:
@@ -22,7 +22,7 @@ func _ready() -> void:
 func make_dirty(at: Vector3) -> void:
 	is_dirty = true
 	scrubs_done = 0
-	mess_position = at
+	mess_positions.append(at)
 	_update_interactable()
 	cleanliness_changed.emit(self)
 	GameEvents.announce("A table needs cleaning.")
@@ -36,6 +36,7 @@ func _on_interacted(player_index: int) -> void:
 	_play_bounce()
 	if scrubs_done >= scrubs_needed:
 		is_dirty = false
+		mess_positions.clear()
 		GameEvents.announce("Player %d cleaned the table." % (player_index + 1))
 	_update_interactable()
 	cleanliness_changed.emit(self)
