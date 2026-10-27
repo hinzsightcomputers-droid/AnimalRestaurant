@@ -5,6 +5,7 @@ extends Node3D
 
 @onready var customer: Customer = get_parent()
 @onready var bubble: Label3D = $Bubble
+@onready var name_tag: Label3D = $NameTag
 @onready var meal: Node3D = $Meal
 @onready var food: MeshInstance3D = $Meal/Food
 
@@ -28,9 +29,9 @@ func _on_state_changed(_customer: Customer) -> void:
 		Customer.State.ARRIVING, Customer.State.GONE:
 			bubble.visible = false
 		Customer.State.WAITING_TO_ORDER:
-			bubble.text = "Ready to order!"
+			bubble.text = _quoted(customer.greeting_line, "Ready to order!")
 		Customer.State.WALKING_TO_SEAT, Customer.State.WAITING_FOR_FOOD:
-			bubble.text = "%s, please!" % dish_name
+			bubble.text = _quoted(customer.order_line, "%s, please!" % dish_name)
 		Customer.State.EATING:
 			bubble.text = "Nom nom..."
 			# Same look as the plate the player carried: golden = good, dark = burnt.
@@ -39,6 +40,21 @@ func _on_state_changed(_customer: Customer) -> void:
 			bubble.text = "\"%s\"" % customer.reaction_line
 			if customer.payment > 0:
 				bubble.text += "\n+$%d" % customer.payment
+
+	_update_name_tag()
+
+
+# Regulars wear a name tag showing how well they know you, e.g. "Pip - New face".
+func _update_name_tag() -> void:
+	name_tag.visible = customer.is_regular() and customer.state != Customer.State.GONE
+	if customer.is_regular():
+		var record: Dictionary = GameState.regulars[customer.regular_id]
+		name_tag.text = "%s - %s" % [customer.display_name, RegularMemory.relationship_title(record)]
+
+
+# A regular's own line in quotes, or the generic text if they have none.
+func _quoted(line: String, fallback: String) -> String:
+	return "\"%s\"" % line if not line.is_empty() else fallback
 
 
 func _apply_species_color() -> void:

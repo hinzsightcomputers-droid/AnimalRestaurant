@@ -17,6 +17,10 @@ var state: State = State.ARRIVING
 var species: Dictionary = {}  # From data/species.json
 var dish: Dictionary = {}     # From data/dishes.json. Picked on arrival, revealed when ordering.
 var seat: Seat = null         # The chair reserved for this customer.
+var display_name := ""        # "Pip" for a regular, "Rabbit" for anyone else.
+var regular_id := ""          # Empty unless this is a regular (data/regulars.json).
+var greeting_line := ""       # What a regular says at the counter (empty = generic).
+var order_line := ""          # What a regular says when ordering (empty = generic).
 
 var wait_seconds := 0.0       # From reaching the counter until the food arrives.
 var served_quality := 0.0     # Quality of the dish they were served (0..1).
@@ -35,6 +39,11 @@ func setup(species_data: Dictionary, dish_data: Dictionary, reserved_seat: Seat)
 	species = species_data
 	dish = dish_data
 	seat = reserved_seat
+	display_name = species.get("name", "Customer")
+
+
+func is_regular() -> bool:
+	return not regular_id.is_empty()
 
 
 func _ready() -> void:

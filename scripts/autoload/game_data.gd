@@ -1,10 +1,14 @@
-# GameData (autoload): loads game content (dishes, species, reactions) from JSON
-# files in res://data/. Other scripts ask GameData for content instead of hard-coding it.
+# GameData (autoload): loads game content (dishes, species, reactions, regulars,
+# dialogue) from JSON files in res://data/. Other scripts ask GameData for content
+# instead of hard-coding it. This is the starting content; what changes during
+# play (like a regular's memory) lives in GameState.
 extends Node
 
 const DISHES_PATH := "res://data/dishes.json"
 const SPECIES_PATH := "res://data/species.json"
 const REACTIONS_PATH := "res://data/reactions.json"
+const REGULARS_PATH := "res://data/regulars.json"
+const DIALOGUE_PATH := "res://data/dialogue.json"
 
 # Each dish: { id, name, price, cook_speed }
 var dishes: Array[Dictionary] = []
@@ -12,12 +16,30 @@ var dishes: Array[Dictionary] = []
 var species: Array[Dictionary] = []
 # Satisfaction tuning plus a "reactions" list: { id, min_satisfaction, payment_percent, lines }
 var reactions: Dictionary = {}
+# Starting state of each regular: { id, name, species, personality, favorite_dish,
+# disliked_dish, relationship, times_visited, last_seen, knows_player_name, last_service_quality }
+var regulars: Array[Dictionary] = []
+# Tuning for regulars (visit chance, relationship changes, titles...).
+var regular_settings: Dictionary = {}
+# Each line: { event, priority, conditions, text }
+var dialogue: Array[Dictionary] = []
 
 
 func _ready() -> void:
 	dishes = _load_list(DISHES_PATH, "dishes")
 	species = _load_list(SPECIES_PATH, "species")
 	reactions = _load_dictionary(REACTIONS_PATH)
+	regulars = _load_list(REGULARS_PATH, "regulars")
+	regular_settings = _load_dictionary(REGULARS_PATH).get("settings", {})
+	dialogue = _load_list(DIALOGUE_PATH, "lines")
+
+
+func get_species(species_id: String) -> Dictionary:
+	for entry in species:
+		if entry["id"] == species_id:
+			return entry
+	push_error("Unknown species id: %s" % species_id)
+	return {}
 
 
 func get_dish(dish_id: String) -> Dictionary:

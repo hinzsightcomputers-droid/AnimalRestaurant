@@ -18,6 +18,7 @@ const SEAT_GROUP := "seats"
 var accepting_customers := true     # False after closing time.
 var _queue: Array[Customer] = []    # Customers waiting to order, front of the line first.
 var _seat_owners: Dictionary = {}   # seat (Station) -> Customer sitting there or walking to it.
+var _regulars_today: Array = []     # Ids of regulars who already came in today (one visit a day each).
 
 
 func _ready() -> void:
@@ -59,7 +60,11 @@ func _try_spawn_customer() -> void:
 		return
 
 	var customer: Customer = CUSTOMER_SCENE.instantiate()
-	customer.setup(GameData.random_species(), GameData.random_dish(), seat)
+	var regular := RegularMemory.pick_visitor(_regulars_today)
+	if regular.is_empty():
+		customer.setup(GameData.random_species(), GameData.random_dish(), seat)
+	else:
+		_setup_regular(customer, regular, seat)
 	add_child(customer)
 	customer.global_position = spawn_point.global_position
 	customer.reset_physics_interpolation()
@@ -72,7 +77,25 @@ func _try_spawn_customer() -> void:
 	_queue.append(customer)
 	var path: Array[Vector3] = [door_point.global_position, _queue_spot(_queue.size() - 1)]
 	customer.walk_to(path, Customer.State.WAITING_TO_ORDER)
-	GameEvents.announce("A %s walked in." % customer.species.get("name", "customer"))
+	if customer.is_regular():
+		GameEvents.announce("%s the %s walked in." % [customer.display_name, customer.species.get("name", "?")])
+	else:
+		GameEvents.announce("A %s walked in." % customer.display_name)
+
+
+# A regular: their own species and name, an order based on their tastes, and
+# lines picked from what they remember (before this visit changes anything).
+func _setup_regular(customer: Customer, record: Dictionary, seat: Seat) -> void:
+	_regulars_today.append(record["id"])
+	var dish := RegularMemory.choose_dish(record)
+	customer.setup(GameData.get_species(record["species"]), dish, seat)
+	customer.regular_id = record["id"]
+	customer.display_name = record["name"]
+	customer.greeting_line = DialoguePicker.pick("greeting", RegularMemory.dialogue_context(record))
+	customer.order_line = DialoguePicker.pick("order", RegularMemory.dialogue_context(record, {
+		"dish": dish.get("name", ""),
+		"ordered_favorite": dish.get("id", "") == record["favorite_dish"],
+	}))
 
 
 func _on_order_counter_used(_station: Station, player_index: int) -> void:
@@ -88,7 +111,7 @@ func _on_order_counter_used(_station: Station, player_index: int) -> void:
 	customer.place_order()
 	order_board.add_order(customer)
 	GameEvents.announce("Player %d took an order: %s wants %s." % [
-		player_index + 1, customer.species.get("name", "?"), customer.dish.get("name", "?")])
+		player_index + 1, customer.display_name, customer.dish.get("name", "?")])
 
 	var path: Array[Vector3] = [
 		customer.seat.approach_point.global_position,
@@ -100,23 +123,23 @@ func _on_order_counter_used(_station: Station, player_index: int) -> void:
 
 # A player pressed interact on a seated customer: serve them if holding their dish.
 func _on_customer_interacted(player_index: int, customer: Customer) -> void:
-	var customer_name: String = customer.species.get("name", "customer")
+	var customer_name := _who(customer)
 	var player := Player.find(get_tree(), player_index)
 	var plate: CookedDish = null
 	if player != null:
 		plate = player.held_item as CookedDish
 
 	if plate == null:
-		GameEvents.announce("The %s is waiting for %s." % [customer_name, customer.dish.get("name", "their food")])
+		GameEvents.announce("%s is waiting for %s." % [customer_name.capitalize(), customer.dish.get("name", "their food")])
 		return
 	if plate.order.customer != customer:
-		GameEvents.announce("That's not what the %s ordered." % customer_name)
+		GameEvents.announce("That's not what %s ordered." % customer_name)
 		return
 
 	player.set_held_item(null)
 	order_board.remove_order(plate.order)
 	customer.serve(plate.quality)
-	GameEvents.announce("Served %s to the %s." % [plate.dish_name(), customer_name])
+	GameEvents.announce("Served %s to %s." % [plate.dish_name(), customer_name])
 
 
 # Done eating: work out how happy they are, take payment, and walk them out.
@@ -125,10 +148,14 @@ func _on_customer_finished_eating(customer: Customer) -> void:
 	var reaction := Satisfaction.reaction_for(satisfaction)
 	var amount := Satisfaction.payment_for(customer.dish, reaction)
 	var lines: Array = reaction.get("lines", ["Thank you!"])
+	var line: String = lines.pick_random()
+	if customer.is_regular():
+		line = _remember_visit(customer, reaction.get("id", ""))
 
 	GameState.add_money(amount)
 	GameState.record_service({
 		"species": customer.species.get("id", ""),
+		"regular": customer.regular_id,
 		"dish": customer.dish.get("id", ""),
 		"price": customer.dish.get("price", 0),
 		"quality": customer.served_quality,
@@ -148,9 +175,32 @@ func _on_customer_finished_eating(customer: Customer) -> void:
 		door_point.global_position,
 		spawn_point.global_position,
 	]
-	customer.leave(path, lines.pick_random(), amount)
-	GameEvents.announce("The %s paid $%d (%s, waited %ds)." % [
-		customer.species.get("name", "customer"), amount, reaction.get("id", "?"), roundi(customer.wait_seconds)])
+	customer.leave(path, line, amount)
+	GameEvents.announce("%s paid $%d (%s, waited %ds)." % [
+		_who(customer).capitalize(), amount, reaction.get("id", "?"), roundi(customer.wait_seconds)])
+
+
+# Update what the regular remembers about this visit and pick their goodbye line.
+func _remember_visit(customer: Customer, reaction_id: String) -> String:
+	var record: Dictionary = GameState.regulars[customer.regular_id]
+	var relationship_before: int = record["relationship"]
+	var now := Time.get_datetime_string_from_system(true)
+	var learned_name := RegularMemory.record_visit(record, customer.served_quality, reaction_id, now)
+
+	if record["relationship"] != relationship_before:
+		GameEvents.announce("%s's friendship: %d -> %d" % [record["name"], relationship_before, record["relationship"]])
+	if learned_name:
+		GameEvents.announce("%s learned your name!" % record["name"])
+
+	return DialoguePicker.pick("farewell", RegularMemory.dialogue_context(record, {
+		"reaction": reaction_id,
+		"learned_name": learned_name,
+	}))
+
+
+# "Pip" for a regular, "the Rabbit" for anyone else.
+func _who(customer: Customer) -> String:
+	return customer.display_name if customer.is_regular() else "the %s" % customer.display_name
 
 
 func _on_customer_state_changed(customer: Customer) -> void:

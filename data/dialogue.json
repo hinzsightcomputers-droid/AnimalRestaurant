@@ -1,0 +1,31 @@
+{
+	"lines": [
+		{ "event": "greeting", "priority": 100, "conditions": { "knows_player_name": true, "returned_after_away": true }, "text": "{player}! It's been {days} days! I was starting to worry about you." },
+		{ "event": "greeting", "priority": 95, "conditions": { "returned_after_away": true, "personality": "dramatic" }, "text": "{days} days! Do you know how long {days} days is without your cooking?!" },
+		{ "event": "greeting", "priority": 90, "conditions": { "returned_after_away": true }, "text": "Oh! You're open again! It's been {days} days." },
+		{ "event": "greeting", "priority": 85, "conditions": { "personality": "picky", "last_quality_max": 0.4 }, "text": "Hmph. I'm giving you one more chance." },
+		{ "event": "greeting", "priority": 80, "conditions": { "last_quality_max": 0.4 }, "text": "Let's hope it's better than last time..." },
+		{ "event": "greeting", "priority": 70, "conditions": { "last_quality_min": 0.85 }, "text": "Last time was amazing. I've been dreaming about it!" },
+		{ "event": "greeting", "priority": 60, "conditions": { "regular": "pip", "first_visit": true }, "text": "Um... h-hi. I'm Pip. Is it okay if I order?" },
+		{ "event": "greeting", "priority": 60, "conditions": { "regular": "mochi", "first_visit": true }, "text": "I'm Mochi. I've heard things about this place. We'll see." },
+		{ "event": "greeting", "priority": 50, "conditions": { "first_visit": true }, "text": "Hello! I'm {name}. First time here!" },
+		{ "event": "greeting", "priority": 40, "conditions": { "knows_player_name": true, "min_relationship": 6 }, "text": "{player}, my favorite chef! Hello!" },
+		{ "event": "greeting", "priority": 30, "conditions": { "knows_player_name": true }, "text": "Hi, {player}!" },
+		{ "event": "greeting", "priority": 20, "conditions": { "personality": "shy" }, "text": "H-hello again..." },
+		{ "event": "greeting", "priority": 20, "conditions": { "personality": "chatty" }, "text": "Back again! Did you hear about Frog's new hat?" },
+		{ "event": "greeting", "priority": 0, "conditions": {}, "text": "Hello again!" },
+
+		{ "event": "order", "priority": 50, "conditions": { "ordered_favorite": true, "min_visits": 2 }, "text": "The usual, please! {dish}." },
+		{ "event": "order", "priority": 30, "conditions": { "ordered_favorite": true }, "text": "{dish}, please! It's my favorite." },
+		{ "event": "order", "priority": 20, "conditions": { "personality": "picky" }, "text": "{dish}. And keep that {disliked} away from me." },
+		{ "event": "order", "priority": 0, "conditions": {}, "text": "{dish}, please!" },
+
+		{ "event": "farewell", "priority": 100, "conditions": { "learned_name": true }, "text": "Oh, what's your name, by the way? ...{player}! I'll remember that." },
+		{ "event": "farewell", "priority": 60, "conditions": { "reaction": "unhappy", "personality": "picky" }, "text": "That was... not your best work." },
+		{ "event": "farewell", "priority": 50, "conditions": { "reaction": "unhappy" }, "text": "Hmm. I hope it's better next time." },
+		{ "event": "farewell", "priority": 45, "conditions": { "reaction": "delighted", "knows_player_name": true }, "text": "Wonderful as always, {player}!" },
+		{ "event": "farewell", "priority": 40, "conditions": { "reaction": "delighted" }, "text": "Perfect! I'll be back soon!" },
+		{ "event": "farewell", "priority": 30, "conditions": { "personality": "shy" }, "text": "Th-thank you. That was nice." },
+		{ "event": "farewell", "priority": 0, "conditions": {}, "text": "Thanks! See you next time." }
+	]
+}
