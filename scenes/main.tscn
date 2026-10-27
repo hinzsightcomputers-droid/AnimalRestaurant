@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://cxf2o2ehvmjsa"]
 
 [ext_resource type="PackedScene" path="res://scenes/world/restaurant_room.tscn" id="1_room"]
-[ext_resource type="Script" path="res://scripts/player/player_manager.gd" id="2_players"]
-[ext_resource type="Script" path="res://scripts/camera/view_manager.gd" id="3_views"]
+[ext_resource type="Script" uid="uid://ciab0b3ktftp7" path="res://scripts/player/player_manager.gd" id="2_players"]
+[ext_resource type="Script" uid="uid://dpdxlprdngfik" path="res://scripts/camera/view_manager.gd" id="3_views"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/table.tscn" id="4_table"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/chair.tscn" id="5_chair"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/order_counter.tscn" id="6_counter"]
@@ -13,24 +13,10 @@
 [ext_resource type="Script" uid="uid://bpsdhkvk6wmt6" path="res://scripts/day/day_manager.gd" id="11_day"]
 [ext_resource type="PackedScene" path="res://scenes/ui/summary_screen.tscn" id="12_summary"]
 [ext_resource type="PackedScene" path="res://scenes/ui/account_picker.tscn" id="13_picker"]
-[ext_resource type="Script" path="res://scripts/camera/camera_zoom_settings.gd" id="14_zoom"]
+[ext_resource type="Script" uid="uid://cjh65shpng7ao" path="res://scripts/camera/camera_zoom_settings.gd" id="14_zoom"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/freezer.tscn" id="15_freezer"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/pass_counter.tscn" id="16_pass"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/chopping_board.tscn" id="17_board"]
-
-[sub_resource type="Resource" id="Zoom_order_chat"]
-script = ExtResource("14_zoom")
-distance = 3.4
-pitch_degrees = 60.0
-yaw_degrees = 160.0
-duration = 0.4
-
-[sub_resource type="Resource" id="Zoom_serve"]
-script = ExtResource("14_zoom")
-distance = 3.0
-pitch_degrees = 45.0
-yaw_degrees = 0.0
-duration = 0.4
 
 [sub_resource type="Environment" id="Env"]
 background_mode = 1
@@ -39,6 +25,17 @@ ambient_light_source = 2
 ambient_light_color = Color(1, 0.94, 0.85, 1)
 ambient_light_energy = 0.6
 tonemap_mode = 2
+
+[sub_resource type="Resource" id="Zoom_order_chat"]
+script = ExtResource("14_zoom")
+distance = 3.4
+pitch_degrees = 60.0
+yaw_degrees = 160.0
+
+[sub_resource type="Resource" id="Zoom_serve"]
+script = ExtResource("14_zoom")
+distance = 3.0
+pitch_degrees = 45.0
 
 [node name="Main" type="Node3D" unique_id=1251438548]
 
@@ -54,47 +51,47 @@ shadow_enabled = true
 
 [node name="Furniture" type="Node3D" parent="." unique_id=879784550]
 
-[node name="Table1" parent="Furniture" instance=ExtResource("4_table")]
+[node name="Table1" parent="Furniture" unique_id=2112538647 instance=ExtResource("4_table")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0, -0.8)
 
-[node name="Chair1Left" parent="Furniture" node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
+[node name="Chair1Left" parent="Furniture" unique_id=1055042702 node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -0.8, 0, -0.8)
 table = NodePath("../Table1")
 
-[node name="Chair1Right" parent="Furniture" node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
+[node name="Chair1Right" parent="Furniture" unique_id=842818019 node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 1.4, 0, -0.8)
 table = NodePath("../Table1")
 
-[node name="Table2" parent="Furniture" instance=ExtResource("4_table")]
+[node name="Table2" parent="Furniture" unique_id=787319518 instance=ExtResource("4_table")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2, 0, -0.8)
 
-[node name="Chair2Left" parent="Furniture" node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
+[node name="Chair2Left" parent="Furniture" unique_id=1137991521 node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 3.1, 0, -0.8)
 table = NodePath("../Table2")
 
-[node name="Chair2Right" parent="Furniture" node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
+[node name="Chair2Right" parent="Furniture" unique_id=1999469433 node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 5.3, 0, -0.8)
 table = NodePath("../Table2")
 
-[node name="Table3" parent="Furniture" instance=ExtResource("4_table")]
+[node name="Table3" parent="Furniture" unique_id=1366934731 instance=ExtResource("4_table")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0, 2.2)
 
-[node name="Chair3Left" parent="Furniture" node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
+[node name="Chair3Left" parent="Furniture" unique_id=966094167 node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -0.8, 0, 2.2)
 table = NodePath("../Table3")
 
-[node name="Chair3Right" parent="Furniture" node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
+[node name="Chair3Right" parent="Furniture" unique_id=652624055 node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 1.4, 0, 2.2)
 table = NodePath("../Table3")
 
-[node name="Table4" parent="Furniture" instance=ExtResource("4_table")]
+[node name="Table4" parent="Furniture" unique_id=440212546 instance=ExtResource("4_table")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2, 0, 2.2)
 
-[node name="Chair4Left" parent="Furniture" node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
+[node name="Chair4Left" parent="Furniture" unique_id=1915090137 node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 3.1, 0, 2.2)
 table = NodePath("../Table4")
 
-[node name="Chair4Right" parent="Furniture" node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
+[node name="Chair4Right" parent="Furniture" unique_id=806135520 node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 5.3, 0, 2.2)
 table = NodePath("../Table4")
 
@@ -105,14 +102,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0, -3)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.6, 0, -8.5)
 order_board = NodePath("../../OrderBoard")
 
-[node name="Freezer" parent="Furniture" node_paths=PackedStringArray("order_board") instance=ExtResource("15_freezer")]
+[node name="Freezer" parent="Furniture" unique_id=6222894 node_paths=PackedStringArray("order_board") instance=ExtResource("15_freezer")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.1, 0, -8.5)
 order_board = NodePath("../../OrderBoard")
 
-[node name="ChoppingBoard" parent="Furniture" instance=ExtResource("17_board")]
+[node name="ChoppingBoard" parent="Furniture" unique_id=827735368 instance=ExtResource("17_board")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8, 0, -8.55)
 
-[node name="PassCounter" parent="Furniture" instance=ExtResource("16_pass")]
+[node name="PassCounter" parent="Furniture" unique_id=1418804096 instance=ExtResource("16_pass")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, -5.15)
 
 [node name="OrderBoard" type="Node" parent="." unique_id=1808753145]
@@ -133,22 +130,22 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 7.6)
 [node name="CustomerDoor" type="Marker3D" parent="CustomerManager" unique_id=76533005]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 4.3)
 
-[node name="PlayerManager" type="Node3D" parent="."]
+[node name="PlayerManager" type="Node3D" parent="." unique_id=997305182]
 script = ExtResource("2_players")
 
-[node name="Spawn0" type="Marker3D" parent="PlayerManager"]
+[node name="Spawn0" type="Marker3D" parent="PlayerManager" unique_id=80532507]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0, 3.8)
 
-[node name="Spawn1" type="Marker3D" parent="PlayerManager"]
+[node name="Spawn1" type="Marker3D" parent="PlayerManager" unique_id=644957125]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 3.8)
 
-[node name="Spawn2" type="Marker3D" parent="PlayerManager"]
+[node name="Spawn2" type="Marker3D" parent="PlayerManager" unique_id=423921419]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.8)
 
-[node name="Spawn3" type="Marker3D" parent="PlayerManager"]
+[node name="Spawn3" type="Marker3D" parent="PlayerManager" unique_id=1325231204]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0, 3.8)
 
-[node name="Views" type="CanvasLayer" parent="." node_paths=PackedStringArray("player_manager")]
+[node name="Views" type="CanvasLayer" parent="." unique_id=524560020 node_paths=PackedStringArray("player_manager")]
 layer = -1
 script = ExtResource("3_views")
 player_manager = NodePath("../PlayerManager")
@@ -164,5 +161,5 @@ day_manager = NodePath("../DayManager")
 [node name="SummaryScreen" parent="." unique_id=1988595136 node_paths=PackedStringArray("day_manager") instance=ExtResource("12_summary")]
 day_manager = NodePath("../DayManager")
 
-[node name="AccountPicker" parent="." node_paths=PackedStringArray("player_manager") instance=ExtResource("13_picker")]
+[node name="AccountPicker" parent="." unique_id=633814405 node_paths=PackedStringArray("player_manager") instance=ExtResource("13_picker")]
 player_manager = NodePath("../PlayerManager")
