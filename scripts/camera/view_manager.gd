@@ -25,7 +25,8 @@ const LAYOUTS := [
 @export var player_manager: PlayerManager
 @export var split_distance := 6.5     # Meters apart before a shared view splits.
 @export var merge_distance := 5.0     # Meters apart before split views join again.
-@export var transition_time := 0.35   # Seconds for views to slide into a new layout.
+@export var transition_time := 0.45   # Seconds for views to slide into a new layout.
+@export var camera_glide_extra := 0.3 # A splitting view's camera keeps gliding this much longer.
 @export var divider_pixels := 4.0     # Gap between views.
 @export var divider_color := Color(0.25, 0.18, 0.12)
 
@@ -157,8 +158,12 @@ func _apply_groups(new_groups: Array) -> void:
 			targets.append(_views[index].rig.player)
 		view.rig.set_follow_targets(targets)
 
-		# A view coming on screen starts where its player was being shown.
+		# A view coming on screen starts as an exact copy of the view its player
+		# was in (same screen area, same camera), then slides and glides away.
 		if not view.visible:
+			var shown_in: int = _group_of(group[0])
+			if shown_in != -1 and shown_in != group[0]:
+				view.rig.copy_view_from(_views[shown_in].rig, transition_time + camera_glide_extra)
 			view.set_active(true)
 			_set_rect(view, old_rects.get(group[0], layout[mini(i, layout.size() - 1)]), new_groups.size())
 		move_child(view, -1)  # Views on screen draw above ones leaving it.

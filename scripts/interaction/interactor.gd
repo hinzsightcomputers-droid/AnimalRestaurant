@@ -21,8 +21,9 @@ func unlock() -> void:
 
 func _physics_process(_delta: float) -> void:
 	if locked_to != null:
-		if focused != locked_to:
-			focused = locked_to
+		var stuck_on: Interactable = locked_to if locked_to.enabled else null  # A disabled target shows no prompt.
+		if focused != stuck_on:
+			focused = stuck_on
 			focus_changed.emit(focused)
 		return
 

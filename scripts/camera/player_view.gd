@@ -17,7 +17,16 @@ func setup(player: Player) -> void:
 	rig.set_player(player)
 
 
-# Hidden views stop rendering so they cost nothing.
+# Hidden views stop rendering so they cost nothing. A view coming back renders
+# one frame before it is shown, so it never flashes an old picture.
 func set_active(active: bool) -> void:
-	visible = active
-	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS if active else SubViewport.UPDATE_DISABLED
+	if not active:
+		visible = false
+		viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+		return
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	if not visible:
+		modulate.a = 0.0
+		visible = true
+		await get_tree().process_frame  # By now the SubViewport has drawn a fresh frame.
+		modulate.a = 1.0

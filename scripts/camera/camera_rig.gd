@@ -28,6 +28,7 @@ enum Mode { INTRO, FOLLOW, FOCUS }
 @export var zoom_out_after := 2.0     # Targets can be this far from their center before we pull back.
 @export var zoom_per_meter := 0.12    # How much further back per extra meter of spread.
 @export var max_zoom := 1.8           # Never further than follow_offset * max_zoom.
+@export var regroup_duration := 0.6   # Glide time when the group this camera follows changes.
 
 var mode: Mode = Mode.INTRO
 var player: Player = null                 # The player who owns this rig.
@@ -68,12 +69,29 @@ func set_player(owner_player: Player) -> void:
 
 # A shared view never zooms (it would hide everyone else). A zoom requested
 # while sharing waits until the ViewManager gives this rig just its own player.
+# A changed group gets an eased glide to its new framing.
 func set_follow_targets(targets: Array[Node3D]) -> void:
+	var changed := targets != follow_targets
 	follow_targets = targets
 	if targets.size() <= 1 and focus_requested and mode != Mode.FOCUS:
 		_change_mode(Mode.FOCUS, zoom.duration)
 	elif targets.size() > 1 and mode == Mode.FOCUS:
 		_change_mode(Mode.FOLLOW, zoom.duration)
+	elif changed and mode == Mode.FOLLOW and _blend >= 1.0:
+		_change_mode(Mode.FOLLOW, regroup_duration)
+
+
+# Jump to exactly what `other` is showing, then glide to this rig's own view
+# over `duration`. Used when a view splits off a shared one, so its first
+# frame matches the picture that was already on screen.
+func copy_view_from(other: CameraRig, duration: float) -> void:
+	global_position = other.global_position
+	_offset = other._offset
+	_place_camera()
+	if focus_requested and follow_targets.size() <= 1:
+		_change_mode(Mode.FOCUS, maxf(duration, zoom.duration))
+	else:
+		_change_mode(Mode.FOLLOW, duration)
 
 
 # Zoom in on `point` with `settings` (null = default_zoom).

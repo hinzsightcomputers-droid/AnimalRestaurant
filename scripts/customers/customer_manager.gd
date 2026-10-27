@@ -20,6 +20,9 @@ const SEAT_GROUP := "seats"
 @export_group("Order chat")
 @export var order_chat_seconds := 1.8         # How long the player and customer chat when ordering.
 @export var order_chat_zoom: CameraZoomSettings  # The ordering player's camera during the chat.
+@export_group("Serving moment")
+@export var serve_seconds := 1.5              # How long the server watches the customer start eating.
+@export var serve_zoom: CameraZoomSettings    # The serving player's camera during that moment.
 
 var accepting_customers := true     # False after closing time.
 var _queue: Array[Customer] = []    # Customers waiting to order, front of the line first.
@@ -140,17 +143,23 @@ func _order_chat(player_index: int, customer: Customer) -> void:
 	if player == null:
 		return
 	_chatting = true
-	player.movement_locked = true
-	player.interactor.lock_to(order_counter.interactable)
 	var between := (player.global_position + customer.global_position) * 0.5 + Vector3.UP * 1.2
-	player.request_camera_focus(between, order_chat_zoom)
+	await _hold_with_zoom(player, between, order_chat_zoom, order_chat_seconds, order_counter.interactable)
+	_chatting = false
 
-	await get_tree().create_timer(order_chat_seconds, false).timeout
+
+# Keep `player` in place for `seconds` with their camera zoomed in on `point`,
+# their presses stuck to `lock_target` so they can't drift to something nearby.
+func _hold_with_zoom(player: Player, point: Vector3, settings: CameraZoomSettings, seconds: float, lock_target: Interactable) -> void:
+	player.movement_locked = true
+	player.interactor.lock_to(lock_target)
+	player.request_camera_focus(point, settings)
+
+	await get_tree().create_timer(seconds, false).timeout
 
 	player.movement_locked = false
 	player.interactor.unlock()
 	player.release_camera_focus()
-	_chatting = false
 
 
 # A player pressed interact on a seated customer: serve them if holding their dish.
@@ -172,6 +181,10 @@ func _on_customer_interacted(player_index: int, customer: Customer) -> void:
 	order_board.remove_order(plate.order)
 	customer.serve(plate.quality)
 	GameEvents.announce("Served %s to %s." % [plate.dish_name(), customer_name])
+
+	# A short zoom on the customer digging in.
+	var at_table := (customer.global_position + customer.seat.meal_position()) * 0.5 + Vector3.UP * 0.8
+	_hold_with_zoom(player, at_table, serve_zoom, serve_seconds, customer.interactable)
 
 
 # Done eating: work out how happy they are, take payment, and walk them out.
