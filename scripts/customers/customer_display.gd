@@ -1,8 +1,10 @@
 # CustomerDisplay: makes a Customer visible. Colors the placeholder body by species,
 # shows a speech bubble based on the customer's state, and shows their meal on
 # the table while eating. A regular with a "model" in their character file
-# looks like that model instead (scaled to its height), walking, sitting and
-# talking with its animations (named in model_animations in data/regulars.json).
+# looks like that model instead (scaled to its height), and so does anyone
+# whose species has "models" (one picked at random, at a height in its range),
+# walking, sitting and talking with its animations (named in model_animations
+# in data/regulars.json).
 # A model without animations bobs along as it walks. A regular's feelings
 # (Customer.emote) pop up over their head with a sound and a bounce. Display only.
 extends Node3D
@@ -124,9 +126,7 @@ func _apply_species_color() -> void:
 
 
 func _load_model() -> void:
-	if not customer.is_regular():
-		return
-	var settings: Dictionary = GameState.regulars[customer.regular_id].get("model", {})
+	var settings := _model_settings()
 	var path: String = settings.get("path", "")
 	if path.is_empty() or not ResourceLoader.exists(path):
 		return
@@ -143,6 +143,17 @@ func _load_model() -> void:
 			child.visible = false
 	var players := _model.find_children("*", "AnimationPlayer", true, false)
 	_animations = players[0] if not players.is_empty() else null
+
+
+# { path, height }: the regular's own model, or one of their species'.
+func _model_settings() -> Dictionary:
+	if customer.is_regular():
+		return GameState.regulars[customer.regular_id].get("model", {})
+	var models: Array = customer.species.get("models", [])
+	if models.is_empty():
+		return {}
+	var height: Array = customer.species.get("height", [1.0, 1.1])
+	return { "path": models.pick_random(), "height": randf_range(height[0], height[1]) }
 
 
 func _process(delta: float) -> void:

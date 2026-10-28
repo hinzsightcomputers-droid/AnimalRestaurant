@@ -4,6 +4,13 @@
 		{ "id": "bear", "name": "Bear", "color": "#8b5a3c" },
 		{ "id": "frog", "name": "Frog", "color": "#7cc46a" },
 		{ "id": "mouse", "name": "Mouse", "color": "#a9a7ae" },
-		{ "id": "tortoise", "name": "Tortoise", "color": "#6f9e5a" }
+		{ "id": "tortoise", "name": "Tortoise", "color": "#6f9e5a" },
+		{ "id": "songbird", "name": "Songbird", "color": "#e8c24a", "models": ["res://design/characters/Extras/barney-the-songbird.glb"], "height": [0.95, 1.05] },
+		{ "id": "rabbit", "name": "Rabbit", "color": "#e9e1d4", "models": ["res://design/characters/Extras/chester-the-rabbit.glb"], "height": [0.95, 1.1] },
+		{ "id": "cow", "name": "Cow", "color": "#f2efe8", "models": ["res://design/characters/Extras/felix-the-cow.glb", "res://design/characters/Extras/una-the-cow.glb"], "height": [1.05, 1.2] },
+		{ "id": "deer", "name": "Deer", "color": "#c98a4e", "models": ["res://design/characters/Extras/hazel-the-deer.glb"], "height": [1.0, 1.15] },
+		{ "id": "pig", "name": "Pig", "color": "#f2a8b0", "models": ["res://design/characters/Extras/juniper-the-pig.glb"], "height": [0.95, 1.1] },
+		{ "id": "terrier", "name": "Terrier", "color": "#d8c3a0", "models": ["res://design/characters/Extras/ollie-the-terrier.glb"], "height": [0.9, 1.05] },
+		{ "id": "wolf", "name": "Wolf", "color": "#8e939c", "models": ["res://design/characters/Extras/ziggy-the-wolf.glb"], "height": [1.05, 1.2] }
 	]
 }

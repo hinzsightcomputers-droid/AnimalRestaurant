@@ -21,7 +21,9 @@ const SCENES_PATH := "res://data/scenes.json"
 # "chop" ({ name, chops }) means the ingredient goes to the chopping board first.
 # A dish with "unlock" is only on the menu once that reward is unlocked (see menu()).
 var dishes: Array[Dictionary] = []
-# Each species: { id, name, color }
+# Each species: { id, name, color, models?, height? }. Those with "models" (and
+# a [min, max] "height") are the ones who walk in off the street; the rest are
+# for regulars and callers.
 var species: Array[Dictionary] = []
 # Satisfaction tuning plus a "reactions" list: { id, min_satisfaction, payment_percent, lines }
 var reactions: Dictionary = {}
@@ -121,8 +123,11 @@ func random_dish() -> Dictionary:
 	return on_menu.pick_random() if not on_menu.is_empty() else {}
 
 
+# A species for someone walking in: one with a model, if there are any.
 func random_species() -> Dictionary:
-	return species.pick_random() if not species.is_empty() else {}
+	var modeled := species.filter(func(entry): return not entry.get("models", []).is_empty())
+	var pool := modeled if not modeled.is_empty() else species
+	return pool.pick_random() if not pool.is_empty() else {}
 
 
 # Reads a JSON file shaped like { "<key>": [ {...}, {...} ] } and returns the list.
