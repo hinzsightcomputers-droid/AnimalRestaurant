@@ -6,8 +6,8 @@
 [ext_resource type="Script" path="res://scripts/camera/camera_zoom_settings.gd" id="4_zoom"]
 [ext_resource type="PackedScene" path="res://scenes/cooking/stovetop_closeup.tscn" id="5_closeup"]
 [ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m0_model_fitgd"]
-[ext_resource type="PackedScene" path="res://design/Assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/stove_multi.gltf" id="m1_stove_multigltf"]
-[ext_resource type="PackedScene" path="res://design/Assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/pot_A.gltf" id="m2_pot_Agltf"]
+[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/stove_multi.gltf" id="m1_stove_multigltf"]
+[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/pot_A.gltf" id="m2_pot_Agltf"]
 
 [sub_resource type="Resource" id="Zoom_cooking"]
 script = ExtResource("4_zoom")

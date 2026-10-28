@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/furniture/seat.gd" id="1_station"]
 [ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
 [ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m0_model_fitgd"]
-[ext_resource type="PackedScene" path="res://design/Assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/chair_B.gltf" id="m1_chair_Bgltf"]
+[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/chair_B.gltf" id="m1_chair_Bgltf"]
 
 [sub_resource type="StandardMaterial3D" id="Mat_wood"]
 albedo_color = Color(0.66, 0.45, 0.3, 1)

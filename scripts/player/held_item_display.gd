@@ -48,6 +48,8 @@ func _on_held_item_changed(item: RefCounted) -> void:
 		_food_material.albedo_color = Color(0.3, 0.2, 0.15).lerp(Color(0.95, 0.7, 0.3), dish.quality)
 	elif ingredients != null:
 		label.text = ingredients.display_name() + (" (chop first)" if ingredients.needs_chopping() else "")
+		if ingredients.chop_quality >= 0.0:
+			label.text += " (%s)" % CookingMinigame.quality_label(ingredients.chop_quality)
 		_contents_material.albedo_color = ingredients.color()
 		var bottom := crate.position - Vector3(0.0, CRATE_SIZE.y * 0.5, 0.0)
 		_ingredients_model = ModelFit.place(ingredients.model_path(), crate.get_parent(), bottom, Vector3(CRATE_SIZE.x, 0.0, CRATE_SIZE.z))

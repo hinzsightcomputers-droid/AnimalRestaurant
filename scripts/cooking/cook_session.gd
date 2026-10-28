@@ -28,6 +28,7 @@ signal finished(quality: float)
 
 var recipe: CookRecipe
 var player: Player
+var ingredients: Ingredients = null        # What the cook brought, if anything (e.g. what to chop).
 var input: CookInput
 var steps: Array[CookAction] = []          # This session's own copies of the recipe's steps.
 var current: CookAction = null
@@ -44,9 +45,10 @@ var _screen: Control                       # The instructions' holder, on the co
 var _hint := Label.new()
 
 
-func start(cook_recipe: CookRecipe, cook: Player, view_manager: ViewManager) -> void:
+func start(cook_recipe: CookRecipe, cook: Player, view_manager: ViewManager, brought: Ingredients = null) -> void:
 	recipe = cook_recipe
 	player = cook
+	ingredients = brought
 	input = CookInput.new(self, cook.player_index, view_manager)
 	input.cursor = Vector3(bounds.get_center().x, work_height, bounds.get_center().y)
 	for step in recipe.steps:
@@ -149,13 +151,18 @@ func _show_hint() -> void:
 	_hint.text = "\n".join(lines.filter(func(line): return not line.is_empty()))
 
 
+# [button], [stick], [grip] (to hold) and [flick_up] in a hint, as this player's controls.
 func _controls(text: String) -> String:
 	var button := InputSetup.interact_hint(player.player_index)
 	var stick := InputSetup.move_hint(player.player_index)
+	var grip := "RT"
+	var flick_up := "flick the right stick up"
 	if InputSetup.pad_of(player.player_index) < 0:
 		button += " (or click)"
 		stick += " (or the mouse)"
-	return text.replace("[button]", button).replace("[stick]", stick)
+		grip = button
+		flick_up = "tap %s (or swipe the mouse up)" % InputSetup.up_hint(player.player_index)
+	return text.replace("[button]", button).replace("[stick]", stick).replace("[grip]", grip).replace("[flick_up]", flick_up)
 
 
 # --- Surfaces, pieces and stacks --------------------------------------------

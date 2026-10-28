@@ -1,6 +1,7 @@
 # CookSurface: somewhere food sits in a close-up (a griddle, a plate...). Its
 # position is the middle of its top; it draws itself as a placeholder slab or
-# disc below that. Steps find surfaces by node name ("Griddle", "Plate").
+# disc below that (unless the station already has one there: hidden). Steps
+# find surfaces by node name ("Griddle", "Plate", "Board").
 class_name CookSurface
 extends Node3D
 
@@ -8,9 +9,12 @@ extends Node3D
 @export var round := false
 @export var thickness := 0.02
 @export var color := Color(0.2, 0.2, 0.22)
+@export var hidden := false
 
 
 func _ready() -> void:
+	if hidden:
+		return
 	var mesh_instance := MeshInstance3D.new()
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color

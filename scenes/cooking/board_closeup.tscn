@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/cooking/cook_session.gd" id="1_session"]
+[ext_resource type="Script" path="res://scripts/cooking/cook_surface.gd" id="2_surface"]
+
+[node name="BoardCloseup" type="Node3D"]
+script = ExtResource("1_session")
+bounds = Rect2(-0.34, -0.21, 0.68, 0.42)
+work_height = 0.03
+
+[node name="Board" type="Node3D" parent="."]
+script = ExtResource("2_surface")
+size = Vector2(0.7, 0.45)
+hidden = true

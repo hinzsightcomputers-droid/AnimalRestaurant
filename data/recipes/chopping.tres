@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CookRecipe" format=3]
+
+[ext_resource type="Script" path="res://scripts/cooking/cook_recipe.gd" id="1_recipe"]
+[ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/chop_action.gd" id="3_chop"]
+
+[sub_resource type="Resource" id="Resource_chop"]
+script = ExtResource("3_chop")
+title = "Chop"
+hint = "Move the knife with [stick] and press [button] on each white mark. Chop along with the beat!"
+
+[resource]
+script = ExtResource("1_recipe")
+display_name = "Chopping"
+pieces = 1
+serve_on = "Board"
+steps = Array[ExtResource("2_action")]([SubResource("Resource_chop")])

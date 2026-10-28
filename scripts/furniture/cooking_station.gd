@@ -21,11 +21,14 @@ const RESULT_SHOW_TIME := 1.2  # Seconds the result stays up before the player c
 @export var closeup_offset := Vector3(0.0, 0.9, 0.0)     # Where it goes: the top of the stove.
 @export var closeup_look_offset := Vector3(0.0, 0.95, 0.05)
 @export var closeup_zoom: CameraZoomSettings
+@export_group("")
+@export_range(0.0, 1.0) var chop_share := 0.25          # How much the chopping counts toward a chopped dish.
 
 var minigame: CookingMinigame = null  # Not null while someone is cooking with the timing minigame.
 var session: CookSession = null       # Not null while someone is cooking a close-up recipe.
 var _cook: Player = null
 var _order: Order = null
+var _chop_quality := -1.0  # How well the ingredients being cooked were chopped (-1: not chopped).
 var _together := {}  # During cook_together: the scene's cook step, plus "helper" (the regular).
 
 signal cooked_together(quality: float)
@@ -88,6 +91,7 @@ func _try_start_cooking(player_index: int) -> void:
 	player.set_held_item(null)
 	_cook = player
 	_order = order
+	_chop_quality = ingredients.chop_quality
 	order_board.set_state(order, Order.State.COOKING)
 	var recipe := CookRecipe.for_dish(order.dish)
 	if recipe != null:
@@ -163,6 +167,9 @@ func _on_minigame_finished(quality: float) -> void:
 		_finish_together(quality)
 		return
 	_play_bounce()
+	if _chop_quality >= 0.0:
+		quality = lerpf(quality, _chop_quality, chop_share)
+	_chop_quality = -1.0
 	var dish_name: String = _order.dish.get("name", "Dish") if _order != null else session.recipe.display_name
 	GameEvents.announce("%s came out %s (%d%%)" % [
 		dish_name, CookingMinigame.quality_label(quality).to_lower(), roundi(quality * 100)])

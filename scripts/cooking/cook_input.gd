@@ -3,7 +3,8 @@
 # keyboard), the interact button and the mouse into what steps want:
 #   - cursor: a point on the work surface (session coordinates). The stick
 #     moves it; the mouse puts it wherever it points.
-#   - held / just_pressed / just_released: interact, or the left mouse button.
+#   - held / just_pressed / just_released: interact, the left mouse button, or
+#     the right trigger on a gamepad.
 #   - flick: a quick push of the stick (or tap of a key), or a quick swipe of
 #     the mouse, as a direction on the surface. Set for one frame.
 # The mouse only drives the player whose view it's over. Tuning is on the
@@ -53,8 +54,10 @@ func update(delta: float) -> void:
 	cursor = _session.clamp_to_bounds(cursor)
 	cursor.y = height
 
+	var pad := InputSetup.pad_of(_player_index)
 	var now_held := Input.is_action_pressed(_action("interact")) \
-		or (mouse_point != null and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT))
+		or (mouse_point != null and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)) \
+		or (pad >= 0 and Input.get_joy_axis(pad, JOY_AXIS_TRIGGER_RIGHT) > 0.5)
 	just_pressed = now_held and not held
 	just_released = held and not now_held
 	held = now_held

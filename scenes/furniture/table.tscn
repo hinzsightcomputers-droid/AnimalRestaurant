@@ -5,8 +5,8 @@
 [ext_resource type="Script" path="res://scripts/furniture/table_mess_display.gd" id="3_mess"]
 [ext_resource type="Script" path="res://scripts/camera/camera_zoom_settings.gd" id="4_zoom"]
 [ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m0_model_fitgd"]
-[ext_resource type="PackedScene" path="res://design/Assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/table_round_B_tablecloth_red.gltf" id="m1_table_round_B_ta"]
-[ext_resource type="PackedScene" path="res://design/Assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/plate_dirty.gltf" id="m2_plate_dirtygltf"]
+[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/table_round_B_tablecloth_red.gltf" id="m1_table_round_B_ta"]
+[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/plate_dirty.gltf" id="m2_plate_dirtygltf"]
 
 [sub_resource type="Resource" id="Zoom_cleaning"]
 script = ExtResource("4_zoom")

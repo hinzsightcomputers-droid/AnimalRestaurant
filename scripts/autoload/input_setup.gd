@@ -21,6 +21,7 @@ const KEYBOARD_HINTS := {"keys_left": "E", "keys_right": "Enter"}
 const PAD_HINT := "A"
 const KEYBOARD_MOVE_HINTS := {"keys_left": "WASD", "keys_right": "the arrow keys"}
 const PAD_MOVE_HINT := "the stick"
+const KEYBOARD_UP_HINTS := {"keys_left": "W", "keys_right": "Up"}
 
 # Gamepad stick direction for each move action: [axis, direction].
 const PAD_AXES := {
@@ -100,6 +101,12 @@ func interact_hint(player_index: int) -> String:
 func move_hint(player_index: int) -> String:
 	var device: String = _devices.get(player_index, "")
 	return KEYBOARD_MOVE_HINTS.get(device, PAD_MOVE_HINT)
+
+
+# Text for the move-up key, e.g. "W" (or "the stick" on a gamepad).
+func up_hint(player_index: int) -> String:
+	var device: String = _devices.get(player_index, "")
+	return KEYBOARD_UP_HINTS.get(device, PAD_MOVE_HINT)
 
 
 # The gamepad a player is on, or -1 for a keyboard.

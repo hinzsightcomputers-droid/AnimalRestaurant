@@ -6,6 +6,7 @@ extends RefCounted
 
 var order: Order
 var chopped := false
+var chop_quality := -1.0  # How well they were chopped (0 to 1), once they are.
 
 
 func _init(for_order: Order) -> void:

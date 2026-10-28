@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://scripts/customers/customer_display.gd" id="2_display"]
 [ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="3_interactable"]
 [ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m0_model_fitgd"]
-[ext_resource type="PackedScene" path="res://design/Assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/plate.gltf" id="m1_plategltf"]
+[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/plate.gltf" id="m1_plategltf"]
 
 [sub_resource type="StandardMaterial3D" id="Mat_plate"]
 albedo_color = Color(0.97, 0.96, 0.93, 1)

@@ -3,16 +3,18 @@
 [ext_resource type="Script" path="res://scripts/furniture/chopping_board.gd" id="1_board"]
 [ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
 [ext_resource type="Script" path="res://scripts/camera/camera_zoom_settings.gd" id="3_zoom"]
+[ext_resource type="PackedScene" path="res://scenes/cooking/board_closeup.tscn" id="4_closeup"]
+[ext_resource type="Resource" path="res://data/recipes/chopping.tres" id="5_recipe"]
 [ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m0_model_fitgd"]
-[ext_resource type="PackedScene" path="res://design/Assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/kitchencounter_straight_B.gltf" id="m1_kitchencounter_s"]
-[ext_resource type="PackedScene" path="res://design/Assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/cuttingboard.gltf" id="m2_cuttingboardgltf"]
+[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/kitchencounter_straight_B.gltf" id="m1_kitchencounter_s"]
+[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/cuttingboard.gltf" id="m2_cuttingboardgltf"]
 
-[sub_resource type="Resource" id="Zoom_chopping"]
+[sub_resource type="Resource" id="Zoom_closeup"]
 script = ExtResource("3_zoom")
-distance = 3.0
-pitch_degrees = 45.0
+distance = 0.95
+pitch_degrees = 60.0
 yaw_degrees = 0.0
-duration = 0.4
+duration = 0.5
 
 [sub_resource type="StandardMaterial3D" id="Mat_body"]
 albedo_color = Color(0.42, 0.6, 0.5, 1)
@@ -51,17 +53,15 @@ size = Vector3(0.28, 0.015, 0.07)
 material = SubResource("Mat_handle")
 size = Vector3(0.14, 0.03, 0.04)
 
-[sub_resource type="SphereMesh" id="Mesh_pile"]
-radius = 0.16
-height = 0.14
-
 [sub_resource type="BoxShape3D" id="Shape_board"]
 size = Vector3(1.26, 0.9, 0.76)
 
 [node name="ChoppingBoard" type="StaticBody3D"]
 script = ExtResource("1_board")
 display_name = "Chopping Board"
-camera_zoom = SubResource("Zoom_chopping")
+closeup_scene = ExtResource("4_closeup")
+recipe = ExtResource("5_recipe")
+closeup_zoom = SubResource("Zoom_closeup")
 
 [node name="Visual" type="Node3D" parent="."]
 
@@ -85,11 +85,6 @@ mesh = SubResource("Mesh_blade")
 [node name="Handle" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42, 0.925, -0.04)
 mesh = SubResource("Mesh_handle")
-
-[node name="Pile" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, 1.0, 0.05)
-visible = false
-mesh = SubResource("Mesh_pile")
 
 [node name="Collision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)

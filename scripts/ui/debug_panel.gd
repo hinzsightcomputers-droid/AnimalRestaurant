@@ -412,6 +412,9 @@ func _build() -> void:
 	var kitchen_row := _add_row(box)
 	_add_button(kitchen_row, "Practice pancakes (P1)", _practice.bind("pancakes"))
 	_add_button(kitchen_row, "Only serve pancakes", _only_serve.bind("berry_pancakes"))
+	var chopping_row := _add_row(box)
+	_add_button(chopping_row, "Practice chopping (P1)", _practice_chopping)
+	_add_button(chopping_row, "Only serve carrot soup", _only_serve.bind("carrot_soup"))
 	_add_button(kitchen_row, "Whole menu", _only_serve.bind(""))
 	_kitchen_label = _add_label(box, "")
 
@@ -447,6 +450,15 @@ func _practice(recipe_id: String) -> void:
 		return
 	_set_open(false)
 	stove.practice(Player.find(get_tree(), 0), recipe)
+
+
+# Player 1 chops at the board right away, with nothing to hand back. Closes the panel.
+func _practice_chopping() -> void:
+	var boards := get_tree().root.find_children("*", "ChoppingBoard", true, false)
+	if boards.is_empty():
+		return
+	_set_open(false)
+	boards.front().practice(Player.find(get_tree(), 0))
 
 
 func _only_serve(dish_id: String) -> void:

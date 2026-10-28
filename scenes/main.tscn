@@ -112,8 +112,9 @@ view_manager = NodePath("../../Views")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.1, 0, -8.5)
 order_board = NodePath("../../OrderBoard")
 
-[node name="ChoppingBoard" parent="Furniture" unique_id=827735368 instance=ExtResource("17_board")]
+[node name="ChoppingBoard" parent="Furniture" unique_id=827735368 node_paths=PackedStringArray("view_manager") instance=ExtResource("17_board")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8, 0, -8.55)
+view_manager = NodePath("../../Views")
 
 [node name="PassCounter" parent="Furniture" unique_id=1418804096 instance=ExtResource("16_pass")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, -5.15)
