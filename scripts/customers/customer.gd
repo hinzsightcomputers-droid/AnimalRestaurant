@@ -17,8 +17,8 @@ var state: State = State.ARRIVING
 var species: Dictionary = {}  # From data/species.json
 var dish: Dictionary = {}     # From data/dishes.json. Picked on arrival, revealed when ordering.
 var seat: Seat = null         # The chair reserved for this customer.
-var display_name := ""        # "Pip" for a regular, "Rabbit" for anyone else.
-var regular_id := ""          # Empty unless this is a regular (data/regulars.json).
+var display_name := ""        # "Mabel" for a regular, "Rabbit" for anyone else.
+var regular_id := ""          # Empty unless this is a regular (data/characters/).
 var greeting_line := ""       # What a regular says at the counter (empty = generic).
 var order_line := ""          # What a regular says when ordering (empty = generic).
 

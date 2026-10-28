@@ -1,0 +1,62 @@
+{
+	"id": "stitches",
+	"name": "Stitches",
+	"species": "bear",
+	"color": "#b98a5e",
+	"personality": ["shy", "kind", "hopeful"],
+	"favorite_dish": "berry_pancakes",
+	"disliked_dish": "fish_stew",
+	"referral_only": false,
+	"stage_names": {
+		"4": "Confident", "3": "Opening up", "2": "Warming", "1": "Nervous",
+		"-1": "Confused", "-2": "Hurt", "-3": "Withdrawn", "-4": "Gone"
+	},
+	"tone_reactions": {
+		"1": { "warm": 4, "playful": [1, -1], "straight": -1, "rude": -8 },
+		"2": { "warm": 3, "playful": 2, "straight": 0, "rude": -8 },
+		"3": { "warm": 3, "playful": 3, "straight": 1, "rude": -10 },
+		"4": { "warm": 2, "playful": 3, "straight": 1, "rude": -12 },
+		"negative": { "warm": 2, "playful": 0, "straight": 1, "rude": -6 }
+	},
+	"memory": {
+		"friends": [],
+		"dislike_confessed": false
+	},
+	"lines": [
+		{ "event": "greeting", "priority": 300, "conditions": { "first_visit": true }, "text": "Oh... um. Hi. Is it okay if I sit here? In the corner? I won't be in the way." },
+
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 1, "returned_after_away": true }, "text": "Oh... you're open. I came by a few times. It was closed. I thought maybe... never mind. I'm glad you're okay." },
+		{ "event": "greeting", "priority": 220, "conditions": { "stage": 1, "last_quality_max": 0.4 }, "text": "Last time was... it was fine! Really. I ate all of it." },
+		{ "event": "greeting", "priority": 210, "conditions": { "stage": 1, "last_quality_min": 0.7 }, "text": "I kept thinking about my last meal here. Is that weird? Sorry." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 1 }, "text": "Sorry. Hi. I'm back. If that's okay." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 1 }, "text": "Um... is the corner table free? It's fine if it's not." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 1 }, "text": "Hello... I hope it's not too busy. I can come back later if it is." },
+
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 2, "returned_after_away": true }, "text": "[name]! You're back. I walked past every day, just in case." },
+		{ "event": "greeting", "priority": 210, "conditions": { "stage": 2, "last_quality_min": 0.7 }, "text": "I told my reflection about your cooking. It was the only one listening. Ha. That was a joke." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 2 }, "text": "Hi, [name]. ...I practiced saying your name on the way here. Is that weird? Don't answer that." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 2 }, "text": "I'm back! I mean. Hi. A normal amount of excited." },
+
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 3, "returned_after_away": true }, "text": "You're back! I missed this place. I missed... you know. Talking to you." },
+		{ "event": "greeting", "priority": 220, "conditions": { "stage": 3, "last_quality_max": 0.4 }, "text": "Last time was a little crispy. I'm only telling you because you said I could be honest with you." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 3 }, "text": "[name]! Guess what. I finished a new patch. Look, it has little stars on it." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 3 }, "text": "I saved the corner table. ...Okay, nobody else ever takes it. But I saved it anyway." },
+
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 4, "returned_after_away": true }, "text": "There you are! I was about to sew a 'missing chef' poster." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 4 }, "text": "[name]! I'm here! Your favorite customer! ...Is that too much? No. I'm owning it." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 4 }, "text": "I sat at a middle table today. In the middle. Where people can see me. Are you proud of me? You can say yes." },
+
+		{ "event": "greeting", "priority": 230, "conditions": { "stage": -1 }, "text": "I keep thinking about when you said \"[last_rude_line]\". ...I'm sure you were just busy." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": -1 }, "text": "Hi... um. Did I do something wrong last time? You can tell me. I'll fix it." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": -2 }, "text": "...Hi." },
+
+		{ "event": "farewell", "priority": 300, "conditions": { "learned_name": true }, "text": "Can I ask your name? You know mine. It feels rude that I don't know yours. ...[name]. That's a nice name. I'll remember it. I promise." },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 1 }, "text": "Thank you. Sorry for the trouble. I wiped the table already." },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 1 }, "text": "I'll... maybe come back? If that's okay." },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 2 }, "text": "See you soon, [name]. I still wiped the table. Old habits." },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 3 }, "text": "Can I leave the table for you this time? ...I trust you not to mind." },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 4 }, "text": "Bye, [name]! Same time tomorrow? I'm not asking. I'm telling you." },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": -1 }, "text": "Thank you. Sorry." },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": -2 }, "text": "Thank you." }
+	]
+}

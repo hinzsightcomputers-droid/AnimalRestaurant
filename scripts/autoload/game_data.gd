@@ -1,13 +1,15 @@
 # GameData (autoload): loads game content (dishes, species, reactions, regulars,
-# dialogue, upgrades) from JSON files in res://data/. Other scripts ask GameData for content
-# instead of hard-coding it. This is the starting content; what changes during
-# play (like a regular's memory) lives in GameState.
+# dialogue, upgrades) from JSON files in res://data/. Each regular has their own
+# file in res://data/characters/, so adding one only means adding a file. Other
+# scripts ask GameData for content instead of hard-coding it. This is the starting
+# content; what changes during play (like a regular's memory) lives in GameState.
 extends Node
 
 const DISHES_PATH := "res://data/dishes.json"
 const SPECIES_PATH := "res://data/species.json"
 const REACTIONS_PATH := "res://data/reactions.json"
 const REGULARS_PATH := "res://data/regulars.json"
+const CHARACTERS_DIR := "res://data/characters"
 const DIALOGUE_PATH := "res://data/dialogue.json"
 const UPGRADES_PATH := "res://data/upgrades.json"
 
@@ -18,14 +20,20 @@ var dishes: Array[Dictionary] = []
 var species: Array[Dictionary] = []
 # Satisfaction tuning plus a "reactions" list: { id, min_satisfaction, payment_percent, lines }
 var reactions: Dictionary = {}
-# Starting state of each regular: { id, name, species, personality, favorite_dish,
-# disliked_dish, relationship, times_visited, last_seen, known_players, served_by,
-# last_service_quality }. known_players: account ids whose name they know.
-# served_by: account id -> times that chef served them.
+# Each regular's whole character file, by id: profile (name, species, tastes...),
+# stage_names, tone_reactions, starting "memory" and their own dialogue "lines".
+var characters: Dictionary = {}
+# Starting state of each regular: their profile (id, name, species, color?,
+# personality, favorite_dish, disliked_dish, referral_only, ...) plus every memory
+# field (memory_defaults in regulars.json, then their own "memory"). See
+# memory_fields() for which fields change during play and get saved.
 var regulars: Array[Dictionary] = []
-# Tuning for regulars (visit chance, relationship changes, titles...).
+# Tuning shared by all regulars (visit chance, stages, name learning...).
 var regular_settings: Dictionary = {}
-# Each line: { event, priority, conditions, text }
+# Memory every regular has, e.g. relationship, rude_streak, seen_lines.
+var memory_defaults: Dictionary = {}
+# Each line: { event, priority, conditions, text }. Shared lines from dialogue.json,
+# then each regular's own lines (with a "regular" condition added).
 var dialogue: Array[Dictionary] = []
 # Each upgrade: { id, name, price, description, bonus?: { key: amount }, multiplier?: { key: factor } }.
 # See GameState.upgrade_bonus / upgrade_multiplier for the keys.
@@ -36,9 +44,11 @@ func _ready() -> void:
 	dishes = _load_list(DISHES_PATH, "dishes")
 	species = _load_list(SPECIES_PATH, "species")
 	reactions = _load_dictionary(REACTIONS_PATH)
-	regulars = _load_list(REGULARS_PATH, "regulars")
-	regular_settings = _load_dictionary(REGULARS_PATH).get("settings", {})
+	var regulars_file := _load_dictionary(REGULARS_PATH)
+	regular_settings = regulars_file.get("settings", {})
+	memory_defaults = regulars_file.get("memory_defaults", {})
 	dialogue = _load_list(DIALOGUE_PATH, "lines")
+	_load_characters()
 	upgrades = _load_list(UPGRADES_PATH, "upgrades")
 
 
@@ -96,3 +106,51 @@ func _load_dictionary(path: String) -> Dictionary:
 		push_error("%s should be a JSON object" % path)
 		return {}
 	return parsed
+
+
+# Fields of this regular that change during play and get saved: the shared
+# memory_defaults plus their own extras (e.g. Cheddar's nickname).
+func memory_fields(regular_id: String) -> Array:
+	var fields := memory_defaults.keys()
+	for key in characters.get(regular_id, {}).get("memory", {}):
+		if not key in fields:
+			fields.append(key)
+	return fields
+
+
+# Every .json in data/characters/, in file name order.
+func _load_characters() -> void:
+	var files := Array(DirAccess.get_files_at(CHARACTERS_DIR)).filter(func(f): return f.ends_with(".json"))
+	files.sort()
+	for file_name in files:
+		var character := _load_dictionary("%s/%s" % [CHARACTERS_DIR, file_name])
+		if not character.has("id"):
+			push_error("%s needs an \"id\"" % file_name)
+			continue
+		characters[character["id"]] = character
+
+		var record := {}
+		for key in character:
+			if not key in ["stage_names", "tone_reactions", "memory", "lines"]:
+				record[key] = character[key]
+		record.merge(memory_defaults.duplicate(true), true)
+		record.merge(character.get("memory", {}).duplicate(true), true)
+		regulars.append(record)
+
+		for line in character.get("lines", []):
+			dialogue.append(_with_token_conditions(line, character["id"]))
+
+
+# A character's line, only for them, and only when its [tokens] can be filled
+# in: [name] and [nickname] need them to know the chef's name, and
+# [last_rude_line] needs a rude line to quote.
+func _with_token_conditions(line: Dictionary, regular_id: String) -> Dictionary:
+	var result := line.duplicate(true)
+	var conditions: Dictionary = result.get_or_add("conditions", {})
+	conditions["regular"] = regular_id
+	var text: String = result.get("text", "")
+	if ("[name]" in text or "[nickname]" in text) and not conditions.has("knows_player_name"):
+		conditions["knows_player_name"] = true
+	if "[last_rude_line]" in text and not conditions.has("has_rude_line"):
+		conditions["has_rude_line"] = true
+	return result

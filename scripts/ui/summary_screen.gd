@@ -201,9 +201,9 @@ func _friends_text() -> String:
 			lines.append("??? the %s - not met yet" % species_name)
 			lines.append("")
 			continue
-		lines.append("%s the %s - %s (friendship %d/%d, %d visits)" % [
-			record["name"], species_name, RegularMemory.relationship_title(record),
-			record["relationship"], GameData.regular_settings.get("relationship_max", 10), record["times_visited"]])
+		lines.append("%s the %s - %s (friendship %+d, %d visits)" % [
+			record["name"], species_name, RegularMemory.stage_name(record),
+			record["relationship"], record["times_visited"]])
 
 		var known := PackedStringArray()
 		var unknown := PackedStringArray()

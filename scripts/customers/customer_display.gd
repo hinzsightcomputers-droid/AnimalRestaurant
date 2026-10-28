@@ -44,12 +44,12 @@ func _on_state_changed(_customer: Customer) -> void:
 	_update_name_tag()
 
 
-# Regulars wear a name tag showing how well they know you, e.g. "Pip - New face".
+# Regulars wear a name tag showing how well they know you, e.g. "Stitches - Nervous".
 func _update_name_tag() -> void:
 	name_tag.visible = customer.is_regular() and customer.state != Customer.State.GONE
 	if customer.is_regular():
 		var record: Dictionary = GameState.regulars[customer.regular_id]
-		name_tag.text = "%s - %s" % [customer.display_name, RegularMemory.relationship_title(record)]
+		name_tag.text = "%s - %s" % [customer.display_name, RegularMemory.stage_name(record)]
 
 
 # A regular's own line in quotes, or the generic text if they have none.

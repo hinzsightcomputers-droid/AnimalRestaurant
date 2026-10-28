@@ -1,0 +1,59 @@
+{
+	"id": "mabel",
+	"name": "Mabel",
+	"species": "tortoise",
+	"personality": ["blunt", "wise", "rambling"],
+	"favorite_dish": "carrot_soup",
+	"disliked_dish": "berry_pancakes",
+	"referral_only": false,
+	"wrong_names": ["Gerald", "Doris", "Bartholomew"],
+	"stage_names": {
+		"4": "Family", "3": "Storyteller", "2": "Regular", "1": "Inspector",
+		"-1": "Disappointed", "-2": "Formal", "-3": "Withdrawn", "-4": "Gone"
+	},
+	"tone_reactions": {
+		"1": { "warm": 1, "playful": 1, "straight": 4, "rude": -6 },
+		"2": { "warm": 2, "playful": 2, "straight": 4, "rude": -8 },
+		"3": { "warm": 3, "playful": 2, "straight": 3, "rude": -10 },
+		"4": { "warm": 3, "playful": 2, "straight": 3, "rude": -12 },
+		"negative": { "warm": 1, "playful": 0, "straight": 3, "rude": -6 }
+	},
+	"memory": {
+		"friends": ["cheddar"],
+		"story_part": 0,
+		"wrong_name_index": 0,
+		"name_test_passed": false
+	},
+	"lines": [
+		{ "event": "greeting", "priority": 300, "conditions": { "first_visit": true }, "text": "Hm. Clean floors. Good start. Don't get excited, dear, I'm only on the floors." },
+
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 1, "returned_after_away": true }, "text": "Closed for days without a sign on the door. In my day we'd have put up a sign. Were you ill, or just careless?" },
+		{ "event": "greeting", "priority": 220, "conditions": { "stage": 1, "last_quality_max": 0.4 }, "text": "I won't pretend last time was good. It wasn't. Let's see what you do with a second chance." },
+		{ "event": "greeting", "priority": 210, "conditions": { "stage": 1, "last_quality_min": 0.7 }, "text": "Your last dish was very good. Don't let it go to your head. Heads are heavy enough." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 1 }, "text": "Afternoon, [wrong name]." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 1 }, "text": "I'll take the table by the window. I like to watch the door. Old habit." },
+
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 2, "returned_after_away": true }, "text": "[name]. You were closed three days. I worried. ...Don't tell anyone I said that." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 2 }, "text": "Afternoon, [name]. Your floors are still clean. I'm keeping score." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 2 }, "text": "Don't fuss, I'll find my own table. I've been finding my own tables for ninety years." },
+
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 3, "returned_after_away": true }, "text": "There you are. I came by twice. The second time I just sat on the bench outside. It's a nice bench." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 3 }, "text": "[name]. Sit with me a minute when you're free. I'm in a talking mood." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 3 }, "text": "I brought you something. A pinch of my own seasoning blend. Don't tell anyone where you got it." },
+
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 4, "returned_after_away": true }, "text": "You disappeared on me. At my age, dear, you don't do that to people." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 4 }, "text": "There's my favorite cook. Don't tell Walter. ...He'd agree, actually." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 4 }, "text": "I've decided you're one of mine now. That's not up for discussion." },
+
+		{ "event": "greeting", "priority": 230, "conditions": { "stage": -1 }, "text": "You said \"[last_rude_line]\" to me. I've been thinking about it. I expected better." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": -1 }, "text": "Afternoon." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": -2 }, "text": "Good afternoon, chef." },
+
+		{ "event": "farewell", "priority": 300, "conditions": { "learned_name": true }, "text": "I know your name, dear. I've always known it. It's on your sign. I just wanted to see if you'd tell me the truth when I got it wrong. You did. That's rarer than you'd think. Thank you, [name]." },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 1 }, "text": "Thank you, [wrong name]. Same time next week. Maybe sooner." },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 2 }, "text": "Goodnight, [name]. Taste everything." },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 3 }, "text": "Goodnight, [name]. Thank you for listening to an old lady ramble." },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 4 }, "text": "Goodnight, dear. Turn the left burner down." },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": -1 }, "text": "Thank you." }
+	]
+}

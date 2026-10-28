@@ -2,59 +2,40 @@
 	"settings": {
 		"regular_chance": 0.4,
 		"favorite_order_chance": 0.7,
-		"relationship_max": 10,
-		"learn_name_at": 3,
+		"relationship_min": -100,
+		"relationship_max": 100,
+		"rude_streak_to_go_negative": 3,
+		"learn_name_stage": 2,
 		"away_days": 3,
 		"relationship_change": { "delighted": 2, "happy": 1, "okay": 0, "unhappy": -1 },
-		"relationship_titles": [
-			{ "min": 0, "title": "New face" },
-			{ "min": 3, "title": "Regular" },
-			{ "min": 6, "title": "Friend" },
-			{ "min": 9, "title": "Best friend" }
-		]
+		"stages": [
+			{ "stage": 4, "min": 75 },
+			{ "stage": 3, "min": 50 },
+			{ "stage": 2, "min": 25 },
+			{ "stage": 1, "min": 0 },
+			{ "stage": -1, "min": -24 },
+			{ "stage": -2, "min": -49 },
+			{ "stage": -3, "min": -74 },
+			{ "stage": -4, "min": -100 }
+		],
+		"lowest_stage_that_visits": -2,
+		"dish_tokens": { "soup": "carrot_soup", "fancy dish": "berry_pancakes", "cheese dish": "acorn_cookies" }
 	},
-	"regulars": [
-		{
-			"id": "pip",
-			"name": "Pip",
-			"species": "rabbit",
-			"personality": ["shy", "sweet"],
-			"favorite_dish": "carrot_soup",
-			"disliked_dish": "fish_stew",
-			"relationship": 0,
-			"times_visited": 0,
-			"last_seen": "",
-			"known_players": [],
-			"served_by": {},
-			"last_service_quality": -1
-		},
-		{
-			"id": "mochi",
-			"name": "Mochi",
-			"species": "cat",
-			"personality": ["picky", "dramatic"],
-			"favorite_dish": "fish_stew",
-			"disliked_dish": "acorn_cookies",
-			"relationship": 0,
-			"times_visited": 0,
-			"last_seen": "",
-			"known_players": [],
-			"served_by": {},
-			"last_service_quality": -1
-		},
-		{
-			"id": "bruno",
-			"name": "Bruno",
-			"species": "bear",
-			"personality": ["cheerful", "chatty"],
-			"favorite_dish": "berry_pancakes",
-			"disliked_dish": "carrot_soup",
-			"relationship": 5,
-			"times_visited": 6,
-			"last_seen": "2026-10-01T12:00:00",
-			"known_players": [],
-			"served_by": {},
-			"last_service_quality": 0.8
-		}
-	]
+	"memory_defaults": {
+		"relationship": 0,
+		"times_visited": 0,
+		"last_seen": "",
+		"known_players": [],
+		"served_by": {},
+		"last_service_quality": -1,
+		"rude_streak": 0,
+		"last_rude_line": "",
+		"friends": [],
+		"pending_gossip": [],
+		"referred_by": "",
+		"big_moment_done": false,
+		"seen_lines": [],
+		"times_gone": 0,
+		"visits_by_stage": {}
+	}
 }

@@ -99,7 +99,10 @@ func _try_spawn_customer() -> void:
 func _setup_regular(customer: Customer, record: Dictionary, seat: Seat) -> void:
 	_regulars_today.append(record["id"])
 	var dish := RegularMemory.choose_dish(record)
-	customer.setup(GameData.get_species(record["species"]), dish, seat)
+	var species := GameData.get_species(record["species"]).duplicate()
+	if record.has("color"):
+		species["color"] = record["color"]  # Their own tint, e.g. Cheddar's bright orange.
+	customer.setup(species, dish, seat)
 	customer.regular_id = record["id"]
 	customer.display_name = record["name"]
 	customer.greeting_line = DialoguePicker.pick("greeting",
@@ -242,12 +245,12 @@ func _on_customer_finished_eating(customer: Customer) -> void:
 func _remember_visit(customer: Customer, reaction_id: String) -> String:
 	var record: Dictionary = GameState.regulars[customer.regular_id]
 	var relationship_before: int = record["relationship"]
-	var now := Time.get_datetime_string_from_system(true)
+	var now := GameClock.now_string()  # The real date, unless the debug panel moved it.
 	var server_id := customer.served_by_account
 	var learned_name := RegularMemory.record_visit(record, customer.served_quality, reaction_id, now, server_id)
 
 	if record["relationship"] != relationship_before:
-		GameEvents.announce("%s's friendship: %d -> %d" % [record["name"], relationship_before, record["relationship"]])
+		GameEvents.announce("%s's friendship: %d -> %d (%s)" % [record["name"], relationship_before, record["relationship"], RegularMemory.stage_name(record)])
 	if learned_name:
 		GameEvents.announce("%s learned %s's name!" % [record["name"], Accounts.get_account(server_id).get("name", "your")])
 
@@ -259,7 +262,7 @@ func _remember_visit(customer: Customer, reaction_id: String) -> String:
 	}))
 
 
-# "Pip" for a regular, "the Rabbit" for anyone else.
+# "Mabel" for a regular, "the Rabbit" for anyone else.
 func _who(customer: Customer) -> String:
 	return customer.display_name if customer.is_regular() else "the %s" % customer.display_name
 

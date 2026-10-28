@@ -6,11 +6,7 @@ extends Node
 
 signal money_changed(money: int)
 
-const SAVE_VERSION := 2
-# Fields of a regular that change during play. Everything else (name, tastes...)
-# always comes from data/regulars.json, so editing that file still takes effect.
-# known_players and served_by use account ids (see Accounts).
-const REGULAR_MEMORY_FIELDS := ["relationship", "times_visited", "last_seen", "known_players", "served_by", "last_service_quality"]
+const SAVE_VERSION := 3
 
 var money := 0
 var day := 1
@@ -21,8 +17,13 @@ var upgrades: Array[String] = []
 var services_today: Array[Dictionary] = []
 # What each chef did today, for the summary: account id -> { chopped, cooked, served, cleaned }.
 var chef_actions_today: Dictionary = {}
-# Regular id -> that regular's current record (same fields as data/regulars.json).
+# Regular id -> that regular's current record (see GameData.regulars). Only the
+# memory fields (GameData.memory_fields) are saved; the profile (name, tastes...)
+# always comes from their character file, so editing it still takes effect.
+# known_players and served_by use account ids (see Accounts).
 var regulars: Dictionary = {}
+# Regular ids the debug panel asked to visit next, in order. Not saved.
+var forced_visitors: Array[String] = []
 
 
 func _ready() -> void:
@@ -30,12 +31,19 @@ func _ready() -> void:
 	SaveGame.load_game()
 
 
-# Back to the starting regulars from data/regulars.json.
+# Back to the starting regulars from their character files.
 func reset_regulars() -> void:
 	regulars.clear()
 	for record in GameData.regulars:
-		regulars[record["id"]] = record.duplicate(true)
-		_whole_number_counters(regulars[record["id"]])
+		reset_regular(record["id"])
+
+
+# One regular back to how their character file starts them (debug panel).
+func reset_regular(regular_id: String) -> void:
+	for record in GameData.regulars:
+		if record["id"] == regular_id:
+			regulars[regular_id] = record.duplicate(true)
+			_whole_number_counters(regulars[regular_id])
 
 
 # The day is over: move on to the next one and save, so quitting from the
@@ -110,7 +118,7 @@ func to_save_data() -> Dictionary:
 	var regular_memory := {}
 	for id in regulars:
 		var memory := {}
-		for field in REGULAR_MEMORY_FIELDS:
+		for field in GameData.memory_fields(id):
 			memory[field] = regulars[id][field]
 		regular_memory[id] = memory
 	return {
@@ -124,7 +132,7 @@ func to_save_data() -> Dictionary:
 
 
 # Restore from to_save_data(). Missing values keep their defaults, and regulars
-# that are no longer in data/regulars.json are ignored.
+# without a character file any more are ignored.
 func apply_save_data(data: Dictionary) -> void:
 	money = int(data.get("money", money))
 	day = int(data.get("day", day))
@@ -135,7 +143,7 @@ func apply_save_data(data: Dictionary) -> void:
 	for id in saved_regulars:
 		if not regulars.has(id):
 			continue
-		for field in REGULAR_MEMORY_FIELDS:
+		for field in GameData.memory_fields(id):
 			if saved_regulars[id].has(field):
 				regulars[id][field] = saved_regulars[id][field]
 		# Old saves only knew one chef: "knows_player_name" meant that chef.
@@ -160,9 +168,13 @@ func _account_from_old_save(data: Dictionary) -> String:
 	return account["id"]
 
 
-# JSON stores every number as a float; keep a regular's counters whole.
+# JSON stores every number as a float; keep a regular's counters whole (the
+# number fields, except last_service_quality, plus the counts in served_by and
+# visits_by_stage).
 func _whole_number_counters(record: Dictionary) -> void:
-	record["relationship"] = int(record["relationship"])
-	record["times_visited"] = int(record["times_visited"])
-	for account_id in record["served_by"]:
-		record["served_by"][account_id] = int(record["served_by"][account_id])
+	for field in GameData.memory_fields(record["id"]):
+		if record[field] is float and field != "last_service_quality":
+			record[field] = int(record[field])
+	for counts in [record["served_by"], record["visits_by_stage"]]:
+		for key in counts:
+			counts[key] = int(counts[key])

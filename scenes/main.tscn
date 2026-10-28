@@ -17,6 +17,7 @@
 [ext_resource type="PackedScene" path="res://scenes/furniture/freezer.tscn" id="15_freezer"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/pass_counter.tscn" id="16_pass"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/chopping_board.tscn" id="17_board"]
+[ext_resource type="PackedScene" path="res://scenes/ui/debug_panel.tscn" id="18_debug"]
 
 [sub_resource type="Environment" id="Env"]
 background_mode = 1
@@ -153,6 +154,7 @@ player_manager = NodePath("../PlayerManager")
 [node name="DayManager" type="Node" parent="." unique_id=297707749 node_paths=PackedStringArray("customer_manager")]
 script = ExtResource("11_day")
 customer_manager = NodePath("../CustomerManager")
+day_length_seconds = 40.0
 
 [node name="HUD" parent="." unique_id=1664110998 node_paths=PackedStringArray("order_board", "day_manager") instance=ExtResource("10_hud")]
 order_board = NodePath("../OrderBoard")
@@ -163,3 +165,5 @@ day_manager = NodePath("../DayManager")
 
 [node name="AccountPicker" parent="." unique_id=633814405 node_paths=PackedStringArray("player_manager") instance=ExtResource("13_picker")]
 player_manager = NodePath("../PlayerManager")
+
+[node name="DebugPanel" parent="." instance=ExtResource("18_debug")]

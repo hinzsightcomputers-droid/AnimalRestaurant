@@ -1,0 +1,59 @@
+{
+	"id": "cheddar",
+	"name": "Cheddar",
+	"species": "mouse",
+	"color": "#f5922f",
+	"personality": ["playful", "chatty", "showman"],
+	"favorite_dish": "fish_stew",
+	"disliked_dish": "acorn_cookies",
+	"referral_only": false,
+	"stage_names": {
+		"4": "Best friend", "3": "Real talk", "2": "Sidekick", "1": "Showman",
+		"-1": "Snarky", "-2": "Cold", "-3": "Withdrawn", "-4": "Gone"
+	},
+	"tone_reactions": {
+		"1": { "warm": 1, "playful": 4, "straight": -2, "rude": -4 },
+		"2": { "warm": 2, "playful": 4, "straight": -1, "rude": -8 },
+		"3": { "warm": 4, "playful": 3, "straight": 0, "rude": -12 },
+		"4": { "warm": 3, "playful": 3, "straight": 1, "rude": -12 },
+		"negative": { "warm": 1, "playful": 3, "straight": 0, "rude": -6 }
+	},
+	"memory": {
+		"friends": ["mabel"],
+		"nickname": "",
+		"player_favorite": ""
+	},
+	"lines": [
+		{ "event": "greeting", "priority": 300, "conditions": { "first_visit": true }, "text": "Ladies and gentlemen, he has ARRIVED. ...It's me. I'm the 'he.' Hi. Nice place. Do you do takeout? Kidding, I'm staying." },
+
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 1, "returned_after_away": true }, "text": "Oh, NOW you're open? I came by and it was just me and a closed sign. We had a nice chat. It's a great listener." },
+		{ "event": "greeting", "priority": 220, "conditions": { "stage": 1, "last_quality_max": 0.4 }, "text": "Last time was extra crispy. Like, fossil crispy. I'm giving you a second chance because I'm generous." },
+		{ "event": "greeting", "priority": 210, "conditions": { "stage": 1, "last_quality_min": 0.7 }, "text": "Okay, I've been thinking about my last meal here. Like, a weird amount. Don't make it weird." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 1 }, "text": "And the mouse enters the building! The crowd goes wild! ...The crowd is you. Go wild." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 1 }, "text": "New seat today. Gotta keep you guessing." },
+
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 2, "returned_after_away": true }, "text": "[nickname]! I thought you got kidnapped. I was gonna make posters. They were gonna be so good." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 2 }, "text": "[nickname]! My favorite person in this building. Also the only person in this building. Still counts." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 2 }, "text": "I had a dream you burnt my food and I woke up FURIOUS. Don't let it happen in real life." },
+
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 3, "returned_after_away": true }, "text": "Hey. You were gone a while. I, uh... it was weird not coming here. Anyway! Funny story-" },
+		{ "event": "greeting", "priority": 230, "conditions": { "stage": 3 }, "text": "Remember when you said \"[last_rude_line]\"? I laughed. ...It wasn't that funny, actually. Okay! Moving on!" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 3 }, "text": "[nickname]! Okay, I have a new bit, but first, how are you? Like, actually?" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 3 }, "text": "I sat here because it's the seat closest to the kitchen. ...For the smell. Not because of you. Mostly the smell." },
+
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 4, "returned_after_away": true }, "text": "You can't just leave! Who's gonna laugh at my jokes? Mabel? She falls asleep halfway through!" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 4 }, "text": "PARTNER! My partner in crime! My co-chef! My- okay I'm out of titles. Hi!" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 4 }, "text": "I have a new prank planned and you're helping. Don't argue. You're already in it." },
+
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": -1 }, "text": "Oh, look who's working today. Lucky me." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": -2 }, "text": "Table for one. Don't bother with the small talk." },
+
+		{ "event": "farewell", "priority": 300, "conditions": { "learned_name": true }, "text": "Okay, I've been calling you 'chef' for weeks. What's your actual name? ...[name]. Cool. Too normal, though. You need a nickname." },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 1 }, "text": "Thank you, thank you, I'll be here all week. Literally. I'm coming back tomorrow." },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 1 }, "text": "Tip's on the table. It's mostly buttons. Kidding! ...Mostly kidding." },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 2 }, "text": "Bye, [nickname]! Don't miss me too much. Actually, miss me a normal amount." },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 3 }, "text": "Thanks, [name]. ...See? I used your real name. That's how you know I mean it." },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 4 }, "text": "Bye, partner! Don't burn anything while I'm gone. Except maybe Mabel's toast. She likes it that way." },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": -1 }, "text": "Wow. Food. Incredible." }
+	]
+}
