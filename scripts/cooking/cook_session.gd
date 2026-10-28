@@ -29,6 +29,7 @@ signal finished(quality: float)
 var recipe: CookRecipe
 var player: Player
 var ingredients: Ingredients = null        # What the cook brought, if anything (e.g. what to chop).
+var context := {}                          # Anything else the steps need, set before start() (e.g. the dishes on a table).
 var input: CookInput
 var steps: Array[CookAction] = []          # This session's own copies of the recipe's steps.
 var current: CookAction = null
@@ -109,7 +110,10 @@ func _finish() -> void:
 	quality = CookRecipe.combine(steps)
 	is_finished = true
 	_cursor.visible = false
-	_hint.text = "%s! %d%%" % [CookingMinigame.quality_label(quality), roundi(quality * 100)]
+	if recipe.finish_text.is_empty():
+		_hint.text = "%s! %d%%" % [CookingMinigame.quality_label(quality), roundi(quality * 100)]
+	else:
+		_hint.text = recipe.finish_text
 	play_sound("ding", Vector3(0.0, 0.1, 0.0))
 	finished.emit(quality)
 

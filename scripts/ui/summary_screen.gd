@@ -13,7 +13,9 @@ const ACTION_WORDS := [
 	["chopped", "chopped"],
 	["cooked", "cooked"],
 	["served", "served"],
-	["cleaned", "tables cleaned"],
+	["cleared", "tables cleared"],
+	["cleaned", "tables wiped"],
+	["washed", "dishes washed"],
 ]
 
 @export var day_manager: DayManager

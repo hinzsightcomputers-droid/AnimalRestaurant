@@ -3,7 +3,8 @@
 # CookRecipe) opens the close-up scene on the stovetop for that player, who
 # cooks it step by step (CookSession reads their controls). Other dishes use the
 # timing minigame, where pressing interact again "stirs". Either way the cook is
-# handed the finished dish when it's done.
+# handed the finished dish when it's done. A dine-in order needs a clean plate
+# from the Sink's rack to go on.
 # A big moment scene can also cook together here (cook_together): a regular
 # stands beside the chef and coaches each stir, and it can't fail.
 class_name CookingStation
@@ -52,7 +53,11 @@ func _prompt_for(player_index: int) -> String:
 		return ""
 	var ingredients := player.held_item as Ingredients
 	if ingredients != null:
-		return "Chop first!" if ingredients.needs_chopping() else "Cook %s" % ingredients.order.dish.get("name", "")
+		if ingredients.needs_chopping():
+			return "Chop first!"
+		if _needs_plate(ingredients.order) and _sink().plates <= 0:
+			return "No clean plates!"
+		return "Cook %s" % ingredients.order.dish.get("name", "")
 	return interactable.prompt if player.held_item == null else ""
 
 
@@ -87,6 +92,9 @@ func _try_start_cooking(player_index: int) -> void:
 		GameEvents.announce("The %s need chopping first. Use the chopping board!" % ingredients.display_name().to_lower())
 		return
 	var order := ingredients.order
+	if _needs_plate(order) and not _sink().take_plate():
+		GameEvents.announce("No clean plates! Wash the dirty dishes at the sink.")
+		return
 
 	player.set_held_item(null)
 	_cook = player
@@ -106,6 +114,15 @@ func _try_start_cooking(player_index: int) -> void:
 	player.request_camera_focus(global_position + zoom_look_offset, camera_zoom)  # Only this player's camera.
 	_play_bounce()
 	used.emit(self, player_index)
+
+
+# Dine-in orders go on a plate from the rack (deliveries go out in a box).
+func _needs_plate(order: Order) -> bool:
+	return order.customer != null and _sink() != null
+
+
+func _sink() -> Sink:
+	return get_tree().get_first_node_in_group(Sink.GROUP) as Sink
 
 
 # Practice a recipe with no order (debug panel): nothing to hand over at the end.

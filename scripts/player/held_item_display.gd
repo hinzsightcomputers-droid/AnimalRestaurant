@@ -1,5 +1,5 @@
-# HeldItemDisplay: shows what something is holding (a plate or an ingredient
-# crate, and a label above it). Works for a Player or a PassCounter: anything
+# HeldItemDisplay: shows what something is holding (a plate, an ingredient
+# crate or a dish bin, and a label above it). Works for a Player or a PassCounter: anything
 # with `held_item` and a `held_item_changed` signal. Display only.
 extends Node3D
 
@@ -19,6 +19,7 @@ var _food_material := StandardMaterial3D.new()
 var _contents_material := StandardMaterial3D.new()
 var _look: Node3D = null    # The dish (as it came out, or its model) instead of the plain food.
 var _ingredients_model: Node3D = null  # Ingredients' own model instead of the plain crate.
+var _bin_model: DishBinModel = null
 
 
 func _ready() -> void:
@@ -31,6 +32,7 @@ func _ready() -> void:
 func _on_held_item_changed(item: RefCounted) -> void:
 	var dish := item as CookedDish
 	var ingredients := item as Ingredients
+	var bin := item as DishBin
 	plate.visible = dish != null
 	crate.visible = ingredients != null
 	label.visible = item != null
@@ -40,6 +42,9 @@ func _on_held_item_changed(item: RefCounted) -> void:
 	if _ingredients_model != null:
 		_ingredients_model.queue_free()
 		_ingredients_model = null
+	if _bin_model != null:
+		_bin_model.queue_free()
+		_bin_model = null
 	if dish != null:
 		_look = dish.show_look(food.get_parent(), Vector3(0.0, PLATE_TOP, 0.0), PLATE_RADIUS)
 		food.visible = _look == null
@@ -54,3 +59,9 @@ func _on_held_item_changed(item: RefCounted) -> void:
 		var bottom := crate.position - Vector3(0.0, CRATE_SIZE.y * 0.5, 0.0)
 		_ingredients_model = ModelFit.place(ingredients.model_path(), crate.get_parent(), bottom, Vector3(CRATE_SIZE.x, 0.0, CRATE_SIZE.z))
 		crate.visible = _ingredients_model == null
+	elif bin != null:
+		label.text = bin.display_name()
+		_bin_model = DishBinModel.new()
+		crate.get_parent().add_child(_bin_model)
+		_bin_model.position = crate.position - Vector3(0.0, CRATE_SIZE.y * 0.5, 0.0)
+		_bin_model.set_dishes(bin.dishes)

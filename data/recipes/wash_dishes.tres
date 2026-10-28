@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="CookRecipe" format=3]
+
+[ext_resource type="Script" path="res://scripts/cooking/cook_recipe.gd" id="1_recipe"]
+[ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/wash_action.gd" id="3_wash"]
+
+[sub_resource type="Resource" id="Resource_wash"]
+script = ExtResource("3_wash")
+title = "Wash the dishes"
+hint = "Hold [grip] on the bin and drop a dish in the sink. Hold [grip] and scrub it clean with [stick], then carry it to the rack."
+
+[resource]
+script = ExtResource("1_recipe")
+display_name = "Washing up"
+pieces = 1
+serve_on = ""
+finish_text = "All washed!"
+steps = Array[ExtResource("2_action")]([SubResource("Resource_wash")])

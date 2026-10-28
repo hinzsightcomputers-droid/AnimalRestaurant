@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="CookRecipe" format=3]
+
+[ext_resource type="Script" path="res://scripts/cooking/cook_recipe.gd" id="1_recipe"]
+[ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/wipe_action.gd" id="3_wipe"]
+
+[sub_resource type="Resource" id="Resource_wipe"]
+script = ExtResource("3_wipe")
+title = "Wipe the table"
+hint = "Hold [grip] and rub the cloth over the spills with [stick]."
+
+[resource]
+script = ExtResource("1_recipe")
+display_name = "Wiping"
+pieces = 1
+serve_on = ""
+finish_text = "Spotless!"
+steps = Array[ExtResource("2_action")]([SubResource("Resource_wipe")])

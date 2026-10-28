@@ -1,5 +1,5 @@
 # Seat: a chair customers can sit on. Knows which table it belongs to, so a
-# dirty table keeps its seats from being given to new customers.
+# messy table keeps its seats from being given to new customers.
 class_name Seat
 extends Station
 
@@ -10,7 +10,7 @@ extends Station
 
 
 func is_table_clean() -> bool:
-	return table == null or not table.is_dirty
+	return table == null or table.is_clean()
 
 
 # Where a seated customer's plate goes: in front of the chair, on the table.

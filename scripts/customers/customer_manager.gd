@@ -670,10 +670,10 @@ func _on_customer_finished_eating(customer: Customer) -> void:
 		"payment": amount,
 	})
 
-	# They leave their plate behind; the seat isn't reused until the table is cleaned.
+	# They leave their dirty dish behind; the seat isn't reused until the table is cleared and wiped.
 	_seat_owners.erase(customer.seat)
 	if customer.seat.table != null:
-		customer.seat.table.make_dirty(customer.seat.meal_position())
+		customer.seat.table.make_dirty(customer.seat.meal_position(), customer.dish)
 
 	var approach := customer.seat.approach_point.global_position
 	var path: Array[Vector3] = [

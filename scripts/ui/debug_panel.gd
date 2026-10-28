@@ -417,6 +417,9 @@ func _build() -> void:
 	_add_button(chopping_row, "Practice chopping (P1)", _practice_chopping)
 	_add_button(chopping_row, "Only serve carrot soup", _only_serve.bind("carrot_soup"))
 	_add_button(kitchen_row, "Whole menu", _only_serve.bind(""))
+	var dishes_row := _add_row(box)
+	_add_button(dishes_row, "Make tables messy", _make_tables_messy)
+	_add_button(dishes_row, "Empty the plate rack", _empty_rack)
 	_kitchen_label = _add_label(box, "")
 
 	_add_label(box, "Phone", 18, true)
@@ -460,6 +463,25 @@ func _practice_chopping() -> void:
 		return
 	_set_open(false)
 	boards.front().practice(Player.find(get_tree(), 0))
+
+
+# Every table gets a dirty dish (a plate or a soup bowl) at each of its chairs.
+func _make_tables_messy() -> void:
+	var dishes := [{}, GameData.get_dish("carrot_soup")]
+	var i := 0
+	for seat in get_tree().root.find_children("*", "Seat", true, false):
+		if seat.table != null and seat.table.session == null:
+			seat.table.make_dirty(seat.meal_position(), dishes[i % dishes.size()])
+			i += 1
+	_kitchen_label.text = "Made %d dirty dishes." % i
+
+
+func _empty_rack() -> void:
+	var sink := get_tree().get_first_node_in_group(Sink.GROUP) as Sink
+	if sink != null:
+		while sink.take_plate():
+			pass
+		_kitchen_label.text = "No clean plates left."
 
 
 func _only_serve(dish_id: String) -> void:

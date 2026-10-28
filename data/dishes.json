@@ -1,15 +1,15 @@
 {
 	"dishes": [
-		{ "id": "carrot_soup", "name": "Carrot Soup", "price": 12, "cook_speed": 1.0, "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/stew_bowl.gltf", "recipe": "soup",
+		{ "id": "carrot_soup", "dirty_model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/bowl_dirty.gltf", "name": "Carrot Soup", "price": 12, "cook_speed": 1.0, "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/stew_bowl.gltf", "recipe": "soup",
 			"ingredient": { "name": "Carrots", "color": "#f08a2c", "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/crate_carrots.gltf",
 				"chop": { "name": "Chopped Carrots", "chops": 5, "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/food_ingredient_carrot_chopped.gltf" } } },
 		{ "id": "berry_pancakes", "name": "Berry Pancakes", "price": 15, "cook_speed": 1.2, "model": "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/Pancakes_Stack.fbx", "recipe": "pancakes",
 			"ingredient": { "name": "Berries & Batter", "color": "#9b4fb8", "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/crate_dough.gltf" } },
-		{ "id": "fish_stew", "name": "Fish Stew", "price": 18, "cook_speed": 1.4, "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/food_stew.gltf",
+		{ "id": "fish_stew", "dirty_model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/bowl_dirty.gltf", "name": "Fish Stew", "price": 18, "cook_speed": 1.4, "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/food_stew.gltf",
 			"ingredient": { "name": "Frozen Fish", "color": "#7fb6d9", "model": "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/Fish.fbx" } },
 		{ "id": "acorn_cookies", "name": "Acorn Cookies", "price": 8, "cook_speed": 0.8, "model": "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/Donut1.fbx",
 			"ingredient": { "name": "Acorn Dough", "color": "#b07a45", "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/crate_dough.gltf" } },
-		{ "id": "storm_soup", "name": "Walter's Storm Soup", "price": 20, "cook_speed": 0.9, "model": "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/CookingPot_Soup.fbx", "recipe": "soup", "unlock": "storm_soup", "invented": true,
+		{ "id": "storm_soup", "dirty_model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/bowl_dirty.gltf", "name": "Walter's Storm Soup", "price": 20, "cook_speed": 0.9, "model": "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/CookingPot_Soup.fbx", "recipe": "soup", "unlock": "storm_soup", "invented": true,
 			"ingredient": { "name": "Soup Vegetables", "color": "#c9a24a", "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/crate_potatoes.gltf",
 				"chop": { "name": "Chopped Vegetables", "chops": 6, "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/food_ingredient_potato_chopped.gltf" } } }
 	]

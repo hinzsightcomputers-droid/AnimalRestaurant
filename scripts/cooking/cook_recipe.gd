@@ -11,6 +11,7 @@ const FOLDER := "res://data/recipes/"
 @export var pieces := 2                 # How many pieces the dish is made of, e.g. pancakes in the stack.
 @export var serve_on := "Plate"         # The surface the finished dish is on: it's carried and served looking like that ("" = the dish's model).
 @export var scene: PackedScene          # The close-up to cook it in; empty = the station's usual one.
+@export var finish_text := ""           # Shown at the end instead of the score (for chores, e.g. "All clean!").
 @export var steps: Array[CookAction] = []
 
 

@@ -1,36 +1,41 @@
-# TableMessDisplay: shows a leftover plate and crumbs for each customer who ate
-# at a dirty table, shrinking with each scrub. Display only: it listens to the
-# DiningTable. The first child ("Pile") is copied for each extra plate.
+# TableMessDisplay: shows a messy table's dirty dishes and spills. Display
+# only: it listens to the DiningTable. While a close-up is open, that shows the
+# dishes (or the spills, while wiping) itself.
 extends Node3D
 
-const TABLE_TOP_HEIGHT := 0.82
-const SMALLEST_SCALE := 0.35  # How small the mess gets right before it's gone.
+const DISH_SIZE := 0.36
+const SPILL_RADIUS := 0.1
+const SPILL_COLOR := Color(0.55, 0.36, 0.2, 0.85)
 
 @onready var table: DiningTable = get_parent()
-@onready var _piles: Array[Node3D] = [$Pile]
+
+var _spill_material := StandardMaterial3D.new()
 
 
 func _ready() -> void:
 	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
+	_spill_material.albedo_color = SPILL_COLOR
+	_spill_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_spill_material.roughness = 0.2
 	table.cleanliness_changed.connect(_refresh)
 	_refresh(table)
 
 
 func _refresh(_table: DiningTable) -> void:
-	visible = table.is_dirty
-	if not visible:
-		return
-
-	while _piles.size() < table.mess_positions.size():
-		var pile: Node3D = _piles[0].duplicate()
-		add_child(pile)
-		_piles.append(pile)
-
-	var progress := float(table.scrubs_done) / table.scrubs_needed
-	for i in _piles.size():
-		var pile := _piles[i]
-		pile.visible = i < table.mess_positions.size()
-		if pile.visible:
-			var at := table.mess_positions[i]
-			pile.global_position = Vector3(at.x, table.global_position.y + TABLE_TOP_HEIGHT, at.z)
-			pile.scale = Vector3.ONE * lerpf(1.0, SMALLEST_SCALE, progress)
+	for child in get_children():
+		child.queue_free()
+	var top := table.global_position.y + DiningTable.TOP_HEIGHT
+	for at in table.spills if not table.is_wiping() else []:
+		var disc := MeshInstance3D.new()
+		var mesh := CylinderMesh.new()
+		mesh.top_radius = SPILL_RADIUS
+		mesh.bottom_radius = SPILL_RADIUS
+		mesh.height = 0.002
+		mesh.material = _spill_material
+		disc.mesh = mesh
+		add_child(disc)
+		disc.global_position = Vector3(at.x, top + 0.002, at.z)
+	for entry in table.dishes if table.session == null else []:
+		var dish := ModelFit.place(entry["model"], self, Vector3.ZERO, Vector3(DISH_SIZE, 0.0, DISH_SIZE))
+		if dish != null:
+			dish.global_position = Vector3(entry["at"].x, top, entry["at"].z)
