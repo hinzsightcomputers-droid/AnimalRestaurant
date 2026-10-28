@@ -1,6 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/intro/street_intro.gd" id="1_intro"]
+[ext_resource type="Texture2D" path="res://assets/dinner_time_logo.png" id="2_logo"]
 
 [sub_resource type="ProceduralSkyMaterial" id="Sky_material"]
 
@@ -637,18 +638,19 @@ material_override = SubResource("Mat_gold")
 
 [node name="TitleUI" type="CanvasLayer" parent="."]
 
-[node name="Title" type="Label" parent="TitleUI"]
-anchors_preset = 10
-anchor_right = 1.0
-offset_top = 40.0
-offset_bottom = 140.0
+[node name="Title" type="TextureRect" parent="TitleUI"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -180.0
+offset_top = 4.0
+offset_right = 180.0
+offset_bottom = 168.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(1, 0.96, 0.88, 1)
-theme_override_colors/font_outline_color = Color(0.45, 0.24, 0.16, 1)
-theme_override_constants/outline_size = 16
-theme_override_font_sizes/font_size = 72
-text = "Animal Restaurant"
-horizontal_alignment = 1
+mouse_filter = 2
+texture = ExtResource("2_logo")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Prompt" type="Label" parent="TitleUI"]
 anchors_preset = 12

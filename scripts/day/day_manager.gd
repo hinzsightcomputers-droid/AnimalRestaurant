@@ -22,6 +22,7 @@ func _ready() -> void:
 	time_left = day_length_seconds
 	GameState.begin_shift()
 	GameState.todays_visits()  # Plan today's regulars now, so the debug panel can show them.
+	Music.play_hour_themes()  # In the restaurant the music follows the real hour (carries on across shifts).
 
 
 func _process(delta: float) -> void:
