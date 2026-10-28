@@ -51,6 +51,10 @@ func start(cook_recipe: CookRecipe, cook: Player, view_manager: ViewManager, bro
 	ingredients = brought
 	input = CookInput.new(self, cook.player_index, view_manager)
 	input.cursor = Vector3(bounds.get_center().x, work_height, bounds.get_center().y)
+	if ingredients != null:  # A pot's broth takes on what's going in it.
+		for child in get_children():
+			if child is CookSurface and child.ingredient_tint > 0.0:
+				child.tint(child.color.lerp(ingredients.color(), child.ingredient_tint))
 	for step in recipe.steps:
 		steps.append(step.duplicate(true))
 	_build_cursor()

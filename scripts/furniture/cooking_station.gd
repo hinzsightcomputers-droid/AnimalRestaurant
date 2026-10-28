@@ -95,7 +95,7 @@ func _try_start_cooking(player_index: int) -> void:
 	order_board.set_state(order, Order.State.COOKING)
 	var recipe := CookRecipe.for_dish(order.dish)
 	if recipe != null:
-		_open_closeup(player, recipe)
+		_open_closeup(player, recipe, ingredients)
 		used.emit(self, player_index)
 		return
 	minigame = CookingMinigame.new(order.dish)
@@ -117,9 +117,9 @@ func practice(player: Player, recipe: CookRecipe) -> void:
 	_open_closeup(player, recipe)
 
 
-# Put the close-up on the stovetop and zoom this player in on it.
-func _open_closeup(player: Player, recipe: CookRecipe) -> void:
-	session = closeup_scene.instantiate()
+# Put the close-up (the recipe's own, or the usual one) on the stovetop and zoom this player in on it.
+func _open_closeup(player: Player, recipe: CookRecipe, ingredients: Ingredients = null) -> void:
+	session = (recipe.scene if recipe.scene != null else closeup_scene).instantiate()
 	session.position = closeup_offset
 	add_child(session)
 	_show_stove_props(false)
@@ -127,7 +127,7 @@ func _open_closeup(player: Player, recipe: CookRecipe) -> void:
 	player.interactor.lock_to(interactable)
 	player.request_camera_focus(global_position + closeup_look_offset, closeup_zoom)
 	session.finished.connect(_on_minigame_finished)
-	session.start(recipe, player, view_manager if view_manager != null else get_tree().root.find_children("*", "ViewManager", true, false).front())
+	session.start(recipe, player, view_manager if view_manager != null else get_tree().root.find_children("*", "ViewManager", true, false).front(), ingredients)
 	_play_bounce()
 
 
@@ -179,7 +179,7 @@ func _on_minigame_finished(quality: float) -> void:
 	if _order != null:
 		order_board.set_state(_order, Order.State.READY)
 		var cooked := CookedDish.new(_order, quality)
-		if session != null:  # It looks the way it came out.
+		if session != null and session.surface(session.recipe.serve_on) != null:  # It looks the way it came out.
 			cooked.look = session.snapshot(session.recipe.serve_on)
 			cooked.look_radius = session.surface(session.recipe.serve_on).radius()
 		_cook.set_held_item(cooked)

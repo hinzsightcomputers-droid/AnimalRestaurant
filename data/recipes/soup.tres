@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="CookRecipe" format=3]
+
+[ext_resource type="Script" path="res://scripts/cooking/cook_recipe.gd" id="1_recipe"]
+[ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/scrape_action.gd" id="3_scrape"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/stir_action.gd" id="4_stir"]
+[ext_resource type="PackedScene" path="res://scenes/cooking/soup_closeup.tscn" id="5_scene"]
+
+[sub_resource type="Resource" id="Resource_scrape"]
+script = ExtResource("3_scrape")
+title = "Into the pot"
+hint = "Hold [grip] on the board and carry it to the pot. Then hold [grip] and push the knife to sweep everything in. Gently, or it splashes!"
+weight = 0.5
+
+[sub_resource type="Resource" id="Resource_stir"]
+script = ExtResource("4_stir")
+title = "Stir"
+hint = "Roll [stick] round and round to whisk it (with the mouse, hold [grip] and circle the pot). Not too slow, not too fast!"
+
+[resource]
+script = ExtResource("1_recipe")
+display_name = "Soup"
+pieces = 1
+serve_on = ""
+scene = ExtResource("5_scene")
+steps = Array[ExtResource("2_action")]([SubResource("Resource_scrape"), SubResource("Resource_stir")])

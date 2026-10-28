@@ -1,0 +1,39 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/cooking/cook_session.gd" id="1_session"]
+[ext_resource type="Script" path="res://scripts/cooking/cook_surface.gd" id="2_surface"]
+[ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="3_fit"]
+[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/pot_A.gltf" id="4_pot"]
+[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/cuttingboard.gltf" id="5_board"]
+
+[node name="SoupCloseup" type="Node3D"]
+script = ExtResource("1_session")
+bounds = Rect2(-0.5, -0.25, 1, 0.5)
+
+[node name="PotModel" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, 0, 0.02)
+script = ExtResource("3_fit")
+model = ExtResource("4_pot")
+size = Vector3(0.42, 0, 0)
+
+[node name="Pot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, 0.11, 0.02)
+script = ExtResource("2_surface")
+size = Vector2(0.25, 0.25)
+round = true
+thickness = 0.006
+color = Color(0.93, 0.62, 0.32, 1)
+ingredient_tint = 0.5
+
+[node name="Board" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0.03, 0.04)
+script = ExtResource("2_surface")
+size = Vector2(0.3, 0.2)
+hidden = true
+
+[node name="Model" type="Node3D" parent="Board"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.03, 0)
+script = ExtResource("3_fit")
+model = ExtResource("5_board")
+size = Vector3(0.3, 0.03, 0.2)
+stretch = true

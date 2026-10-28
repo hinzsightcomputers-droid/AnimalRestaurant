@@ -10,13 +10,17 @@ extends Node3D
 @export var thickness := 0.02
 @export var color := Color(0.2, 0.2, 0.22)
 @export var hidden := false
+@export_range(0.0, 1.0) var ingredient_tint := 0.0  # How much it takes on the ingredients' color (a pot's broth).
+
+var contents: Array[Node3D] = []  # What's been dropped in (e.g. chopped carrots in a pot).
+var _material := StandardMaterial3D.new()
 
 
 func _ready() -> void:
 	if hidden:
 		return
 	var mesh_instance := MeshInstance3D.new()
-	var material := StandardMaterial3D.new()
+	var material := _material
 	material.albedo_color = color
 	material.roughness = 0.5
 	if round:
@@ -33,6 +37,11 @@ func _ready() -> void:
 		mesh_instance.mesh = slab
 	mesh_instance.position.y = -thickness * 0.5
 	add_child(mesh_instance)
+
+
+func tint(new_color: Color) -> void:
+	color = new_color
+	_material.albedo_color = new_color
 
 
 func radius() -> float:

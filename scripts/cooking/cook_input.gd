@@ -5,6 +5,7 @@
 #     moves it; the mouse puts it wherever it points.
 #   - held / just_pressed / just_released: interact, the left mouse button, or
 #     the right trigger on a gamepad.
+#   - stick: where the stick (or the keys) points, as a direction on the surface.
 #   - flick: a quick push of the stick (or tap of a key), or a quick swipe of
 #     the mouse, as a direction on the surface. Set for one frame.
 # The mouse only drives the player whose view it's over. Tuning is on the
@@ -18,6 +19,7 @@ var held := false
 var just_pressed := false
 var just_released := false
 var flick := Vector2.ZERO      # x, z on the surface, normalized; zero when there's no flick.
+var stick := Vector2.ZERO      # x, z on the surface, up to 1 long; zero in the deadzone.
 var using_mouse := false       # The mouse moved the cursor last (rather than the stick).
 
 var _session: CookSession
@@ -53,6 +55,7 @@ func update(delta: float) -> void:
 		cursor += Vector3(move.x, 0.0, move.y)
 	cursor = _session.clamp_to_bounds(cursor)
 	cursor.y = height
+	stick = _on_surface(raw).limit_length(1.0) if raw.length() > InputSetup.DEADZONE else Vector2.ZERO
 
 	var pad := InputSetup.pad_of(_player_index)
 	var now_held := Input.is_action_pressed(_action("interact")) \

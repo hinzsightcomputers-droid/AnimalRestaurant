@@ -411,6 +411,7 @@ func _build() -> void:
 	_add_label(box, "Kitchen", 18, true)
 	var kitchen_row := _add_row(box)
 	_add_button(kitchen_row, "Practice pancakes (P1)", _practice.bind("pancakes"))
+	_add_button(kitchen_row, "Practice soup (P1)", _practice.bind("soup"))
 	_add_button(kitchen_row, "Only serve pancakes", _only_serve.bind("berry_pancakes"))
 	var chopping_row := _add_row(box)
 	_add_button(chopping_row, "Practice chopping (P1)", _practice_chopping)
