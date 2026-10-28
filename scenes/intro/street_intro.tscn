@@ -1,6 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/intro/street_intro.gd" id="1_intro"]
+[ext_resource type="Script" path="res://scripts/player/chef_model.gd" id="c1_chef"]
 [ext_resource type="Texture2D" path="res://assets/dinner_time_logo.png" id="2_logo"]
 [ext_resource type="Script" path="res://scripts/world/model_grid.gd" id="m0_model_gridgd"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/City Builder Bits/Assets/gltf/base.gltf" id="m1_basegltf"]
@@ -37,10 +38,6 @@ glow_bloom = 0.05
 top_radius = 0.5
 bottom_radius = 0.5
 height = 1.0
-
-[sub_resource type="CapsuleMesh" id="Mesh_chef"]
-radius = 0.35
-height = 1.4
 
 [sub_resource type="StandardMaterial3D" id="Mat_wall"]
 albedo_color = Color(0.96, 0.9, 0.79, 1)
@@ -128,12 +125,6 @@ emission_energy_multiplier = 0.0
 [sub_resource type="StandardMaterial3D" id="Mat_moon"]
 shading_mode = 0
 albedo_color = Color(0.92, 0.94, 1, 1)
-
-[sub_resource type="StandardMaterial3D" id="Mat_chef"]
-albedo_color = Color(0.45, 0.68, 0.9, 1)
-
-[sub_resource type="StandardMaterial3D" id="Mat_nose"]
-albedo_color = Color(0.2, 0.25, 0.35, 1)
 
 [node name="StreetIntro" type="Node3D"]
 script = ExtResource("1_intro")
@@ -614,18 +605,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 1)
 
 [node name="Model" type="Node3D" parent="Chef"]
 
-[node name="Body" type="MeshInstance3D" parent="Chef/Model"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
-mesh = SubResource("Mesh_chef")
-material_override = SubResource("Mat_chef")
-
-[node name="Nose" type="MeshInstance3D" parent="Chef/Model"]
-transform = Transform3D(0.18, 0, 0, 0, 0.18, 0, 0, 0, 0.25, 0, 1.05, 0.38)
-mesh = SubResource("Mesh_box")
-material_override = SubResource("Mat_nose")
+[node name="Body" type="Node3D" parent="Chef/Model"]
+script = ExtResource("c1_chef")
 
 [node name="Key" type="MeshInstance3D" parent="Chef/Model"]
-transform = Transform3D(0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.2, 0.2, 1.0, 0.5)
+transform = Transform3D(0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.2, 0.15, 0.85, 0.42)
 visible = false
 mesh = SubResource("Mesh_box")
 material_override = SubResource("Mat_gold")

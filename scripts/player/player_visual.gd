@@ -1,6 +1,7 @@
-# PlayerVisual: gives each player their own body color and a name tag (their
-# chef name, or "P1".."P4" before they've picked one) so players can tell
-# themselves apart. Display only.
+# PlayerVisual: gives each player their own color (a ring at their feet) and
+# a name tag (their chef name, or "P1".."P4" before they've picked one) so
+# players can tell themselves apart, both shown once there's more than one
+# player. The body itself is the ChefModel. Display only.
 class_name PlayerVisual
 extends Node3D
 
@@ -19,10 +20,13 @@ const APRON_PATCHES := [  # Rows from the top, each patch a different fabric.
 	[Color(0.75, 0.55, 0.3), Color(0.35, 0.5, 0.8), Color(0.85, 0.35, 0.3)],
 ]
 
+const APRON_FRONT := 0.36  # How far in front of the chef's middle the patches sit.
+
 var _apron: Node3D
+var _ring := MeshInstance3D.new()
 
 @onready var player: Player = get_parent()
-@onready var body: MeshInstance3D = $Body
+@onready var chef: ChefModel = $Chef
 @onready var tag: Label3D = $Tag
 
 
@@ -32,9 +36,7 @@ static func color_for(player_index: int) -> Color:
 
 func _ready() -> void:
 	var color := color_for(player.player_index)
-	var material := StandardMaterial3D.new()
-	material.albedo_color = color
-	body.material_override = material
+	_build_ring(color)
 	tag.modulate = color.lightened(0.3)
 	Accounts.player_account_changed.connect(_refresh_tag)
 	_refresh_tag()
@@ -48,12 +50,28 @@ func _refresh_apron() -> void:
 	_apron.visible = APRON_REWARD in GameState.unlocks
 
 
-# Mismatched patches on the front of the body, with a strap around the neck.
+# A flat ring on the floor around their feet, in their color.
+func _build_ring(color: Color) -> void:
+	var mesh := TorusMesh.new()
+	mesh.inner_radius = 0.36
+	mesh.outer_radius = 0.42
+	var material := StandardMaterial3D.new()
+	material.albedo_color = color
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mesh.material = material
+	_ring.mesh = mesh
+	_ring.scale.y = 0.15
+	_ring.position.y = 0.02
+	add_child(_ring)
+
+
+# Mismatched patches on the front of the tunic, with a strap around the neck,
+# riding on the chef's spine so it moves with them. (In the character's own
+# unscaled space: the tunic's front is about 0.33 out.)
 # The blue is his old blanket, the stars, the scarf from his first day...
 func _build_apron() -> Node3D:
 	var apron := Node3D.new()
-	add_child(apron)
-	var patch_size := Vector2(0.17, 0.15)
+	var patch_size := Vector2(0.2, 0.17)
 	for row in APRON_PATCHES.size():
 		for column in APRON_PATCHES[row].size():
 			var patch := MeshInstance3D.new()
@@ -64,23 +82,22 @@ func _build_apron() -> Node3D:
 			mesh.material = material
 			patch.mesh = mesh
 			var x: float = (column - (APRON_PATCHES[row].size() - 1) * 0.5) * patch_size.x
-			var y: float = 0.95 - row * patch_size.y
-			# Follow the capsule's curve: the patches sit just in front of its surface.
-			var z := sqrt(maxf(0.0, 0.35 * 0.35 - x * x)) + 0.01
-			patch.position = Vector3(x, y, z)
-			patch.rotation.y = asin(clampf(x / 0.35, -1.0, 1.0))
+			var y: float = 1.12 - row * patch_size.y
+			patch.position = Vector3(x, y, APRON_FRONT - absf(x) * 0.25)  # Curving back a little at the sides.
+			patch.rotation.y = x * 0.6
 			apron.add_child(patch)
 	var strap := MeshInstance3D.new()
 	var strap_mesh := TorusMesh.new()
-	strap_mesh.inner_radius = 0.2
-	strap_mesh.outer_radius = 0.23
+	strap_mesh.inner_radius = 0.3
+	strap_mesh.outer_radius = 0.34
 	var strap_material := StandardMaterial3D.new()
 	strap_material.albedo_color = Color(0.55, 0.38, 0.25)
 	strap_mesh.material = strap_material
 	strap.mesh = strap_mesh
-	strap.position = Vector3(0.0, 1.13, 0.06)
+	strap.position = Vector3(0.0, 1.27, 0.06)
 	strap.rotation.x = deg_to_rad(-20.0)
 	apron.add_child(strap)
+	chef.attach("spine", apron, Transform3D.IDENTITY)
 	return apron
 
 
@@ -89,6 +106,7 @@ func _refresh_tag(_changed_index: int = -1) -> void:
 	tag.text = account.get("name", "P%d" % (player.player_index + 1))
 
 
-# The tag only matters once there's more than one player.
+# The tag and ring only matter once there's more than one player.
 func _process(_delta: float) -> void:
 	tag.visible = InputSetup.active_players().size() > 1
+	_ring.visible = tag.visible

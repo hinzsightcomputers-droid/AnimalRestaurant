@@ -81,7 +81,6 @@ var _look: Dictionary = {}
 var _camera_look := CAMERA_LOOK_START  # Where the camera points; tweened with its position.
 var _started := false
 var _leaving := false
-var _chef_walking := false
 var _time := 0.0
 var _next_walker := 0.0
 var _walker_meshes: Dictionary = {}  # "capsule" / "ear" / "snout" -> shared mesh.
@@ -93,9 +92,6 @@ func _ready() -> void:
 	camera.position = CAMERA_START
 	_apply_look(look_for_hour(GameClock.now_local()["hour"]))
 	_fade_in()
-	var chef_material := StandardMaterial3D.new()
-	chef_material.albedo_color = PlayerVisual.color_for(0)
-	$Chef/Model/Body.material_override = chef_material
 	_build_walker_meshes()
 	if not GameState.restaurant_name.is_empty():
 		_paint_sign(GameState.restaurant_name, Color(GameState.restaurant_color))
@@ -179,8 +175,6 @@ func _is_start_press(event: InputEvent) -> bool:
 func _process(delta: float) -> void:
 	_time += delta
 	camera.look_at(_camera_look)
-	if _chef_walking:  # Bob along.
-		chef_model.position.y = absf(sin(_time * 11.0)) * 0.06
 	prompt_label.modulate.a = 0.6 + 0.4 * sin(_time * 3.0)
 	clock_label.text = _clock_text()
 	_update_walkers(delta)
@@ -224,12 +218,9 @@ func _walk_to(point: Vector3) -> void:
 	if direction.length() < 0.01:
 		return
 	await _turn_to(atan2(direction.x, direction.z))
-	_chef_walking = true
 	var tween := create_tween()
 	tween.tween_property(chef, "position", point, direction.length() / CHEF_SPEED)
 	await tween.finished
-	_chef_walking = false
-	chef_model.position.y = 0.0
 
 
 # Turn to face an angle (0 = toward the street), the short way round.
