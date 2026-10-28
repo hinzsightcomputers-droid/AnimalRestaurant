@@ -180,7 +180,10 @@ func _pick_served_line(customer: Customer, chef_id: String) -> String:
 
 
 # "Take order", or "Write a letter" when nobody's ready to order and someone Gone could get one.
+# "Ticket wheel full!" when there's no clip left for another order.
 func _counter_prompt(_player_index: int) -> String:
+	if _someone_ready_to_order() and not _chatting and TicketWheel.is_full(get_tree()):
+		return "Ticket wheel full!"
 	if not _someone_ready_to_order() and not _chatting and not Redemption.letter_targets().is_empty():
 		return "Write a letter"
 	return order_counter.interactable.prompt
@@ -206,6 +209,9 @@ func _on_order_counter_used(_station: Station, player_index: int) -> void:
 	var customer := _queue[0]
 	if customer.state != Customer.State.WAITING_TO_ORDER or customer.is_walking():
 		return  # Front customer hasn't reached the counter yet.
+	if TicketWheel.is_full(get_tree()):
+		GameEvents.announce("The ticket wheel is full! Finish an order first.")
+		return
 
 	_queue.pop_front()
 	_chatting = true

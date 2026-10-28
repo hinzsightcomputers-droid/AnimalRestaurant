@@ -50,6 +50,8 @@ func is_ringing() -> bool:
 func _prompt_for(player_index: int) -> String:
 	if _in_call:
 		return ""
+	if (is_ringing() or not GameState.voicemails.is_empty()) and TicketWheel.is_full(get_tree()):
+		return "Ticket wheel full!"  # A call is an order, and there's no clip for it.
 	if is_ringing():
 		return "Answer"
 	if not GameState.voicemails.is_empty():
@@ -62,6 +64,9 @@ func _prompt_for(player_index: int) -> String:
 func _on_interacted(player_index: int) -> void:
 	var player := Player.find(get_tree(), player_index)
 	if _in_call or player == null:
+		return
+	if (is_ringing() or not GameState.voicemails.is_empty()) and TicketWheel.is_full(get_tree()):
+		GameEvents.announce("The ticket wheel is full! Finish an order first.")
 		return
 	if is_ringing():
 		var call := _ringing

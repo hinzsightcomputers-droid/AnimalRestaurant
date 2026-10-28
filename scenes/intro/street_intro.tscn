@@ -170,37 +170,37 @@ cells = Vector2i(20, 1)
 cell_size = Vector3(3, 0.06, 3)
 
 [node name="LampLeft" type="Node3D" parent="Street"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.2, 0, 2.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.2, 0, 2.55)
 script = ExtResource("m3_model_fitgd")
 model = ExtResource("m4_streetlight_old_")
 size = Vector3(0, 3.4, 0)
 
 [node name="LampRight" type="Node3D" parent="Street"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.2, 0, 2.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.2, 0, 2.55)
 script = ExtResource("m3_model_fitgd")
 model = ExtResource("m4_streetlight_old_")
 size = Vector3(0, 3.4, 0)
 
 [node name="LampBulbLeft" type="MeshInstance3D" parent="Street"]
-transform = Transform3D(0.24, 0, 0, 0, 0.24, 0, 0, 0, 0.24, -7.2, 2.95, 2.4)
+transform = Transform3D(0.24, 0, 0, 0, 0.24, 0, 0, 0, 0.24, -7.2, 2.95, 2.55)
 mesh = SubResource("Mesh_sphere")
 material_override = SubResource("Mat_bulb")
 
 [node name="LampBulbRight" type="MeshInstance3D" parent="Street"]
-transform = Transform3D(0.24, 0, 0, 0, 0.24, 0, 0, 0, 0.24, 7.2, 2.95, 2.4)
+transform = Transform3D(0.24, 0, 0, 0, 0.24, 0, 0, 0, 0.24, 7.2, 2.95, 2.55)
 mesh = SubResource("Mesh_sphere")
 material_override = SubResource("Mat_bulb")
 
 [node name="StreetLights" type="Node3D" parent="Street"]
 
 [node name="Left" type="OmniLight3D" parent="Street/StreetLights"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.2, 3, 2.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.2, 3, 2.55)
 light_color = Color(1, 0.85, 0.6, 1)
 light_energy = 0.0
 omni_range = 7.0
 
 [node name="Right" type="OmniLight3D" parent="Street/StreetLights"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.2, 3, 2.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.2, 3, 2.55)
 light_color = Color(1, 0.85, 0.6, 1)
 light_energy = 0.0
 omni_range = 7.0

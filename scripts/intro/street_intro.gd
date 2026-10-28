@@ -24,7 +24,11 @@ const DOOR_OUTSIDE := Vector3(0, 0, 1.0)
 const DOOR_INSIDE := Vector3(0, 0, -1.1)
 const BESIDE_DOOR := Vector3(1.2, 0, -1.1)
 const AT_SIGN := Vector3(3.2, 0, -0.75)
-const WALKER_LANES := [{ "z": 1.9, "direction": 1.0 }, { "z": 2.4, "direction": -1.0 }]
+# Between the planters and the street lamps at the curb.
+const WALKER_LANES := [{ "z": 1.3, "direction": 1.0 }, { "z": 1.85, "direction": -1.0 }]
+const WALKER_DIR := "res://design/characters/Extras/"  # Every model in here strolls past.
+const WALKER_HEIGHT := [0.9, 1.15]
+const WALKER_STRIDE := 1.2  # Meters a second their walk animation is made for.
 const WALKER_EDGE := 13.0  # Walkers appear and disappear this far left/right.
 
 # How each time of day looks. sun_angles: [pitch, yaw] in degrees. walker_gap:
@@ -83,8 +87,7 @@ var _started := false
 var _leaving := false
 var _time := 0.0
 var _next_walker := 0.0
-var _walker_meshes: Dictionary = {}  # "capsule" / "ear" / "snout" -> shared mesh.
-var _walker_materials: Dictionary = {}  # Species id -> material.
+var _walker_models: Array[PackedScene] = []
 var _setup: RestaurantSetup = null  # Open while the restaurant is being named.
 
 
@@ -92,7 +95,7 @@ func _ready() -> void:
 	camera.position = CAMERA_START
 	_apply_look(look_for_hour(GameClock.now_local()["hour"]))
 	_fade_in()
-	_build_walker_meshes()
+	_load_walker_models()
 	if not GameState.restaurant_name.is_empty():
 		_paint_sign(GameState.restaurant_name, Color(GameState.restaurant_color))
 	# A few people already out walking, so the street isn't empty at first.
@@ -333,43 +336,40 @@ func _clock_text() -> String:
 
 # --- Passers-by --------------------------------------------------------------
 
-func _build_walker_meshes() -> void:
-	var capsule := CapsuleMesh.new()
-	capsule.radius = 0.32
-	capsule.height = 1.2
-	var ear := BoxMesh.new()
-	ear.size = Vector3(0.1, 0.25, 0.08)
-	var snout := BoxMesh.new()
-	snout.size = Vector3(0.16, 0.12, 0.14)
-	_walker_meshes = { "capsule": capsule, "ear": ear, "snout": snout }
+func _load_walker_models() -> void:
+	for file in DirAccess.get_files_at(WALKER_DIR):
+		var clean := file.trim_suffix(".import").trim_suffix(".remap")  # Exported games list the .import.
+		if clean.get_extension() == "glb" and ResourceLoader.exists(WALKER_DIR + clean):
+			var scene: PackedScene = load(WALKER_DIR + clean)
+			if not _walker_models.has(scene):
+				_walker_models.append(scene)
 
 
-# A placeholder animal (like the customers) strolling along one of the lanes,
-# starting at `x`, or at the edge they walk in from.
+# One of the extras strolling along one of the lanes, starting at `x`, or at
+# the edge they walk in from, its walk animation in step with its speed.
 func _spawn_walker(x := INF) -> void:
+	if _walker_models.is_empty():
+		return
 	var lane: Dictionary = WALKER_LANES.pick_random()
 	if is_inf(x):
 		x = -WALKER_EDGE * lane["direction"]
-	var species := GameData.random_species()
-	if not _walker_materials.has(species["id"]):
-		var material := StandardMaterial3D.new()
-		material.albedo_color = Color.html(species.get("color", "#cccccc"))
-		_walker_materials[species["id"]] = material
-
+	var speed := randf_range(0.9, 1.5)
 	var walker := Node3D.new()
-	var model := Node3D.new()
+	walkers.add_child(walker)
+	var model: Node3D = _walker_models.pick_random().instantiate()
 	walker.add_child(model)
-	for part in [["capsule", Vector3(0, 0.6, 0)], ["ear", Vector3(-0.15, 1.22, 0)], ["ear", Vector3(0.15, 1.22, 0)], ["snout", Vector3(0, 0.85, 0.32)]]:
-		var mesh := MeshInstance3D.new()
-		mesh.mesh = _walker_meshes[part[0]]
-		mesh.position = part[1]
-		mesh.material_override = _walker_materials[species["id"]]
-		model.add_child(mesh)
+	model.scale = Vector3.ONE * randf_range(WALKER_HEIGHT[0], WALKER_HEIGHT[1]) / ModelFit._bounds(model, Transform3D.IDENTITY).size.y
+	var players := model.find_children("*", "AnimationPlayer", true, false)
+	if not players.is_empty():
+		var animations: AnimationPlayer = players[0]
+		if animations.has_animation("walk"):
+			animations.get_animation("walk").loop_mode = Animation.LOOP_LINEAR
+			animations.play("walk")
+			animations.speed_scale = speed / WALKER_STRIDE
+			animations.seek(randf() * animations.current_animation_length)  # Not all in step.
 	walker.position = Vector3(x, 0, lane["z"])
 	walker.rotation.y = PI / 2.0 * lane["direction"]  # Nose along the way they're walking.
-	walker.set_meta("velocity", lane["direction"] * randf_range(0.9, 1.5))
-	walker.set_meta("phase", randf() * TAU)
-	walkers.add_child(walker)
+	walker.set_meta("velocity", lane["direction"] * speed)
 
 
 func _update_walkers(delta: float) -> void:
@@ -380,6 +380,5 @@ func _update_walkers(delta: float) -> void:
 	for walker in walkers.get_children():
 		var velocity: float = walker.get_meta("velocity")
 		walker.position.x += velocity * delta
-		walker.get_child(0).position.y = absf(sin(_time * 7.0 * absf(velocity) + walker.get_meta("phase"))) * 0.05
 		if absf(walker.position.x) > WALKER_EDGE + 0.5:
 			walker.queue_free()

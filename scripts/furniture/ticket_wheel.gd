@@ -6,6 +6,8 @@
 # ingredients from the freezer. Otherwise the wheel turns slowly so the
 # tickets come round, each showing its number and dish and tinted by how far
 # along the order is, and a ticket comes off when its order is done.
+# Every order needs a clip, so once there's an order for each one (is_full) no
+# more can be taken until one is done.
 class_name TicketWheel
 extends Station
 
@@ -57,6 +59,13 @@ func _process(delta: float) -> void:
 	_marker_material.emission_enabled = ready
 
 
+# True when every clip is spoken for: a ticket on it, or one still in someone's
+# pocket (every order on the board gets a clip).
+static func is_full(tree: SceneTree) -> bool:
+	var wheel := tree.get_first_node_in_group(GROUP) as TicketWheel
+	return wheel != null and wheel.order_board.orders.size() >= wheel.clips
+
+
 # "Clip ticket" for someone with tickets (while clipping, the message says what to do).
 func _prompt_for(player_index: int) -> String:
 	if _clipper != null:
@@ -90,6 +99,15 @@ func _start(player_index: int) -> void:
 
 # The clip nearest the front: on, if it's close enough and empty.
 func _try_clip() -> void:
+	if _queue.is_empty():
+		return  # All on (or back in their pocket): just waiting to let go.
+	if _tickets.size() >= clips:  # Nowhere left: the rest go back in their pocket.
+		for order in _queue:
+			_clipper.add_ticket(order)
+		_queue.clear()
+		GameEvents.announce("The ticket wheel is full! Finish an order first.")
+		_finish()
+		return
 	var index := _front_clip()
 	var off := absf(_front_offset(index))
 	if off > front_window or _tickets.has(index):

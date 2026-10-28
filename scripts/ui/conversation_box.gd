@@ -6,11 +6,14 @@
 #
 # Voices: each letter that appears emits letter_typed, at the current typing
 # speed, so a voice can stay in sync. If the speaker's character file has
-# "voice": { "blips": "res://folder", "pitch": 1.0, "every": 2 }, the box babbles
-# every `every` letters, a little faster and higher when sped up: a blip from
-# the folder named for the vowel it's on or coming up (blip_a, blip_oh...), so
-# it follows the words. "sound": "res://..." instead plays that one sound. A
-# line's emotion (see tell) lifts or lowers the voice, e.g. higher when excited.
+# "voice": { "blips": "res://folder", "pitch": 1.0 }, the box babbles along like
+# speech: a blip per syllable, from the folder's blip for that vowel (blip_a,
+# blip_oh...). Each word has its own note (the same every time it's said), its
+# first syllable stressed; a line drifts down as it goes and a question rises at
+# the end. Blips overlap a little rather than cutting each other off. Instead,
+# "sound": "res://..." plays that one sound every "every" letters. Both go a
+# little higher when sped up, and a line's emotion (see tell) lifts or lowers
+# the voice, e.g. higher when excited.
 #
 # Names stand out in color: the chef's own name (and Cheddar's nickname for
 # them) in PLAYER_NAME_COLOR, each regular's name in their "name_color" from
@@ -34,6 +37,7 @@ const TEXT_COLOR := Color(0.25, 0.18, 0.12)
 const DIM_COLOR := Color(0.25, 0.18, 0.12, 0.55)
 const PICKED_COLOR := Color(0.75, 0.33, 0.12)
 const PLAYER_NAME_COLOR := Color("#2f7fd8")
+const BLIP_VOICES := 3  # Blips that can ring at once.
 const VOWEL_BLIPS := { "a": ["a", "ah"], "e": ["e", "eh"], "i": ["i"], "y": ["i"], "o": ["o", "oh"], "u": ["u"] }
 const EMOTION_PITCH := {  # How a feeling changes the voice (from the emotion starter).
 	&"happy": 1.08, &"joyful": 1.15, &"excited": 1.22, &"surprised": 1.18,
@@ -62,6 +66,8 @@ var _pause_left := 0.0
 var _wait_left := 0.0
 var _armed := false  # True once interact is let go, so a held press doesn't answer or skip by accident.
 var _voice := AudioStreamPlayer.new()
+var _blip_players: Array[AudioStreamPlayer] = []
+var _next_blip := 0
 var _voice_pitch := 1.0
 var _voice_every := 2
 var _blips := {}  # Vowel sound ("a", "oh"...) -> its blip, from the voice's "blips" folder.
@@ -130,6 +136,9 @@ func _ready() -> void:
 	for node in [_speaker, _line, _options, _hint]:
 		column.add_child(node)
 	add_child(_voice)
+	for i in BLIP_VOICES:
+		_blip_players.append(AudioStreamPlayer.new())
+		add_child(_blip_players[i])
 	_load_voice()
 	_find_highlights()
 
@@ -321,26 +330,83 @@ func _finish_typing() -> void:
 func _on_letter(at: int, speed_scale: float) -> void:
 	var letter := _plain[at]
 	letter_typed.emit(letter, speed_scale)
-	if (_voice.stream == null and _blips.is_empty()) or letter.to_lower() == letter.to_upper():
+	var sped := 1.15 if speed_scale > 1.0 else 1.0
+	if not _blips.is_empty():
+		if _starts_syllable(at):
+			_babble(at, sped)
+		return
+	if _voice.stream == null or not _is_letter(at):
 		return  # No voice, or not a letter (spaces, punctuation, digits).
 	_letters_since_voice += 1
 	if _letters_since_voice >= _voice_every:
 		_letters_since_voice = 0
-		if not _blips.is_empty():
-			_voice.stream = _blip_for(at)
-		_voice.pitch_scale = _voice_pitch * _mood_pitch * randf_range(0.92, 1.08) * (1.15 if speed_scale > 1.0 else 1.0)
+		_voice.pitch_scale = _voice_pitch * _mood_pitch * randf_range(0.92, 1.08) * sped
 		_voice.play()
 
 
-# The blip for the vowel at `at`, or the next one in the word (a random one if
-# the word has none left, like the "th" in "with").
-func _blip_for(at: int) -> AudioStream:
+# One syllable: its vowel's blip, on the next free player, at the note the
+# word and the line's shape give it.
+func _babble(at: int, sped: float) -> void:
+	var start := at
+	while start > 0 and _is_letter(start - 1):
+		start -= 1
+	var end := at
+	while end < _plain.length() and _is_letter(end):
+		end += 1
+	var word := _plain.substr(start, end - start).to_lower()
+	var stressed := true  # The word's first syllable.
+	for i in range(start, at):
+		if _starts_syllable(i):
+			stressed = false
+	var semitones := float(posmod(word.hash(), 5) - 2) + (1.0 if stressed else 0.0)
+	var progress := float(at) / maxf(_plain.length(), 1.0)
+	var contour := lerpf(1.04, 0.95, progress)  # Sentences drift down...
+	if _plain.strip_edges().trim_suffix("\"").ends_with("?") and progress > 0.7:
+		contour *= 1.0 + (progress - 0.7) * 0.6  # ...questions lift at the end.
+	var player := _blip_players[_next_blip]
+	_next_blip = (_next_blip + 1) % _blip_players.size()
+	player.stream = _blip_for(at, end)
+	player.pitch_scale = _voice_pitch * _mood_pitch * pow(2.0, semitones / 12.0) * contour * randf_range(0.98, 1.02) * sped
+	player.volume_db = (-2.0 if stressed else -5.0) + randf_range(-1.0, 1.0)
+	player.play()
+
+
+func _is_letter(at: int) -> bool:
+	return _plain[at].to_lower() != _plain[at].to_upper()
+
+
+# A vowel (y too, except starting a word like "you"), whose sound the blips make.
+func _is_vowel(at: int) -> bool:
+	var letter := _plain[at].to_lower()
+	if letter == "y":
+		return at > 0 and _is_letter(at - 1)
+	return VOWEL_BLIPS.has(letter)
+
+
+# Where a syllable starts: the first vowel of each run (the "ea" in "bread" is
+# one), or the first letter of a word with no vowels at all ("hmm", "shh").
+func _starts_syllable(at: int) -> bool:
+	if not _is_letter(at):
+		return false
+	if _is_vowel(at):
+		return at == 0 or not _is_vowel(at - 1)
+	if at > 0 and _is_letter(at - 1):
+		return false
 	var i := at
-	while i < _plain.length() and _plain[i].to_lower() != _plain[i].to_upper():
+	while i < _plain.length() and _is_letter(i):
+		if _is_vowel(i):
+			return false
+		i += 1
+	return true
+
+
+# The blip for the vowel at `at`, or the next one before `end` (a random one
+# if there's none, like "hmm").
+func _blip_for(at: int, end: int) -> AudioStream:
+	for i in range(at, end):
 		var found: Array = VOWEL_BLIPS.get(_plain[i].to_lower(), []).filter(func(sound): return _blips.has(sound))
 		if not found.is_empty():
 			return _blips[found.pick_random()]
-		i += 1
 	return _blips.values().pick_random()
 
 
