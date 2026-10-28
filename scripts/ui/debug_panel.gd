@@ -1,8 +1,8 @@
 # DebugPanel: a developer tool for testing regulars, opened and closed with F3.
 # Pick a regular to see everything they remember, set their relationship (or
 # jump to a stage), queue them to visit next, or reset them. It can also fake the
-# date forward to test "you've been gone" lines, and will list big-moment scenes
-# to trigger once those exist. The game pauses while it's open, and changes are
+# date forward to test "you've been gone" lines, show and re-roll which regulars
+# come in today, and will list big-moment scenes to trigger once those exist. The game pauses while it's open, and changes are
 # saved when it closes. Built in code, since it's only a tool.
 extends CanvasLayer
 
@@ -17,6 +17,7 @@ var _slider_label: Label
 var _stage_buttons: HBoxContainer
 var _date_label: Label
 var _queue_label: Label
+var _schedule_label: Label
 var _was_paused := false
 var _changed := false     # Something to save when the panel closes.
 var _updating := false    # True while _refresh moves the slider, so it isn't treated as an edit.
@@ -100,6 +101,11 @@ func _reset_character() -> void:
 	_refresh()
 
 
+func _replan_today() -> void:
+	GameState.replan_today()
+	_refresh()
+
+
 func _add_money() -> void:
 	GameState.add_money(100)
 	_changed = true
@@ -111,6 +117,13 @@ func _refresh() -> void:
 	var offset := GameClock.offset_days()
 	_date_label.text = "Game date: %s%s" % [GameClock.now_string().left(10),
 		"  (real date + %d days)" % offset if offset > 0 else "  (real date)"]
+
+	var visits := PackedStringArray()
+	for visit in GameState.todays_visits():
+		var visitor: Dictionary = GameState.regulars[visit["id"]]
+		var when := "came already" if RegularMemory.visited_today(visitor) else "%d%% through a shift" % roundi(visit["at"] * 100)
+		visits.append("%s (%s)" % [visitor["name"], when])
+	_schedule_label.text = "%s: %s" % [GameClock.describe_date(GameState.date), ", ".join(visits) if not visits.is_empty() else "nobody"]
 
 	var record := _selected_record()
 	if record.is_empty():
@@ -191,6 +204,10 @@ func _build() -> void:
 	for days in DAY_STEPS:
 		_add_button(date_row, "+%d day%s" % [days, "" if days == 1 else "s"], _skip_days.bind(days))
 	_add_button(date_row, "Real date", _real_date)
+
+	_add_label(box, "Today's regulars", 18, true)
+	_schedule_label = _add_label(box, "")
+	_add_button(_add_row(box), "Re-roll today", _replan_today)
 
 	_add_label(box, "Regulars", 18, true)
 	_regular_picker = OptionButton.new()

@@ -1,7 +1,7 @@
-# GameState (autoload): the restaurant's progress. Money, the current day, the
-# upgrades bought, what each regular remembers, and a record of every customer
-# served today (for the end-of-day summary). Loads the save file on startup and
-# saves after each day.
+# GameState (autoload): the restaurant's progress. Money, the real date and
+# which shift of it this is, the upgrades bought, what each regular remembers,
+# and a record of every customer served this shift (for the end-of-shift
+# summary). Loads the save file on startup and saves after each shift.
 extends Node
 
 signal money_changed(money: int)
@@ -9,19 +9,25 @@ signal money_changed(money: int)
 const SAVE_VERSION := 3
 
 var money := 0
-var day := 1
+# The real local date of the current (or last) shift, e.g. "2026-10-27", and
+# which shift of that date it is (1 = the first). See begin_shift.
+var date := ""
+var shift := 1
 # Ids of upgrades bought (see data/upgrades.json), in the order they were bought.
 var upgrades: Array[String] = []
-# One entry per served customer today:
+# One entry per customer served this shift:
 # { species, regular, dish, price, quality, wait_seconds, satisfaction, reaction, payment }
 var services_today: Array[Dictionary] = []
-# What each chef did today, for the summary: account id -> { chopped, cooked, served, cleaned }.
+# What each chef did this shift, for the summary: account id -> { chopped, cooked, served, cleaned }.
 var chef_actions_today: Dictionary = {}
 # Regular id -> that regular's current record (see GameData.regulars). Only the
 # memory fields (GameData.memory_fields) are saved; the profile (name, tastes...)
 # always comes from their character file, so editing it still takes effect.
 # known_players and served_by use account ids (see Accounts).
 var regulars: Dictionary = {}
+# Which regulars come in on `date` and when (see VisitSchedule): { date, visits: [{ id, at }] }.
+# Saved, so the same regulars are expected all date long.
+var schedule := { "date": "", "visits": [] }
 # Regular ids the debug panel asked to visit next, in order. Not saved.
 var forced_visitors: Array[String] = []
 
@@ -46,16 +52,24 @@ func reset_regular(regular_id: String) -> void:
 			_whole_number_counters(regulars[regular_id])
 
 
-# The day is over: move on to the next one and save, so quitting from the
-# summary screen keeps today's progress.
-func finish_day() -> void:
-	day += 1
+# A shift is starting: on a new real date it's shift 1, otherwise the next one.
+func begin_shift() -> void:
+	var today := GameClock.today()
+	if today != date:
+		date = today
+		shift = 1
+
+
+# The shift is over: count it and save, so quitting from the summary screen
+# keeps its progress.
+func finish_shift() -> void:
+	shift += 1
 	services_today.clear()
 	chef_actions_today.clear()
 	SaveGame.save_game()
 
 
-# Count one thing a player did today, e.g. record_chef_action(1, "cooked").
+# Count one thing a player did this shift, e.g. record_chef_action(1, "cooked").
 func record_chef_action(player_index: int, action: String) -> void:
 	var account_id := Accounts.id_of(player_index)
 	if account_id.is_empty():
@@ -102,6 +116,25 @@ func upgrade_multiplier(key: String) -> float:
 	return factor
 
 
+# Today's planned regular visits, planning (and saving) them on the first ask.
+func todays_visits() -> Array:
+	if schedule["date"] != date:
+		replan_today()
+	return schedule["visits"]
+
+
+# A fresh plan for today, e.g. from the debug panel. Regulars already sent in
+# today aren't sent again.
+func replan_today() -> void:
+	schedule = { "date": date, "visits": VisitSchedule.plan() }
+	SaveGame.save_game()
+
+
+# The number the next shift will have (a new date starts again at 1).
+func next_shift_number() -> int:
+	return 1 if GameClock.today() != date else shift
+
+
 func record_service(service: Dictionary) -> void:
 	services_today.append(service)
 
@@ -125,8 +158,10 @@ func to_save_data() -> Dictionary:
 		"version": SAVE_VERSION,
 		"saved_at": Time.get_datetime_string_from_system(true),
 		"money": money,
-		"day": day,
+		"date": date,
+		"shift": shift,
 		"upgrades": upgrades,
+		"schedule": schedule,
 		"regulars": regular_memory,
 	}
 
@@ -135,9 +170,14 @@ func to_save_data() -> Dictionary:
 # without a character file any more are ignored.
 func apply_save_data(data: Dictionary) -> void:
 	money = int(data.get("money", money))
-	day = int(data.get("day", day))
+	date = data.get("date", date)  # Saves from before real dates had a "day" number instead; it's dropped.
+	shift = int(data.get("shift", shift))
 	# Ignore upgrades that were removed from data/upgrades.json.
 	upgrades.assign(data.get("upgrades", []).filter(func(id): return GameData.upgrades.any(func(u): return u["id"] == id)))
+	var saved_schedule = data.get("schedule", {})
+	if saved_schedule is Dictionary and saved_schedule.has("visits"):
+		var visits: Array = saved_schedule["visits"].filter(func(v): return regulars.has(v.get("id", "")))
+		schedule = { "date": saved_schedule.get("date", ""), "visits": visits }
 	var legacy_account_id := _account_from_old_save(data)
 	var saved_regulars: Dictionary = data.get("regulars", {})
 	for id in saved_regulars:

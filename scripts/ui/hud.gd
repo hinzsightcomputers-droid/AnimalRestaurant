@@ -42,13 +42,15 @@ func _process(delta: float) -> void:
 		_refresh_messages()
 
 
-# e.g. "Day 1   2:35   $18", or "Closed" instead of the clock after closing time.
+# e.g. "Tue, Oct 27  8:42 PM   Shift 2  2:35 left   $18": the real date and time,
+# then this shift and how long it stays open ("Closed" after closing time).
 func _refresh_day_and_money() -> void:
-	var clock := "Closed"
+	var shift_clock := "Closed"
 	if day_manager.is_open:
 		var seconds := ceili(day_manager.time_left)
-		clock = "%d:%02d" % [floori(seconds / 60.0), seconds % 60]
-	money_label.text = "Day %d   %s   $%d" % [GameState.day, clock, GameState.money]
+		shift_clock = "%d:%02d left" % [floori(seconds / 60.0), seconds % 60]
+	money_label.text = "%s  %s   Shift %d  %s   $%d" % [GameClock.describe_date(GameState.date, true),
+		GameClock.describe_time(GameClock.now_local()), GameState.shift, shift_clock, GameState.money]
 
 
 # e.g. "More players: Enter (arrow keys) or A (gamepad) to join". Hidden when full.

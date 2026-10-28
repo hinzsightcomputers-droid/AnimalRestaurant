@@ -28,6 +28,7 @@ var accepting_customers := true     # False after closing time.
 var _queue: Array[Customer] = []    # Customers waiting to order, front of the line first.
 var _seat_owners: Dictionary = {}   # seat (Station) -> Customer sitting there or walking to it.
 var _regulars_today: Array = []     # Ids of regulars who already came in today (one visit a day each).
+var _due_regulars: Array[String] = []  # Regulars whose arrival time came (see send_regular), waiting for a seat.
 var _chatting := false              # True while someone is taking an order.
 
 
@@ -70,7 +71,7 @@ func _try_spawn_customer() -> void:
 		return
 
 	var customer: Customer = CUSTOMER_SCENE.instantiate()
-	var regular := RegularMemory.pick_visitor(_regulars_today)
+	var regular := _next_regular()
 	if regular.is_empty():
 		customer.setup(GameData.random_species(), GameData.random_dish(), seat)
 	else:
@@ -91,6 +92,28 @@ func _try_spawn_customer() -> void:
 		GameEvents.announce("%s the %s walked in." % [customer.display_name, customer.species.get("name", "?")])
 	else:
 		GameEvents.announce("A %s walked in." % customer.display_name)
+
+
+# The DayManager says it's this regular's time to come in (from today's
+# schedule). They walk in at the next arrival with a free seat.
+func send_regular(regular_id: String) -> void:
+	var record: Dictionary = GameState.regulars.get(regular_id, {})
+	if record.is_empty() or RegularMemory.visited_today(record):
+		return  # Once per real date, even across shifts.
+	if accepting_customers and not regular_id in _regulars_today and not regular_id in _due_regulars:
+		_due_regulars.append(regular_id)
+
+
+# Who walks in next: anyone the debug panel queued, then regulars whose time has
+# come, or {} for an ordinary customer.
+func _next_regular() -> Dictionary:
+	if not GameState.forced_visitors.is_empty():
+		return GameState.regulars.get(GameState.forced_visitors.pop_front(), {})
+	while not _due_regulars.is_empty():
+		var record: Dictionary = GameState.regulars.get(_due_regulars.pop_front(), {})
+		if not record.is_empty() and RegularMemory.visits_in_person(record):
+			return record
+	return {}
 
 
 # A regular: their own species and name, an order based on their tastes, and

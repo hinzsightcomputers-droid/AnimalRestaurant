@@ -154,7 +154,6 @@ player_manager = NodePath("../PlayerManager")
 [node name="DayManager" type="Node" parent="." unique_id=297707749 node_paths=PackedStringArray("customer_manager")]
 script = ExtResource("11_day")
 customer_manager = NodePath("../CustomerManager")
-day_length_seconds = 40.0
 
 [node name="HUD" parent="." unique_id=1664110998 node_paths=PackedStringArray("order_board", "day_manager") instance=ExtResource("10_hud")]
 order_board = NodePath("../OrderBoard")

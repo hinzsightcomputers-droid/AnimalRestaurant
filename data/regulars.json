@@ -1,6 +1,7 @@
 {
 	"settings": {
-		"regular_chance": 0.4,
+		"regulars_per_day": { "min": 2, "max": 3 },
+		"arrival_window": { "start": 0.05, "end": 0.75 },
 		"favorite_order_chance": 0.7,
 		"relationship_min": -100,
 		"relationship_max": 100,

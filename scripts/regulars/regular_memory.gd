@@ -1,28 +1,13 @@
-# RegularMemory: the rules for regulars. Picks which regular visits, what they
-# order, works out their relationship stage, changes their relationship, updates
-# what they remember after a visit, and builds the facts the DialoguePicker uses.
+# RegularMemory: the rules for regulars. Picks what they order (VisitSchedule
+# picks who comes), works out their relationship stage, changes their
+# relationship, updates what they remember after a visit, and builds the facts
+# the DialoguePicker uses.
 # Works on plain record dictionaries (see GameData.regulars). Every regular uses
 # the same rules; only their data files differ.
 class_name RegularMemory
 extends RefCounted
 
 const SECONDS_PER_DAY := 86400
-
-
-# A regular not in `exclude_ids`, or {} if nobody comes this time. Someone queued
-# with the debug panel's "Visit next" always comes first.
-static func pick_visitor(exclude_ids: Array) -> Dictionary:
-	while not GameState.forced_visitors.is_empty():
-		var forced_id: String = GameState.forced_visitors.pop_front()
-		if GameState.regulars.has(forced_id):
-			return GameState.regulars[forced_id]
-	if randf() >= GameData.regular_settings.get("regular_chance", 0.4):
-		return {}
-	var candidates: Array = []
-	for id in GameState.regulars:
-		if not id in exclude_ids and visits_in_person(GameState.regulars[id]):
-			candidates.append(GameState.regulars[id])
-	return candidates.pick_random() if not candidates.is_empty() else {}
 
 
 # Withdrawn and Gone regulars stay away, and referral-only ones wait for someone
@@ -39,6 +24,11 @@ static func choose_dish(record: Dictionary) -> Dictionary:
 		return GameData.get_dish(record["favorite_dish"])
 	var options: Array = GameData.dishes.filter(func(d): return d["id"] != record["disliked_dish"])
 	return options.pick_random() if not options.is_empty() else GameData.random_dish()
+
+
+# True if they already came in today (by the real local date), on any shift.
+static func visited_today(record: Dictionary) -> bool:
+	return GameClock.local_date_of(record["last_seen"]) == GameState.date
 
 
 # Their stage from relationship: 1 to 4 when friendly, -1 to -4 when not

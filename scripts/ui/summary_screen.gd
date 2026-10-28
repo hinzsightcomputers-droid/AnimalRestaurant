@@ -64,7 +64,7 @@ func _show_summary(summary: Dictionary) -> void:
 	_summary = summary
 	_page = Page.SUMMARY
 	_refresh_page()
-	next_button.text = "Start Day %d" % GameState.day
+	next_button.text = "Start shift %d" % GameState.next_shift_number()
 	next_button.disabled = true
 	_input_delay_left = INPUT_DELAY
 	visible = true
@@ -113,7 +113,7 @@ func _refresh_page() -> void:
 			body_label.text = "You have $%d. Treat the restaurant to something nice!" % GameState.money
 			_build_upgrade_list()
 		_:
-			title_label.text = "Day %d complete!" % _summary["day"]
+			title_label.text = "%s - shift %d done!" % [GameClock.describe_date(_summary["date"]), _summary["shift"]]
 			body_label.text = _summary_text(_summary)
 			if not next_button.disabled:
 				next_button.grab_focus()  # Back on the summary, interact starts the day again.
