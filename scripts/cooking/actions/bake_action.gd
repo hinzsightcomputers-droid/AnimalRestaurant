@@ -1,0 +1,145 @@
+# BakeAction: bake the tray in the oven. It slides in, the oven glows, and a
+# meter on top fills as the cookies bake: pale, then golden (the green band),
+# then burnt. Press the button to take the tray out. The cookies come out
+# looking as done as they are; leave them too long and they come out burnt on
+# their own.
+class_name BakeAction
+extends CookAction
+
+@export var tray := "Tray"
+@export var oven_front := Vector3(0.45, -0.45, 0.42)  # The oven door's middle, from the session.
+@export var bake_seconds := 6.0            # From raw to burnt.
+@export var band := Vector2(0.55, 0.75)    # Golden.
+@export var golden := Color(0.86, 0.6, 0.3)
+@export var burnt := Color(0.25, 0.15, 0.1)
+@export var meter_length := 0.36
+
+var _done := 0.0
+var _phase := 0                            # 0 sliding in, 1 baking, 2 coming out.
+var _tray: CookSurface
+var _home := Vector3.ZERO
+var _raw := {}                             # Cookie material -> its raw color.
+var _glow := OmniLight3D.new()
+var _meter := Node3D.new()
+var _fill: MeshInstance3D
+var _hum: AudioStreamPlayer3D
+
+
+func _begin() -> void:
+	_tray = session.surface(tray)
+	_home = _tray.position
+	for cookie: MeshInstance3D in session.context.get("cookies", []):
+		cookie.reparent(_tray)  # They go in with it.
+		var material := (cookie.mesh as CylinderMesh).material as StandardMaterial3D
+		_raw[material] = material.albedo_color
+	_build_meter()
+	_glow.light_color = Color(1.0, 0.55, 0.2)
+	_glow.light_energy = 0.0
+	_glow.omni_range = 0.6
+	_glow.position = oven_front + Vector3(0.0, 0.0, 0.15)
+	session.add_child(_glow)
+	_hum = session.loop_sound("sizzle", -40.0)
+	_hum.position = oven_front
+	_hum.play()
+	var slide := _tray.create_tween()
+	slide.tween_property(_tray, "position", oven_front + Vector3(0.0, 0.05, 0.25), 0.35).set_trans(Tween.TRANS_QUAD)
+	slide.tween_property(_tray, "position", oven_front + Vector3(0.0, 0.05, -0.25), 0.3)
+	slide.tween_callback(func():
+		_tray.visible = false
+		session.play_sound("clack", oven_front, -2.0, 0.7)
+		_phase = 1)
+
+
+func end() -> void:
+	_glow.queue_free()
+	_meter.queue_free()
+	_hum.queue_free()
+
+
+func uses_cursor() -> bool:
+	return false
+
+
+func update(delta: float, input: CookInput) -> void:
+	if _phase != 1:
+		return
+	_done = minf(_done + delta / bake_seconds, 1.0)
+	_glow.light_energy = lerpf(_glow.light_energy, 1.6, 1.0 - exp(-3.0 * delta))
+	_hum.volume_db = lerpf(_hum.volume_db, -22.0, 1.0 - exp(-2.0 * delta))
+	_fill.scale.x = maxf(_done, 0.001)
+	_fill.position.x = (_done - 1.0) * meter_length * 0.5
+	var words := "Still pale..." if _done < band.x else ("Golden!" if _done <= band.y else "Burning!")
+	session.set_status(words)
+	if input.just_pressed or _done >= 1.0:
+		_take_out()
+
+
+func _take_out() -> void:
+	_phase = 2
+	var score := _score()
+	for material: StandardMaterial3D in _raw:
+		material.albedo_color = _color_for(_raw[material])
+	_tray.visible = true
+	session.play_sound("clack", oven_front, -2.0, 0.8)
+	var slide := _tray.create_tween()
+	slide.tween_property(_tray, "position", oven_front + Vector3(0.0, 0.05, 0.25), 0.3)
+	slide.tween_property(_tray, "position", _home, 0.35).set_trans(Tween.TRANS_QUAD)
+	await slide.finished
+	_glow.light_energy = 0.0
+	for cookie in session.context.get("cookies", []):
+		cookie.reparent(session)  # Off the tray, so they're part of how the dish looks.
+	var steam := session.make_steam(0.15)
+	steam.position = _home
+	session.add_child(steam)
+	steam.emitting = true
+	session.burst(_home + Vector3(0.0, 0.03, 0.0), Color(1.0, 0.9, 0.6), 14, 0.3)
+	var words := "Golden!" if score >= 0.9 else ("A bit pale" if _done < band.x else ("Bit dark" if score >= 0.4 else "Burnt!"))
+	session.pop_text(words, _home, CookSession.mood_of(score))
+	finish(score)
+
+
+# Full marks in the golden band; pale ones lose a little, burnt ones a lot.
+func _score() -> float:
+	if _done < band.x:
+		return clampf(_done / band.x, 0.0, 1.0) * 0.85
+	if _done <= band.y:
+		return 1.0
+	return clampf(1.0 - (_done - band.y) / (1.0 - band.y), 0.0, 1.0) * 0.8
+
+
+# Raw dough browns to golden through the band, then darkens to burnt.
+func _color_for(raw: Color) -> Color:
+	var middle := (band.x + band.y) * 0.5
+	if _done <= middle:
+		return raw.lerp(golden, _done / middle)
+	return golden.lerp(burnt, (_done - middle) / (1.0 - middle))
+
+
+# A flat bar on the oven top: how done they are, the golden part marked.
+func _build_meter() -> void:
+	_meter.position = Vector3(_home.x, 0.01, _home.z + 0.2)
+	session.add_child(_meter)
+	_bar(Vector3(meter_length, 0.002, 0.04), 0.0, Color(0.2, 0.15, 0.1, 0.75), 0.0)
+	var length := (band.y - band.x) * meter_length
+	_bar(Vector3(length, 0.003, 0.048), ((band.x + band.y) * 0.5 - 0.5) * meter_length, Color(1.0, 0.75, 0.3, 0.75), 0.002)
+	_fill = _bar(Vector3(meter_length, 0.004, 0.026), 0.0, Color(1.0, 0.45, 0.2), 0.004)
+	_fill.scale.x = 0.001
+	_fill.position.x = -meter_length * 0.5
+
+
+func _bar(box_size: Vector3, x: float, color: Color, y: float) -> MeshInstance3D:
+	var mesh := BoxMesh.new()
+	mesh.size = box_size
+	var material := StandardMaterial3D.new()
+	material.albedo_color = color
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.no_depth_test = true
+	material.render_priority = roundi(y * 1000.0)
+	if color.a < 1.0:
+		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mesh.material = material
+	var node := MeshInstance3D.new()
+	node.mesh = mesh
+	node.position = Vector3(x, y, 0.0)
+	_meter.add_child(node)
+	return node

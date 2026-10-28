@@ -5,6 +5,8 @@
 # timing minigame, where pressing interact again "stirs". Either way the cook is
 # handed the finished dish when it's done. A dine-in order needs a clean plate
 # from the Sink's rack to go on.
+# The oven is one of these too: each dish says where it's made ("station" in
+# data/dishes.json, the stove if it doesn't say), and a station only takes its own.
 # A big moment scene can also cook together here (cook_together): a regular
 # stands beside the chef and coaches each stir, and it can't fail.
 class_name CookingStation
@@ -12,6 +14,8 @@ extends Station
 
 const RESULT_SHOW_TIME := 1.2  # Seconds the result stays up before the player can move.
 
+@export var station_id := "stove"     # Which dishes it makes: those whose "station" is this.
+@export var verb := "Cook"            # For its prompt, e.g. "Cook Fish Stew", "Bake Acorn Cookies".
 @export var order_board: OrderBoard
 @export var view_manager: ViewManager  # For the close-up's mouse aiming.
 @export_group("Camera zoom while cooking")
@@ -53,11 +57,13 @@ func _prompt_for(player_index: int) -> String:
 		return ""
 	var ingredients := player.held_item as Ingredients
 	if ingredients != null:
+		if not makes(ingredients.order.dish):
+			return "Use the %s!" % station_of(ingredients.order.dish)
 		if ingredients.needs_chopping():
 			return "%s first!" % ingredients.chop_verb()
 		if _needs_plate(ingredients.order) and _sink().plates <= 0:
 			return "No clean plates!"
-		return "Cook %s" % ingredients.order.dish.get("name", "")
+		return "%s %s" % [verb, ingredients.order.dish.get("name", "")]
 	return interactable.prompt if player.held_item == null else ""
 
 
@@ -92,6 +98,9 @@ func _try_start_cooking(player_index: int) -> void:
 		GameEvents.announce("%s the %s first. Use the chopping board!" % [ingredients.chop_verb(), ingredients.display_name().to_lower()])
 		return
 	var order := ingredients.order
+	if not makes(order.dish):
+		GameEvents.announce("%s goes in the %s!" % [order.dish.get("name", "That"), station_of(order.dish)])
+		return
 	if _needs_plate(order) and not _sink().take_plate():
 		GameEvents.announce("No clean plates! Wash the dirty dishes at the sink.")
 		return
@@ -114,6 +123,14 @@ func _try_start_cooking(player_index: int) -> void:
 	player.request_camera_focus(global_position + zoom_look_offset, camera_zoom)  # Only this player's camera.
 	_play_bounce()
 	used.emit(self, player_index)
+
+
+static func station_of(dish: Dictionary) -> String:
+	return dish.get("station", "stove")
+
+
+func makes(dish: Dictionary) -> bool:
+	return station_of(dish) == station_id
 
 
 # Dine-in orders go on a plate from the rack (deliveries go out in a box).
@@ -142,7 +159,9 @@ func _open_closeup(player: Player, recipe: CookRecipe, ingredients: Ingredients 
 	_show_stove_props(false)
 	player.movement_locked = true
 	player.interactor.lock_to(interactable)
-	player.request_camera_focus(global_position + closeup_look_offset, closeup_zoom)
+	var zoom: CameraZoomSettings = closeup_zoom.duplicate()
+	zoom.yaw_degrees += rad_to_deg(global_rotation.y)  # From in front, however the station turns.
+	player.request_camera_focus(global_transform * closeup_look_offset, zoom)
 	session.finished.connect(_on_minigame_finished)
 	session.start(recipe, player, view_manager if view_manager != null else get_tree().root.find_children("*", "ViewManager", true, false).front(), ingredients)
 	_play_bounce()
@@ -150,7 +169,9 @@ func _open_closeup(player: Player, recipe: CookRecipe, ingredients: Ingredients 
 
 # The pot makes way for the close-up's griddle and plate.
 func _show_stove_props(shown: bool) -> void:
-	visual.get_node("Pot").visible = shown
+	var pot := visual.get_node_or_null("Pot") as Node3D
+	if pot != null:
+		pot.visible = shown
 
 
 # Cook `dish` ({ name, cook_speed }) with `helper` beside the chef: they say

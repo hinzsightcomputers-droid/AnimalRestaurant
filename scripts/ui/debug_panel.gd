@@ -421,6 +421,9 @@ func _build() -> void:
 	_add_button(fish_row, "Practice filleting (P1)", _practice_chopping.bind("filleting"))
 	_add_button(fish_row, "Practice fish stew (P1)", _practice.bind("fish_stew"))
 	_add_button(fish_row, "Only serve fish stew", _only_serve.bind("fish_stew"))
+	var cookie_row := _add_row(box)
+	_add_button(cookie_row, "Practice acorn cookies (P1)", _practice.bind("acorn_cookies", "oven"))
+	_add_button(cookie_row, "Only serve acorn cookies", _only_serve.bind("acorn_cookies"))
 	var dishes_row := _add_row(box)
 	_add_button(dishes_row, "Make tables messy", _make_tables_messy)
 	_add_button(dishes_row, "Empty the plate rack", _empty_rack)
@@ -451,8 +454,9 @@ func _build() -> void:
 # --- Kitchen ---------------------------------------------------------------
 
 # Player 1 cooks the recipe at the stove right away, with no order. Closes the panel.
-func _practice(recipe_id: String) -> void:
-	var stove: CookingStation = get_tree().root.find_children("*", "CookingStation", true, false).front()
+func _practice(recipe_id: String, station_id := "stove") -> void:
+	var stations := get_tree().root.find_children("*", "CookingStation", true, false).filter(func(s): return s.station_id == station_id)
+	var stove: CookingStation = stations.front() if not stations.is_empty() else null
 	var recipe := CookRecipe.for_dish({ "recipe": recipe_id })
 	if stove == null or recipe == null:
 		return

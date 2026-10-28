@@ -1,0 +1,55 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/furniture/cooking_station.gd" id="1_station"]
+[ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
+[ext_resource type="Script" path="res://scripts/camera/camera_zoom_settings.gd" id="3_zoom"]
+[ext_resource type="PackedScene" path="res://scenes/cooking/cookie_closeup.tscn" id="4_closeup"]
+[ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m0_model_fitgd"]
+[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/kitchencounter_straight_B.gltf" id="m1_counter"]
+[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/oven.gltf" id="m2_oven"]
+
+[sub_resource type="Resource" id="Zoom_closeup"]
+script = ExtResource("3_zoom")
+distance = 1.25
+pitch_degrees = 68.0
+yaw_degrees = 0.0
+duration = 0.5
+
+[sub_resource type="BoxShape3D" id="Shape_oven"]
+size = Vector3(1.8, 0.9, 0.8)
+
+[node name="Oven" type="StaticBody3D"]
+script = ExtResource("1_station")
+station_id = "oven"
+verb = "Bake"
+display_name = "Oven"
+closeup_scene = ExtResource("4_closeup")
+closeup_look_offset = Vector3(0, 0.9, 0.05)
+closeup_zoom = SubResource("Zoom_closeup")
+
+[node name="Visual" type="Node3D" parent="."]
+
+[node name="Counter" type="Node3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0, 0)
+script = ExtResource("m0_model_fitgd")
+model = ExtResource("m1_counter")
+size = Vector3(0.9, 0.9, 0.76)
+stretch = true
+
+[node name="OvenModel" type="Node3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0, 0)
+script = ExtResource("m0_model_fitgd")
+model = ExtResource("m2_oven")
+size = Vector3(0.9, 0.9, 0.8)
+stretch = true
+
+[node name="Collision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+shape = SubResource("Shape_oven")
+
+[node name="Interactable" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.9)
+script = ExtResource("2_interactable")
+prompt = "Bake"
+radius = 1.2
+prompt_height = 1.8
