@@ -1,6 +1,9 @@
 # CustomerDisplay: makes a Customer visible. Colors the placeholder body by species,
 # shows a speech bubble based on the customer's state, and shows their meal on
-# the table while eating. Display only.
+# the table while eating. A regular with a "model" in their character file
+# looks like that model instead (scaled to its height), walking, sitting and
+# talking with its animations (named in model_animations in data/regulars.json).
+# A model without animations bobs along as it walks. Display only.
 extends Node3D
 
 @onready var customer: Customer = get_parent()
@@ -17,10 +20,14 @@ var _food_material := StandardMaterial3D.new()
 var _speech_timer := Timer.new()
 var _speech_state: Customer.State  # What they were doing when they said it.
 var _look: Node3D = null           # A close-up dish as it came out, on their plate.
+var _model: Node3D = null          # A regular's own model, instead of the placeholder shapes.
+var _animations: AnimationPlayer = null
+var _walk_time := 0.0
 
 
 func _ready() -> void:
 	_apply_species_color()
+	_load_model()
 	food.material_override = _food_material
 	customer.state_changed.connect(_on_state_changed)
 	customer.spoke.connect(_on_spoke)
@@ -108,6 +115,67 @@ func _apply_species_color() -> void:
 	for child in get_children():
 		if child is MeshInstance3D:
 			child.material_override = material
+
+
+func _load_model() -> void:
+	if not customer.is_regular():
+		return
+	var settings: Dictionary = GameState.regulars[customer.regular_id].get("model", {})
+	var path: String = settings.get("path", "")
+	if path.is_empty() or not ResourceLoader.exists(path):
+		return
+	_model = load(path).instantiate()
+	add_child(_model)
+	var height := _bounds(_model).size.y
+	if height > 0.0:
+		_model.scale = Vector3.ONE * (float(settings.get("height", 1.2)) / height)
+	for child in get_children():  # The placeholder shapes.
+		if child is MeshInstance3D:
+			child.visible = false
+	var players := _model.find_children("*", "AnimationPlayer", true, false)
+	_animations = players[0] if not players.is_empty() else null
+
+
+func _process(delta: float) -> void:
+	if _model == null:
+		return
+	var seated := customer.seat != null and not customer.is_walking() \
+		and customer.state in [Customer.State.WAITING_FOR_FOOD, Customer.State.EATING]
+	var animation := "walk" if customer.is_walking() else ("sit" if seated else "idle")
+	if customer.talking:
+		animation = "sit_talk" if seated else "talk"
+	if _animations != null:
+		_play(animation)
+		return
+	# No animations: a little waddle while walking, and sunk into the chair when seated.
+	if animation == "walk":
+		_walk_time += delta
+		_model.position.y = absf(sin(_walk_time * 9.0)) * 0.05
+		_model.rotation.z = sin(_walk_time * 9.0) * 0.08
+	else:
+		_walk_time = 0.0
+		_model.position.y = -0.2 if seated else 0.0
+		_model.rotation.z = 0.0
+
+
+# Play one of the model's animations, by what it's for (walk, idle, sit, talk, sit_talk), looping.
+func _play(what: String) -> void:
+	var names: Dictionary = GameData.regular_settings.get("model_animations", {})
+	var animation_name: String = names.get(what, what)
+	if not _animations.has_animation(animation_name) or _animations.current_animation == animation_name:
+		return
+	_animations.get_animation(animation_name).loop_mode = Animation.LOOP_LINEAR
+	_animations.play(animation_name, 0.25)
+
+
+func _bounds(node: Node) -> AABB:
+	var box := AABB()
+	var first := true
+	for mesh in node.find_children("*", "MeshInstance3D", true, false):
+		var part: AABB = mesh.global_transform * mesh.get_aabb()
+		box = part if first else box.merge(part)
+		first = false
+	return box
 
 
 # Grow from nothing so customers don't just blink into existence.

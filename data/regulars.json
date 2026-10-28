@@ -36,6 +36,7 @@
 				"hang_up": "(Hang up.)"
 			}
 		},
+		"model_animations": { "walk": "walk", "idle": "idle", "talk": "talk", "sit": "sit", "sit_talk": "sit_talk" },
 		"dish_tokens": { "soup": "carrot_soup", "fancy dish": "berry_pancakes", "cheese dish": "acorn_cookies" }
 	},
 	"memory_defaults": {

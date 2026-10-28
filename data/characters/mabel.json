@@ -3,6 +3,7 @@
 	"name": "Mabel",
 	"species": "tortoise",
 	"name_color": "#3f8a3a",
+	"model": { "path": "res://design/characters/Mabel/clyde-the-frog.glb", "height": 1.15 },
 	"personality": ["blunt", "wise", "rambling"],
 	"favorite_dish": "carrot_soup",
 	"disliked_dish": "berry_pancakes",

@@ -4,6 +4,7 @@
 	"species": "bear",
 	"name_color": "#8d5a2b",
 	"color": "#b98a5e",
+	"model": { "path": "res://design/characters/Stitches/vfcn37vk.glb", "height": 1.1 },
 	"personality": ["shy", "kind", "hopeful"],
 	"favorite_dish": "berry_pancakes",
 	"disliked_dish": "fish_stew",
