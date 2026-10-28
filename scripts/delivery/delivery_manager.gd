@@ -21,12 +21,13 @@ func _process(_delta: float) -> void:
 	_check_letters()
 
 
-# `caller` is PhoneCalls.caller_info(...).
-func add_delivery(dish: Dictionary, caller: Dictionary) -> void:
+# `caller` is PhoneCalls.caller_info(...). Returns the order (for its ticket).
+func add_delivery(dish: Dictionary, caller: Dictionary) -> Order:
 	var order := order_board.add_delivery(dish, caller)
 	var courier := Courier.new()
 	courier.setup(order, GameData.phone_settings.get("courier", {}))
 	_send_in(courier)
+	return order
 
 
 func _send_in(courier: Courier) -> void:

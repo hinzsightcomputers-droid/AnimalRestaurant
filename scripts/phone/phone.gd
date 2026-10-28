@@ -162,8 +162,9 @@ func _take_call(player: Player, call: Dictionary, voicemail: bool) -> void:
 	player.movement_locked = false
 	player.interactor.unlock()
 	if not built["dish"].is_empty():
-		delivery_manager.add_delivery(built["dish"], PhoneCalls.caller_info(call))
+		var order := delivery_manager.add_delivery(built["dish"], PhoneCalls.caller_info(call))
 		GameEvents.announce("%s ordered %s for delivery." % [built["name"], built["dish"].get("name", "something")])
+		await TicketPopup.write(view_manager, player, order)
 	_in_call = false
 
 

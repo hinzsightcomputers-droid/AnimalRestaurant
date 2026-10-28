@@ -1,5 +1,5 @@
-# Freezer: hands the player the ingredients for the oldest waiting order, to
-# carry over to the stove.
+# Freezer: hands the player the ingredients for the oldest waiting order whose
+# ticket is on the TicketWheel, to carry over to the stove.
 class_name Freezer
 extends Station
 
@@ -26,7 +26,10 @@ func _on_interacted(player_index: int) -> void:
 		return
 	var order := order_board.next_to_gather()
 	if order == null:
-		GameEvents.announce("No orders need ingredients right now.")
+		if order_board.has_ticket_off_wheel():
+			GameEvents.announce("Clip the order's ticket on the ticket wheel first!")
+		else:
+			GameEvents.announce("No orders need ingredients right now.")
 		return
 
 	order_board.set_state(order, Order.State.GATHERED)

@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://scripts/player/player_visual.gd" id="6_visual"]
 [ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m0_model_fitgd"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/plate.gltf" id="m1_plategltf"]
+[ext_resource type="Script" path="res://scripts/player/ticket_pocket_display.gd" id="t1_pocket"]
 
 [sub_resource type="StandardMaterial3D" id="Mat_plate"]
 albedo_color = Color(0.97, 0.96, 0.93, 1)
@@ -99,6 +100,10 @@ outline_modulate = Color(0.2, 0.15, 0.1, 1)
 font_size = 26
 outline_size = 10
 text = "P1"
+
+[node name="TicketPocket" type="Node3D" parent="Visual"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 0.38, 0.75, 0.05)
+script = ExtResource("t1_pocket")
 
 [node name="PlayerInput" type="Node" parent="."]
 script = ExtResource("2_input")

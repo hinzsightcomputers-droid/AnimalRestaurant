@@ -114,8 +114,8 @@ func _refresh_orders() -> void:
 	if order_board.orders.is_empty():
 		lines.append("  (none)")
 	for order in order_board.orders:
-		lines.append("  %s for %s - %s" % [
-			order.dish.get("name", "?"), order.for_name(), STATE_NAMES[order.state]])
+		var state: String = STATE_NAMES[order.state] if order.on_wheel or order.state != Order.State.WAITING else "ticket not on the wheel"
+		lines.append("  #%d %s for %s - %s" % [order.number, order.dish.get("name", "?"), order.for_name(), state])
 	orders_label.text = "\n".join(lines)
 
 

@@ -6,6 +6,7 @@ extends CharacterBody3D
 const GROUP := "players"
 
 signal held_item_changed(item: RefCounted)
+signal tickets_changed
 # Asks this player's camera to zoom in on a point / go back to following.
 # Stations and conversations use these so they never touch cameras directly.
 signal camera_focus_requested(point: Vector3, settings: CameraZoomSettings)
@@ -19,6 +20,7 @@ signal camera_focus_released
 var movement_locked := false      # True while busy (e.g. cooking).
 var has_acted := false            # Becomes true the first time this player moves or interacts.
 var held_item: RefCounted = null  # What the player is carrying, e.g. a CookedDish.
+var tickets: Array[Order] = []    # Order tickets in their pocket, for the TicketWheel (hands stay free).
 var _interact_blocked := false    # See ignore_interact_until_released().
 
 @onready var input: PlayerInput = $PlayerInput
@@ -51,6 +53,32 @@ func release_camera_focus() -> void:
 func set_held_item(item: RefCounted) -> void:
 	held_item = item
 	held_item_changed.emit(item)
+
+
+func add_ticket(order: Order) -> void:
+	tickets.append(order)
+	tickets_changed.emit()
+
+
+func take_tickets() -> Array[Order]:
+	var taken := tickets.duplicate()
+	tickets.clear()
+	tickets_changed.emit()
+	return taken
+
+
+func drop_ticket(order: Order) -> void:
+	if tickets.has(order):
+		tickets.erase(order)
+		tickets_changed.emit()
+
+
+# Someone leaving mid-shift doesn't strand their orders: their tickets go on the wheel.
+func _exit_tree() -> void:
+	var wheel := get_tree().get_first_node_in_group(TicketWheel.GROUP) as TicketWheel
+	if wheel != null:
+		for order in tickets:
+			wheel.clip_now(order)
 
 
 func _physics_process(delta: float) -> void:

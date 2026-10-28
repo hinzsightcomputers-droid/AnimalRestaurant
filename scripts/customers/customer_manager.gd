@@ -212,11 +212,15 @@ func _on_order_counter_used(_station: Station, player_index: int) -> void:
 	if customer.is_regular() and player != null:
 		await _regular_orders(player, customer)  # May change what they order.
 	customer.place_order()
-	order_board.add_order(customer)
+	var order := order_board.add_order(customer)
 	GameEvents.announce("%s took an order: %s wants %s." % [
 		Accounts.name_of(player_index), customer.display_name, customer.dish.get("name", "?")])
 	if not customer.is_regular() and player != null:
 		await _order_chat(player, customer)
+	if player != null:
+		await TicketPopup.write(view_manager, player, order)
+	else:
+		order_board.clip(order)
 	_chatting = false
 
 	var approach := customer.seat.approach_point.global_position

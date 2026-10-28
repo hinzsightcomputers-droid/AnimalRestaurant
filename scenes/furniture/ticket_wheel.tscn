@@ -1,0 +1,33 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/furniture/ticket_wheel.gd" id="1_wheel"]
+[ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
+[ext_resource type="Script" path="res://scripts/camera/camera_zoom_settings.gd" id="3_zoom"]
+
+[sub_resource type="Resource" id="Zoom_wheel"]
+script = ExtResource("3_zoom")
+distance = 0.95
+pitch_degrees = 40.0
+yaw_degrees = 0.0
+duration = 0.45
+
+[sub_resource type="CylinderShape3D" id="Shape_wheel"]
+height = 0.45
+radius = 0.22
+
+[node name="TicketWheel" type="StaticBody3D"]
+script = ExtResource("1_wheel")
+display_name = "Ticket Wheel"
+camera_zoom = SubResource("Zoom_wheel")
+
+[node name="Visual" type="Node3D" parent="."]
+
+[node name="Collision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.33, 0)
+shape = SubResource("Shape_wheel")
+
+[node name="Interactable" type="Node3D" parent="."]
+script = ExtResource("2_interactable")
+prompt = "Clip ticket"
+radius = 1.15
+prompt_height = 1.85
