@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://bkvjpr3fuogs7"
+path="res://.godot/imported/Storm Soup.wav-93b6ed9ba6c32dd27b568d6f61ef1767.sample"
+
+[deps]
+
+source_file="res://design/sound/music/character_complete_songs/Storm Soup.wav"
+dest_files=["res://.godot/imported/Storm Soup.wav-93b6ed9ba6c32dd27b568d6f61ef1767.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=2
+edit/loop_begin=0
+edit/loop_end=8390400
+compress/mode=2

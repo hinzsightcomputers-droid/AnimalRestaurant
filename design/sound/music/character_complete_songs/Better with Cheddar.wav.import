@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://cby7py4pita5l"
+path="res://.godot/imported/Better with Cheddar.wav-be9cef3630afa48a0ad552e236570652.sample"
+
+[deps]
+
+source_file="res://design/sound/music/character_complete_songs/Better with Cheddar.wav"
+dest_files=["res://.godot/imported/Better with Cheddar.wav-be9cef3630afa48a0ad552e236570652.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=2
+edit/loop_begin=0
+edit/loop_end=8791680
+compress/mode=2

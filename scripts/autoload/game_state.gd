@@ -53,6 +53,15 @@ func _ready() -> void:
 	SaveGame.load_game()
 
 
+# Closing the window mid-shift keeps everything since the last save: what
+# regulars remember (a rude reply, a new friend, a letter on its way),
+# voicemails, money. The shift itself isn't counted until it ends. A brand-new
+# game that was never named doesn't get a save file.
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST and (SaveGame.has_save() or not restaurant_name.is_empty()):
+		SaveGame.save_game()
+
+
 # Back to the starting regulars from their character files.
 func reset_regulars() -> void:
 	regulars.clear()

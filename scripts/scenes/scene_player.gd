@@ -157,18 +157,22 @@ func _stage(staging: Dictionary, on: bool) -> void:
 		_staging.chain().tween_property(sun, "light_energy", low, 0.1)
 		_staging.chain().tween_property(sun, "light_energy", low * 0.3, 0.05)
 		_staging.chain().tween_property(sun, "light_energy", low, 0.2)
-	var music: String = staging.get("music", "")
-	if not music.is_empty():
-		if on:
-			Music.play(music, seconds)
-		else:
-			Music.play_hour_themes()
-	else:
-		Music.dip(staging.get("music_db", 0.0) if on else 0.0, seconds)
 	if on and staging.get("rain", false):
 		_rain.play()
 	elif not on:
 		_rain.stop()
+	var music: String = staging.get("music", "")
+	if music.is_empty():
+		Music.dip(staging.get("music_db", 0.0) if on else 0.0, seconds)
+		return
+	# Their own song: the usual music fades out first, then it fades in (and
+	# the other way round afterwards).
+	Music.fade_out(seconds)
+	await get_tree().create_timer(seconds).timeout
+	if on:
+		Music.play(music, seconds)
+	else:
+		Music.play_hour_themes()
 
 
 # Placeholder rain: soft filtered noise, looping (until a real sound is added).

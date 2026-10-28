@@ -1,5 +1,5 @@
 {
-	"_about": "Big moment scenes. Each plays once, at closing after the last customer leaves, when its regular meets 'conditions' (the same conditions dialogue lines use). Steps run in order: 'narrate' (stage directions, no speaker), 'say' (the regular, optionally with 'choices': each { text, reply }), 'cook' (the co-cooking minigame at the stove: it can't fail). 'staging': dim (light multiplier), music_db (how far the music drops), rain, flicker. 'done' sets memory fields and unlocks rewards (flags in GameState.unlocks for now).",
+	"_about": "Big moment scenes. Each plays once, at closing after the last customer leaves, when its regular meets 'conditions' (the same conditions dialogue lines use). Steps run in order: 'narrate' (stage directions, no speaker), 'say' (the regular, optionally with 'choices': each { text, reply }), 'cook' (the co-cooking minigame at the stove: it can't fail). 'staging': dim (light multiplier), music (the scene's song; without one, music_db is how far the usual music drops), rain, flicker. 'done' sets memory fields and unlocks rewards (flags in GameState.unlocks for now).",
 	"settings": {
 		"staging_seconds": 1.5,
 		"reward_names": {
@@ -15,7 +15,7 @@
 			"name": "Stitches' gift",
 			"regular": "stitches",
 			"conditions": { "min_relationship": 85, "visits_at_stage": { "4": 3 }, "memory": { "big_moment_done": false } },
-			"staging": { "dim": 0.45, "music_db": -14 },
+			"staging": { "dim": 0.45, "music": "res://design/sound/music/character_complete_songs/Stiches are Beautiful.wav" },
 			"done": { "set": { "big_moment_done": true }, "unlock": ["patchwork_apron"] },
 			"steps": [
 				{ "narrate": "(Stitches comes in holding a bundle wrapped in brown paper. For the first time in weeks, he is fidgeting with his ear patch.)" },
@@ -49,7 +49,7 @@
 			"name": "Cheddar cooks for you",
 			"regular": "cheddar",
 			"conditions": { "min_relationship": 85, "visits_at_stage": { "4": 3 }, "memory_set": ["player_favorite"], "memory": { "big_moment_done": false } },
-			"staging": { "dim": 0.6, "music_db": -10 },
+			"staging": { "dim": 0.6, "music": "res://design/sound/music/character_complete_songs/Better with Cheddar.wav" },
 			"done": { "set": { "big_moment_done": true, "last_rude_line": "" }, "unlock": ["best_chef_sign"] },
 			"steps": [
 				{ "narrate": "(Cheddar bursts in wearing a chef's hat that's way too big for him. It covers his eyes.)" },
@@ -84,7 +84,7 @@
 			"name": "Mabel's storm soup",
 			"regular": "mabel",
 			"conditions": { "min_relationship": 85, "visits_at_stage": { "4": 3 }, "memory_min": { "story_part": 3 }, "memory": { "big_moment_done": false } },
-			"staging": { "dim": 0.5, "music_db": -14, "rain": true, "flicker": true },
+			"staging": { "dim": 0.5, "music": "res://design/sound/music/character_complete_songs/Storm Soup.wav", "rain": true, "flicker": true },
 			"done": { "set": { "big_moment_done": true }, "unlock": ["mabel_bell", "storm_soup"] },
 			"steps": [
 				{ "narrate": "(Mabel comes in with a small tin box under her arm and a wet umbrella.)" },
