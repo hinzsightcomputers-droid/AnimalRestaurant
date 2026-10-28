@@ -1,0 +1,2 @@
+Drop .wav / .ogg / .mp3 files for the "sad" reaction in this folder.
+One is picked at random each time. Delete this note if you like.

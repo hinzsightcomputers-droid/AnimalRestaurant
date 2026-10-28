@@ -1,0 +1,2 @@
+Put short voice blips (50-100 ms) here for the talking babble.
+The pitch is varied per letter and per character.

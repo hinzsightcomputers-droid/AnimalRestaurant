@@ -1,0 +1,99 @@
+{
+  "start": "greeting",
+  "nodes": {
+
+    "greeting": {
+      "speaker": "stitches",
+      "lines": [
+        { "text": "Oh! H-hi there! I didn't hear you come in!", "emotion": "surprised" },
+        { "text": "I just finished a big stack of pancakes with [b]extra butter[/b] and maple syrup. Would you like some?", "emotion": "excited" }
+      ],
+      "choices": [
+        { "text": "Yes please!",                       "next": "yes_pancakes", "reactions": { "stitches": "joyful" },   "set": { "accepted_pancakes": true } },
+        { "text": "No thanks, I'm not hungry.",        "next": "no_pancakes",  "reactions": { "stitches": "sad" } },
+        { "text": "Are you a teddy bear?",             "next": "teddy",        "reactions": { "stitches": "shy" } },
+        { "text": "You look really tired...",          "next": "tired_chat",   "reactions": { "stitches": "confused" } },
+        { "text": "Those pancakes look burnt.",        "next": "burnt",        "reactions": { "stitches": "angry" } }
+      ]
+    },
+
+    "yes_pancakes": {
+      "speaker": "stitches",
+      "lines": [
+        { "text": "Yay! Sit down, sit down!", "emotion": "joyful" },
+        { "text": "Come back any time, friend. I'll always have a stack ready for you.", "emotion": "happy" }
+      ]
+    },
+
+    "no_pancakes": {
+      "speaker": "stitches",
+      "lines": [
+        { "text": "Oh... that's okay.", "emotion": "sad" },
+        { "text": "I'll save some for later, then.", "emotion": "sad" }
+      ],
+      "choices": [
+        { "text": "Actually, I changed my mind!", "next": "yes_pancakes", "reactions": { "stitches": "excited" }, "set": { "accepted_pancakes": true } },
+        { "text": "Sorry, maybe next time.",      "next": "",             "reactions": { "stitches": "sad" } }
+      ]
+    },
+
+    "teddy": {
+      "speaker": "stitches",
+      "lines": [
+        { "text": "Eep! W-well... I'm a bear. A bear who just happens to be... stitched together.", "emotion": "shy" },
+        { "text": "Please don't stare at the patches!", "emotion": "nervous" }
+      ],
+      "choices": [
+        { "text": "I think they're adorable.", "next": "compliment", "reactions": { "stitches": "shy" } },
+        { "text": "Who stitched you up?",      "next": "who_stitched", "reactions": { "stitches": "confused" } }
+      ]
+    },
+
+    "compliment": {
+      "speaker": "stitches",
+      "lines": [
+        { "text": "R-really? Nobody has ever said that before...", "emotion": "shy" },
+        { "text": "Thank you. That made my whole day!", "emotion": "joyful" }
+      ]
+    },
+
+    "who_stitched": {
+      "speaker": "stitches",
+      "lines": [
+        { "text": "Hmm... that's a good question...", "emotion": "confused" },
+        { "text": "Maybe it was the same person who taught me to flip pancakes? I honestly can't remember.", "emotion": "confused" }
+      ]
+    },
+
+    "tired_chat": {
+      "speaker": "stitches",
+      "lines": [
+        { "text": "You noticed? I was up all night making breakfast...", "emotion": "tired" },
+        { "text": "*yaaawn* ...sorry.", "emotion": "tired" }
+      ],
+      "choices": [
+        { "text": "Take a nap, I'll wait.", "next": "nap",          "reactions": { "stitches": "happy" } },
+        { "text": "Pancakes first!",        "next": "yes_pancakes", "reactions": { "stitches": "excited" }, "set": { "accepted_pancakes": true } }
+      ]
+    },
+
+    "nap": {
+      "speaker": "stitches",
+      "lines": [
+        { "text": "You're the nicest visitor I've ever had...", "emotion": "happy" },
+        { "text": "Just five minutes... zzz...", "emotion": "tired" }
+      ]
+    },
+
+    "burnt": {
+      "speaker": "stitches",
+      "lines": [
+        { "text": "B-burnt?!", "emotion": "surprised" },
+        { "text": "They're golden-brown. Crispy. On purpose!", "emotion": "angry" },
+        { "text": "Hmph! Fine, don't eat them!", "emotion": "angry" }
+      ],
+      "next": "no_pancakes"
+    }
+
+  }
+}
