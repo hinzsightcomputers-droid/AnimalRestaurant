@@ -154,8 +154,10 @@ func _setup_regular(customer: Customer, record: Dictionary, seat: Seat) -> void:
 	customer.display_name = record["name"]
 	var eating: Dictionary = GameData.regular_settings.get("eating_seconds", { "min": 60, "max": 90 })
 	customer.eat_duration = randf_range(eating["min"], eating["max"])  # Regulars linger over their meal.
-	customer.greeting_line = RegularMemory.say(record, "greeting",
+	var greeting := RegularMemory.say_feeling(record, "greeting",
 		RegularMemory.dialogue_context(record, RegularMemory.favorite_chef_here(record)))
+	customer.greeting_line = greeting["text"]
+	customer.greeting_emotion = greeting["emotion"]
 
 
 # What a regular's lines can depend on, talking to chef `chef_id` about their order.
@@ -169,14 +171,19 @@ func _visit_context(customer: Customer, chef_id: String, extra: Dictionary = {})
 	return context
 
 
-# What a regular says when the food arrives, to the chef who brought it.
-func _pick_served_line(customer: Customer, chef_id: String) -> String:
+# What a regular says when the food arrives, to the chef who brought it:
+# { text, emotion }. Without an emotion of its own, they feel how it came out.
+func _pick_served_line(customer: Customer, chef_id: String) -> Dictionary:
 	var record: Dictionary = GameState.regulars[customer.regular_id]
-	return RegularMemory.say(record, "served", _visit_context(customer, chef_id, {
+	var line := RegularMemory.say_feeling(record, "served", _visit_context(customer, chef_id, {
 		"served_quality": customer.served_quality,
 		"served_favorite": customer.dish.get("id", "") == record["favorite_dish"],
 		"served_disliked": customer.dish.get("id", "") == record["disliked_dish"],
 	}))
+	if line["emotion"] == &"":
+		var quality := customer.served_quality
+		line["emotion"] = &"joyful" if quality >= 0.85 else (&"happy" if quality >= 0.5 else &"sad")
+	return line
 
 
 # "Take order", or "Write a letter" when nobody's ready to order and someone Gone could get one.
@@ -260,7 +267,7 @@ func _regular_orders(player: Player, customer: Customer) -> void:
 	if not arrival.is_empty():
 		await box.tell("", arrival)
 	if not customer.greeting_line.is_empty():
-		await _say(box, customer, customer.greeting_line)
+		await _say(box, customer, customer.greeting_line, customer.greeting_emotion)
 
 	# The first time they're close enough, they learn this chef's name (Cheddar
 	# also picks a nickname). Plays once per chef.
@@ -484,13 +491,13 @@ func _on_customer_interacted(player_index: int, customer: Customer) -> void:
 
 	# A regular says something about the food in a dialogue box (the meal waits).
 	var line := _pick_served_line(customer, customer.served_by_account)
-	if line.is_empty():
+	if String(line["text"]).is_empty():
 		_hold_with_zoom(player, _at_table(customer), serve_zoom, serve_seconds, customer.interactable)
 		return
 	customer.talking = true
 	_lock_player(player, _at_table(customer), serve_zoom, customer.interactable)
 	var box := _open_box(player, customer)
-	await _say(box, customer, line, &"joyful" if plate.quality >= 0.85 else (&"happy" if plate.quality >= 0.5 else &"sad"))
+	await _say(box, customer, line["text"], line["emotion"])
 	box.close()
 	_unlock_player(player)
 	customer.talking = false
@@ -660,8 +667,11 @@ func _on_customer_finished_eating(customer: Customer) -> void:
 	var amount := Satisfaction.payment_for(customer.dish, reaction)
 	var lines: Array = reaction.get("lines", ["Thank you!"])
 	var line: String = lines.pick_random()
+	var feeling := &""
 	if customer.is_regular():
-		line = _remember_visit(customer, reaction.get("id", ""))
+		var goodbye := _remember_visit(customer, reaction.get("id", ""))
+		line = goodbye["text"]
+		feeling = goodbye["emotion"]
 
 	GameState.add_money(amount)
 	GameState.record_service({
@@ -689,12 +699,14 @@ func _on_customer_finished_eating(customer: Customer) -> void:
 		spawn_point.global_position,
 	]
 	customer.leave(path, line, amount)
+	customer.emote(feeling)
 	GameEvents.announce("%s paid $%d (%s, waited %ds)." % [
 		_who(customer).capitalize(), amount, reaction.get("id", "?"), roundi(customer.wait_seconds)])
 
 
-# Update what the regular remembers about this visit and pick their goodbye line.
-func _remember_visit(customer: Customer, reaction_id: String) -> String:
+# Update what the regular remembers about this visit and pick their goodbye
+# line: { text, emotion }.
+func _remember_visit(customer: Customer, reaction_id: String) -> Dictionary:
 	var record: Dictionary = GameState.regulars[customer.regular_id]
 	var relationship_before: int = record["relationship"]
 	var now := GameClock.now_string()  # The real date, unless the debug panel moved it.
@@ -705,7 +717,7 @@ func _remember_visit(customer: Customer, reaction_id: String) -> String:
 	if record["relationship"] != relationship_before:
 		GameEvents.announce("%s's friendship: %d -> %d (%s)" % [record["name"], relationship_before, record["relationship"], RegularMemory.stage_name(record)])
 
-	return RegularMemory.say(record, "farewell", RegularMemory.dialogue_context(record, server_id, {
+	return RegularMemory.say_feeling(record, "farewell", RegularMemory.dialogue_context(record, server_id, {
 		"reaction": reaction_id,
 		"learned_name": customer.learned_name,
 		# They've been here before, but this is the first time this chef served them.

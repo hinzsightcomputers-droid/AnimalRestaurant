@@ -24,6 +24,7 @@ var seat: Seat = null         # The chair reserved for this customer.
 var display_name := ""        # "Mabel" for a regular, "Frog" for anyone else.
 var regular_id := ""          # Empty unless this is a regular (data/characters/).
 var greeting_line := ""       # What a regular says at the counter (empty = generic).
+var greeting_emotion := &""   # How they feel saying it.
 var order_line := ""          # What a regular says when ordering (empty = generic).
 var speech := ""              # The latest one-off line, e.g. when served or chatted with.
 var chatted := false          # A regular can be chatted with once while eating.

@@ -20,28 +20,28 @@
 			"done": { "set": { "big_moment_done": true }, "unlock": ["patchwork_apron"] },
 			"steps": [
 				{ "narrate": "(Stitches comes in holding a bundle wrapped in brown paper. For the first time in weeks, he is fidgeting with his ear patch.)" },
-				{ "say": "Hi, [name]. Sorry. I know you're closing. I'm nervous. ...I'm doing the ear thing again. I haven't done that in a long time." },
-				{ "say": "I made you something. It took me a while. Every night for a few weeks." },
+				{ "say": "Hi, [name]. Sorry. I know you're closing. I'm nervous. ...I'm doing the ear thing again. I haven't done that in a long time.", "emotion": "nervous" },
+				{ "say": "I made you something. It took me a while. Every night for a few weeks.", "emotion": "shy" },
 				{ "narrate": "(He unwraps it: a patchwork apron in mismatched fabrics.)" },
-				{ "say": "Every patch is from something. The blue one is from my old blanket. This one with the stars, you remember that one? And this one is from the scarf I wore the first day I came here. I was so scared that day. I almost didn't come in.",
+				{ "say": "Every patch is from something. The blue one is from my old blanket. This one with the stars, you remember that one? And this one is from the scarf I wore the first day I came here. I was so scared that day. I almost didn't come in.", "emotion": "shy",
 					"choices": [
-						{ "text": "Stitches... it's beautiful.", "reply": "You really think so? ...You always say things like you mean them." },
-						{ "text": "You made all of this for me?", "reply": "Of course for you. Who else?" },
-						{ "text": "I'm going to wear it every day.", "reply": "Every day? Okay. Now I have to make sure it's sturdy." }
+						{ "text": "Stitches... it's beautiful.", "reply": "You really think so? ...You always say things like you mean them.", "emotion": "joyful" },
+						{ "text": "You made all of this for me?", "reply": "Of course for you. Who else?", "emotion": "happy" },
+						{ "text": "I'm going to wear it every day.", "reply": "Every day? Okay. Now I have to make sure it's sturdy.", "emotion": "joyful" }
 					]
 				},
-				{ "say": "Before I found this place, I ate alone every day. I thought that's just what I was. Someone people put up with." },
-				{ "say": "And then you were nice to me. Not once. Every time. Even when I was weird. Even when I said sorry too much." },
-				{ "say": "You never laughed at my patches. You asked about them. Nobody had ever done that." },
-				{ "say": "I sat at a middle table last week. I said hi to a stranger at the park. I like myself now. Most days. ...That's because of you." },
-				{ "say": "You changed my life, [name]. I just wanted you to know.",
+				{ "say": "Before I found this place, I ate alone every day. I thought that's just what I was. Someone people put up with.", "emotion": "sad" },
+				{ "say": "And then you were nice to me. Not once. Every time. Even when I was weird. Even when I said sorry too much.", "emotion": "happy" },
+				{ "say": "You never laughed at my patches. You asked about them. Nobody had ever done that.", "emotion": "happy" },
+				{ "say": "I sat at a middle table last week. I said hi to a stranger at the park. I like myself now. Most days. ...That's because of you.", "emotion": "happy" },
+				{ "say": "You changed my life, [name]. I just wanted you to know.", "emotion": "joyful",
 					"choices": [
-						{ "text": "You did all of that. I just made the food.", "reply": "Maybe. But you made it like I mattered." },
-						{ "text": "Okay, now YOU'RE going to make ME cry.", "reply": "(He laughs through tears.) Good. Then we're even." },
-						{ "text": "You're my favorite customer. You always were.", "reply": "(A long pause. He hugs you.)" }
+						{ "text": "You did all of that. I just made the food.", "reply": "Maybe. But you made it like I mattered.", "emotion": "happy" },
+						{ "text": "Okay, now YOU'RE going to make ME cry.", "reply": "(He laughs through tears.) Good. Then we're even.", "emotion": "joyful" },
+						{ "text": "You're my favorite customer. You always were.", "reply": "(A long pause. He hugs you.)", "emotion": "joyful" }
 					]
 				},
-				{ "say": "Okay. I'm going to go before I cry in your restaurant. ...Too late. Goodnight, [name]." },
+				{ "say": "Okay. I'm going to go before I cry in your restaurant. ...Too late. Goodnight, [name].", "emotion": "shy" },
 				{ "narrate": "(He wipes his eyes with his patched arm, waves at the door, waves again, and leaves.)" }
 			]
 		},
@@ -54,30 +54,30 @@
 			"done": { "set": { "big_moment_done": true, "last_rude_line": "" }, "unlock": ["best_chef_sign"] },
 			"steps": [
 				{ "narrate": "(Cheddar bursts in wearing a chef's hat that's way too big for him. It covers his eyes.)" },
-				{ "say": "Nobody panic! It's me! I'm the chef tonight. You're the customer. Sit. SIT. That's an order, customer." },
+				{ "say": "Nobody panic! It's me! I'm the chef tonight. You're the customer. Sit. SIT. That's an order, customer.", "emotion": "excited" },
 				{ "narrate": "(You sit at a table, for the first time ever. Cheddar disappears into the kitchen. Clanging. A small crash.)" },
-				{ "say": "I'm fine!" },
+				{ "say": "I'm fine!", "emotion": "nervous" },
 				{ "narrate": "(He comes out with a plate of [player_favorite]. It's lopsided, a little burnt on one side, and decorated with a tiny paper flag that says \"for [name].\")" },
-				{ "say": "Okay. So. It's not as good as yours. It's not even as good as your bad days. But I made it.",
+				{ "say": "Okay. So. It's not as good as yours. It's not even as good as your bad days. But I made it.", "emotion": "nervous",
 					"choices": [
-						{ "text": "You remembered my favorite.", "reply": "Obviously. You remember mine. That's how this works." },
-						{ "text": "Is this... burnt?", "reply": "It's CHARACTER. I learned that from you." },
-						{ "text": "(Take a bite without saying anything.)", "reply": "(He watches you, tail completely still.) ...Well?? Say something!" }
+						{ "text": "You remembered my favorite.", "reply": "Obviously. You remember mine. That's how this works.", "emotion": "happy" },
+						{ "text": "Is this... burnt?", "reply": "It's CHARACTER. I learned that from you.", "emotion": "excited" },
+						{ "text": "(Take a bite without saying anything.)", "reply": "(He watches you, tail completely still.) ...Well?? Say something!", "emotion": "nervous" }
 					]
 				},
 				{ "narrate": "(He sits across from you and takes his hat off. For a second, he doesn't say anything.)" },
-				{ "say": "I'm gonna say something and I'm not gonna make a joke after it. Which is gonna be really hard for me. So just let me get through it." },
-				{ "say": "My whole life, people liked me when I was funny. That's it. That was the deal. Be funny, or be invisible." },
-				{ "say": "And then I come here and you laugh at my jokes, sure. But you also ask how I'm actually doing. And you notice when I'm quiet. And you never, ever give me cheese." },
-				{ "say": "You're the first person who made me feel like I don't have to perform to be worth having around. ...So, thank you. That's it. That's the whole thing." },
+				{ "say": "I'm gonna say something and I'm not gonna make a joke after it. Which is gonna be really hard for me. So just let me get through it.", "emotion": "nervous" },
+				{ "say": "My whole life, people liked me when I was funny. That's it. That was the deal. Be funny, or be invisible.", "emotion": "sad" },
+				{ "say": "And then I come here and you laugh at my jokes, sure. But you also ask how I'm actually doing. And you notice when I'm quiet. And you never, ever give me cheese.", "emotion": "happy" },
+				{ "say": "You're the first person who made me feel like I don't have to perform to be worth having around. ...So, thank you. That's it. That's the whole thing.", "emotion": "shy" },
 				{ "narrate": "(He holds very still, clearly fighting the urge to add a joke.)",
 					"choices": [
-						{ "text": "You were always worth having around. Jokes or no jokes.", "reply": "(His eyes get shiny.) ...Okay. Okay. I need a minute." },
-						{ "text": "You can make a joke now. You've earned it.", "reply": "OH THANK GOODNESS. Okay: what do you call a mouse who cooks? ...Me. Tonight. Ha! I'm crying a little." },
-						{ "text": "I'm really glad you came into my restaurant.", "reply": "...Me too, partner. Me too." }
+						{ "text": "You were always worth having around. Jokes or no jokes.", "reply": "(His eyes get shiny.) ...Okay. Okay. I need a minute.", "emotion": "joyful" },
+						{ "text": "You can make a joke now. You've earned it.", "reply": "OH THANK GOODNESS. Okay: what do you call a mouse who cooks? ...Me. Tonight. Ha! I'm crying a little.", "emotion": "joyful" },
+						{ "text": "I'm really glad you came into my restaurant.", "reply": "...Me too, partner. Me too.", "emotion": "happy" }
 					]
 				},
-				{ "say": "Okay. Wash the plate yourself, customer. I'm a chef, not a dishwasher. ...Goodnight, [name]." }
+				{ "say": "Okay. Wash the plate yourself, customer. I'm a chef, not a dishwasher. ...Goodnight, [name].", "emotion": "happy" }
 			]
 		},
 		{
@@ -90,7 +90,7 @@
 			"steps": [
 				{ "narrate": "(Mabel comes in with a small tin box under her arm and a wet umbrella.)" },
 				{ "say": "Don't close up yet, dear. I've come to cook." },
-				{ "say": "I haven't cooked for anyone in eleven years. I'd like to again. Tonight. With you." },
+				{ "say": "I haven't cooked for anyone in eleven years. I'd like to again. Tonight. With you.", "emotion": "happy" },
 				{ "narrate": "(She opens the tin. Inside is a single recipe card, stained and soft with age, and a small brass bell.)" },
 				{ "say": "Walter's soup. The one from the storm. He never wrote anything down except this." },
 				{ "cook": { "name": "Walter's Storm Soup", "cook_speed": 0.8 },
@@ -98,23 +98,23 @@
 					"rescue": "(She quietly turns the burner down for you.)",
 					"min_quality": 0.75 },
 				{ "say": "I promised you the end of the story. Here it is." },
-				{ "say": "At dawn the storm passed. Everyone went home. And that young cook brought me the very last bowl. He'd salted it. He said, 'You're the only one who told me the truth last night. Would you stay for breakfast?'" },
-				{ "say": "I stayed fifty years.",
+				{ "say": "At dawn the storm passed. Everyone went home. And that young cook brought me the very last bowl. He'd salted it. He said, 'You're the only one who told me the truth last night. Would you stay for breakfast?'", "emotion": "happy" },
+				{ "say": "I stayed fifty years.", "emotion": "happy",
 					"choices": [
-						{ "text": "That's the most beautiful story I've ever heard.", "reply": "It is, isn't it. I've been saving it for the right person." },
-						{ "text": "Did the soup need salt tonight?", "reply": "(She tastes it.) ...No. It's perfect. Don't let it go to your head." },
-						{ "text": "Why tell me now?", "reply": "Because you're honest with me. That's twice in my life I've found that." }
+						{ "text": "That's the most beautiful story I've ever heard.", "reply": "It is, isn't it. I've been saving it for the right person.", "emotion": "happy" },
+						{ "text": "Did the soup need salt tonight?", "reply": "(She tastes it.) ...No. It's perfect. Don't let it go to your head.", "emotion": "happy" },
+						{ "text": "Why tell me now?", "reply": "Because you're honest with me. That's twice in my life I've found that.", "emotion": "happy" }
 					]
 				},
-				{ "say": "When I closed my diner, I thought that part of my life was finished. Then I walked in here and you told me the truth about your cooking, and you listened to an old lady ramble, and you made me soup every time I was sad without me ever saying so." },
-				{ "say": "I want you to have the recipe. And the bell. It hung over my door for fifty years. It ought to hang over a door again.",
+				{ "say": "When I closed my diner, I thought that part of my life was finished. Then I walked in here and you told me the truth about your cooking, and you listened to an old lady ramble, and you made me soup every time I was sad without me ever saying so.", "emotion": "happy" },
+				{ "say": "I want you to have the recipe. And the bell. It hung over my door for fifty years. It ought to hang over a door again.", "emotion": "happy",
 					"choices": [
-						{ "text": "I'll hang it up tonight.", "reply": "Good. Make sure it rings. A quiet bell is a sad thing." },
-						{ "text": "Are you sure? This is Walter's.", "reply": "It's yours now, dear. That's what he'd want. He'd have liked you very much." },
-						{ "text": "Thank you, Mabel. I'll take care of it.", "reply": "I know you will. I've watched you take care of everyone." }
+						{ "text": "I'll hang it up tonight.", "reply": "Good. Make sure it rings. A quiet bell is a sad thing.", "emotion": "happy" },
+						{ "text": "Are you sure? This is Walter's.", "reply": "It's yours now, dear. That's what he'd want. He'd have liked you very much.", "emotion": "happy" },
+						{ "text": "Thank you, Mabel. I'll take care of it.", "reply": "I know you will. I've watched you take care of everyone.", "emotion": "happy" }
 					]
 				},
-				{ "say": "Now. We eat. Two bowls. And then I'm going home, because I'm ninety-one and it's past my bedtime." },
+				{ "say": "Now. We eat. Two bowls. And then I'm going home, because I'm ninety-one and it's past my bedtime.", "emotion": "tired" },
 				{ "narrate": "(You eat together at her window table while the rain slows down.)" }
 			]
 		}

@@ -226,6 +226,14 @@ static func say(record: Dictionary, event: String, context: Dictionary) -> Strin
 	return DialoguePicker.fill(line["text"], context) if not line.is_empty() else ""
 
 
+# Like say, with how they feel saying it: { text, emotion } (see Conversation).
+static func say_feeling(record: Dictionary, event: String, context: Dictionary) -> Dictionary:
+	var line := pick_line(record, event, context)
+	if line.is_empty():
+		return { "text": "", "emotion": &"" }
+	return { "text": DialoguePicker.fill(line["text"], context), "emotion": Conversation.emotion_of(line) }
+
+
 static func _dish_name(dish_id: String) -> String:
 	return GameData.get_dish(dish_id).get("name", "") if not dish_id.is_empty() else ""
 

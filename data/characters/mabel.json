@@ -103,57 +103,57 @@
 	"lines": [
 		{ "event": "greeting", "priority": 300, "conditions": { "first_visit": true }, "text": "Hm. Clean floors. Good start. Don't get excited, dear, I'm only on the floors." },
 
-		{ "event": "greeting", "priority": 250, "conditions": { "stage": 1, "returned_after_away": true }, "text": "Closed for days without a sign on the door. In my day we'd have put up a sign. Were you ill, or just careless?" },
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 1, "returned_after_away": true }, "text": "Closed for days without a sign on the door. In my day we'd have put up a sign. Were you ill, or just careless?", "emotion": "angry" },
 		{ "event": "greeting", "priority": 220, "conditions": { "stage": 1, "last_quality_max": 0.4 }, "text": "I won't pretend last time was good. It wasn't. Let's see what you do with a second chance." },
-		{ "event": "greeting", "priority": 210, "conditions": { "stage": 1, "last_quality_min": 0.7 }, "text": "Your last dish was very good. Don't let it go to your head. Heads are heavy enough." },
+		{ "event": "greeting", "priority": 210, "conditions": { "stage": 1, "last_quality_min": 0.7 }, "text": "Your last dish was very good. Don't let it go to your head. Heads are heavy enough.", "emotion": "happy" },
 		{ "event": "greeting", "priority": 200, "conditions": { "stage": 1, "memory": { "name_test_passed": false } }, "text": "Afternoon, [wrong name]." },
 		{ "event": "greeting", "priority": 200, "conditions": { "stage": 1 }, "text": "I'll take the table by the window. I like to watch the door. Old habit." },
 
-		{ "event": "greeting", "priority": 250, "conditions": { "stage": 2, "returned_after_away": true }, "text": "[name]. You were closed three days. I worried. ...Don't tell anyone I said that." },
-		{ "event": "greeting", "priority": 200, "conditions": { "stage": 2 }, "text": "Afternoon, [name]. Your floors are still clean. I'm keeping score." },
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 2, "returned_after_away": true }, "text": "[name]. You were closed three days. I worried. ...Don't tell anyone I said that.", "emotion": "shy" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 2 }, "text": "Afternoon, [name]. Your floors are still clean. I'm keeping score.", "emotion": "happy" },
 		{ "event": "greeting", "priority": 200, "conditions": { "stage": 2 }, "text": "Don't fuss, I'll find my own table. I've been finding my own tables for ninety years." },
 
-		{ "event": "greeting", "priority": 250, "conditions": { "stage": 3, "returned_after_away": true }, "text": "There you are. I came by twice. The second time I just sat on the bench outside. It's a nice bench." },
-		{ "event": "greeting", "priority": 200, "conditions": { "stage": 3 }, "text": "[name]. Sit with me a minute when you're free. I'm in a talking mood." },
-		{ "event": "greeting", "priority": 200, "conditions": { "stage": 3 }, "text": "I brought you something. A pinch of my own seasoning blend. Don't tell anyone where you got it." },
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 3, "returned_after_away": true }, "text": "There you are. I came by twice. The second time I just sat on the bench outside. It's a nice bench.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 3 }, "text": "[name]. Sit with me a minute when you're free. I'm in a talking mood.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 3 }, "text": "I brought you something. A pinch of my own seasoning blend. Don't tell anyone where you got it.", "emotion": "happy" },
 
-		{ "event": "greeting", "priority": 250, "conditions": { "stage": 4, "returned_after_away": true }, "text": "You disappeared on me. At my age, dear, you don't do that to people." },
-		{ "event": "greeting", "priority": 200, "conditions": { "stage": 4 }, "text": "There's my favorite cook. Don't tell Walter. ...He'd agree, actually." },
-		{ "event": "greeting", "priority": 200, "conditions": { "stage": 4 }, "text": "I've decided you're one of mine now. That's not up for discussion." },
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 4, "returned_after_away": true }, "text": "You disappeared on me. At my age, dear, you don't do that to people.", "emotion": "sad" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 4 }, "text": "There's my favorite cook. Don't tell Walter. ...He'd agree, actually.", "emotion": "joyful" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 4 }, "text": "I've decided you're one of mine now. That's not up for discussion.", "emotion": "happy" },
 
-		{ "event": "greeting", "priority": 230, "conditions": { "stage": -1 }, "text": "You said \"[last_rude_line]\" to me. I've been thinking about it. I expected better." },
+		{ "event": "greeting", "priority": 230, "conditions": { "stage": -1 }, "text": "You said \"[last_rude_line]\" to me. I've been thinking about it. I expected better.", "emotion": "sad" },
 		{ "event": "greeting", "priority": 200, "conditions": { "stage": -1 }, "text": "Afternoon." },
 		{ "event": "greeting", "priority": 200, "conditions": { "stage": -2 }, "text": "Good afternoon, chef." },
 
-		{ "event": "farewell", "priority": 300, "conditions": { "learned_name": true }, "text": "I know your name, dear. I've always known it. It's on your sign. I just wanted to see if you'd tell me the truth when I got it wrong. You did. That's rarer than you'd think. Thank you, [name]." },
+		{ "event": "farewell", "priority": 300, "conditions": { "learned_name": true }, "text": "I know your name, dear. I've always known it. It's on your sign. I just wanted to see if you'd tell me the truth when I got it wrong. You did. That's rarer than you'd think. Thank you, [name].", "emotion": "happy" },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 1, "memory": { "name_test_passed": false } }, "text": "Thank you, [wrong name]. Same time next week. Maybe sooner." },
-		{ "event": "farewell", "priority": 200, "conditions": { "stage": 2 }, "text": "Goodnight, [name]. Taste everything." },
-		{ "event": "farewell", "priority": 200, "conditions": { "stage": 3 }, "text": "Goodnight, [name]. Thank you for listening to an old lady ramble." },
-		{ "event": "farewell", "priority": 200, "conditions": { "stage": 4 }, "text": "Goodnight, dear. Turn the left burner down." },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 2 }, "text": "Goodnight, [name]. Taste everything.", "emotion": "happy" },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 3 }, "text": "Goodnight, [name]. Thank you for listening to an old lady ramble.", "emotion": "happy" },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 4 }, "text": "Goodnight, dear. Turn the left burner down.", "emotion": "happy" },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": -1 }, "text": "Thank you." },
 
-		{ "event": "served", "priority": 260, "conditions": { "min_stage": 1, "served_disliked": true }, "text": "Foam? On a plate? In my day we called that a mistake." },
-		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_min": 0.7 }, "text": "Hm. ...That's very good. Walter would have asked for seconds." },
-		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_min": 0.4, "served_quality_max": 0.7 }, "text": "Edible. Solid. Needs a pinch more salt. You'll get there." },
-		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_max": 0.4 }, "text": "It's burnt, dear. I'm going to eat it, because I don't waste food. But it's burnt." },
-		{ "event": "served", "priority": 200, "conditions": { "min_stage": 2, "max_stage": 3 }, "text": "Thank you, [name]. ...You've improved. I won't say it twice." },
-		{ "event": "served", "priority": 220, "conditions": { "stage": 4, "served_quality_max": 0.4 }, "text": "You burnt it. Good. Even the best of us do. Walter burnt toast every Sunday for fifty years." },
-		{ "event": "served", "priority": 200, "conditions": { "stage": 4 }, "text": "[name], this is as good as anything I ever served. I mean that. I don't say things I don't mean." },
-		{ "event": "served", "priority": 200, "conditions": { "max_stage": -1 }, "text": "Thank you." },
+		{ "event": "served", "priority": 260, "conditions": { "min_stage": 1, "served_disliked": true }, "text": "Foam? On a plate? In my day we called that a mistake.", "emotion": "confused" },
+		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_min": 0.7 }, "text": "Hm. ...That's very good. Walter would have asked for seconds.", "emotion": "happy" },
+		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_min": 0.4, "served_quality_max": 0.7 }, "text": "Edible. Solid. Needs a pinch more salt. You'll get there.", "emotion": "neutral" },
+		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_max": 0.4 }, "text": "It's burnt, dear. I'm going to eat it, because I don't waste food. But it's burnt.", "emotion": "neutral" },
+		{ "event": "served", "priority": 200, "conditions": { "min_stage": 2, "max_stage": 3 }, "text": "Thank you, [name]. ...You've improved. I won't say it twice.", "emotion": "happy" },
+		{ "event": "served", "priority": 220, "conditions": { "stage": 4, "served_quality_max": 0.4 }, "text": "You burnt it. Good. Even the best of us do. Walter burnt toast every Sunday for fifty years.", "emotion": "happy" },
+		{ "event": "served", "priority": 200, "conditions": { "stage": 4 }, "text": "[name], this is as good as anything I ever served. I mean that. I don't say things I don't mean.", "emotion": "joyful" },
+		{ "event": "served", "priority": 200, "conditions": { "max_stage": -1 }, "text": "Thank you.", "emotion": "neutral" },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Your stove runs hot on the left side. Turn it down a notch. Trust me." },
-		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "I ran a diner for fifty years. Don't look so surprised. I wasn't always this slow. ...I was always this slow." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "I ran a diner for fifty years. Don't look so surprised. I wasn't always this slow. ...I was always this slow.", "emotion": "happy" },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3, "friends_with": { "stitches": false } }, "text": "That bear with the patches. Stitches. He sits alone every time. Someone ought to say hello to him." },
 		{ "event": "eating_chat", "id": "mabel_befriends_stitches", "priority": 230, "conditions": { "min_stage": 3, "regular_min_relationship": { "stitches": 50 }, "friends_with": { "stitches": false } }, "befriends": "stitches", "text": "That bear with the patches. Stitches. He sits alone every time. Someone ought to say hello to him." },
-		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3 }, "text": "My grandson Cheddar thinks I don't notice his pranks. I notice everything. I let him have it." },
-		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "You taste everything before it goes out now. I've watched you. That's how I know you'll be fine." },
-		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "If I had a granddaughter or grandson who cooked like you, I'd be very proud. ...Well. I suppose I do." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3 }, "text": "My grandson Cheddar thinks I don't notice his pranks. I notice everything. I let him have it.", "emotion": "happy" },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "You taste everything before it goes out now. I've watched you. That's how I know you'll be fine.", "emotion": "happy" },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "If I had a granddaughter or grandson who cooked like you, I'd be very proud. ...Well. I suppose I do.", "emotion": "happy" },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "max_stage": -1 }, "text": "Is there something you need, chef? I'm quite comfortable." },
 
 		{ "event": "order", "id": "mabel_order_1a", "priority": 200, "conditions": { "stage": 1 }, "text": "Tell me honestly, chef. What's the best thing you make? Not the thing you want to sell me. The best thing.",
 			"choices": [
 				{ "tone": "warm", "text": "Everything's made with love, so all of it!", "reply": "Love doesn't season a pot, dear. I'll have the [dish].", "change": 1 },
 				{ "tone": "playful", "text": "Honestly? The bread. I bought it.", "reply": "Well, at least you're honest. The [dish].", "change": 1 },
-				{ "tone": "straight", "text": "The [dish]. It's the one I get right every time.", "reply": "Good. That's the answer I wanted. I'll have it.", "change": 4 },
+				{ "tone": "straight", "text": "The [dish]. It's the one I get right every time.", "reply": "Good. That's the answer I wanted. I'll have it.", "emotion": "happy", "change": 4 },
 				{ "tone": "rude", "text": "Just read the menu yourself.", "reply": "I've survived worse than you, chef. The [dish].", "change": -6 }
 			]
 		},
@@ -162,44 +162,44 @@
 				{ "tone": "warm", "text": "I'd love to hear it sometime.", "reply": "Hm. Maybe you will.", "change": 1 },
 				{ "tone": "playful", "text": "You can't stop there! That's a cliffhanger!", "reply": "Patience is a virtue, dear. Soup.", "change": 1 },
 				{ "tone": "straight", "text": "I'll get your soup. Tell me the rest when you're ready.", "reply": "Good answer. Some stories have to be earned.", "change": 4 },
-				{ "tone": "rude", "text": "Nobody asked.", "reply": "No. No one ever does.", "change": -6 }
+				{ "tone": "rude", "text": "Nobody asked.", "reply": "No. No one ever does.", "emotion": "sad", "change": -6 }
 			]
 		},
 		{ "event": "order", "id": "mabel_order_1c", "priority": 200, "conditions": { "stage": 1, "memory": { "name_test_passed": false } }, "text": "Thank you, [wrong name]. Now, what's good today?",
 			"choices": [
 				{ "tone": "warm", "text": "It's [name], but you can call me whatever you like!", "reply": "I'll call you by your name, dear. I'm not a barbarian.", "change": 1 },
 				{ "tone": "playful", "text": "[wrong name] is my evil twin. I'm [name].", "reply": "Hm. Keep an eye on him, then.", "change": 2 },
-				{ "tone": "straight", "text": "It's actually [name].", "reply": "Is it now. Noted.", "change": 3, "set": { "name_test_passed": true } },
+				{ "tone": "straight", "text": "It's actually [name].", "reply": "Is it now. Noted.", "emotion": "neutral", "change": 3, "set": { "name_test_passed": true } },
 				{ "tone": "rude", "text": "Can you not even get my name right?", "reply": "I'm ninety-one, chef. Can you not be kind?", "change": -6 }
 			]
 		},
 		{ "event": "order", "id": "mabel_order_2", "priority": 200, "conditions": { "stage": 2 }, "text": "Be honest. Are you tired? You look tired. A tired cook burns things.",
 			"choices": [
 				{ "tone": "warm", "text": "I'm fine, but thank you for caring.", "reply": "Hm. I'll take your word for it. The [dish].", "change": 2 },
-				{ "tone": "playful", "text": "Tired? Me? I'm running on pure soup.", "reply": "Ha. Well, don't drink the stock.", "change": 2 },
-				{ "tone": "straight", "text": "Yeah, honestly. It's been a long week.", "reply": "Thank you for telling me. Make mine simple today. Soup.", "change": 4, "dish": "soup" },
+				{ "tone": "playful", "text": "Tired? Me? I'm running on pure soup.", "reply": "Ha. Well, don't drink the stock.", "emotion": "happy", "change": 2 },
+				{ "tone": "straight", "text": "Yeah, honestly. It's been a long week.", "reply": "Thank you for telling me. Make mine simple today. Soup.", "emotion": "happy", "change": 4, "dish": "soup" },
 				{ "tone": "rude", "text": "Mind your own business.", "reply": "Hm. I'll have the [dish]. And I'll mind my business.", "change": -8 }
 			]
 		},
 		{ "event": "order", "id": "mabel_order_3", "priority": 200, "conditions": { "stage": 3 }, "dish": "soup", "text": "Walter used to say you can tell everything about a cook by their soup. What would yours say about you?",
 			"choices": [
 				{ "tone": "warm", "text": "That I care about the people I'm feeding.", "reply": "...Yes. I think it would. Soup, please.", "change": 3 },
-				{ "tone": "playful", "text": "That I need more salt.", "reply": "Ha! Walter would've liked you.", "change": 2 },
+				{ "tone": "playful", "text": "That I need more salt.", "reply": "Ha! Walter would've liked you.", "emotion": "joyful", "change": 2 },
 				{ "tone": "straight", "text": "That I'm still learning, but I'm trying.", "reply": "That's the best thing a cook can be. Soup.", "change": 3 },
-				{ "tone": "rude", "text": "That I don't care about your husband's sayings.", "reply": "...Soup.", "change": -10 }
+				{ "tone": "rude", "text": "That I don't care about your husband's sayings.", "reply": "...Soup.", "emotion": "sad", "change": -10 }
 			]
 		},
-		{ "event": "order", "id": "mabel_order_4", "priority": 200, "conditions": { "stage": 4 }, "dish": "soup", "text": "I'm going to order the soup, and then you're going to tell me honestly how your week has been. All of it.",
+		{ "event": "order", "id": "mabel_order_4", "priority": 200, "conditions": { "stage": 4 }, "dish": "soup", "text": "I'm going to order the soup, and then you're going to tell me honestly how your week has been. All of it.", "emotion": "happy",
 			"choices": [
-				{ "tone": "warm", "text": "It's better now that you're here.", "reply": "Flatterer. ...Thank you, dear.", "change": 3 },
-				{ "tone": "playful", "text": "All of it? You might need two bowls.", "reply": "Then bring two.", "change": 2 },
+				{ "tone": "warm", "text": "It's better now that you're here.", "reply": "Flatterer. ...Thank you, dear.", "emotion": "shy", "change": 3 },
+				{ "tone": "playful", "text": "All of it? You might need two bowls.", "reply": "Then bring two.", "emotion": "happy", "change": 2 },
 				{ "tone": "straight", "text": "(Tell her honestly that it was hard.)", "reply": "Thank you for telling me. Hard weeks end. Good soup helps.", "change": 3 },
-				{ "tone": "rude", "text": "You're not my grandma.", "reply": "...No. I suppose I'm not.", "change": -12 }
+				{ "tone": "rude", "text": "You're not my grandma.", "reply": "...No. I suppose I'm not.", "emotion": "sad", "change": -12 }
 			]
 		},
 		{ "event": "order", "priority": 200, "conditions": { "stage": -1 }, "text": "The [dish], please. Thank you." },
 		{ "event": "order", "priority": 200, "conditions": { "max_stage": -2 }, "text": "The [dish]." },
-		{ "event": "eating_chat", "id": "mabel_chat_glasses", "priority": 200, "conditions": { "stage": 1 }, "text": "Have you seen my glasses? I had them when I came in.",
+		{ "event": "eating_chat", "id": "mabel_chat_glasses", "priority": 200, "conditions": { "stage": 1 }, "text": "Have you seen my glasses? I had them when I came in.", "emotion": "confused",
 			"choices": [
 				{ "tone": "straight", "text": "They're on your head, Mabel.", "change": 2 },
 				{ "tone": "playful", "text": "Have you tried looking up?", "change": 1 },
@@ -211,29 +211,29 @@
 				{ "tone": "warm", "text": "I'd love that, Mabel.", "reply": "Taste everything before it leaves your kitchen. Everything. That's it. That's the advice.", "change": 2 },
 				{ "tone": "playful", "text": "Is it 'more salt'? It's always more salt.", "reply": "It's sometimes more salt. Today it's not.", "change": 2 },
 				{ "tone": "straight", "text": "Yes. Tell me what I'm doing wrong.", "reply": "You rush the plating. Food deserves a second look before it goes out.", "change": 4 },
-				{ "tone": "rude", "text": "I don't need advice from you.", "reply": "No. You don't need anything from me.", "change": -8 }
+				{ "tone": "rude", "text": "I don't need advice from you.", "reply": "No. You don't need anything from me.", "emotion": "sad", "change": -8 }
 			]
 		},
-		{ "event": "eating_chat", "id": "mabel_chat_walter", "priority": 200, "conditions": { "stage": 3 }, "text": "I haven't cooked for anyone since Walter. Not even myself. That's why I come here, I suppose.",
+		{ "event": "eating_chat", "id": "mabel_chat_walter", "priority": 200, "conditions": { "stage": 3 }, "text": "I haven't cooked for anyone since Walter. Not even myself. That's why I come here, I suppose.", "emotion": "sad",
 			"choices": [
-				{ "tone": "warm", "text": "I'm glad you come here.", "reply": "So am I, dear.", "change": 3 },
-				{ "tone": "straight", "text": "Maybe you could cook something with me sometime.", "reply": "...Maybe. Don't push your luck.", "change": 3 },
-				{ "tone": "rude", "text": "That's kind of sad.", "reply": "Yes. It is.", "change": -10 }
+				{ "tone": "warm", "text": "I'm glad you come here.", "reply": "So am I, dear.", "emotion": "happy", "change": 3 },
+				{ "tone": "straight", "text": "Maybe you could cook something with me sometime.", "reply": "...Maybe. Don't push your luck.", "emotion": "shy", "change": 3 },
+				{ "tone": "rude", "text": "That's kind of sad.", "reply": "Yes. It is.", "emotion": "sad", "change": -10 }
 			]
 		},
 		{ "event": "pick_for_me", "id": "mabel_recommend", "priority": 200, "conditions": { "min_relationship": 40 }, "text": "Recommend me something. And tell me why. A recommendation without a reason is just a guess.",
 			"reactions": {
 				"favorite": [{ "text": "Soup. Of course you'd pick soup. You've been paying attention.", "change": 5 }],
-				"disliked": [{ "text": "Hm. You're brave. Wrong, but brave.", "change": -1 }],
-				"other": [{ "text": "Fair enough. Let's see.", "change": 1 }]
+				"disliked": [{ "text": "Hm. You're brave. Wrong, but brave.", "emotion": "surprised", "change": -1 }],
+				"other": [{ "text": "Fair enough. Let's see.", "emotion": "neutral", "change": 1 }]
 			}
 		},
 
-		{ "event": "learn_name", "id": "mabel_learn_name", "priority": 200, "conditions": { "min_stage": 2, "knows_player_name": false }, "learns_name": true, "text": "I know your name, dear. I've always known it. It's on your sign. I just wanted to see if you'd tell me the truth when I got it wrong. You did. That's rarer than you'd think. Thank you, [name].", "set": { "name_test_passed": true } },
+		{ "event": "learn_name", "id": "mabel_learn_name", "priority": 200, "conditions": { "min_stage": 2, "knows_player_name": false }, "learns_name": true, "text": "I know your name, dear. I've always known it. It's on your sign. I just wanted to see if you'd tell me the truth when I got it wrong. You did. That's rarer than you'd think. Thank you, [name].", "emotion": "happy", "set": { "name_test_passed": true } },
 
-		{ "event": "restaurant_name", "priority": 200, "conditions": { "min_stage": 1, "new_restaurant_name": true }, "text": "[restaurant]. Hm. Good name. Easy to say, easy to remember. Walter would have approved." },
-		{ "event": "restaurant_name", "priority": 200, "conditions": { "min_stage": 1, "new_restaurant_name": true }, "text": "In my day the diner was just called 'Diner.' [restaurant] is better. Don't let it go to your head." },
-		{ "event": "greeting", "priority": 200, "conditions": { "min_stage": 2 }, "text": "Afternoon. [restaurant] smells right today. That's a compliment, dear." },
+		{ "event": "restaurant_name", "priority": 200, "conditions": { "min_stage": 1, "new_restaurant_name": true }, "text": "[restaurant]. Hm. Good name. Easy to say, easy to remember. Walter would have approved.", "emotion": "happy" },
+		{ "event": "restaurant_name", "priority": 200, "conditions": { "min_stage": 1, "new_restaurant_name": true }, "text": "In my day the diner was just called 'Diner.' [restaurant] is better. Don't let it go to your head.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 200, "conditions": { "min_stage": 2 }, "text": "Afternoon. [restaurant] smells right today. That's a compliment, dear.", "emotion": "happy" },
 
 		{ "event": "phone_greeting", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "text": "This is Mabel. I would like to place an order for delivery." },
 		{ "event": "phone_greeting", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "text": "Good evening. Mabel speaking. Delivery, please." },
@@ -250,14 +250,14 @@
 		},
 		{ "event": "phone_chat", "id": "mabel_phone_chat_placeholder", "priority": 200, "conditions": { "stage": 4 }, "text": "It's Mabel, dear. Nothing to order. I only wanted to hear how my kitchen's doing. ...Your kitchen. Turn the left burner down. Goodnight." },
 
-		{ "event": "return_scene", "id": "mabel_return", "priority": 200, "text": "Well. I'm here. Say what you came to say, and say it plainly.", "choices": [ { "text": "I was cruel to you. I'm sorry. No excuses.", "reply": "...Thank you. That's how it's done.", "change": 0 },{ "text": "I've missed you, Mabel. This place isn't the same.", "reply": "Hm. It isn't. I could tell from the floors.", "change": 0 },{ "text": "Can I make you some soup?", "reply": "...Yes. You can.", "change": 0 } ]},
-		{ "event": "return_closing", "id": "mabel_return_closing", "priority": 200, "text": "We'll start again. Afternoon, Gerald.", "set": { "name_test_passed": false}},
+		{ "event": "return_scene", "id": "mabel_return", "priority": 200, "text": "Well. I'm here. Say what you came to say, and say it plainly.", "choices": [ { "text": "I was cruel to you. I'm sorry. No excuses.", "reply": "...Thank you. That's how it's done.", "emotion": "happy", "change": 0 },{ "text": "I've missed you, Mabel. This place isn't the same.", "reply": "Hm. It isn't. I could tell from the floors.", "emotion": "happy", "change": 0 },{ "text": "Can I make you some soup?", "reply": "...Yes. You can.", "emotion": "happy", "change": 0 } ]},
+		{ "event": "return_closing", "id": "mabel_return_closing", "priority": 200, "text": "We'll start again. Afternoon, Gerald.", "emotion": "happy", "set": { "name_test_passed": false}},
 
 		{ "event": "eating_chat", "id": "mabel_story_1", "priority": 220, "conditions": { "min_stage": 3, "memory": { "story_part": 0 }}, "set": { "story_part": 1 }, "text": "There was a storm. The worst in forty years. I was twenty-two, driving through town, and my car died right outside a little diner. Every light in town was out.", "choices": [ { "tone": "straight", "text": "What did you do?", "change": 3, "invented": true }, { "tone": "warm", "text": "That must have been frightening. I'm glad you found somewhere warm.", "change": 3, "invented": true }, { "tone": "playful", "text": "Please tell me the diner had pie.", "change": 2, "invented": true } ]},
-		{ "event": "eating_chat", "id": "mabel_story_2", "priority": 220, "conditions": { "min_stage": 3, "memory": { "story_part": 1 }}, "set": { "story_part": 2 }, "text": "The diner was full of stranded people. And this young cook, all elbows, was making soup on an old wood stove by candlelight. For everyone. For free. All night.", "choices": [ { "tone": "straight", "text": "Was that Walter?", "change": 3, "invented": true }, { "tone": "warm", "text": "That sounds like a very kind young man.", "change": 3, "invented": true }, { "tone": "playful", "text": "All elbows? I'd have liked to see that.", "change": 2, "invented": true } ]},
-		{ "event": "eating_chat", "id": "mabel_story_3", "priority": 220, "conditions": { "min_stage": 3, "memory": { "story_part": 2 }}, "set": { "story_part": 3 }, "text": "Everyone told him it was wonderful. I was the only one who told him it needed salt. He laughed so hard he nearly dropped the pot.", "choices": [ { "tone": "straight", "text": "Did he add the salt?", "change": 3, "invented": true }, { "tone": "warm", "text": "Of course you told him the truth. You always do.", "change": 3, "invented": true }, { "tone": "playful", "text": "Bold move, judging the soup in a storm.", "change": 2, "invented": true } ]},
+		{ "event": "eating_chat", "id": "mabel_story_2", "priority": 220, "conditions": { "min_stage": 3, "memory": { "story_part": 1 }}, "set": { "story_part": 2 }, "text": "The diner was full of stranded people. And this young cook, all elbows, was making soup on an old wood stove by candlelight. For everyone. For free. All night.", "emotion": "happy", "choices": [ { "tone": "straight", "text": "Was that Walter?", "change": 3, "invented": true }, { "tone": "warm", "text": "That sounds like a very kind young man.", "change": 3, "invented": true }, { "tone": "playful", "text": "All elbows? I'd have liked to see that.", "change": 2, "invented": true } ]},
+		{ "event": "eating_chat", "id": "mabel_story_3", "priority": 220, "conditions": { "min_stage": 3, "memory": { "story_part": 2 }}, "set": { "story_part": 3 }, "text": "Everyone told him it was wonderful. I was the only one who told him it needed salt. He laughed so hard he nearly dropped the pot.", "emotion": "happy", "choices": [ { "tone": "straight", "text": "Did he add the salt?", "change": 3, "invented": true }, { "tone": "warm", "text": "Of course you told him the truth. You always do.", "change": 3, "invented": true }, { "tone": "playful", "text": "Bold move, judging the soup in a storm.", "change": 2, "invented": true } ]},
 		{ "event": "eating_chat", "id": "mabel_story_4", "priority": 220, "conditions": { "min_stage": 3, "memory": { "story_part": 3 }}, "set": { "story_part": 4 }, "text": "...Well. The ending will keep a little longer, dear." },
-		{ "event": "eating_chat", "id": "mabel_notices_apron", "priority": 240, "once": true, "conditions": { "unlocked": "patchwork_apron" }, "text": "What a lovely apron, dear. Did that sweet bear make it? He has such talented paws." },
+		{ "event": "eating_chat", "id": "mabel_notices_apron", "priority": 240, "once": true, "conditions": { "unlocked": "patchwork_apron" }, "text": "What a lovely apron, dear. Did that sweet bear make it? He has such talented paws.", "emotion": "happy" },
 		{ "event": "arrival", "id": "mabel_rings_bell", "priority": 200, "conditions": { "unlocked": "mabel_bell" }, "text": "(She reaches up and rings the bell over the door herself.)" }
 	]
 }

@@ -80,122 +80,122 @@
 		"player_favorite": ""
 	},
 	"lines": [
-		{ "event": "greeting", "priority": 300, "conditions": { "first_visit": true }, "text": "Ladies and gentlemen, he has ARRIVED. ...It's me. I'm the 'he.' Hi. Nice place. Do you do takeout? Kidding, I'm staying." },
+		{ "event": "greeting", "priority": 300, "conditions": { "first_visit": true }, "text": "Ladies and gentlemen, he has ARRIVED. ...It's me. I'm the 'he.' Hi. Nice place. Do you do takeout? Kidding, I'm staying.", "emotion": "excited" },
 
 		{ "event": "greeting", "priority": 250, "conditions": { "stage": 1, "returned_after_away": true }, "text": "Oh, NOW you're open? I came by and it was just me and a closed sign. We had a nice chat. It's a great listener." },
 		{ "event": "greeting", "priority": 220, "conditions": { "stage": 1, "last_quality_max": 0.4 }, "text": "Last time was extra crispy. Like, fossil crispy. I'm giving you a second chance because I'm generous." },
-		{ "event": "greeting", "priority": 210, "conditions": { "stage": 1, "last_quality_min": 0.7 }, "text": "Okay, I've been thinking about my last meal here. Like, a weird amount. Don't make it weird." },
-		{ "event": "greeting", "priority": 200, "conditions": { "stage": 1 }, "text": "And the mouse enters the building! The crowd goes wild! ...The crowd is you. Go wild." },
+		{ "event": "greeting", "priority": 210, "conditions": { "stage": 1, "last_quality_min": 0.7 }, "text": "Okay, I've been thinking about my last meal here. Like, a weird amount. Don't make it weird.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 1 }, "text": "And the mouse enters the building! The crowd goes wild! ...The crowd is you. Go wild.", "emotion": "excited" },
 		{ "event": "greeting", "priority": 200, "conditions": { "stage": 1 }, "text": "New seat today. Gotta keep you guessing." },
 
-		{ "event": "greeting", "priority": 250, "conditions": { "stage": 2, "returned_after_away": true }, "text": "[nickname]! I thought you got kidnapped. I was gonna make posters. They were gonna be so good." },
-		{ "event": "greeting", "priority": 200, "conditions": { "stage": 2 }, "text": "[nickname]! My favorite person in this building. Also the only person in this building. Still counts." },
-		{ "event": "greeting", "priority": 200, "conditions": { "stage": 2 }, "text": "I had a dream you burnt my food and I woke up FURIOUS. Don't let it happen in real life." },
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 2, "returned_after_away": true }, "text": "[nickname]! I thought you got kidnapped. I was gonna make posters. They were gonna be so good.", "emotion": "joyful" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 2 }, "text": "[nickname]! My favorite person in this building. Also the only person in this building. Still counts.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 2 }, "text": "I had a dream you burnt my food and I woke up FURIOUS. Don't let it happen in real life.", "emotion": "angry" },
 
-		{ "event": "greeting", "priority": 250, "conditions": { "stage": 3, "returned_after_away": true }, "text": "Hey. You were gone a while. I, uh... it was weird not coming here. Anyway! Funny story-" },
-		{ "event": "greeting", "priority": 230, "conditions": { "stage": 3 }, "text": "Remember when you said \"[last_rude_line]\"? I laughed. ...It wasn't that funny, actually. Okay! Moving on!" },
-		{ "event": "greeting", "priority": 200, "conditions": { "stage": 3 }, "text": "[nickname]! Okay, I have a new bit, but first, how are you? Like, actually?" },
-		{ "event": "greeting", "priority": 200, "conditions": { "stage": 3 }, "text": "I sat here because it's the seat closest to the kitchen. ...For the smell. Not because of you. Mostly the smell." },
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 3, "returned_after_away": true }, "text": "Hey. You were gone a while. I, uh... it was weird not coming here. Anyway! Funny story-", "emotion": "nervous" },
+		{ "event": "greeting", "priority": 230, "conditions": { "stage": 3 }, "text": "Remember when you said \"[last_rude_line]\"? I laughed. ...It wasn't that funny, actually. Okay! Moving on!", "emotion": "sad" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 3 }, "text": "[nickname]! Okay, I have a new bit, but first, how are you? Like, actually?", "emotion": "excited" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 3 }, "text": "I sat here because it's the seat closest to the kitchen. ...For the smell. Not because of you. Mostly the smell.", "emotion": "shy" },
 
-		{ "event": "greeting", "priority": 250, "conditions": { "stage": 4, "returned_after_away": true }, "text": "You can't just leave! Who's gonna laugh at my jokes? Mabel? She falls asleep halfway through!" },
-		{ "event": "greeting", "priority": 200, "conditions": { "stage": 4 }, "text": "PARTNER! My partner in crime! My co-chef! My- okay I'm out of titles. Hi!" },
-		{ "event": "greeting", "priority": 200, "conditions": { "stage": 4 }, "text": "I have a new prank planned and you're helping. Don't argue. You're already in it." },
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 4, "returned_after_away": true }, "text": "You can't just leave! Who's gonna laugh at my jokes? Mabel? She falls asleep halfway through!", "emotion": "sad" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 4 }, "text": "PARTNER! My partner in crime! My co-chef! My- okay I'm out of titles. Hi!", "emotion": "excited" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 4 }, "text": "I have a new prank planned and you're helping. Don't argue. You're already in it.", "emotion": "excited" },
 
-		{ "event": "greeting", "priority": 200, "conditions": { "stage": -1 }, "text": "Oh, look who's working today. Lucky me." },
-		{ "event": "greeting", "priority": 200, "conditions": { "stage": -2 }, "text": "Table for one. Don't bother with the small talk." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": -1 }, "text": "Oh, look who's working today. Lucky me.", "emotion": "angry" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": -2 }, "text": "Table for one. Don't bother with the small talk.", "emotion": "angry" },
 
-		{ "event": "farewell", "priority": 300, "conditions": { "learned_name": true }, "text": "Okay, I've been calling you 'chef' for weeks. What's your actual name? ...[name]. Cool. Too normal, though. You need a nickname." },
-		{ "event": "farewell", "priority": 200, "conditions": { "stage": 1 }, "text": "Thank you, thank you, I'll be here all week. Literally. I'm coming back tomorrow." },
+		{ "event": "farewell", "priority": 300, "conditions": { "learned_name": true }, "text": "Okay, I've been calling you 'chef' for weeks. What's your actual name? ...[name]. Cool. Too normal, though. You need a nickname.", "emotion": "happy" },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 1 }, "text": "Thank you, thank you, I'll be here all week. Literally. I'm coming back tomorrow.", "emotion": "happy" },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 1 }, "text": "Tip's on the table. It's mostly buttons. Kidding! ...Mostly kidding." },
-		{ "event": "farewell", "priority": 200, "conditions": { "stage": 2 }, "text": "Bye, [nickname]! Don't miss me too much. Actually, miss me a normal amount." },
-		{ "event": "farewell", "priority": 200, "conditions": { "stage": 3 }, "text": "Thanks, [name]. ...See? I used your real name. That's how you know I mean it." },
-		{ "event": "farewell", "priority": 200, "conditions": { "stage": 4 }, "text": "Bye, partner! Don't burn anything while I'm gone. Except maybe Mabel's toast. She likes it that way." },
-		{ "event": "farewell", "priority": 200, "conditions": { "stage": -1 }, "text": "Wow. Food. Incredible." },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 2 }, "text": "Bye, [nickname]! Don't miss me too much. Actually, miss me a normal amount.", "emotion": "happy" },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 3 }, "text": "Thanks, [name]. ...See? I used your real name. That's how you know I mean it.", "emotion": "shy" },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 4 }, "text": "Bye, partner! Don't burn anything while I'm gone. Except maybe Mabel's toast. She likes it that way.", "emotion": "happy" },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": -1 }, "text": "Wow. Food. Incredible.", "emotion": "neutral" },
 
-		{ "event": "served", "priority": 260, "conditions": { "min_stage": 1, "served_disliked": true }, "text": "...Wow. Okay. Betrayal. Served on a plate." },
-		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_min": 0.7 }, "text": "Oh, chef, you've outdone yourself! I'd give you a standing ovation but I'm very small." },
-		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_min": 0.4, "served_quality_max": 0.7 }, "text": "Solid. Seven out of ten. Eight if you laugh at my next joke." },
-		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_max": 0.4 }, "text": "Ah, I see we're going with charcoal today. Bold. Very bold." },
-		{ "event": "served", "priority": 200, "conditions": { "min_stage": 2, "max_stage": 3 }, "text": "Thanks, [nickname]! This looks great. Like, suspiciously great. Did someone else make this?" },
-		{ "event": "served", "priority": 220, "conditions": { "stage": 4, "served_quality_max": 0.4 }, "text": "Burnt, but made with love. I can taste the love. It tastes like smoke." },
-		{ "event": "served", "priority": 200, "conditions": { "stage": 4 }, "text": "[nickname], you did it again. You're like a food wizard. A fizzard. ...No. Not my best." },
-		{ "event": "served", "priority": 200, "conditions": { "max_stage": -1 }, "text": "Wow. Food. Incredible." },
-		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Wanna hear a secret? I hid something in this restaurant. Don't look. ...You're gonna look." },
+		{ "event": "served", "priority": 260, "conditions": { "min_stage": 1, "served_disliked": true }, "text": "...Wow. Okay. Betrayal. Served on a plate.", "emotion": "surprised" },
+		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_min": 0.7 }, "text": "Oh, chef, you've outdone yourself! I'd give you a standing ovation but I'm very small.", "emotion": "excited" },
+		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_min": 0.4, "served_quality_max": 0.7 }, "text": "Solid. Seven out of ten. Eight if you laugh at my next joke.", "emotion": "happy" },
+		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_max": 0.4 }, "text": "Ah, I see we're going with charcoal today. Bold. Very bold.", "emotion": "confused" },
+		{ "event": "served", "priority": 200, "conditions": { "min_stage": 2, "max_stage": 3 }, "text": "Thanks, [nickname]! This looks great. Like, suspiciously great. Did someone else make this?", "emotion": "happy" },
+		{ "event": "served", "priority": 220, "conditions": { "stage": 4, "served_quality_max": 0.4 }, "text": "Burnt, but made with love. I can taste the love. It tastes like smoke.", "emotion": "happy" },
+		{ "event": "served", "priority": 200, "conditions": { "stage": 4 }, "text": "[nickname], you did it again. You're like a food wizard. A fizzard. ...No. Not my best.", "emotion": "joyful" },
+		{ "event": "served", "priority": 200, "conditions": { "max_stage": -1 }, "text": "Wow. Food. Incredible.", "emotion": "neutral" },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Wanna hear a secret? I hid something in this restaurant. Don't look. ...You're gonna look.", "emotion": "excited" },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Rate my chewing. Out of ten. Be honest. Actually don't." },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "I have thirteen siblings. Thirteen. Dinner at my house was a contact sport." },
-		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3 }, "text": "Mabel thinks I'm her grandson. I'm not. I don't correct her. ...Okay, I'm kind of her grandson now." },
-		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "I don't have to be 'on' here. You know how rare that is?" },
-		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "You know you're my favorite chef in the whole world, right? And I've eaten at, like, four places." },
-		{ "event": "eating_chat", "priority": 200, "conditions": { "max_stage": -1 }, "text": "Did I ask for a visit? Pretty sure I didn't." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3 }, "text": "Mabel thinks I'm her grandson. I'm not. I don't correct her. ...Okay, I'm kind of her grandson now.", "emotion": "happy" },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "I don't have to be 'on' here. You know how rare that is?", "emotion": "happy" },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "You know you're my favorite chef in the whole world, right? And I've eaten at, like, four places.", "emotion": "happy" },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "max_stage": -1 }, "text": "Did I ask for a visit? Pretty sure I didn't.", "emotion": "angry" },
 
-		{ "event": "order", "id": "cheddar_order_1a", "priority": 200, "conditions": { "stage": 1 }, "text": "Okay, okay, don't tell me the menu. I'm gonna guess. ...Is it soup? It's soup, isn't it.",
+		{ "event": "order", "id": "cheddar_order_1a", "priority": 200, "conditions": { "stage": 1 }, "text": "Okay, okay, don't tell me the menu. I'm gonna guess. ...Is it soup? It's soup, isn't it.", "emotion": "excited",
 			"choices": [
 				{ "tone": "warm", "text": "You can order whatever you like. Take your time.", "reply": "Aw, look at you being all nice. Suspicious. I'll have the [dish].", "change": 1 },
-				{ "tone": "playful", "text": "It's actually all soup. Every dish. Soup restaurant.", "reply": "I KNEW it. Give me the soupiest soup you've got.", "change": 4, "dish": "soup" },
-				{ "tone": "straight", "text": "Here's the menu.", "reply": "Booooring. Fine. The [dish].", "change": -2 },
-				{ "tone": "rude", "text": "Just order. You're not funny.", "reply": "Ooh, ROASTED! Okay, chef! The [dish].", "change": -4 }
+				{ "tone": "playful", "text": "It's actually all soup. Every dish. Soup restaurant.", "reply": "I KNEW it. Give me the soupiest soup you've got.", "emotion": "excited", "change": 4, "dish": "soup" },
+				{ "tone": "straight", "text": "Here's the menu.", "reply": "Booooring. Fine. The [dish].", "emotion": "tired", "change": -2 },
+				{ "tone": "rude", "text": "Just order. You're not funny.", "reply": "Ooh, ROASTED! Okay, chef! The [dish].", "emotion": "surprised", "change": -4 }
 			]
 		},
 		{ "event": "order", "id": "cheddar_order_1b", "priority": 200, "conditions": { "stage": 1 }, "text": "Let me guess, you're gonna recommend the [cheese dish]. Because I'm a mouse. Named Cheddar. Classic.",
 			"choices": [
-				{ "tone": "warm", "text": "I'd rather know what you actually like.", "reply": "...Huh. Nobody asks that. The [dish], I guess.", "change": 3 },
-				{ "tone": "playful", "text": "No way. Cheese is for amateurs.", "reply": "FINALLY. A chef who gets it.", "change": 4 },
-				{ "tone": "straight", "text": "The [cheese dish] is popular.", "reply": "Yeah, yeah. Everyone says that.", "change": -2 },
+				{ "tone": "warm", "text": "I'd rather know what you actually like.", "reply": "...Huh. Nobody asks that. The [dish], I guess.", "emotion": "surprised", "change": 3 },
+				{ "tone": "playful", "text": "No way. Cheese is for amateurs.", "reply": "FINALLY. A chef who gets it.", "emotion": "excited", "change": 4 },
+				{ "tone": "straight", "text": "The [cheese dish] is popular.", "reply": "Yeah, yeah. Everyone says that.", "emotion": "tired", "change": -2 },
 				{ "tone": "rude", "text": "You're a mouse. Just eat the cheese.", "reply": "Ha. Never heard that one before.", "change": -4 }
 			]
 		},
-		{ "event": "order", "id": "cheddar_order_2", "priority": 200, "conditions": { "stage": 2 }, "text": "Okay, new bit. You describe a dish without saying its name, and I guess. Go.",
+		{ "event": "order", "id": "cheddar_order_2", "priority": 200, "conditions": { "stage": 2 }, "text": "Okay, new bit. You describe a dish without saying its name, and I guess. Go.", "emotion": "excited",
 			"choices": [
 				{ "tone": "warm", "text": "It's warm, it's cozy, it's perfect for you.", "reply": "Aww. Okay, that's cheating, but I'll allow it. The [dish].", "change": 2 },
-				{ "tone": "playful", "text": "It's crunchy, it's mysterious, and it is NOT cheese.", "reply": "I'll take it, sight unseen. Best bit ever.", "change": 4 },
-				{ "tone": "straight", "text": "I'm kind of busy. Just order.", "reply": "Ugh. Fine. The [dish].", "change": -1 },
+				{ "tone": "playful", "text": "It's crunchy, it's mysterious, and it is NOT cheese.", "reply": "I'll take it, sight unseen. Best bit ever.", "emotion": "excited", "change": 4 },
+				{ "tone": "straight", "text": "I'm kind of busy. Just order.", "reply": "Ugh. Fine. The [dish].", "emotion": "tired", "change": -1 },
 				{ "tone": "rude", "text": "Your bits are getting old.", "reply": "...Wow. Okay. The [dish].", "change": -8 }
 			]
 		},
-		{ "event": "order", "id": "cheddar_order_3", "priority": 200, "conditions": { "stage": 3 }, "text": "Can I tell you something kinda weird? You're the first person who asked what I like instead of just handing me cheese. ...That's it. That's the thing. Ha. Order time!",
+		{ "event": "order", "id": "cheddar_order_3", "priority": 200, "conditions": { "stage": 3 }, "text": "Can I tell you something kinda weird? You're the first person who asked what I like instead of just handing me cheese. ...That's it. That's the thing. Ha. Order time!", "emotion": "shy",
 			"choices": [
-				{ "tone": "warm", "text": "Of course I asked. You matter to me.", "reply": "...Okay. Okay! Wow. The [dish], please. I need to eat my feelings.", "change": 4 },
-				{ "tone": "playful", "text": "I'll never hand you cheese. That's my promise.", "reply": "Put it in writing. Laminate it.", "change": 3 },
-				{ "tone": "straight", "text": "It's just good service.", "reply": "Ha. Right. Sure.", "change": 0 },
+				{ "tone": "warm", "text": "Of course I asked. You matter to me.", "reply": "...Okay. Okay! Wow. The [dish], please. I need to eat my feelings.", "emotion": "shy", "change": 4 },
+				{ "tone": "playful", "text": "I'll never hand you cheese. That's my promise.", "reply": "Put it in writing. Laminate it.", "emotion": "joyful", "change": 3 },
+				{ "tone": "straight", "text": "It's just good service.", "reply": "Ha. Right. Sure.", "emotion": "sad", "change": 0 },
 				{ "tone": "rude", "text": "Don't make it weird.", "reply": "...Yeah. Sorry. Forget I said it.", "change": -12 }
 			]
 		},
-		{ "event": "order", "id": "cheddar_order_4", "priority": 200, "conditions": { "stage": 4 }, "text": "Real talk, then bit. Real talk: I'm really glad this place exists. Bit: I'll have one of everything. Kidding. The [dish].",
+		{ "event": "order", "id": "cheddar_order_4", "priority": 200, "conditions": { "stage": 4 }, "text": "Real talk, then bit. Real talk: I'm really glad this place exists. Bit: I'll have one of everything. Kidding. The [dish].", "emotion": "happy",
 			"choices": [
-				{ "tone": "warm", "text": "I'm really glad you exist.", "reply": "...You can't follow my real talk with BETTER real talk. That's illegal.", "change": 3 },
-				{ "tone": "playful", "text": "One of everything, coming right up. Hope you're hungry.", "reply": "Wait, no, I was kidding— ...actually, let's see where this goes.", "change": 3 },
-				{ "tone": "straight", "text": "Good to hear. Coming right up.", "reply": "Yes, chef!", "change": 1 },
+				{ "tone": "warm", "text": "I'm really glad you exist.", "reply": "...You can't follow my real talk with BETTER real talk. That's illegal.", "emotion": "shy", "change": 3 },
+				{ "tone": "playful", "text": "One of everything, coming right up. Hope you're hungry.", "reply": "Wait, no, I was kidding— ...actually, let's see where this goes.", "emotion": "surprised", "change": 3 },
+				{ "tone": "straight", "text": "Good to hear. Coming right up.", "reply": "Yes, chef!", "emotion": "happy", "change": 1 },
 				{ "tone": "rude", "text": "Can you just order like a normal person?", "reply": "...I thought we were past this.", "change": -12 }
 			]
 		},
-		{ "event": "order", "priority": 200, "conditions": { "stage": -1 }, "text": "I'll have the [dish]. Try not to set it on fire. Or do. Whatever." },
+		{ "event": "order", "priority": 200, "conditions": { "stage": -1 }, "text": "I'll have the [dish]. Try not to set it on fire. Or do. Whatever.", "emotion": "angry" },
 		{ "event": "order", "priority": 200, "conditions": { "max_stage": -2 }, "text": "[dish]." },
 		{ "event": "eating_chat", "id": "cheddar_chat_2", "priority": 200, "conditions": { "stage": 2 }, "text": "Tell me a joke. Any joke. I've been doing all the work here.",
 			"choices": [
-				{ "tone": "warm", "text": "I'm not funny like you, but I like hearing yours.", "reply": "...Okay, that was nice. Don't do that. I'll get emotional in front of my food.", "change": 2 },
+				{ "tone": "warm", "text": "I'm not funny like you, but I like hearing yours.", "reply": "...Okay, that was nice. Don't do that. I'll get emotional in front of my food.", "emotion": "shy", "change": 2 },
 				{ "tone": "playful", "text": "Why did the mouse cross the road? To steal my job as the funny one.", "change": 4 },
 				{ "tone": "straight", "text": "I don't really do jokes.", "reply": "Tragic. Truly.", "change": -1 },
 				{ "tone": "rude", "text": "You're the joke.", "reply": "...Ha. Good one.", "change": -8 }
 			]
 		},
-		{ "event": "eating_chat", "id": "cheddar_chat_seen", "priority": 200, "conditions": { "stage": 3 }, "text": "At home, if I wasn't being funny, nobody looked at me. Thirteen siblings. You had to earn the spotlight.",
+		{ "event": "eating_chat", "id": "cheddar_chat_seen", "priority": 200, "conditions": { "stage": 3 }, "text": "At home, if I wasn't being funny, nobody looked at me. Thirteen siblings. You had to earn the spotlight.", "emotion": "sad",
 			"choices": [
-				{ "tone": "warm", "text": "You don't have to earn it here.", "reply": "...Don't say stuff like that while I'm chewing.", "change": 4 },
-				{ "tone": "playful", "text": "Well, here you're the headliner.", "reply": "Headliner! Put my name in lights!", "change": 3 },
+				{ "tone": "warm", "text": "You don't have to earn it here.", "reply": "...Don't say stuff like that while I'm chewing.", "emotion": "shy", "change": 4 },
+				{ "tone": "playful", "text": "Well, here you're the headliner.", "reply": "Headliner! Put my name in lights!", "emotion": "excited", "change": 3 },
 				{ "tone": "rude", "text": "Sounds exhausting. You're exhausting.", "reply": "...Yeah. I've heard.", "change": -12 }
 			]
 		},
-		{ "event": "eating_chat", "id": "cheddar_chat_quiet", "priority": 200, "conditions": { "stage": 3 }, "text": "Can I just... sit here for a minute without doing a bit? Is that allowed?",
+		{ "event": "eating_chat", "id": "cheddar_chat_quiet", "priority": 200, "conditions": { "stage": 3 }, "text": "Can I just... sit here for a minute without doing a bit? Is that allowed?", "emotion": "tired",
 			"choices": [
 				{ "tone": "warm", "text": "(Sit with him quietly.)", "change": 3 },
 				{ "tone": "straight", "text": "(Leave him to it.)", "change": 0 }
 			]
 		},
-		{ "event": "pick_for_me", "id": "cheddar_surprise", "priority": 200, "conditions": { "min_relationship": 40 }, "text": "Surprise me, [nickname]. Shock me. Rock my world.",
+		{ "event": "pick_for_me", "id": "cheddar_surprise", "priority": 200, "conditions": { "min_relationship": 40 }, "text": "Surprise me, [nickname]. Shock me. Rock my world.", "emotion": "excited",
 			"reactions": {
-				"favorite": [{ "text": "This is my FAVORITE. Are you reading my diary? I don't have a diary. Are you reading my mind?", "change": 5 }],
-				"disliked": [{ "text": "...You had ONE job.", "change": -3 }],
-				"other": [{ "text": "Ooh, a mystery! I love a mystery.", "change": 2 }]
+				"favorite": [{ "text": "This is my FAVORITE. Are you reading my diary? I don't have a diary. Are you reading my mind?", "emotion": "excited", "change": 5 }],
+				"disliked": [{ "text": "...You had ONE job.", "emotion": "angry", "change": -3 }],
+				"other": [{ "text": "Ooh, a mystery! I love a mystery.", "emotion": "excited", "change": 2 }]
 			}
 		},
 
@@ -204,15 +204,15 @@
 				{ "text": "Captain Spatula", "nickname": "Captain Spatula", "change": 0 },
 				{ "text": "The Stove Whisperer", "nickname": "The Stove Whisperer", "change": 0 },
 				{ "text": "Chef Boss", "nickname": "Chef Boss", "change": 0 },
-				{ "text": "Just [name] is fine.", "nickname": "", "reply": "Wow. Okay. Fine. [name] it is. ...Captain Spatula was RIGHT there.", "change": 0 }
+				{ "text": "Just [name] is fine.", "nickname": "", "reply": "Wow. Okay. Fine. [name] it is. ...Captain Spatula was RIGHT there.", "emotion": "sad", "change": 0 }
 			]
 		},
 
-		{ "event": "restaurant_name", "priority": 200, "conditions": { "min_stage": 1, "new_restaurant_name": true }, "text": "[restaurant]! Ooh, I like that name. Very classy. Almost as classy as me." },
-		{ "event": "restaurant_name", "priority": 200, "conditions": { "min_stage": 1, "new_restaurant_name": true }, "text": "Wow, [restaurant]. Officially my favorite restaurant. Don't tell the other three." },
-		{ "event": "greeting", "priority": 200, "conditions": { "min_stage": 2 }, "text": "Wow, [restaurant] is my favorite! Don't tell my mom. She thinks her kitchen is." },
+		{ "event": "restaurant_name", "priority": 200, "conditions": { "min_stage": 1, "new_restaurant_name": true }, "text": "[restaurant]! Ooh, I like that name. Very classy. Almost as classy as me.", "emotion": "excited" },
+		{ "event": "restaurant_name", "priority": 200, "conditions": { "min_stage": 1, "new_restaurant_name": true }, "text": "Wow, [restaurant]. Officially my favorite restaurant. Don't tell the other three.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 200, "conditions": { "min_stage": 2 }, "text": "Wow, [restaurant] is my favorite! Don't tell my mom. She thinks her kitchen is.", "emotion": "happy" },
 
-		{ "event": "eating_chat", "id": "cheddar_befriends_stitches", "priority": 230, "conditions": { "min_stage": 3, "regular_min_relationship": { "stitches": 50 }, "friends_with": { "stitches": false } }, "befriends": "stitches", "text": "That bear with the patches laughed at my joke today. Like, really laughed. He has a great laugh. Does he know that?" },
+		{ "event": "eating_chat", "id": "cheddar_befriends_stitches", "priority": 230, "conditions": { "min_stage": 3, "regular_min_relationship": { "stitches": 50 }, "friends_with": { "stitches": false } }, "befriends": "stitches", "text": "That bear with the patches laughed at my joke today. Like, really laughed. He has a great laugh. Does he know that?", "emotion": "happy" },
 
 		{ "event": "phone_greeting", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "text": "Yeah, it's Cheddar. Delivery. Don't get excited." },
 		{ "event": "phone_greeting", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "text": "It's me. Ordering from over here, where it's safe." },
@@ -230,11 +230,11 @@
 		},
 		{ "event": "phone_chat", "id": "cheddar_phone_chat_placeholder", "priority": 200, "conditions": { "stage": 4 }, "text": "Partner! No order. I just called to say... hi. That's it. That's the whole call. Okay bye!" },
 
-		{ "event": "return_scene", "id": "cheddar_return", "priority": 200, "text": "So. I had a bit planned for this. A whole thing. I forgot it on the way here.", "choices": [ { "text": "I'm sorry. I said things that really hurt you.", "reply": "Yeah. You did. ...Thanks for saying it without a joke.", "change": 0 },{ "text": "I missed your jokes. I missed you.", "reply": "...Okay, that's a low blow. In a nice way.", "change": 0 },{ "text": "Knock knock.", "change": 0, "then": { "text": "...Who's there?", "choices": [ { "text": "Your chef, who's really sorry.", "reply": "Your chef, who's really sorry who? ...No, wait, that's not how it... HA. Okay. Okay, that got me.", "change": 0, "invented": true} ]}} ]},
-		{ "event": "return_closing", "id": "cheddar_return_closing", "priority": 200, "text": "Fine. Starting over. Hi, I'm Cheddar. I hate cheese. Nice to meet you." },
+		{ "event": "return_scene", "id": "cheddar_return", "priority": 200, "text": "So. I had a bit planned for this. A whole thing. I forgot it on the way here.", "emotion": "nervous", "choices": [ { "text": "I'm sorry. I said things that really hurt you.", "reply": "Yeah. You did. ...Thanks for saying it without a joke.", "emotion": "sad", "change": 0 },{ "text": "I missed your jokes. I missed you.", "reply": "...Okay, that's a low blow. In a nice way.", "emotion": "shy", "change": 0 },{ "text": "Knock knock.", "change": 0, "then": { "text": "...Who's there?", "emotion": "confused", "choices": [ { "text": "Your chef, who's really sorry.", "reply": "Your chef, who's really sorry who? ...No, wait, that's not how it... HA. Okay. Okay, that got me.", "emotion": "joyful", "change": 0, "invented": true} ]}} ]},
+		{ "event": "return_closing", "id": "cheddar_return_closing", "priority": 200, "text": "Fine. Starting over. Hi, I'm Cheddar. I hate cheese. Nice to meet you.", "emotion": "happy" },
 
-		{ "event": "eating_chat", "id": "cheddar_asks_favorite", "priority": 220, "conditions": { "min_stage": 4, "memory": { "player_favorite": "" }}, "asks_dish": "player_favorite", "text": "Wait. What's YOUR favorite food? You always ask me. Nobody asks you.", "reply": "[player_favorite]. Got it. Locked in the vault. The vault is my brain. It's a small vault.", "invented_reply": true },
-		{ "event": "eating_chat", "id": "cheddar_notices_apron", "priority": 240, "once": true, "conditions": { "unlocked": "patchwork_apron" }, "text": "Stitches showed me the apron he made you. Okay, I'm jealous. I can't sew. I can make you a sign, though." },
-		{ "event": "eating_chat", "id": "cheddar_notices_bell", "priority": 240, "once": true, "conditions": { "unlocked": "mabel_bell" }, "text": "Wait, is that Grandma's bell? She gave you the BELL? ...She's never even let me TOUCH the bell." }
+		{ "event": "eating_chat", "id": "cheddar_asks_favorite", "priority": 220, "conditions": { "min_stage": 4, "memory": { "player_favorite": "" }}, "asks_dish": "player_favorite", "text": "Wait. What's YOUR favorite food? You always ask me. Nobody asks you.", "emotion": "excited", "reply": "[player_favorite]. Got it. Locked in the vault. The vault is my brain. It's a small vault.", "reply_emotion": "happy", "invented_reply": true },
+		{ "event": "eating_chat", "id": "cheddar_notices_apron", "priority": 240, "once": true, "conditions": { "unlocked": "patchwork_apron" }, "text": "Stitches showed me the apron he made you. Okay, I'm jealous. I can't sew. I can make you a sign, though.", "emotion": "shy" },
+		{ "event": "eating_chat", "id": "cheddar_notices_bell", "priority": 240, "once": true, "conditions": { "unlocked": "mabel_bell" }, "text": "Wait, is that Grandma's bell? She gave you the BELL? ...She's never even let me TOUCH the bell.", "emotion": "surprised" }
 	]
 }
