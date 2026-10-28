@@ -24,6 +24,7 @@ var _leaving := false
 
 
 func _ready() -> void:
+	Music.play(Music.MAIN_THEME)  # The game has loaded: the theme starts here and carries on to the start screen.
 	var logo_path := _find_logo()
 	logo.visible = not logo_path.is_empty()
 	placeholder.visible = logo_path.is_empty()

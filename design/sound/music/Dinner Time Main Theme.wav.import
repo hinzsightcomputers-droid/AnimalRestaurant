@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://chgsdfjid6s4e"
+path="res://.godot/imported/Dinner Time Main Theme.wav-5d2881bf7aa18e833911a9f6836201bc.sample"
+
+[deps]
+
+source_file="res://design/sound/music/Dinner Time Main Theme.wav"
+dest_files=["res://.godot/imported/Dinner Time Main Theme.wav-5d2881bf7aa18e833911a9f6836201bc.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=2
+edit/loop_begin=0
+edit/loop_end=7804800
+compress/mode=2

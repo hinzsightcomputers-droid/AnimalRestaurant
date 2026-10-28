@@ -4,7 +4,9 @@
 # start and the chef walks up, unlocks the door, goes in, closes it, flips the
 # sign to open and the lights come on; then a circle wipe opens on the
 # restaurant. Pressing again skips ahead. F4 previews the other times of day.
-# It fades in from black, coming after the LogoSplash.
+# It fades in from black, coming after the LogoSplash. The main theme (started
+# on the splash) slowly fades out once the lights come on, reaching silence as
+# the circle wipe closes to black.
 extends Node3D
 
 const MAIN_SCENE := "res://scenes/main.tscn"
@@ -14,6 +16,8 @@ const CAMERA_CLOSE := Vector3(1.0, 2.2, 8.4)
 const CAMERA_LOOK_CLOSE := Vector3(1.0, 1.6, 0)
 const CHEF_SPEED := 2.0
 const FADE_IN_SECONDS := 1.2
+const LIGHTS_HOLD_SECONDS := 1.4  # Looking at the lit-up restaurant before the circle wipe.
+const WIPE_CLOSE_SECONDS := 0.9   # The circle wipe closing to black (see IrisTransition).
 # Where the chef walks: up the sidewalk to the door, in, aside so the door can
 # close, then to the sign in the right-hand window.
 const DOOR_OUTSIDE := Vector3(0, 0, 1.0)
@@ -202,7 +206,8 @@ func _play_opening() -> void:
 	await _turn_to(0.0)  # Face the window (and us).
 	await _flip_sign()
 	await _lights_on()
-	await get_tree().create_timer(1.4).timeout
+	Music.fade_out(LIGHTS_HOLD_SECONDS + WIPE_CLOSE_SECONDS)
+	await get_tree().create_timer(LIGHTS_HOLD_SECONDS).timeout
 	_leave()
 
 
@@ -210,7 +215,8 @@ func _leave() -> void:
 	if _leaving:
 		return
 	_leaving = true
-	IrisTransition.change_scene(get_tree(), MAIN_SCENE)
+	Music.fade_out(WIPE_CLOSE_SECONDS)  # Sooner if the opening was skipped.
+	IrisTransition.change_scene(get_tree(), MAIN_SCENE, WIPE_CLOSE_SECONDS)
 
 
 func _walk_to(point: Vector3) -> void:

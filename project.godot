@@ -22,6 +22,7 @@ GameData="*res://scripts/autoload/game_data.gd"
 GameEvents="*res://scripts/autoload/game_events.gd"
 Accounts="*res://scripts/autoload/accounts.gd"
 GameState="*res://scripts/autoload/game_state.gd"
+Music="*res://scripts/autoload/music.gd"
 
 [display]
 
