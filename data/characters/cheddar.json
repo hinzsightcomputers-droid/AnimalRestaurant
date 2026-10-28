@@ -157,6 +157,8 @@
 		{ "event": "restaurant_name", "priority": 200, "conditions": { "min_stage": 1, "new_restaurant_name": true }, "text": "Wow, [restaurant]. Officially my favorite restaurant. Don't tell the other three." },
 		{ "event": "greeting", "priority": 200, "conditions": { "min_stage": 2 }, "text": "Wow, [restaurant] is my favorite! Don't tell my mom. She thinks her kitchen is." },
 
+		{ "event": "eating_chat", "id": "cheddar_befriends_stitches", "priority": 230, "conditions": { "min_stage": 3, "regular_min_relationship": { "stitches": 50 }, "friends_with": { "stitches": false } }, "befriends": "stitches", "text": "That bear with the patches laughed at my joke today. Like, really laughed. He has a great laugh. Does he know that?" },
+
 		{ "event": "phone_greeting", "priority": 200, "conditions": { "stage": -3 }, "text": "Yeah, it's Cheddar. Delivery. Don't get excited." },
 		{ "event": "phone_greeting", "priority": 200, "conditions": { "stage": -3 }, "text": "It's me. Ordering from over here, where it's safe." },
 		{ "event": "phone_order", "priority": 250, "conditions": { "stage": -3, "memory": { "last_note": "playful" } }, "set": { "last_note": "" }, "text": "...Okay, that one got me. Doesn't mean we're cool. [dish]." },

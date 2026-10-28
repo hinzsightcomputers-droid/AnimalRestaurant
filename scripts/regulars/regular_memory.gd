@@ -65,6 +65,7 @@ static func tone_change(record: Dictionary, tone: String) -> int:
 #   - It can't drop below 0 unless they've had a run of rude replies (rude_streak).
 #   - During a visit (see begin_visit) it can't drop more than one stage below
 #     the stage they walked in at, however rude that visit gets.
+# Crossing into another stage is news their friends will hear (see Gossip).
 # Returns the new value.
 static func change_relationship(record: Dictionary, amount: int) -> int:
 	var settings := GameData.regular_settings
@@ -74,7 +75,9 @@ static func change_relationship(record: Dictionary, amount: int) -> int:
 		after = 0
 	if amount < 0 and record.has(VISIT_START_STAGE):
 		after = maxi(after, mini(before, _lowest_in_stage_below(int(record[VISIT_START_STAGE]))))
+	var stage_before := stage_of(record)
 	record["relationship"] = after
+	Gossip.on_stage_change(record, stage_before, stage_of(record))
 	return after
 
 
@@ -195,6 +198,8 @@ static func dialogue_context(record: Dictionary, chef_id: String, extra: Diction
 		"favorite": GameData.get_dish(record["favorite_dish"]).get("name", ""),
 		"disliked": GameData.get_dish(record["disliked_dish"]).get("name", ""),
 		"seen_lines": record.get("seen_lines", []),
+		"friends": record.get("friends", []),
+		"relationships": _relationships(),  # Everyone's, for lines about another regular.
 		"memory": record,  # For "memory" conditions on character-specific fields.
 	}
 	for token in dish_tokens:  # "soup", "cheese dish"... -> that dish's name.
@@ -219,6 +224,14 @@ static func pick_line(record: Dictionary, event: String, context: Dictionary) ->
 static func say(record: Dictionary, event: String, context: Dictionary) -> String:
 	var line := pick_line(record, event, context)
 	return DialoguePicker.fill(line["text"], context) if not line.is_empty() else ""
+
+
+# Regular id -> relationship, for every regular.
+static func _relationships() -> Dictionary:
+	var result := {}
+	for id in GameState.regulars:
+		result[id] = GameState.regulars[id]["relationship"]
+	return result
 
 
 # "Alex", "Alex and Sam", "Alex, Sam and Jo".

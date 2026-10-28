@@ -213,7 +213,8 @@ func _order_chat(player: Player, customer: Customer) -> void:
 
 
 # A regular orders, all in one dialogue box: first the greeting they walked in
-# with (press interact), then usually the ordering conversation from their file,
+# with (press interact), then anything they've heard about you from a friend
+# (gossip, once), then usually the ordering conversation from their file,
 # sometimes (once they trust you) "What do you recommend?" or "Surprise me"
 # instead, where the player picks the dish. Lines without choices are just said.
 func _regular_orders(player: Player, customer: Customer) -> void:
@@ -246,6 +247,18 @@ func _regular_orders(player: Player, customer: Customer) -> void:
 		await box.tell(customer.display_name, text)
 		record["restaurant_name_heard"] = GameState.restaurant_name
 
+	# Something a friend told them about you since last time.
+	var gossip := Gossip.take_next(record)
+	if not gossip.is_empty():
+		var gossip_context := Gossip.context(gossip)
+		var gossip_line := RegularMemory.pick_line(record, "gossip", _visit_context(customer, chef_id, gossip_context))
+		if gossip_line.has("choices"):
+			await _converse(box, player, customer, gossip_line, gossip_context)
+		elif not gossip_line.is_empty():
+			var text := DialoguePicker.fill(gossip_line["text"], _visit_context(customer, chef_id, gossip_context))
+			customer.say(text)
+			await box.tell(customer.display_name, text)
+
 	# Picked now, so it can already use the name they just learned.
 	var context := _visit_context(customer, chef_id)
 	var line := {}
@@ -268,9 +281,12 @@ func _regular_orders(player: Player, customer: Customer) -> void:
 	_unlock_player(player)
 
 
-# Once a line has been said: its memory flags, and whether they learned the chef's name.
+# Once a line has been said: its memory flags, whether they learned the chef's
+# name, and whether it made two regulars friends.
 func _after_line(customer: Customer, line: Dictionary, chef_id: String) -> void:
 	var record: Dictionary = GameState.regulars[customer.regular_id]
+	if line.has("befriends") and Gossip.befriend(record["id"], line["befriends"]):
+		GameEvents.announce("%s and %s are friends now!" % [record["name"], GameState.regulars[line["befriends"]]["name"]])
 	if Conversation.apply_line(record, line, chef_id):
 		customer.learned_name = true
 		GameEvents.announce("%s learned %s's name!" % [record["name"], Accounts.get_account(chef_id).get("name", "your")])
@@ -286,12 +302,13 @@ func _open_box(player: Player, customer: Customer) -> ConversationBox:
 
 # Run a conversation `line` (with choices) between `player` and `customer` in
 # `box`. Returns what the customer said last. The line, or the chosen reply, can
-# decide what they order.
-func _converse(box: ConversationBox, player: Player, customer: Customer, line: Dictionary) -> String:
+# decide what they order, or change how other regulars feel (gossip). `extra`
+# adds to what the line can mention (e.g. the gossip's quote).
+func _converse(box: ConversationBox, player: Player, customer: Customer, line: Dictionary, extra: Dictionary = {}) -> String:
 	var record: Dictionary = GameState.regulars[customer.regular_id]
 	var chef_id := Accounts.id_of(player.player_index)
 	_order_dish(customer, Conversation.dish_of(line, record))
-	var context := _visit_context(customer, chef_id)
+	var context := _visit_context(customer, chef_id, extra)
 	var opening := DialoguePicker.fill(line["text"], context)
 	customer.say(opening)
 
@@ -302,11 +319,16 @@ func _converse(box: ConversationBox, player: Player, customer: Customer, line: D
 	var picked := await box.ask(customer.display_name, opening, options)
 
 	var before: int = record["relationship"]
+	var others_before := {}
+	for other_id in choices[picked].get("others", {}):
+		others_before[other_id] = GameState.regulars.get(other_id, {}).get("relationship", 0)
 	var result := Conversation.apply_choice(record, choices[picked], options[picked], chef_id)
 	_after_line(customer, line, chef_id)
 	_order_dish(customer, Conversation.dish_of(choices[picked], record))
-	context = _visit_context(customer, chef_id)  # The reply can use a nickname just picked.
+	context = _visit_context(customer, chef_id, extra)  # The reply can use a nickname just picked.
 	_announce_change(record, before, choices[picked].get("tone", ""))
+	for other_id in result["others"]:  # e.g. Mabel passes your apology on to Stitches.
+		_announce_change(GameState.regulars[other_id], others_before[other_id], "")
 
 	var reply := DialoguePicker.fill(result["reply"], context)
 	if not reply.is_empty():
@@ -462,6 +484,8 @@ func _eating_chat(player: Player, customer: Customer) -> void:
 		var text := DialoguePicker.fill(line["text"], context) if not line.is_empty() else "Mm. It's good."
 		customer.say(text)
 		await box.tell(customer.display_name, text)
+		if not line.is_empty():
+			_after_line(customer, line, Accounts.id_of(player.player_index))
 	box.close()
 	_unlock_player(player)
 	customer.talking = false

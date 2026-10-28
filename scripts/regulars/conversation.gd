@@ -4,8 +4,9 @@
 # "reactions" to the dish the player picks. This works out what each choice
 # does: the relationship change (the line's own number, else the character's
 # tone table), the reply, the rude streak and last rude line, memory flags it
-# sets, and any dish it orders. CustomerManager runs the flow; ConversationBox
-# shows it.
+# sets, any dish it orders, and what it does to other regulars ("others", e.g.
+# apologizing to Mabel about Stitches also gives Stitches +3). CustomerManager
+# runs the flow; ConversationBox shows it.
 class_name Conversation
 extends RefCounted
 
@@ -20,8 +21,10 @@ static func choices_of(line: Dictionary) -> Array:
 
 
 # Apply the reply chef `chef_id` chose (its text already filled in). Returns
-# { change, reply } where reply is the unfilled text they answer with. A reply
-# with "nickname" gives that chef a nickname ("" = just their name).
+# { change, reply, others } where reply is the unfilled text they answer with
+# and others is { regular_id: change } for anyone else it affected. A reply with
+# "nickname" gives that chef a nickname ("" = just their name). A rude reply is
+# news for their friends.
 static func apply_choice(record: Dictionary, choice: Dictionary, said: String, chef_id := "") -> Dictionary:
 	var tone: String = choice.get("tone", "")
 	var change := _change_of(record, choice, tone)
@@ -32,6 +35,14 @@ static func apply_choice(record: Dictionary, choice: Dictionary, said: String, c
 	else:
 		record["rude_streak"] = 0
 	RegularMemory.change_relationship(record, change)
+	if tone == "rude":
+		Gossip.queue(record, "rude", said)
+	var others := {}
+	var other_changes: Dictionary = choice.get("others", {})
+	for other_id in other_changes:
+		if GameState.regulars.has(other_id):
+			RegularMemory.change_relationship(GameState.regulars[other_id], int(other_changes[other_id]))
+			others[other_id] = int(other_changes[other_id])
 	_set_flags(record, choice)
 	if choice.has("nickname") and not chef_id.is_empty():
 		var nicknames: Dictionary = record.get_or_add("nicknames", {})
@@ -43,7 +54,7 @@ static func apply_choice(record: Dictionary, choice: Dictionary, said: String, c
 	var reply: String = choice.get("reply", "")
 	if change < 0 and choice.has("miss_reply"):
 		reply = choice["miss_reply"]
-	return { "change": change, "reply": reply }
+	return { "change": change, "reply": reply, "others": others }
 
 
 # What they say when the player picks `dish` for them, and apply its change.
@@ -87,7 +98,7 @@ static func _change_of(record: Dictionary, choice: Dictionary, tone: String) -> 
 
 # What a line itself does once said, whatever the reply: memory flags it sets
 # ("set") and whether they learn the chef's name ("learns_name"). Returns true
-# if they learned it just now.
+# if they learned it just now. (A line's "befriends" is handled by Gossip.)
 static func apply_line(record: Dictionary, line: Dictionary, chef_id: String) -> bool:
 	_set_flags(record, line)
 	return line.get("learns_name", false) and RegularMemory.learn_name(record, chef_id)

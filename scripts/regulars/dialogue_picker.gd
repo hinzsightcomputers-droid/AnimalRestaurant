@@ -66,7 +66,9 @@ static func fill(text: String, context: Dictionary) -> String:
 		var key: String = TOKENS.get(found.get_string(1), found.get_string(1))
 		if context.has(key):
 			result = result.replace(found.get_string(), str(context[key]))
-	return result
+	# A quoted line that ends in its own punctuation doesn't need another:
+	# said "Sorry.". -> said "Sorry."
+	return RegEx.create_from_string("([.!?])\"\\.").sub(result, "$1\"", true)
 
 
 static func conditions_met(conditions: Dictionary, context: Dictionary) -> bool:
@@ -115,6 +117,18 @@ static func _condition_met(key: String, want: Variant, context: Dictionary) -> b
 			return true
 		"knows_player_name", "returned_after_away", "ordered_favorite", "learned_name", "new_chef_for_them", "has_rude_line", "served_favorite", "served_disliked", "has_restaurant_name", "new_restaurant_name":
 			return context.get(key, false) == want
+		"friends_with":  # { regular_id: true/false }
+			for id in want:
+				if (id in context.get("friends", [])) != want[id]:
+					return false
+			return true
+		"regular_min_relationship":  # { regular_id: value }: another regular likes you at least this much.
+			for id in want:
+				if context.get("relationships", {}).get(id, -INF) < want[id]:
+					return false
+			return true
+		"gossip_about", "gossip_kind":
+			return context.get(key, "") == want
 		"min_known_here":
 			return context.get("known_here_count", 0) >= want
 		"reaction":

@@ -1,0 +1,68 @@
+{
+	"lines": [
+		{ "teller": "mabel", "about": "stitches", "kind": "kind", "priority": 200, "text": "Stitches told me you remembered his favorite dish. He talks about you like you hung the moon, dear." },
+		{ "teller": "mabel", "about": "stitches", "kind": "rude", "priority": 200, "text": "Stitches told me you said \"[last_rude_line]\". He was really hurt by it, dear. You didn't mean it, did you?",
+			"choices": [
+				{ "tone": "warm", "text": "I didn't. I feel awful. I'll make it right.", "reply": "I knew it. Tell him yourself, he'll forgive you in a heartbeat.", "change": 2, "others": { "stitches": 3 } },
+				{ "tone": "straight", "text": "I was having a bad day.", "reply": "We all do. But he's had more bad days than most.", "change": 0 },
+				{ "tone": "rude", "text": "Yeah, I meant it.", "reply": "...I see.", "change": -8 }
+			]
+		},
+
+		{ "teller": "mabel", "about": "cheddar", "kind": "kind", "priority": 200, "text": "Cheddar says you're his favorite chef here. He told me three times. He's never said that about anyone, dear." },
+		{ "teller": "mabel", "about": "cheddar", "kind": "rude", "priority": 200, "text": "My friend Cheddar told me you said \"[last_rude_line]\". He made a joke about it, but I know that boy. He was really hurt by it. You didn't mean it, did you?",
+			"choices": [
+				{ "tone": "warm", "text": "I didn't. I'll tell him I'm sorry.", "reply": "Good. He acts like nothing gets to him. Everything gets to him.", "change": 2, "others": { "cheddar": 3 } },
+				{ "tone": "straight", "text": "He laughed, so I thought it was fine.", "reply": "Oh, dear. He always laughs. That's how you know.", "change": 0 },
+				{ "tone": "rude", "text": "Yeah, I meant it.", "reply": "...Well. I'll be eating somewhere quieter for a while.", "change": -8 }
+			]
+		},
+
+		{ "teller": "stitches", "about": "mabel", "kind": "kind", "priority": 200, "text": "Mabel says you're her favorite chef here. ...I told her I said it first." },
+		{ "teller": "stitches", "about": "mabel", "kind": "kind", "priority": 200, "text": "Mabel told me you made her soup without her even asking. She said, 'That one pays attention.' ...She's right. You do." },
+		{ "teller": "stitches", "about": "mabel", "kind": "rude", "priority": 200, "text": "Mabel said you were short with her yesterday. That's not like you. ...Is everything okay?",
+			"choices": [
+				{ "invented": true, "tone": "warm", "text": "I wasn't fair to her. I'll make it right.", "reply": "Okay. Good. She'd never say it, but she'd like that.", "change": 2, "others": { "mabel": 3 } },
+				{ "invented": true, "tone": "straight", "text": "Everything's fine.", "reply": "...Okay. If you say so.", "change": 0 }
+			]
+		},
+		{ "teller": "stitches", "about": "mabel", "kind": "rude", "priority": 200, "text": "Mabel didn't say anything bad about you. She never would. But she was quiet. She's never quiet. ...Did something happen?",
+			"choices": [
+				{ "invented": true, "tone": "warm", "text": "I wasn't fair to her. I'll make it right.", "reply": "Okay. Good. She'd never say it, but she'd like that.", "change": 2, "others": { "mabel": 3 } },
+				{ "invented": true, "tone": "straight", "text": "Nothing happened.", "reply": "...Okay. If you say so.", "change": 0 }
+			]
+		},
+
+		{ "teller": "stitches", "about": "cheddar", "kind": "kind", "priority": 200, "text": "Cheddar told me you made him laugh so hard he snorted. He made me promise not to tell anyone. ...I'm only telling you." },
+		{ "teller": "stitches", "about": "cheddar", "kind": "rude", "priority": 200, "text": "Cheddar said you told him \"[last_rude_line]\". He said it was fine. ...I don't think it was fine. You didn't mean it, did you?",
+			"choices": [
+				{ "invented": true, "tone": "warm", "text": "I didn't. I'll apologize to him.", "reply": "Okay. ...He'll act like it's no big deal. It is, though. Thank you.", "change": 2, "others": { "cheddar": 3 } },
+				{ "invented": true, "tone": "straight", "text": "He laughed it off.", "reply": "He laughs everything off. That's kind of the problem.", "change": 0 },
+				{ "invented": true, "tone": "rude", "text": "I meant it.", "reply": "...Oh.", "change": -10 }
+			]
+		},
+
+		{ "teller": "cheddar", "about": "mabel", "kind": "kind", "priority": 200, "text": "Grandma Mabel says you sat with her for, like, ten minutes yesterday. You're making the rest of us look bad." },
+		{ "teller": "cheddar", "about": "mabel", "kind": "rude", "priority": 210, "text": "Hey. Grandma Mabel told me you said \"[last_rude_line]\". ...She's like a hundred. She was really hurt by it. You didn't mean it, did you?",
+			"choices": [
+				{ "tone": "warm", "text": "No. I'll apologize to her.", "reply": "Good. Bring soup. Soup fixes Grandma.", "change": 2, "others": { "mabel": 3 } },
+				{ "tone": "straight", "text": "She'll get over it.", "reply": "...She's ninety-one. She doesn't have time to 'get over it.'", "change": -3 },
+				{ "tone": "rude", "text": "I meant it.", "reply": "...", "change": -10 }
+			]
+		},
+		{ "teller": "cheddar", "about": "mabel", "kind": "rude", "priority": 200, "text": "Hey. Mabel told me what you said to her. ...Not cool. She's like a hundred. Be nice to her.",
+			"choices": [
+				{ "tone": "warm", "text": "No. I'll apologize to her.", "reply": "Good. Bring soup. Soup fixes Grandma.", "change": 2, "others": { "mabel": 3 } },
+				{ "tone": "straight", "text": "She'll get over it.", "reply": "...She's ninety-one. She doesn't have time to 'get over it.'", "change": -3 }
+			]
+		},
+
+		{ "teller": "cheddar", "about": "stitches", "kind": "kind", "priority": 200, "invented": true, "text": "Stitches says you're the only chef who remembers how he likes his pancakes. He was smiling about it. Stitches. Smiling. In public." },
+		{ "teller": "cheddar", "about": "stitches", "kind": "rude", "priority": 200, "text": "Did you say something to Stitches? He's been quiet. Like, quieter. ...Fix it.",
+			"choices": [
+				{ "invented": true, "tone": "warm", "text": "You're right. I'll fix it.", "reply": "Good. ...Thanks.", "change": 2, "others": { "stitches": 3 } },
+				{ "invented": true, "tone": "straight", "text": "That's between me and him.", "reply": "He's my friend. So now it's between me too.", "change": 0 }
+			]
+		}
+	]
+}

@@ -168,6 +168,8 @@
 		{ "event": "restaurant_name", "priority": 200, "conditions": { "min_stage": 1, "new_restaurant_name": true }, "text": "Is it okay if I say [restaurant] is my favorite place? ...It is. Sorry. It just is." },
 		{ "event": "greeting", "priority": 200, "conditions": { "min_stage": 2 }, "text": "Hi! ...Walking into [restaurant] feels a little like coming home. Is that weird? Don't answer that." },
 
+		{ "event": "eating_chat", "id": "stitches_befriends_mabel", "priority": 230, "conditions": { "min_stage": 3, "regular_min_relationship": { "mabel": 50 }, "friends_with": { "mabel": false } }, "befriends": "mabel", "text": "The tortoise lady, Mabel, said hello to me today. She asked if I made my patches. She said they're lovely." },
+
 		{ "event": "phone_greeting", "priority": 200, "conditions": { "stage": -3 }, "text": "...Hello. It's Stitches. For delivery. Sorry." },
 		{ "event": "phone_greeting", "priority": 200, "conditions": { "stage": -3 }, "text": "Hi. It's me. I'd like to order. From home. If that's okay." },
 		{ "event": "phone_order", "priority": 250, "conditions": { "stage": -3, "memory": { "last_note": "warm" } }, "set": { "last_note": "" }, "text": "Thank you for the note. I read it a few times. ...The [dish], please." },

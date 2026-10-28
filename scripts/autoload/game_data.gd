@@ -14,6 +14,7 @@ const DIALOGUE_PATH := "res://data/dialogue.json"
 const UPGRADES_PATH := "res://data/upgrades.json"
 const PHONE_PATH := "res://data/phone.json"
 const CALLERS_PATH := "res://data/callers.json"
+const GOSSIP_PATH := "res://data/gossip.json"
 
 # Each dish: { id, name, price, cook_speed, ingredient: { name, color, chop? } }.
 # "chop" ({ name, chops }) means the ingredient goes to the chopping board first.
@@ -59,6 +60,7 @@ func _ready() -> void:
 	upgrades = _load_list(UPGRADES_PATH, "upgrades")
 	phone_settings = _load_dictionary(PHONE_PATH).get("settings", {})
 	callers = _load_list(CALLERS_PATH, "callers")
+	_load_gossip()
 
 
 func get_species(species_id: String) -> Dictionary:
@@ -155,6 +157,19 @@ func _load_characters() -> void:
 
 		for line in character.get("lines", []):
 			dialogue.append(_with_token_conditions(line, character["id"]))
+
+
+# What regulars say about each other (data/gossip.json): each line is said by
+# "teller" about "about", for "kind" or "rude" news. They become "gossip" lines
+# for the teller, picked like any other line.
+func _load_gossip() -> void:
+	for line in _load_list(GOSSIP_PATH, "lines"):
+		var entry := line.duplicate(true)
+		entry["event"] = "gossip"
+		var conditions: Dictionary = entry.get_or_add("conditions", {})
+		conditions["gossip_about"] = entry["about"]
+		conditions["gossip_kind"] = entry["kind"]
+		dialogue.append(_with_token_conditions(entry, entry["teller"]))
 
 
 # A character's line, only for them, and only when its [tokens] can be filled
