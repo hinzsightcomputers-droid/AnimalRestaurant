@@ -1,7 +1,13 @@
-# HUD: on-screen info. Shows the day and money, lists current orders, and shows
-# short messages from GameEvents. Display only.
+# HUD: on-screen info. Shows the shift and money, lists current orders, and
+# shows short messages from GameEvents. The real date and time sit big at the
+# top: there when a shift starts, fading away as soon as anyone moves, and
+# fading back once everyone has stood still for CLOCK_STILL_SECONDS.
+# Display only.
 extends CanvasLayer
 
+const CLOCK_STILL_SECONDS := 10.0
+const CLOCK_FADE_SECONDS := 0.4
+const MOVING_SPEED := 0.2  # A player going faster than this (m/s) counts as moving.
 const MESSAGE_TIME := 4.0
 const MAX_MESSAGES := 3
 const STATE_NAMES := {
@@ -18,8 +24,14 @@ const STATE_NAMES := {
 @onready var money_label: Label = $MoneyLabel
 @onready var message_label: Label = $MessageLabel
 @onready var join_label: Label = $JoinLabel
+@onready var clock: Control = $Clock
+@onready var time_label: Label = $Clock/TimeLabel
+@onready var date_label: Label = $Clock/DateLabel
 
 var _messages: Array[Dictionary] = []  # Recent messages, oldest first: { text, time_left }
+var _still_seconds := 0.0   # How long nobody has moved.
+var _clock_shown := true    # Shown at the start of the shift.
+var _clock_tween: Tween
 
 
 func _ready() -> void:
@@ -31,6 +43,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_refresh_day_and_money()
+	_refresh_clock(delta)
 	_refresh_join_hint()
 	if _messages.is_empty():
 		return
@@ -42,15 +55,46 @@ func _process(delta: float) -> void:
 		_refresh_messages()
 
 
-# e.g. "Tue, Oct 27  8:42 PM   Shift 2  2:35 left   $18": the real date and time,
-# then this shift and how long it stays open ("Closed" after closing time).
+# e.g. "Shift 2  2:35 left   $18": this shift, how long it stays open
+# ("Closed" after closing time), and money.
 func _refresh_day_and_money() -> void:
 	var shift_clock := "Closed"
 	if day_manager.is_open:
 		var seconds := ceili(day_manager.time_left)
 		shift_clock = "%d:%02d left" % [floori(seconds / 60.0), seconds % 60]
-	money_label.text = "%s  %s   Shift %d  %s   $%d" % [GameClock.describe_date(GameState.date, true),
-		GameClock.describe_time(GameClock.now_local()), GameState.shift, shift_clock, GameState.money]
+	money_label.text = "Shift %d  %s   $%d" % [GameState.shift, shift_clock, GameState.money]
+
+
+# "8:42 PM" over "Tuesday, October 27". Hides while anyone moves; comes back
+# after everyone has been still for a while.
+func _refresh_clock(delta: float) -> void:
+	time_label.text = GameClock.describe_time(GameClock.now_local())
+	date_label.text = GameClock.describe_date(GameState.date)
+	if _anyone_moving():
+		_still_seconds = 0.0
+		_show_clock(false)
+	else:
+		_still_seconds += delta
+		if _still_seconds >= CLOCK_STILL_SECONDS:
+			_show_clock(true)
+
+
+func _anyone_moving() -> bool:
+	for node in get_tree().get_nodes_in_group(Player.GROUP):
+		var player := node as Player
+		if player != null and Vector2(player.velocity.x, player.velocity.z).length() > MOVING_SPEED:
+			return true
+	return false
+
+
+func _show_clock(shown: bool) -> void:
+	if shown == _clock_shown:
+		return
+	_clock_shown = shown
+	if _clock_tween != null:
+		_clock_tween.kill()
+	_clock_tween = create_tween()
+	_clock_tween.tween_property(clock, "modulate:a", 1.0 if shown else 0.0, CLOCK_FADE_SECONDS)
 
 
 # e.g. "More players: Enter (arrow keys) or A (gamepad) to join". Hidden when full.
