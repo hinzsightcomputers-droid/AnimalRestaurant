@@ -9,13 +9,21 @@ extends Node3D
 @onready var meal: Node3D = $Meal
 @onready var food: MeshInstance3D = $Meal/Food
 
+const SPEECH_SECONDS := 6.0  # How long a one-off line stays up before the bubble goes back.
+
 var _food_material := StandardMaterial3D.new()
+var _speech_timer := Timer.new()
+var _speech_state: Customer.State  # What they were doing when they said it.
 
 
 func _ready() -> void:
 	_apply_species_color()
 	food.material_override = _food_material
 	customer.state_changed.connect(_on_state_changed)
+	customer.spoke.connect(_on_spoke)
+	_speech_timer.one_shot = true
+	_speech_timer.timeout.connect(_on_speech_timer_timeout)
+	add_child(_speech_timer)
 	_on_state_changed(customer)
 	_play_pop_in()
 
@@ -42,6 +50,20 @@ func _on_state_changed(_customer: Customer) -> void:
 				bubble.text += "\n+$%d" % customer.payment
 
 	_update_name_tag()
+
+
+# A one-off line (served, eating chat) shows for a while, then the bubble goes
+# back to whatever fits their state.
+func _on_spoke(_customer: Customer) -> void:
+	_speech_state = customer.state
+	bubble.visible = true
+	bubble.text = _quoted(customer.speech, "")
+	_speech_timer.start(SPEECH_SECONDS)
+
+
+func _on_speech_timer_timeout() -> void:
+	if customer.state == _speech_state:  # A state change already replaced the line otherwise.
+		_on_state_changed(customer)
 
 
 # Regulars wear a name tag showing how well they know you, e.g. "Stitches - Nervous".

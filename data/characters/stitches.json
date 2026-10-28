@@ -57,6 +57,26 @@
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 3 }, "text": "Can I leave the table for you this time? ...I trust you not to mind." },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 4 }, "text": "Bye, [name]! Same time tomorrow? I'm not asking. I'm telling you." },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": -1 }, "text": "Thank you. Sorry." },
-		{ "event": "farewell", "priority": 200, "conditions": { "stage": -2 }, "text": "Thank you." }
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": -2 }, "text": "Thank you." },
+
+		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_min": 0.7 }, "text": "Oh... it's beautiful. You made this? For me? Thank you. Really." },
+		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_min": 0.4, "served_quality_max": 0.7 }, "text": "Thank you so much. It smells really nice." },
+		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_max": 0.4 }, "text": "It's... it's perfect. Thank you." },
+		{ "event": "served", "priority": 200, "conditions": { "min_stage": 2, "max_stage": 3 }, "text": "Thank you, [name]. It looks so good. I'm going to eat it slowly so it lasts." },
+		{ "event": "served", "priority": 200, "conditions": { "min_stage": 2, "max_stage": 3 }, "text": "You remembered I like it warm. ...Or you didn't, and I'm just lucky. Either way." },
+		{ "event": "served", "priority": 220, "conditions": { "stage": 4, "served_quality_max": 0.4 }, "text": "You burnt the edge a little. I'm still eating all of it. I'm just letting you know I noticed." },
+		{ "event": "served", "priority": 200, "conditions": { "stage": 4 }, "text": "[name], this looks amazing. You always make me feel like I'm worth the effort." },
+		{ "event": "served", "priority": 200, "conditions": { "max_stage": -1 }, "text": "Thank you. Sorry." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Oh! Hi. Is something wrong? Am I eating too slow?" },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "It's quiet in here today. I like quiet. ...I'm used to it." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Sorry if I'm staring at the kitchen. It's nice watching someone make something with care." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 2 }, "text": "Can I tell you something? This is the only place where nobody stares at my patches." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3 }, "text": "When I was little, my ear got torn off in a fight I didn't start. I sewed it back on myself. It came out crooked. It's still crooked." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3 }, "text": "Do you ever feel like you're too much? Or not enough? ...Sorry. That's a big question for lunch." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3 }, "text": "I could fix that loose button on your apron. If you want. I'm good at fixing things. Just not myself. ...That was a joke! Mostly." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "I used to think my patches made me broken. Now I think they just make me... me." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "I said hi to someone at the park today. First. I went first. My heart was pounding." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "Do you need anything mended? I mean it. You've fixed a lot for me. Let me fix something for you." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "max_stage": -1 }, "text": "Did you need something? I'm almost done. I'll go soon." }
 	]
 }

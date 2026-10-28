@@ -77,7 +77,11 @@ static func _condition_met(key: String, want: Variant, context: Dictionary) -> b
 			return context.get("stage", 0) >= want
 		"max_stage":
 			return context.get("stage", 0) <= want
-		"knows_player_name", "returned_after_away", "ordered_favorite", "learned_name", "new_chef_for_them", "has_rude_line":
+		"served_quality_min":
+			return context.get("served_quality", -1.0) >= want
+		"served_quality_max":
+			return context.has("served_quality") and context["served_quality"] < want
+		"knows_player_name", "returned_after_away", "ordered_favorite", "learned_name", "new_chef_for_them", "has_rude_line", "served_favorite", "served_disliked":
 			return context.get(key, false) == want
 		"min_known_here":
 			return context.get("known_here_count", 0) >= want

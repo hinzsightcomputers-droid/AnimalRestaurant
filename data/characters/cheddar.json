@@ -54,6 +54,25 @@
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 2 }, "text": "Bye, [nickname]! Don't miss me too much. Actually, miss me a normal amount." },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 3 }, "text": "Thanks, [name]. ...See? I used your real name. That's how you know I mean it." },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 4 }, "text": "Bye, partner! Don't burn anything while I'm gone. Except maybe Mabel's toast. She likes it that way." },
-		{ "event": "farewell", "priority": 200, "conditions": { "stage": -1 }, "text": "Wow. Food. Incredible." }
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": -1 }, "text": "Wow. Food. Incredible." },
+
+		{ "event": "served", "priority": 260, "conditions": { "min_stage": 1, "served_disliked": true }, "text": "...Wow. Okay. Betrayal. Served on a plate." },
+		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_min": 0.7 }, "text": "Oh, chef, you've outdone yourself! I'd give you a standing ovation but I'm very small." },
+		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_min": 0.4, "served_quality_max": 0.7 }, "text": "Solid. Seven out of ten. Eight if you laugh at my next joke." },
+		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_max": 0.4 }, "text": "Ah, I see we're going with charcoal today. Bold. Very bold." },
+		{ "event": "served", "priority": 200, "conditions": { "min_stage": 2, "max_stage": 3 }, "text": "Thanks, [nickname]! This looks great. Like, suspiciously great. Did someone else make this?" },
+		{ "event": "served", "priority": 220, "conditions": { "stage": 4, "served_quality_max": 0.4 }, "text": "Burnt, but made with love. I can taste the love. It tastes like smoke." },
+		{ "event": "served", "priority": 200, "conditions": { "stage": 4 }, "text": "[nickname], you did it again. You're like a food wizard. A fizzard. ...No. Not my best." },
+		{ "event": "served", "priority": 200, "conditions": { "max_stage": -1 }, "text": "Wow. Food. Incredible." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Wanna hear a secret? I hid something in this restaurant. Don't look. ...You're gonna look." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Rate my chewing. Out of ten. Be honest. Actually don't." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "I have thirteen siblings. Thirteen. Dinner at my house was a contact sport." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 2 }, "text": "Tell me a joke. Any joke. I've been doing all the work here." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3 }, "text": "At home, if I wasn't being funny, nobody looked at me. Thirteen siblings. You had to earn the spotlight." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3 }, "text": "Can I just... sit here for a minute without doing a bit? Is that allowed?" },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3 }, "text": "Mabel thinks I'm her grandson. I'm not. I don't correct her. ...Okay, I'm kind of her grandson now." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "I don't have to be 'on' here. You know how rare that is?" },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "You know you're my favorite chef in the whole world, right? And I've eaten at, like, four places." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "max_stage": -1 }, "text": "Did I ask for a visit? Pretty sure I didn't." }
 	]
 }

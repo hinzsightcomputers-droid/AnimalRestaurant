@@ -23,6 +23,9 @@ const SEAT_GROUP := "seats"
 @export_group("Serving moment")
 @export var serve_seconds := 1.5              # How long the server watches the customer start eating.
 @export var serve_zoom: CameraZoomSettings    # The serving player's camera during that moment.
+@export_group("Eating chat")
+@export var eating_chat_seconds := 3.0        # How long a player chats with a regular who's eating.
+@export var eating_chat_zoom: CameraZoomSettings  # The chatting player's camera (falls back to order_chat_zoom).
 
 var accepting_customers := true     # False after closing time.
 var _queue: Array[Customer] = []    # Customers waiting to order, front of the line first.
@@ -128,6 +131,8 @@ func _setup_regular(customer: Customer, record: Dictionary, seat: Seat) -> void:
 	customer.setup(species, dish, seat)
 	customer.regular_id = record["id"]
 	customer.display_name = record["name"]
+	var eating: Dictionary = GameData.regular_settings.get("eating_seconds", { "min": 60, "max": 90 })
+	customer.eat_duration = randf_range(eating["min"], eating["max"])  # Regulars linger over their meal.
 	customer.greeting_line = DialoguePicker.pick("greeting",
 		RegularMemory.dialogue_context(record, RegularMemory.favorite_chef_here(record)))
 
@@ -138,6 +143,17 @@ func _pick_order_line(customer: Customer, chef_id: String) -> String:
 	return DialoguePicker.pick("order", RegularMemory.dialogue_context(record, chef_id, {
 		"dish": customer.dish.get("name", ""),
 		"ordered_favorite": customer.dish.get("id", "") == record["favorite_dish"],
+	}))
+
+
+# What a regular says when the food arrives, to the chef who brought it.
+func _pick_served_line(customer: Customer, chef_id: String) -> String:
+	var record: Dictionary = GameState.regulars[customer.regular_id]
+	return DialoguePicker.pick("served", RegularMemory.dialogue_context(record, chef_id, {
+		"dish": customer.dish.get("name", ""),
+		"served_quality": customer.served_quality,
+		"served_favorite": customer.dish.get("id", "") == record["favorite_dish"],
+		"served_disliked": customer.dish.get("id", "") == record["disliked_dish"],
 	}))
 
 
@@ -197,10 +213,16 @@ func _hold_with_zoom(player: Player, point: Vector3, settings: CameraZoomSetting
 	player.release_camera_focus()
 
 
-# A player pressed interact on a seated customer: serve them if holding their dish.
+# A player pressed interact on a seated customer: serve them if holding their
+# dish, or chat with a regular who's eating.
 func _on_customer_interacted(player_index: int, customer: Customer) -> void:
 	var customer_name := _who(customer)
 	var player := Player.find(get_tree(), player_index)
+	if customer.state == Customer.State.EATING:
+		# Not while still held in the serving moment, so one extra press doesn't use up the chat.
+		if player != null and player.held_item == null and not player.movement_locked and customer.can_chat():
+			_eating_chat(player, customer)
+		return
 	var plate: CookedDish = null
 	if player != null:
 		plate = player.held_item as CookedDish
@@ -218,10 +240,28 @@ func _on_customer_interacted(player_index: int, customer: Customer) -> void:
 	GameState.record_chef_action(player_index, "served")
 	customer.serve(plate.quality)
 	GameEvents.announce("Served %s to %s." % [plate.dish_name(), customer_name])
+	if customer.is_regular():
+		customer.say(_pick_served_line(customer, customer.served_by_account))
 
 	# A short zoom on the customer digging in.
-	var at_table := (customer.global_position + customer.seat.meal_position()) * 0.5 + Vector3.UP * 0.8
-	_hold_with_zoom(player, at_table, serve_zoom, serve_seconds, customer.interactable)
+	_hold_with_zoom(player, _at_table(customer), serve_zoom, serve_seconds, customer.interactable)
+
+
+# Walking up to a regular mid-meal: they say something fitting how well they
+# know you. Once per visit; the player stays put while they talk.
+func _eating_chat(player: Player, customer: Customer) -> void:
+	var chef_id := Accounts.id_of(player.player_index)
+	var record: Dictionary = GameState.regulars[customer.regular_id]
+	var line := DialoguePicker.pick("eating_chat", RegularMemory.dialogue_context(record, chef_id))
+	customer.chat(line if not line.is_empty() else "Mm. It's good.")
+	GameEvents.announce("%s chatted with %s." % [Accounts.name_of(player.player_index), customer.display_name])
+	var zoom := eating_chat_zoom if eating_chat_zoom != null else order_chat_zoom
+	await _hold_with_zoom(player, _at_table(customer), zoom, eating_chat_seconds, customer.interactable)
+
+
+# Between a seated customer and their plate, a little above the table.
+func _at_table(customer: Customer) -> Vector3:
+	return (customer.global_position + customer.seat.meal_position()) * 0.5 + Vector3.UP * 0.8
 
 
 # Done eating: work out how happy they are, take payment, and walk them out.

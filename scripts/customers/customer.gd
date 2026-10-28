@@ -8,10 +8,11 @@ enum State { ARRIVING, WAITING_TO_ORDER, WALKING_TO_SEAT, WAITING_FOR_FOOD, EATI
 
 signal state_changed(customer: Customer)
 signal finished_eating(customer: Customer)
+signal spoke(customer: Customer)  # Said a one-off line (see say()).
 
 @export var walk_speed := 2.0
 @export var turn_speed := 10.0
-@export var eat_duration := 4.0
+@export var eat_duration := 4.0  # Regulars stay longer (eating_seconds in data/regulars.json).
 
 var state: State = State.ARRIVING
 var species: Dictionary = {}  # From data/species.json
@@ -21,6 +22,8 @@ var display_name := ""        # "Mabel" for a regular, "Rabbit" for anyone else.
 var regular_id := ""          # Empty unless this is a regular (data/characters/).
 var greeting_line := ""       # What a regular says at the counter (empty = generic).
 var order_line := ""          # What a regular says when ordering (empty = generic).
+var speech := ""              # The latest one-off line, e.g. when served or chatted with.
+var chatted := false          # A regular can be chatted with once while eating.
 
 var wait_seconds := 0.0       # From reaching the counter until the food arrives.
 var served_quality := 0.0     # Quality of the dish they were served (0..1).
@@ -62,7 +65,9 @@ func _prompt_for(player_index: int) -> String:
 	var plate := player.held_item as CookedDish
 	if plate != null:
 		return interactable.prompt if plate.order.customer == self else ""
-	return "Check order" if player.held_item == null else ""
+	if player.held_item != null:
+		return ""
+	return "Chat" if state == State.EATING else "Check order"
 
 
 # Walk through the given points in order, then switch to `state_on_arrival`.
@@ -94,6 +99,26 @@ func serve(quality: float) -> void:
 	served_quality = quality
 	_eat_time_left = eat_duration
 	_set_state(State.EATING)
+
+
+# Say a one-off line in the speech bubble.
+func say(line: String) -> void:
+	if line.is_empty():
+		return
+	speech = line
+	spoke.emit(self)
+
+
+# A regular who's eating and hasn't been chatted with yet this visit.
+func can_chat() -> bool:
+	return is_regular() and state == State.EATING and not chatted and not _done_eating
+
+
+# The eating chat: say `line`, and no more chatting this visit.
+func chat(line: String) -> void:
+	chatted = true
+	_update_interactable()
+	say(line)
 
 
 # Walk out along `points` saying `line`, having paid `amount`.
@@ -149,6 +174,7 @@ func _set_state(new_state: State) -> void:
 	state_changed.emit(self)
 
 
-# Players can only interact with a customer who is waiting for food.
+# Players can interact with a customer who is waiting for food, or chat once
+# with a regular who is eating.
 func _update_interactable() -> void:
-	interactable.enabled = state == State.WAITING_FOR_FOOD
+	interactable.enabled = state == State.WAITING_FOR_FOOD or can_chat()

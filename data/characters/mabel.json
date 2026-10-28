@@ -54,6 +54,25 @@
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 2 }, "text": "Goodnight, [name]. Taste everything." },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 3 }, "text": "Goodnight, [name]. Thank you for listening to an old lady ramble." },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 4 }, "text": "Goodnight, dear. Turn the left burner down." },
-		{ "event": "farewell", "priority": 200, "conditions": { "stage": -1 }, "text": "Thank you." }
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": -1 }, "text": "Thank you." },
+
+		{ "event": "served", "priority": 260, "conditions": { "min_stage": 1, "served_disliked": true }, "text": "Foam? On a plate? In my day we called that a mistake." },
+		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_min": 0.7 }, "text": "Hm. ...That's very good. Walter would have asked for seconds." },
+		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_min": 0.4, "served_quality_max": 0.7 }, "text": "Edible. Solid. Needs a pinch more salt. You'll get there." },
+		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_max": 0.4 }, "text": "It's burnt, dear. I'm going to eat it, because I don't waste food. But it's burnt." },
+		{ "event": "served", "priority": 200, "conditions": { "min_stage": 2, "max_stage": 3 }, "text": "Thank you, [name]. ...You've improved. I won't say it twice." },
+		{ "event": "served", "priority": 220, "conditions": { "stage": 4, "served_quality_max": 0.4 }, "text": "You burnt it. Good. Even the best of us do. Walter burnt toast every Sunday for fifty years." },
+		{ "event": "served", "priority": 200, "conditions": { "stage": 4 }, "text": "[name], this is as good as anything I ever served. I mean that. I don't say things I don't mean." },
+		{ "event": "served", "priority": 200, "conditions": { "max_stage": -1 }, "text": "Thank you." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Your stove runs hot on the left side. Turn it down a notch. Trust me." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "I ran a diner for fifty years. Don't look so surprised. I wasn't always this slow. ...I was always this slow." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Have you seen my glasses? I had them when I came in." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 2 }, "text": "Can I give you some advice? You don't have to take it." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3 }, "text": "I haven't cooked for anyone since Walter. Not even myself. That's why I come here, I suppose." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3 }, "text": "That bear with the patches. Stitches. He sits alone every time. Someone ought to say hello to him." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3 }, "text": "My grandson Cheddar thinks I don't notice his pranks. I notice everything. I let him have it." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "You taste everything before it goes out now. I've watched you. That's how I know you'll be fine." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "If I had a granddaughter or grandson who cooked like you, I'd be very proud. ...Well. I suppose I do." },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "max_stage": -1 }, "text": "Is there something you need, chef? I'm quite comfortable." }
 	]
 }
