@@ -76,9 +76,15 @@ func _physics_process(delta: float) -> void:
 		has_acted = true
 	if _interact_blocked and not input.is_interact_pressed():
 		_interact_blocked = false
-	if input.is_interact_just_pressed() and not _interact_blocked:
+	if input.is_interact_just_pressed() and not _interact_blocked and not in_conversation():
 		has_acted = true
 		interactor.try_interact(player_index)
+
+
+# A dialogue box of ours is open: interact moves the conversation on, so it
+# mustn't also use the counter, chair or table in front of us.
+func in_conversation() -> bool:
+	return get_tree().get_nodes_in_group(ConversationBox.GROUP).any(func(box): return box.player_index == player_index and not box.is_queued_for_deletion())
 
 
 # The press that's down right now (e.g. the one that closed a dialogue box)

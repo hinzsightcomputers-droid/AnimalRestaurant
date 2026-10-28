@@ -2,7 +2,8 @@
 # Pick a regular to see everything they remember, set their relationship (or
 # jump to a stage), queue them to visit next, or reset them. It can also fake the
 # date forward to test "you've been gone" lines, show and re-roll which regulars
-# come in today, ring the phone for any caller or fill its voicemail, and will list big-moment scenes to trigger once those exist. The game pauses while it's open, and changes are
+# come in today, ring the phone for any caller or fill its voicemail, send a
+# regular to Gone and skip through winning them back, and will list big-moment scenes to trigger once those exist. The game pauses while it's open, and changes are
 # saved when it closes. Built in code, since it's only a tool.
 extends CanvasLayer
 
@@ -20,6 +21,7 @@ var _queue_label: Label
 var _schedule_label: Label
 var _caller_picker: OptionButton
 var _phone_label: Label
+var _gone_label: Label
 var _was_paused := false
 var _changed := false     # Something to save when the panel closes.
 var _updating := false    # True while _refresh moves the slider, so it isn't treated as an edit.
@@ -157,6 +159,51 @@ func _clear_voicemail() -> void:
 	_refresh()
 
 
+# Gone: they phone in one last order right away, and its courier brings their goodbye note.
+func _final_call() -> void:
+	var record := _selected_record()
+	RegularMemory.set_relationship(record, -80)
+	record["goodbye_given"] = false
+	record["last_called"] = ""
+	GameState.forced_caller = record["id"]
+	_changed = true
+	_refresh()
+
+
+# Straight to Gone, skipping the last order and note.
+func _gone_now() -> void:
+	var record := _selected_record()
+	RegularMemory.set_relationship(record, -80)
+	Redemption.say_goodbye(record)
+	_changed = true
+	_refresh()
+
+
+# The letter you sent has been with them long enough: the reply (or the
+# silence, if it wasn't sincere) comes now.
+func _letter_due() -> void:
+	var record := _selected_record()
+	if not String(record["letter_date"]).is_empty():
+		record["letter_date"] = Redemption.add_days(GameState.date, -int(Redemption.settings().get("letter_reply_days", 3)))
+		_changed = true
+	_refresh()
+
+
+# They come in at closing this shift, as if a letter or a friend had worked.
+func _back_at_closing() -> void:
+	var record := _selected_record()
+	if Redemption.is_gone(record):
+		record["returns_on"] = GameState.date
+		_changed = true
+	_refresh()
+
+
+func _close_now() -> void:
+	for day in get_tree().root.find_children("*", "DayManager", true, false):
+		day.time_left = 0.0
+	_refresh()
+
+
 # --- Display ---------------------------------------------------------------
 
 func _refresh() -> void:
@@ -188,6 +235,7 @@ func _refresh() -> void:
 	var names := PackedStringArray()
 	for regular_id in GameState.forced_visitors:
 		names.append(GameState.regulars[regular_id]["name"])
+	_gone_label.text = _gone_text(record)
 	_queue_label.text = "Coming next: %s (at the next free seat)" % ", ".join(names) if not names.is_empty() else ""
 
 
@@ -207,6 +255,19 @@ func _info_text(record: Dictionary) -> String:
 			continue
 		var value = record[field]
 		lines.append("%s: %s" % [field, JSON.stringify(value) if value is Array or value is Dictionary or value is String else str(value)])
+	return "\n".join(lines)
+
+
+func _gone_text(record: Dictionary) -> String:
+	var permanent_after := int(Redemption.settings().get("permanent_after", 2))
+	var state := "Gone%s" % (" for good" if Redemption.is_permanent(record) else "") if Redemption.is_gone(record) \
+		else ("fallen to Gone: last order (with the note) still to come" if Redemption.goodbye_due(record) else "not Gone")
+	var lines := PackedStringArray(["%s %s. Times gone: %d of %d." % [record["name"], state, int(record["times_gone"]), permanent_after]])
+	if not String(record["letter_date"]).is_empty():
+		lines.append("Letter sent %s (%s). Answer due %s." % [record["letter_date"], "sincere" if record["letter_sincere"] else "not sincere",
+			Redemption.add_days(record["letter_date"], int(Redemption.settings().get("letter_reply_days", 3)))])
+	if not String(record["returns_on"]).is_empty():
+		lines.append("Comes back at closing on %s." % record["returns_on"])
 	return "\n".join(lines)
 
 
@@ -282,6 +343,17 @@ func _build() -> void:
 	_add_button(actions, "Forget names", _forget_names)
 	_queue_label = _add_label(box, "")
 	_info = _add_label(box, "")
+
+	_add_label(box, "Gone and redemption", 18, true)
+	_add_label(box, "For the regular picked above.")
+	var gone_row := _add_row(box)
+	_add_button(gone_row, "Final call now", _final_call)
+	_add_button(gone_row, "Gone now", _gone_now)
+	var gone_row_2 := _add_row(box)
+	_add_button(gone_row_2, "Letter answer now", _letter_due)
+	_add_button(gone_row_2, "Back at closing", _back_at_closing)
+	_add_button(gone_row_2, "Close now", _close_now)
+	_gone_label = _add_label(box, "")
 
 	_add_label(box, "Scenes", 18, true)
 	_add_label(box, "No big-moment scenes yet. They'll be listed here to trigger once they're built.")

@@ -24,10 +24,12 @@ static func choices_of(line: Dictionary) -> Array:
 # { change, reply, others } where reply is the unfilled text they answer with
 # and others is { regular_id: change } for anyone else it affected. A reply with
 # "nickname" gives that chef a nickname ("" = just their name). A rude reply is
-# news for their friends.
+# news for their friends. A choice's "quote" is what's remembered as said
+# instead of its text (e.g. a note's words, without "(Tuck a note...)").
 static func apply_choice(record: Dictionary, choice: Dictionary, said: String, chef_id := "") -> Dictionary:
 	var tone: String = choice.get("tone", "")
 	var change := _change_of(record, choice, tone)
+	said = choice.get("quote", said)
 	# Count the streak first, so the third rude reply in a row can go below 0.
 	if tone == "rude":
 		record["rude_streak"] = int(record["rude_streak"]) + 1

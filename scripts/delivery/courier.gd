@@ -1,6 +1,7 @@
 # Courier: the delivery character (a placeholder capsule with a cap and a bag).
 # Comes in for one phoned-in order, waits by the counter however long the
-# cooking takes, and leaves once a player hands over the finished dish.
+# cooking takes, and leaves once a player hands over the finished dish. Or it
+# brings a letter (a Gone regular's reply) and leaves once someone reads it.
 # DeliveryManager decides where it goes and what handing over does; this only
 # walks, shows a bubble, and says who can hand it what.
 class_name Courier
@@ -8,7 +9,8 @@ extends Node3D
 
 signal arrived_outside(courier: Courier)  # Walked back out the door after the pickup.
 
-var order: Order
+var order: Order               # null for a letter.
+var letter_from: Dictionary = {}  # The regular whose letter this courier brings.
 var walk_speed := 2.2
 var leaving := false
 
@@ -24,6 +26,11 @@ func setup(for_order: Order, settings: Dictionary) -> void:
 	_build(Color(settings.get("color", "#f2d24b")))
 
 
+func setup_letter(from_record: Dictionary, settings: Dictionary) -> void:
+	letter_from = from_record
+	setup(null, settings)
+
+
 func _ready() -> void:
 	interactable.prompt = "Hand over"
 	interactable.radius = 1.3
@@ -34,13 +41,16 @@ func _ready() -> void:
 
 
 # "Hand over" for whoever carries this order's plate, nothing for anyone else
-# (pressing with free hands would only say what it's waiting for).
+# (pressing with free hands would only say what it's waiting for). A letter:
+# "Read letter" for anyone with free hands.
 func _prompt_for(player_index: int) -> String:
 	if leaving or is_walking():
 		return ""
 	var player := Player.find(get_tree(), player_index)
 	if player == null:
 		return ""
+	if order == null:
+		return "Read letter" if player.held_item == null else ""
 	var plate := player.held_item as CookedDish
 	return interactable.prompt if plate != null and plate.order == order else ""
 
@@ -53,15 +63,19 @@ func is_walking() -> bool:
 	return not _path.is_empty()
 
 
-# Took the food: say thanks (and what it paid) and head out along `points`.
-func leave(points: Array[Vector3], paid: int) -> void:
+# Done here: say `bubble` (e.g. "Thanks! +$12") and head out along `points`.
+func leave(points: Array[Vector3], bubble: String) -> void:
 	leaving = true
-	_bag.visible = true
-	_bubble.text = "Thanks! +$%d" % paid
+	_bag.visible = order != null
+	_bubble.text = bubble
 	walk_to(points)
 
 
 func _show_waiting() -> void:
+	if order == null:
+		_bubble.text = "Letter for you!
+from %s" % letter_from.get("name", "?")
+		return
 	_bubble.text = "Pickup:\n%s for %s" % [order.dish.get("name", "?"), order.caller.get("name", "?")]
 
 

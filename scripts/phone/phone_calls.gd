@@ -3,7 +3,9 @@
 #   "townsfolk": a caller from data/callers.json ordering their usual (mostly).
 #   "order":     a Withdrawn regular ordering instead of visiting, with a note
 #                choice at the end (the redemption hook, from their file's
-#                phone_greeting / phone_order / phone_note lines).
+#                phone_greeting / phone_order / phone_note lines). Someone who
+#                just fell to Gone makes one last order call like this, with no
+#                note: its courier brings their goodbye (see Redemption).
 #   "chat":      a regular at their top stage calling just to talk (phone_chat).
 # All timings and chances are in data/phone.json. Phone runs the call and
 # shows it; DeliveryManager handles the order it makes.
@@ -49,7 +51,7 @@ static func _right_stage(regular_id: String, kind: String) -> bool:
 	var stage := RegularMemory.stage_of(GameState.regulars[regular_id])
 	var settings := GameData.phone_settings
 	if kind == "order":
-		return stage == int(settings.get("regular_order_call_stage", -3))
+		return stage == int(settings.get("regular_order_call_stage", -3)) or Redemption.goodbye_due(GameState.regulars[regular_id])
 	return stage >= int(settings.get("regular_chat_call_stage", 4))
 
 

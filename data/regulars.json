@@ -22,6 +22,20 @@
 			{ "stage": -4, "min": -100 }
 		],
 		"lowest_stage_that_visits": -2,
+		"gone": {
+			"permanent_after": 2, "letter_reply_days": 3, "friend_min_relationship": 50, "friend_return_days": 1,
+			"lines": {
+				"note_handover": "(Instead of a payment slip, [courier] hands you a folded note.)",
+				"letter_who": "Who do you write to?",
+				"letter_sent": "(You fold it up. [courier] will take it to [who].)",
+				"letter_arrives": "Letter for you! From [who].",
+				"ask_friend_prompt": "(You could ask [friend] about [who].)",
+				"phone_who": "Who do you call?",
+				"phone_option": "[friend], about [who]",
+				"not_now": "(Not now.)",
+				"hang_up": "(Hang up.)"
+			}
+		},
 		"dish_tokens": { "soup": "carrot_soup", "fancy dish": "berry_pancakes", "cheese dish": "acorn_cookies" }
 	},
 	"memory_defaults": {
@@ -41,6 +55,11 @@
 		"restaurant_name_heard": "",
 		"last_called": "",
 		"last_note": "",
+		"goodbye_given": false,
+		"letter_date": "",
+		"letter_sincere": false,
+		"reply_given": false,
+		"returns_on": "",
 		"times_gone": 0,
 		"visits_by_stage": {}
 	}

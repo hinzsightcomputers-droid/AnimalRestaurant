@@ -149,7 +149,7 @@ func _load_characters() -> void:
 
 		var record := {}
 		for key in character:
-			if not key in ["stage_names", "tone_reactions", "memory", "lines"]:
+			if not key in ["stage_names", "tone_reactions", "memory", "lines", "gone"]:
 				record[key] = character[key]
 		record.merge(memory_defaults.duplicate(true), true)
 		record.merge(character.get("memory", {}).duplicate(true), true)

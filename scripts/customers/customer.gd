@@ -4,7 +4,8 @@
 class_name Customer
 extends Node3D
 
-enum State { ARRIVING, WAITING_TO_ORDER, WALKING_TO_SEAT, WAITING_FOR_FOOD, EATING, LEAVING, GONE }
+# WAITING_BY_DOOR: a Gone regular come back at closing, waiting for their return scene.
+enum State { ARRIVING, WAITING_TO_ORDER, WALKING_TO_SEAT, WAITING_FOR_FOOD, EATING, LEAVING, GONE, WAITING_BY_DOOR }
 
 signal state_changed(customer: Customer)
 signal finished_eating(customer: Customer)
@@ -64,7 +65,7 @@ func _ready() -> void:
 
 # "Serve" for whoever carries this customer's plate, "Check order" for free
 # hands (pressing says what they're waiting for), nothing for anyone carrying
-# something else.
+# something else. "Talk" to someone waiting by the door.
 func _prompt_for(player_index: int) -> String:
 	var player := Player.find(get_tree(), player_index)
 	if player == null:
@@ -74,6 +75,8 @@ func _prompt_for(player_index: int) -> String:
 		return interactable.prompt if plate.order.customer == self else ""
 	if player.held_item != null:
 		return ""
+	if state == State.WAITING_BY_DOOR:
+		return "Talk"
 	return "Chat" if state == State.EATING else "Check order"
 
 
@@ -182,7 +185,7 @@ func _set_state(new_state: State) -> void:
 	state_changed.emit(self)
 
 
-# Players can interact with a customer who is waiting for food, or chat once
-# with a regular who is eating.
+# Players can interact with a customer who is waiting for food or by the door,
+# or chat once with a regular who is eating.
 func _update_interactable() -> void:
-	interactable.enabled = state == State.WAITING_FOR_FOOD or can_chat()
+	interactable.enabled = state in [State.WAITING_FOR_FOOD, State.WAITING_BY_DOOR] or can_chat()

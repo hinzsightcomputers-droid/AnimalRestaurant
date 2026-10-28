@@ -37,6 +37,8 @@ func _on_state_changed(_customer: Customer) -> void:
 	match customer.state:
 		Customer.State.ARRIVING, Customer.State.GONE:
 			bubble.visible = false
+		Customer.State.WAITING_BY_DOOR:
+			bubble.text = "..."
 		Customer.State.WAITING_TO_ORDER:
 			bubble.text = "Ready to order!"  # A regular's greeting is said in the dialogue box when you take their order.
 		Customer.State.WALKING_TO_SEAT, Customer.State.WAITING_FOR_FOOD:

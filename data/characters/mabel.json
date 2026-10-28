@@ -19,6 +19,78 @@
 		"4": { "warm": 3, "playful": 2, "straight": 3, "rude": -12 },
 		"negative": { "warm": 1, "playful": 0, "straight": 3, "rude": -6 }
 	},
+	"gone": {
+		"ask_friend": "Have you seen Mabel lately? Could you talk to her for me?",
+		"goodbye_note": "Chef. I closed my own diner because I couldn't bear to keep it without Walter. I thought yours might be a place like it. I was mistaken. I wish you well, I do. — Mabel",
+		"letter": {
+			"invented": true,
+			"needs": [
+				[
+					"straight"
+				],
+				[
+					"straight"
+				],
+				[
+					"straight"
+				]
+			],
+			"reply": "That was an honest letter. I'll come by on Thursday. Have the soup ready.",
+			"parts": [
+				{
+					"prompt": "Say what you did.",
+					"choices": [
+						{
+							"tone": "straight",
+							"text": "Mabel, I was cruel to you. That was wrong."
+						},
+						{
+							"tone": "warm",
+							"text": "Dear Mabel, I'm so, so sorry. I feel terrible!"
+						},
+						{
+							"tone": "playful",
+							"text": "Mabel! Remember me? Your favorite chef?"
+						}
+					]
+				},
+				{
+					"prompt": "And why?",
+					"choices": [
+						{
+							"tone": "straight",
+							"text": "There's no excuse for it, and I won't make one."
+						},
+						{
+							"tone": "warm",
+							"text": "It's been such a hard few weeks, I haven't been myself."
+						},
+						{
+							"tone": "playful",
+							"text": "In my defense, the soup was boiling over."
+						}
+					]
+				},
+				{
+					"prompt": "Say what you'll do differently.",
+					"choices": [
+						{
+							"tone": "straight",
+							"text": "From now on I'll treat every guest with respect. You first."
+						},
+						{
+							"tone": "warm",
+							"text": "I promise I'll be the best chef ever for you!"
+						},
+						{
+							"tone": "playful",
+							"text": "Next soup's on the house. Forever."
+						}
+					]
+				}
+			]
+		}
+	},
 	"memory": {
 		"friends": ["cheddar"],
 		"story_part": 0,
@@ -160,18 +232,22 @@
 		{ "event": "restaurant_name", "priority": 200, "conditions": { "min_stage": 1, "new_restaurant_name": true }, "text": "In my day the diner was just called 'Diner.' [restaurant] is better. Don't let it go to your head." },
 		{ "event": "greeting", "priority": 200, "conditions": { "min_stage": 2 }, "text": "Afternoon. [restaurant] smells right today. That's a compliment, dear." },
 
-		{ "event": "phone_greeting", "priority": 200, "conditions": { "stage": -3 }, "text": "This is Mabel. I would like to place an order for delivery." },
-		{ "event": "phone_greeting", "priority": 200, "conditions": { "stage": -3 }, "text": "Good evening. Mabel speaking. Delivery, please." },
-		{ "event": "phone_order", "priority": 250, "conditions": { "stage": -3, "memory": { "last_note": "straight" } }, "set": { "last_note": "" }, "text": "Received. Thank you for not making excuses. ...[dish], please." },
-		{ "event": "phone_order", "priority": 200, "conditions": { "stage": -3 }, "dish": "soup", "text": "Soup. No bread. Thank you." },
-		{ "event": "phone_order", "priority": 200, "conditions": { "stage": -3 }, "text": "[dish]. The left burner still runs hot." },
+		{ "event": "phone_greeting", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "text": "This is Mabel. I would like to place an order for delivery." },
+		{ "event": "phone_greeting", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "text": "Good evening. Mabel speaking. Delivery, please." },
+		{ "event": "phone_order", "priority": 250, "conditions": { "min_stage": -4, "max_stage": -3, "memory": { "last_note": "straight" } }, "set": { "last_note": "" }, "text": "Received. Thank you for not making excuses. ...[dish], please." },
+		{ "event": "phone_order", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "dish": "soup", "text": "Soup. No bread. Thank you." },
+		{ "event": "phone_order", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "text": "[dish]. The left burner still runs hot." },
 		{ "event": "phone_note", "id": "mabel_phone_note", "priority": 200, "conditions": { "stage": -3 }, "text": "That will be all.",
 			"choices": [
 				{ "tone": "straight", "text": "(Tuck a note in her bag: \"I was wrong, and I'm sorry.\")", "change": 5, "set": { "last_note": "straight" } },
 				{ "tone": "warm", "text": "(Tuck a note in her bag: \"I'm so sorry, Mabel! We miss you here!\")", "change": 2, "set": { "last_note": "warm" } },
-				{ "text": "(Just send the food.)", "change": 0 }
+				{ "text": "(Just send the food.)", "change": 0 },
+				{ "tone": "rude", "invented": true, "text": "(Tuck a note in the bag: \"Find another diner.\")", "quote": "Find another diner." }
 			]
 		},
-		{ "event": "phone_chat", "id": "mabel_phone_chat_placeholder", "priority": 200, "conditions": { "stage": 4 }, "text": "It's Mabel, dear. Nothing to order. I only wanted to hear how my kitchen's doing. ...Your kitchen. Turn the left burner down. Goodnight." }
+		{ "event": "phone_chat", "id": "mabel_phone_chat_placeholder", "priority": 200, "conditions": { "stage": 4 }, "text": "It's Mabel, dear. Nothing to order. I only wanted to hear how my kitchen's doing. ...Your kitchen. Turn the left burner down. Goodnight." },
+
+		{ "event": "return_scene", "id": "mabel_return", "priority": 200, "text": "Well. I'm here. Say what you came to say, and say it plainly.", "choices": [ { "text": "I was cruel to you. I'm sorry. No excuses.", "reply": "...Thank you. That's how it's done.", "change": 0 },{ "text": "I've missed you, Mabel. This place isn't the same.", "reply": "Hm. It isn't. I could tell from the floors.", "change": 0 },{ "text": "Can I make you some soup?", "reply": "...Yes. You can.", "change": 0 } ]},
+		{ "event": "return_closing", "id": "mabel_return_closing", "priority": 200, "text": "We'll start again. Afternoon, Gerald.", "set": { "name_test_passed": false}}
 	]
 }

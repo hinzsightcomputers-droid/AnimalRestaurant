@@ -19,6 +19,78 @@
 		"4": { "warm": 2, "playful": 3, "straight": 1, "rude": -12 },
 		"negative": { "warm": 2, "playful": 0, "straight": 1, "rude": -6 }
 	},
+	"gone": {
+		"ask_friend": "Have you seen Stitches lately? Could you talk to him for me?",
+		"goodbye_note": "I won't bother you anymore. Thank you for all the food. You're a really good cook. I hope your restaurant is always busy. — S.",
+		"letter": {
+			"invented": true,
+			"needs": [
+				[
+					"warm"
+				],
+				[
+					"warm"
+				],
+				[
+					"warm"
+				]
+			],
+			"reply": "I got your letter. I read it a lot of times. ...I'll come by. Just once.",
+			"parts": [
+				{
+					"prompt": "How do you start?",
+					"choices": [
+						{
+							"tone": "warm",
+							"text": "Dear Stitches, I'm so sorry for how I treated you."
+						},
+						{
+							"tone": "straight",
+							"text": "Stitches, I owe you an apology."
+						},
+						{
+							"tone": "playful",
+							"text": "Hey, Stitches! Long time no see."
+						}
+					]
+				},
+				{
+					"prompt": "What do you tell him?",
+					"choices": [
+						{
+							"tone": "warm",
+							"text": "You never deserved any of it. You were always kind to me."
+						},
+						{
+							"tone": "straight",
+							"text": "I was rude to you, and that was wrong."
+						},
+						{
+							"tone": "playful",
+							"text": "I was a bit of a grump, huh?"
+						}
+					]
+				},
+				{
+					"prompt": "How do you end it?",
+					"choices": [
+						{
+							"tone": "warm",
+							"text": "The corner table is yours whenever you want it. I'd really like to see you."
+						},
+						{
+							"tone": "straight",
+							"text": "Come by if you want."
+						},
+						{
+							"tone": "playful",
+							"text": "The pancakes miss you!"
+						}
+					]
+				}
+			]
+		}
+	},
 	"memory": {
 		"friends": [],
 		"dislike_confessed": false
@@ -170,16 +242,20 @@
 
 		{ "event": "eating_chat", "id": "stitches_befriends_mabel", "priority": 230, "conditions": { "min_stage": 3, "regular_min_relationship": { "mabel": 50 }, "friends_with": { "mabel": false } }, "befriends": "mabel", "text": "The tortoise lady, Mabel, said hello to me today. She asked if I made my patches. She said they're lovely." },
 
-		{ "event": "phone_greeting", "priority": 200, "conditions": { "stage": -3 }, "text": "...Hello. It's Stitches. For delivery. Sorry." },
-		{ "event": "phone_greeting", "priority": 200, "conditions": { "stage": -3 }, "text": "Hi. It's me. I'd like to order. From home. If that's okay." },
-		{ "event": "phone_order", "priority": 250, "conditions": { "stage": -3, "memory": { "last_note": "warm" } }, "set": { "last_note": "" }, "text": "Thank you for the note. I read it a few times. ...The [dish], please." },
-		{ "event": "phone_order", "priority": 200, "conditions": { "stage": -3 }, "text": "The [dish]. For the corner table person. No need to rush. Sorry." },
+		{ "event": "phone_greeting", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "text": "...Hello. It's Stitches. For delivery. Sorry." },
+		{ "event": "phone_greeting", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "text": "Hi. It's me. I'd like to order. From home. If that's okay." },
+		{ "event": "phone_order", "priority": 250, "conditions": { "min_stage": -4, "max_stage": -3, "memory": { "last_note": "warm" } }, "set": { "last_note": "" }, "text": "Thank you for the note. I read it a few times. ...The [dish], please." },
+		{ "event": "phone_order", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "text": "The [dish]. For the corner table person. No need to rush. Sorry." },
 		{ "event": "phone_note", "id": "stitches_phone_note", "priority": 200, "conditions": { "stage": -3 }, "text": "That's all. ...Bye.",
 			"choices": [
 				{ "tone": "warm", "text": "(Tuck a note in his bag: \"I'm sorry. Your corner table misses you.\")", "change": 5, "set": { "last_note": "warm" } },
-				{ "text": "(Just send the food.)", "change": 0 }
+				{ "text": "(Just send the food.)", "change": 0 },
+				{ "tone": "rude", "invented": true, "text": "(Tuck a note in his bag: \"Stop calling here.\")", "quote": "Stop calling here." }
 			]
 		},
-		{ "event": "phone_chat", "id": "stitches_phone_chat_placeholder", "priority": 200, "conditions": { "stage": 4 }, "text": "Hi, [name]! It's Stitches. I'm not ordering anything. I just... wanted to call someone. And you were the first one I thought of. Okay. Bye!" }
+		{ "event": "phone_chat", "id": "stitches_phone_chat_placeholder", "priority": 200, "conditions": { "stage": 4 }, "text": "Hi, [name]! It's Stitches. I'm not ordering anything. I just... wanted to call someone. And you were the first one I thought of. Okay. Bye!" },
+
+		{ "event": "return_scene", "id": "stitches_return", "priority": 200, "text": "Hi. ...I almost didn't come in. That's twice now, at this restaurant.", "choices": [ { "text": "I'm so sorry. You didn't deserve any of it.", "reply": "...I kept thinking it was my fault. That I was too much.", "change": 0 },{ "text": "I was cruel to you. There's no excuse.", "reply": "Thank you for not making one.", "change": 0 },{ "text": "I want to start over, if you'll let me.", "reply": "Starting over is okay. I'm good at fixing things.", "change": 0 } ]},
+		{ "event": "return_closing", "id": "stitches_return_closing", "priority": 200, "text": "I forgive you. I think I already did, a little, before I even walked in. ...Can I have the corner table? Just for now." }
 	]
 }

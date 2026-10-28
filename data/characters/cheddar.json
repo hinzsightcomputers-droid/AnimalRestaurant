@@ -19,6 +19,59 @@
 		"4": { "warm": 3, "playful": 3, "straight": 1, "rude": -12 },
 		"negative": { "warm": 1, "playful": 3, "straight": 0, "rude": -6 }
 	},
+	"gone": {
+		"ask_friend": "Have you seen Cheddar lately? Could you talk to him for me?",
+		"goodbye_note": "Knock knock. ...Never mind. You wouldn't get it anyway. —C",
+		"letter": {
+			"invented": true,
+			"needs": [
+				[
+					"warm",
+					"straight"
+				],
+				[
+					"playful"
+				]
+			],
+			"reply": "Your joke was terrible. I laughed anyway. I'll come by.",
+			"parts": [
+				{
+					"prompt": "How do you open?",
+					"choices": [
+						{
+							"tone": "warm",
+							"text": "Cheddar, I'm sorry. I said things that hurt you, and this part isn't a joke."
+						},
+						{
+							"tone": "straight",
+							"text": "Cheddar, I was out of line, and I'm sorry."
+						},
+						{
+							"tone": "playful",
+							"text": "Knock knock! ...It's me. Your chef."
+						}
+					]
+				},
+				{
+					"prompt": "How do you close?",
+					"choices": [
+						{
+							"tone": "playful",
+							"text": "P.S. What do you call a kitchen without its funniest customer? Quiet. Way too quiet. ...I'm working on it."
+						},
+						{
+							"tone": "warm",
+							"text": "I really hope you come back."
+						},
+						{
+							"tone": "straight",
+							"text": "That's all. Take care."
+						}
+					]
+				}
+			]
+		}
+	},
 	"memory": {
 		"friends": ["mabel"],
 		"nicknames": {},
@@ -159,19 +212,23 @@
 
 		{ "event": "eating_chat", "id": "cheddar_befriends_stitches", "priority": 230, "conditions": { "min_stage": 3, "regular_min_relationship": { "stitches": 50 }, "friends_with": { "stitches": false } }, "befriends": "stitches", "text": "That bear with the patches laughed at my joke today. Like, really laughed. He has a great laugh. Does he know that?" },
 
-		{ "event": "phone_greeting", "priority": 200, "conditions": { "stage": -3 }, "text": "Yeah, it's Cheddar. Delivery. Don't get excited." },
-		{ "event": "phone_greeting", "priority": 200, "conditions": { "stage": -3 }, "text": "It's me. Ordering from over here, where it's safe." },
-		{ "event": "phone_order", "priority": 250, "conditions": { "stage": -3, "memory": { "last_note": "playful" } }, "set": { "last_note": "" }, "text": "...Okay, that one got me. Doesn't mean we're cool. [dish]." },
-		{ "event": "phone_order", "priority": 200, "conditions": { "stage": -3 }, "text": "[dish]. Hold the attitude." },
-		{ "event": "phone_order", "priority": 200, "conditions": { "stage": -3 }, "text": "[dish]. Five stars for the delivery duck. Zero for the chef." },
-		{ "event": "phone_order", "priority": 200, "conditions": { "stage": -3 }, "text": "[dish]. No cheese. You'd know that if you'd listened." },
+		{ "event": "phone_greeting", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "text": "Yeah, it's Cheddar. Delivery. Don't get excited." },
+		{ "event": "phone_greeting", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "text": "It's me. Ordering from over here, where it's safe." },
+		{ "event": "phone_order", "priority": 250, "conditions": { "min_stage": -4, "max_stage": -3, "memory": { "last_note": "playful" } }, "set": { "last_note": "" }, "text": "...Okay, that one got me. Doesn't mean we're cool. [dish]." },
+		{ "event": "phone_order", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "text": "[dish]. Hold the attitude." },
+		{ "event": "phone_order", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "text": "[dish]. Five stars for the delivery duck. Zero for the chef." },
+		{ "event": "phone_order", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "text": "[dish]. No cheese. You'd know that if you'd listened." },
 		{ "event": "phone_note", "id": "cheddar_phone_note", "priority": 200, "conditions": { "stage": -3 }, "text": "That's it. Bye.",
 			"choices": [
 				{ "tone": "playful", "text": "(Draw on his bag: a tiny mouse in a chef's hat, crying into the soup. \"Sorry I was a jerk. Chef out.\")", "change": 5, "set": { "last_note": "playful" } },
 				{ "tone": "warm", "text": "(Tuck a note in his bag: \"I'm sorry. No joke. I mean it.\")", "change": 3, "set": { "last_note": "warm" } },
-				{ "text": "(Just send the food.)", "change": 0 }
+				{ "text": "(Just send the food.)", "change": 0 },
+				{ "tone": "rude", "invented": true, "text": "(Tuck a note in the bag: \"Here's some extra cheese. You love cheese.\")", "quote": "Here's some extra cheese. You love cheese." }
 			]
 		},
-		{ "event": "phone_chat", "id": "cheddar_phone_chat_placeholder", "priority": 200, "conditions": { "stage": 4 }, "text": "Partner! No order. I just called to say... hi. That's it. That's the whole call. Okay bye!" }
+		{ "event": "phone_chat", "id": "cheddar_phone_chat_placeholder", "priority": 200, "conditions": { "stage": 4 }, "text": "Partner! No order. I just called to say... hi. That's it. That's the whole call. Okay bye!" },
+
+		{ "event": "return_scene", "id": "cheddar_return", "priority": 200, "text": "So. I had a bit planned for this. A whole thing. I forgot it on the way here.", "choices": [ { "text": "I'm sorry. I said things that really hurt you.", "reply": "Yeah. You did. ...Thanks for saying it without a joke.", "change": 0 },{ "text": "I missed your jokes. I missed you.", "reply": "...Okay, that's a low blow. In a nice way.", "change": 0 },{ "text": "Knock knock.", "change": 0, "then": { "text": "...Who's there?", "choices": [ { "text": "Your chef, who's really sorry.", "reply": "Your chef, who's really sorry who? ...No, wait, that's not how it... HA. Okay. Okay, that got me.", "change": 0, "invented": true} ]}} ]},
+		{ "event": "return_closing", "id": "cheddar_return_closing", "priority": 200, "text": "Fine. Starting over. Hi, I'm Cheddar. I hate cheese. Nice to meet you." }
 	]
 }

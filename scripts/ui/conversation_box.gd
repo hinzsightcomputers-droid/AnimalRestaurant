@@ -67,6 +67,23 @@ static func open(parent: Control, for_player: int, speaker := "") -> Conversatio
 	return box
 
 
+# Where a box goes for this player: their own view, or the whole screen if
+# there's no view manager (e.g. in tests). `host` keeps the screen layer.
+static func parent_for(view_manager: ViewManager, for_player: int, host: Node) -> Control:
+	var view := view_manager.view_for(for_player) if view_manager != null else null
+	if view != null:
+		return view
+	var layer := CanvasLayer.new()
+	layer.layer = 5
+	host.add_child(layer)
+	var screen := Control.new()
+	screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	screen.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(screen)
+	screen.child_exiting_tree.connect(func(_box): layer.queue_free())
+	return screen
+
+
 func _ready() -> void:
 	add_to_group(GROUP)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

@@ -7,6 +7,8 @@
 # wait on the phone (with a blinking light) to be played back any time.
 # The time until the next ring stands still during conversations, and the
 # phone stays quiet while a regular is walking in. Timings: data/phone.json.
+# When it's quiet, you can also pick it up to call a friend of someone Gone and
+# ask them to talk to that regular for you (see Redemption).
 class_name Phone
 extends Station
 
@@ -45,13 +47,15 @@ func is_ringing() -> bool:
 	return not _ringing.is_empty()
 
 
-func _prompt_for(_player_index: int) -> String:
+func _prompt_for(player_index: int) -> String:
 	if _in_call:
 		return ""
 	if is_ringing():
 		return "Answer"
 	if not GameState.voicemails.is_empty():
 		return "Voicemail (%d)" % GameState.voicemails.size()
+	if not Redemption.all_helpers(Accounts.id_of(player_index)).is_empty():
+		return "Call a friend"
 	return ""
 
 
@@ -67,6 +71,9 @@ func _on_interacted(player_index: int) -> void:
 	elif not GameState.voicemails.is_empty():
 		_play_bounce()
 		_take_call(player, GameState.voicemails.pop_front(), true)
+	elif not Redemption.all_helpers(Accounts.id_of(player_index)).is_empty():
+		_play_bounce()
+		_call_friend(player)
 
 
 func _process(delta: float) -> void:
@@ -160,6 +167,33 @@ func _take_call(player: Player, call: Dictionary, voicemail: bool) -> void:
 	_in_call = false
 
 
+# Call a friend of someone Gone: pick who (and about whom), ask them, and they
+# say they'll talk to them. The phone doesn't ring for anyone else meanwhile.
+func _call_friend(player: Player) -> void:
+	_in_call = true
+	var chef_id := Accounts.id_of(player.player_index)
+	player.movement_locked = true
+	player.interactor.lock_to(interactable)
+	var helpers := Redemption.all_helpers(chef_id)
+	var options: Array = helpers.map(func(h): return Redemption.text("phone_option", { "friend": GameState.regulars[h["friend"]]["name"], "who": GameState.regulars[h["gone"]]["name"] }))
+	options.append(Redemption.text("hang_up"))
+	var box := ConversationBox.open(_view_of(player), player.player_index, "")
+	var picked := await box.ask("Phone", Redemption.text("phone_who"), options)
+	if picked < helpers.size():
+		var friend: Dictionary = GameState.regulars[helpers[picked]["friend"]]
+		var gone: Dictionary = GameState.regulars[helpers[picked]["gone"]]
+		var context := Redemption.help_context(friend, gone["id"], chef_id)
+		await box.tell(Accounts.name_of(player.player_index), Redemption.ask_friend_text(gone))
+		await box.tell(friend["name"], DialoguePicker.fill(RegularMemory.pick_line(friend, "gossip", context)["text"], context))
+		Redemption.friend_agreed(gone)
+		GameEvents.announce("%s will talk to %s." % [friend["name"], gone["name"]])
+	box.close()
+	player.ignore_interact_until_released()
+	player.movement_locked = false
+	player.interactor.unlock()
+	_in_call = false
+
+
 # Someone is in a conversation (with a regular, or anything else using the dialogue box).
 func _someone_talking() -> bool:
 	return get_tree().get_nodes_in_group(ConversationBox.GROUP).any(func(box): return not box.is_queued_for_deletion())
@@ -170,18 +204,7 @@ func _regular_arriving() -> bool:
 
 
 func _view_of(player: Player) -> Control:
-	var view := view_manager.view_for(player.player_index) if view_manager != null else null
-	if view != null:
-		return view
-	var layer := CanvasLayer.new()  # No views (e.g. in tests): the whole screen.
-	layer.layer = 5
-	add_child(layer)
-	var screen := Control.new()
-	screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	screen.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	layer.add_child(screen)
-	screen.child_exiting_tree.connect(func(_box): layer.queue_free())
-	return screen
+	return ConversationBox.parent_for(view_manager, player.player_index, self)
 
 
 # Shakes and shows "Ring! Ring!" in time with the ring; the light blinks while

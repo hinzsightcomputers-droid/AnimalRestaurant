@@ -4,6 +4,10 @@
 # Customers walk along lanes so they don't cut through furniture: the front lane
 # (in line with the door), the back lane (in line with the counter), and straight
 # up and down the aisle behind each chair.
+# It also runs the Gone side of regulars (see Redemption): writing a letter at
+# the order counter when nobody's waiting, asking a friend about someone Gone
+# while the friend eats, and the return scene when a Gone regular comes back
+# at closing time and waits by the door.
 class_name CustomerManager
 extends Node3D
 
@@ -37,6 +41,7 @@ var _chatting := false              # True while someone is taking an order.
 
 func _ready() -> void:
 	order_counter.used.connect(_on_order_counter_used)
+	order_counter.interactable.prompt_for_player = _counter_prompt
 
 	await get_tree().create_timer(first_arrival_delay, false).timeout  # false: waits while paused (e.g. name entry).
 	_try_spawn_customer()
@@ -59,6 +64,8 @@ func close() -> void:
 		if customer.is_regular():
 			RegularMemory.end_visit(GameState.regulars[customer.regular_id])
 	_queue.clear()
+	for record in Redemption.returning_today():
+		_bring_back(record)
 
 
 func has_customers() -> bool:
@@ -172,8 +179,25 @@ func _pick_served_line(customer: Customer, chef_id: String) -> String:
 	}))
 
 
+# "Take order", or "Write a letter" when nobody's ready to order and someone Gone could get one.
+func _counter_prompt(_player_index: int) -> String:
+	if not _someone_ready_to_order() and not _chatting and not Redemption.letter_targets().is_empty():
+		return "Write a letter"
+	return order_counter.interactable.prompt
+
+
+func _someone_ready_to_order() -> bool:
+	return not _queue.is_empty() and _queue[0].state == Customer.State.WAITING_TO_ORDER and not _queue[0].is_walking()
+
+
 func _on_order_counter_used(_station: Station, player_index: int) -> void:
 	if _chatting:
+		return
+	var player := Player.find(get_tree(), player_index)
+	if not _someone_ready_to_order() and player != null and not Redemption.letter_targets().is_empty():
+		_chatting = true
+		await _write_letter(player)
+		_chatting = false
 		return
 	if _queue.is_empty():
 		GameEvents.announce("Nobody is waiting to order.")
@@ -185,7 +209,6 @@ func _on_order_counter_used(_station: Station, player_index: int) -> void:
 
 	_queue.pop_front()
 	_chatting = true
-	var player := Player.find(get_tree(), player_index)
 	if customer.is_regular() and player != null:
 		await _regular_orders(player, customer)  # May change what they order.
 	customer.place_order()
@@ -334,6 +357,8 @@ func _converse(box: ConversationBox, player: Player, customer: Customer, line: D
 	if not reply.is_empty():
 		customer.say(reply)
 		await box.tell(customer.display_name, reply)
+	if choices[picked].has("then"):  # e.g. "Knock knock." -> "...Who's there?" and you finish the joke.
+		return await _converse(box, player, customer, choices[picked]["then"], extra)
 	return reply if not reply.is_empty() else opening
 
 
@@ -378,18 +403,7 @@ func _announce_change(record: Dictionary, before: int, tone: String) -> void:
 # Where a dialogue box goes for this player: their own view (or the screen if
 # there's no view manager, e.g. in tests).
 func _view_of(player: Player) -> Control:
-	var view := view_manager.view_for(player.player_index) if view_manager != null else null
-	if view != null:
-		return view
-	var layer := CanvasLayer.new()
-	layer.layer = 5
-	add_child(layer)
-	var screen := Control.new()
-	screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	screen.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	layer.add_child(screen)
-	screen.child_exiting_tree.connect(func(_box): layer.queue_free())
-	return screen
+	return ConversationBox.parent_for(view_manager, player.player_index, self)
 
 
 # Keep `player` in place for `seconds` with their camera zoomed in on `point`,
@@ -427,6 +441,10 @@ func _on_customer_interacted(player_index: int, customer: Customer) -> void:
 		# Not while still held in the serving moment, so one extra press doesn't use up the chat.
 		if player != null and player.held_item == null and not player.movement_locked and customer.can_chat():
 			_eating_chat(player, customer)
+		return
+	if customer.state == Customer.State.WAITING_BY_DOOR:
+		if player != null and player.held_item == null and not player.movement_locked:
+			_return_scene(player, customer)
 		return
 	var plate: CookedDish = null
 	if player != null:
@@ -486,9 +504,106 @@ func _eating_chat(player: Player, customer: Customer) -> void:
 		await box.tell(customer.display_name, text)
 		if not line.is_empty():
 			_after_line(customer, line, Accounts.id_of(player.player_index))
+	await _ask_about_gone(box, player, customer)
 	box.close()
 	_unlock_player(player)
 	customer.talking = false
+
+
+# --- Gone regulars (see Redemption) ------------------------------------------
+
+# After an eating chat: if this regular is friends with someone Gone and likes
+# you enough, you can ask them to talk to that friend.
+func _ask_about_gone(box: ConversationBox, player: Player, customer: Customer) -> void:
+	var record: Dictionary = GameState.regulars[customer.regular_id]
+	var chef_id := Accounts.id_of(player.player_index)
+	for gone_id in Redemption.friend_can_help(record, chef_id):
+		var gone: Dictionary = GameState.regulars[gone_id]
+		var asked := await box.ask(customer.display_name, Redemption.text("ask_friend_prompt", { "friend": record["name"], "who": gone["name"] }),
+			["\"%s\"" % Redemption.ask_friend_text(gone), Redemption.text("not_now")])
+		if asked == 0:
+			var context := Redemption.help_context(record, gone_id, chef_id)
+			var text := DialoguePicker.fill(RegularMemory.pick_line(record, "gossip", context)["text"], context)
+			customer.say(text)
+			await box.tell(customer.display_name, text)
+			Redemption.friend_agreed(gone)
+			GameEvents.announce("%s will talk to %s." % [record["name"], gone["name"]])
+		return  # One ask per chat.
+
+
+# "Write a letter" at the counter: pick who to (if more than one), then each
+# part of the letter from three choices. Their file decides which tones make it
+# sincere; the choices are shuffled so the right one isn't always first.
+func _write_letter(player: Player) -> void:
+	var targets := Redemption.letter_targets()
+	_lock_player(player, player.global_position + Vector3.UP * 1.2, order_chat_zoom, order_counter.interactable)
+	var box := ConversationBox.open(_view_of(player), player.player_index, "")
+	var options: Array = targets.map(func(r): return r["name"])
+	options.append(Redemption.text("not_now"))
+	var picked := await box.ask("Letter", Redemption.text("letter_who"), options)
+	if picked < targets.size():
+		var record: Dictionary = targets[picked]
+		var tones := []
+		var title := "Letter to %s" % record["name"]
+		for part in Redemption.letter_of(record).get("parts", []):
+			var choices: Array = part.get("choices", []).duplicate()
+			choices.shuffle()
+			var choice: Dictionary = choices[await box.ask(title, part.get("prompt", ""), choices.map(func(c): return c["text"]))]
+			tones.append(choice.get("tone", ""))
+		var sincere := Redemption.send_letter(record, tones)
+		await box.tell(title, Redemption.text("letter_sent", { "who": record["name"] }))
+		print("Letter to %s: %s, sincere: %s" % [record["id"], tones, sincere])
+		GameEvents.announce("Your letter is on its way to %s." % record["name"])
+	box.close()
+	_unlock_player(player)
+
+
+# A Gone regular comes back at closing (after a sincere letter, or a friend's
+# word) and waits just inside the door for someone to talk to them.
+func _bring_back(record: Dictionary) -> void:
+	var customer: Customer = CUSTOMER_SCENE.instantiate()
+	var species := GameData.get_species(record["species"]).duplicate()
+	if record.has("color"):
+		species["color"] = record["color"]
+	customer.setup(species, {}, null)
+	customer.regular_id = record["id"]
+	customer.display_name = record["name"]
+	add_child(customer)
+	customer.global_position = spawn_point.global_position
+	customer.reset_physics_interpolation()
+	customer.interactable.interacted.connect(_on_customer_interacted.bind(customer))
+	customer.state_changed.connect(_on_customer_state_changed)
+	var inside := door_point.global_position + Vector3(0.0, 0.0, -0.8)
+	var path: Array[Vector3] = [door_point.global_position, inside]
+	customer.walk_to(path, Customer.State.WAITING_BY_DOOR)
+	GameEvents.announce("%s is standing by the door." % record["name"])
+
+
+# Their return scene: the opening, your reply and theirs, their closing line.
+# Then they're back at 0 and head home (they'll visit again like before).
+func _return_scene(player: Player, customer: Customer) -> void:
+	var record: Dictionary = GameState.regulars[customer.regular_id]
+	var chef_id := Accounts.id_of(player.player_index)
+	customer.talking = true
+	_lock_player(player, (player.global_position + customer.global_position) * 0.5 + Vector3.UP * 1.2, order_chat_zoom, customer.interactable)
+	var box := _open_box(player, customer)
+	var opening := RegularMemory.pick_line(record, "return_scene", _visit_context(customer, chef_id))
+	if not opening.is_empty():
+		await _converse(box, player, customer, opening)
+	var context := _visit_context(customer, chef_id)
+	var closing := RegularMemory.pick_line(record, "return_closing", context)
+	if not closing.is_empty():
+		var text := DialoguePicker.fill(closing["text"], context)
+		customer.say(text)
+		await box.tell(customer.display_name, text)
+		_after_line(customer, closing, chef_id)
+	box.close()
+	_unlock_player(player)
+	customer.talking = false
+	Redemption.welcome_back(record)
+	GameEvents.announce("%s is back! (%d, %s)" % [record["name"], record["relationship"], RegularMemory.stage_name(record)])
+	var path: Array[Vector3] = [door_point.global_position, spawn_point.global_position]
+	customer.leave(path, "...", 0)
 
 
 # Between a seated customer and their plate, a little above the table.

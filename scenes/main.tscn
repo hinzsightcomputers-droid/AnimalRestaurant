@@ -141,12 +141,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 7.6)
 [node name="CustomerDoor" type="Marker3D" parent="CustomerManager" unique_id=76533005]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 4.3)
 
-[node name="DeliveryManager" type="Node3D" parent="." node_paths=PackedStringArray("order_board", "spawn_point", "door_point", "pickup_point")]
+[node name="DeliveryManager" type="Node3D" parent="." node_paths=PackedStringArray("order_board", "spawn_point", "door_point", "pickup_point", "view_manager")]
 script = ExtResource("20_delivery")
 order_board = NodePath("../OrderBoard")
 spawn_point = NodePath("../CustomerManager/CustomerSpawn")
 door_point = NodePath("../CustomerManager/CustomerDoor")
 pickup_point = NodePath("PickupPoint")
+view_manager = NodePath("../Views")
 
 [node name="PickupPoint" type="Marker3D" parent="DeliveryManager"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 0, -2.4)
