@@ -4,7 +4,8 @@
 # date forward to test "you've been gone" lines, show and re-roll which regulars
 # come in today, ring the phone for any caller or fill its voicemail, send a
 # regular to Gone and skip through winning them back, and play each big moment
-# scene at closing (or set up its trigger). The game pauses while it's open, and changes are
+# scene at closing (or set up its trigger), and practice close-up recipes or
+# put only one dish on the menu. The game pauses while it's open, and changes are
 # saved when it closes. Built in code, since it's only a tool.
 extends CanvasLayer
 
@@ -24,6 +25,7 @@ var _caller_picker: OptionButton
 var _phone_label: Label
 var _gone_label: Label
 var _scene_label: Label
+var _kitchen_label: Label
 var _was_paused := false
 var _changed := false     # Something to save when the panel closes.
 var _updating := false    # True while _refresh moves the slider, so it isn't treated as an edit.
@@ -406,6 +408,13 @@ func _build() -> void:
 	_add_button(scene_row_2, "Clear unlocks", _clear_unlocks)
 	_scene_label = _add_label(box, "")
 
+	_add_label(box, "Kitchen", 18, true)
+	var kitchen_row := _add_row(box)
+	_add_button(kitchen_row, "Practice pancakes (P1)", _practice.bind("pancakes"))
+	_add_button(kitchen_row, "Only serve pancakes", _only_serve.bind("berry_pancakes"))
+	_add_button(kitchen_row, "Whole menu", _only_serve.bind(""))
+	_kitchen_label = _add_label(box, "")
+
 	_add_label(box, "Phone", 18, true)
 	_caller_picker = OptionButton.new()
 	for caller in GameData.callers:
@@ -426,6 +435,23 @@ func _build() -> void:
 
 	_add_label(box, "Restaurant", 18, true)
 	_add_button(_add_row(box), "Rename restaurant", _rename_restaurant)
+
+
+# --- Kitchen ---------------------------------------------------------------
+
+# Player 1 cooks the recipe at the stove right away, with no order. Closes the panel.
+func _practice(recipe_id: String) -> void:
+	var stove: CookingStation = get_tree().root.find_children("*", "CookingStation", true, false).front()
+	var recipe := CookRecipe.for_dish({ "recipe": recipe_id })
+	if stove == null or recipe == null:
+		return
+	_set_open(false)
+	stove.practice(Player.find(get_tree(), 0), recipe)
+
+
+func _only_serve(dish_id: String) -> void:
+	GameState.forced_dish = dish_id
+	_kitchen_label.text = "Only %s on the menu (until you restart)." % GameData.get_dish(dish_id).get("name", dish_id) if not dish_id.is_empty() else "The whole menu again."
 
 
 func _add_label(parent: Control, text: String, font_size := 15, heading := false) -> Label:

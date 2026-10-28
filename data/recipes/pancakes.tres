@@ -1,0 +1,47 @@
+[gd_resource type="Resource" script_class="CookRecipe" format=3]
+
+[ext_resource type="Script" path="res://scripts/cooking/cook_recipe.gd" id="1_wehfw"]
+[ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_ls588"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/heat_action.gd" id="3_47a2j"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/pour_action.gd" id="4_qrhs7"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/flip_action.gd" id="5_gyj60"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/place_action.gd" id="6_a77i3"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/drizzle_action.gd" id="7_ju8yr"]
+
+[sub_resource type="Resource" id="Resource_n6xqa"]
+script = ExtResource("3_47a2j")
+background = true
+
+[sub_resource type="Resource" id="Resource_pd7ri"]
+script = ExtResource("4_qrhs7")
+title = "Pour the batter"
+hint = "Aim with [stick] and hold [button] to pour. Let go when it fills the ring."
+
+[sub_resource type="Resource" id="Resource_fortm"]
+script = ExtResource("5_gyj60")
+title = "Flip them"
+hint = "When a pancake's edge turns golden, flick [stick] toward it to flip it."
+
+[sub_resource type="Resource" id="Resource_uysvd"]
+script = ExtResource("6_a77i3")
+title = "Plate them"
+hint = "Hold [button] on a pancake, move it onto the plate and let go. Stack them neatly!"
+
+[sub_resource type="Resource" id="Resource_ky8i2"]
+script = ExtResource("6_a77i3")
+from_surface = ""
+melt_seconds = 2.0
+title = "Butter"
+hint = "Move the butter with [stick] and press [button] to drop it on top."
+weight = 0.5
+
+[sub_resource type="Resource" id="Resource_y5gt6"]
+script = ExtResource("7_ju8yr")
+title = "Syrup"
+hint = "Hold [button] and move to drizzle syrup over the top."
+
+[resource]
+script = ExtResource("1_wehfw")
+display_name = "Pancakes"
+pieces = 2
+steps = Array[ExtResource("2_ls588")]([SubResource("Resource_n6xqa"), SubResource("Resource_pd7ri"), SubResource("Resource_fortm"), SubResource("Resource_uysvd"), SubResource("Resource_ky8i2"), SubResource("Resource_y5gt6")])

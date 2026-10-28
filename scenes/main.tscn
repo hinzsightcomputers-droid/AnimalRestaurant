@@ -103,9 +103,10 @@ table = NodePath("../Table4")
 [node name="OrderCounter" parent="Furniture" unique_id=1832335301 instance=ExtResource("6_counter")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0, -3)
 
-[node name="CookingStation" parent="Furniture" unique_id=1688967000 node_paths=PackedStringArray("order_board") instance=ExtResource("7_stove")]
+[node name="CookingStation" parent="Furniture" unique_id=1688967000 node_paths=PackedStringArray("order_board", "view_manager") instance=ExtResource("7_stove")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.6, 0, -8.5)
 order_board = NodePath("../../OrderBoard")
+view_manager = NodePath("../../Views")
 
 [node name="Freezer" parent="Furniture" unique_id=6222894 node_paths=PackedStringArray("order_board") instance=ExtResource("15_freezer")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.1, 0, -8.5)

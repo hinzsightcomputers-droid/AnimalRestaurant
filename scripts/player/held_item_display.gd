@@ -11,8 +11,12 @@ extends Node3D
 
 @onready var label: Label3D = $Label
 
+const PLATE_TOP := 0.02     # The plate model's top, above its middle...
+const PLATE_RADIUS := 0.22  # ...and its size, for a dish's own look.
+
 var _food_material := StandardMaterial3D.new()
 var _contents_material := StandardMaterial3D.new()
+var _look: Node3D = null    # A close-up dish as it came out, instead of the plain food.
 
 
 func _ready() -> void:
@@ -28,7 +32,12 @@ func _on_held_item_changed(item: RefCounted) -> void:
 	plate.visible = dish != null
 	crate.visible = ingredients != null
 	label.visible = item != null
+	if _look != null:
+		_look.queue_free()
+		_look = null
 	if dish != null:
+		_look = dish.show_look(food.get_parent(), Vector3(0.0, PLATE_TOP, 0.0), PLATE_RADIUS)
+		food.visible = _look == null
 		label.text = "%s (%s)" % [dish.dish_name(), CookingMinigame.quality_label(dish.quality)]
 		# Better food looks golden, burnt food looks dark.
 		_food_material.albedo_color = Color(0.3, 0.2, 0.15).lerp(Color(0.95, 0.7, 0.3), dish.quality)

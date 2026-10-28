@@ -10,10 +10,13 @@ extends Node3D
 @onready var food: MeshInstance3D = $Meal/Food
 
 const SPEECH_SECONDS := 6.0  # How long a one-off line stays up before the bubble goes back.
+const PLATE_TOP := 0.02      # The meal's plate model: its top above its middle, and its size.
+const PLATE_RADIUS := 0.22
 
 var _food_material := StandardMaterial3D.new()
 var _speech_timer := Timer.new()
 var _speech_state: Customer.State  # What they were doing when they said it.
+var _look: Node3D = null           # A close-up dish as it came out, on their plate.
 
 
 func _ready() -> void:
@@ -33,6 +36,9 @@ func _on_state_changed(_customer: Customer) -> void:
 	var dish_name: String = customer.dish.get("name", "something")
 	meal.visible = customer.state == Customer.State.EATING
 	bubble.visible = true
+	if _look != null and not meal.visible:
+		_look.queue_free()
+		_look = null
 
 	match customer.state:
 		Customer.State.ARRIVING, Customer.State.GONE:
@@ -49,6 +55,9 @@ func _on_state_changed(_customer: Customer) -> void:
 			bubble.text = "Nom nom..."
 			# Same look as the plate the player carried: golden = good, dark = burnt.
 			_food_material.albedo_color = Color(0.3, 0.2, 0.15).lerp(Color(0.95, 0.7, 0.3), customer.served_quality)
+			if _look == null and customer.served_dish != null:  # The real thing, the way it was cooked.
+				_look = customer.served_dish.show_look(meal, Vector3(0.0, PLATE_TOP, 0.0), PLATE_RADIUS)
+			food.visible = _look == null
 		Customer.State.LEAVING:
 			bubble.text = "\"%s\"" % customer.reaction_line
 			if customer.payment > 0:

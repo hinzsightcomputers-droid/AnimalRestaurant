@@ -462,7 +462,7 @@ func _on_customer_interacted(player_index: int, customer: Customer) -> void:
 	order_board.remove_order(plate.order)
 	customer.served_by_account = Accounts.id_of(player_index)
 	GameState.record_chef_action(player_index, "served")
-	customer.serve(plate.quality)
+	customer.serve(plate.quality, plate)
 	GameEvents.announce("Served %s to %s." % [plate.dish_name(), customer_name])
 	if not customer.is_regular():
 		# A short zoom on the customer digging in.

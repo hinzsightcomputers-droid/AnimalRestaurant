@@ -108,8 +108,11 @@ func get_caller(caller_id: String) -> Dictionary:
 	return {}
 
 
-# The dishes on the menu right now: everything, except dishes still waiting for their unlock.
+# The dishes on the menu right now: everything, except dishes still waiting for
+# their unlock (or just the debug panel's forced dish).
 func menu() -> Array[Dictionary]:
+	if not GameState.forced_dish.is_empty():
+		return dishes.filter(func(d): return d["id"] == GameState.forced_dish)
 	return dishes.filter(func(d): return not d.has("unlock") or d["unlock"] in GameState.unlocks)
 
 

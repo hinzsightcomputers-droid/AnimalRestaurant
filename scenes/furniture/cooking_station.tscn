@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
 [ext_resource type="Script" path="res://scripts/cooking/cooking_display.gd" id="3_display"]
 [ext_resource type="Script" path="res://scripts/camera/camera_zoom_settings.gd" id="4_zoom"]
+[ext_resource type="PackedScene" path="res://scenes/cooking/stovetop_closeup.tscn" id="5_closeup"]
 
 [sub_resource type="Resource" id="Zoom_cooking"]
 script = ExtResource("4_zoom")
@@ -11,6 +12,13 @@ distance = 3.6
 pitch_degrees = 40.0
 yaw_degrees = 0.0
 duration = 0.4
+
+[sub_resource type="Resource" id="Zoom_closeup"]
+script = ExtResource("4_zoom")
+distance = 0.85
+pitch_degrees = 60.0
+yaw_degrees = 0.0
+duration = 0.5
 
 [sub_resource type="StandardMaterial3D" id="Mat_bar_bg"]
 shading_mode = 0
@@ -73,6 +81,8 @@ size = Vector3(1.4, 0.9, 0.8)
 script = ExtResource("1_station")
 display_name = "Cooking Station"
 camera_zoom = SubResource("Zoom_cooking")
+closeup_scene = ExtResource("5_closeup")
+closeup_zoom = SubResource("Zoom_closeup")
 
 [node name="Visual" type="Node3D" parent="."]
 

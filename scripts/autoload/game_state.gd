@@ -47,6 +47,8 @@ var forced_caller := ""
 var unlocks: Array[String] = []
 # Debug panel: a big moment scene to play at closing this shift, whatever its trigger. Not saved.
 var forced_scene := ""
+# Debug panel: a dish id that's the only thing on the menu (e.g. to test its recipe). Not saved.
+var forced_dish := ""
 
 
 func _ready() -> void:

@@ -35,6 +35,7 @@ var talking := false:         # In a conversation: their wait and meal timers pa
 
 var wait_seconds := 0.0       # From reaching the counter until the food arrives.
 var served_quality := 0.0     # Quality of the dish they were served (0..1).
+var served_dish: CookedDish = null  # The plate itself (its look shows on the table), if there was one.
 var served_by_account := ""   # Account id of the chef who brought the food.
 var reaction_line := ""       # What they say when leaving.
 var payment := 0              # What they paid.
@@ -105,8 +106,9 @@ func place_order() -> void:
 
 
 # Called when a player brings the food.
-func serve(quality: float) -> void:
+func serve(quality: float, plate: CookedDish = null) -> void:
 	served_quality = quality
+	served_dish = plate
 	_eat_time_left = eat_duration
 	_set_state(State.EATING)
 

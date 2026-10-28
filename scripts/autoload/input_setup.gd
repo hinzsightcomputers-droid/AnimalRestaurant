@@ -19,6 +19,8 @@ const KEYBOARD_LAYOUTS := {
 }
 const KEYBOARD_HINTS := {"keys_left": "E", "keys_right": "Enter"}
 const PAD_HINT := "A"
+const KEYBOARD_MOVE_HINTS := {"keys_left": "WASD", "keys_right": "the arrow keys"}
+const PAD_MOVE_HINT := "the stick"
 
 # Gamepad stick direction for each move action: [axis, direction].
 const PAD_AXES := {
@@ -92,6 +94,18 @@ func device_of_interact_press(event: InputEvent) -> String:
 func interact_hint(player_index: int) -> String:
 	var device: String = _devices.get(player_index, "")
 	return KEYBOARD_HINTS.get(device, PAD_HINT)
+
+
+# Text for moving in prompts, e.g. "WASD" or "the stick".
+func move_hint(player_index: int) -> String:
+	var device: String = _devices.get(player_index, "")
+	return KEYBOARD_MOVE_HINTS.get(device, PAD_MOVE_HINT)
+
+
+# The gamepad a player is on, or -1 for a keyboard.
+func pad_of(player_index: int) -> int:
+	var device: String = _devices.get(player_index, "")
+	return int(device.trim_prefix("pad_")) if device.begins_with("pad_") else -1
 
 
 func _events_for(device: String, action: String) -> Array[InputEvent]:
