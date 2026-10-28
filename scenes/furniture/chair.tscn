@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/furniture/seat.gd" id="1_station"]
 [ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
+[ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m0_model_fitgd"]
+[ext_resource type="PackedScene" path="res://design/Assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/chair_B.gltf" id="m1_chair_Bgltf"]
 
 [sub_resource type="StandardMaterial3D" id="Mat_wood"]
 albedo_color = Color(0.66, 0.45, 0.3, 1)
@@ -27,17 +29,10 @@ display_name = "Chair"
 
 [node name="Visual" type="Node3D" parent="."]
 
-[node name="Seat" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
-mesh = SubResource("Mesh_seat")
-
-[node name="Back" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.79, -0.21)
-mesh = SubResource("Mesh_back")
-
-[node name="Leg" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.21, 0)
-mesh = SubResource("Mesh_leg")
+[node name="Model" type="Node3D" parent="Visual"]
+script = ExtResource("m0_model_fitgd")
+model = ExtResource("m1_chair_Bgltf")
+size = Vector3(0, 0.95, 0)
 
 [node name="Collision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)

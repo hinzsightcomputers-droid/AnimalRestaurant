@@ -13,7 +13,7 @@ extends Node3D
 @onready var food: MeshInstance3D = $Meal/Food
 
 const SPEECH_SECONDS := 6.0  # How long a one-off line stays up before the bubble goes back.
-const PLATE_TOP := 0.02      # The meal's plate model: its top above its middle, and its size.
+const PLATE_TOP := 0.046     # The meal's plate model: its top above its bottom, and its size.
 const PLATE_RADIUS := 0.22
 
 var _food_material := StandardMaterial3D.new()

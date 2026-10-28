@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://dlbqt8y2rp882"
+path="res://.godot/imported/icecream_bowl_waffles.obj-1e25f49e846d9050d5c2946bc6d0bc60.mesh"
+
+[deps]
+
+files=["res://.godot/imported/icecream_bowl_waffles.obj-1e25f49e846d9050d5c2946bc6d0bc60.mesh"]
+
+source_file="res://design/Assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/obj/icecream_bowl_waffles.obj"
+dest_files=["res://.godot/imported/icecream_bowl_waffles.obj-1e25f49e846d9050d5c2946bc6d0bc60.mesh", "res://.godot/imported/icecream_bowl_waffles.obj-1e25f49e846d9050d5c2946bc6d0bc60.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

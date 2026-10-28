@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://snswbq6xi2wj"
+path="res://.godot/imported/icecream_cone.obj-56ffd451d61f632261e517db20e6d94a.mesh"
+
+[deps]
+
+files=["res://.godot/imported/icecream_cone.obj-56ffd451d61f632261e517db20e6d94a.mesh"]
+
+source_file="res://design/Assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/obj/icecream_cone.obj"
+dest_files=["res://.godot/imported/icecream_cone.obj-56ffd451d61f632261e517db20e6d94a.mesh", "res://.godot/imported/icecream_cone.obj-56ffd451d61f632261e517db20e6d94a.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

@@ -3,6 +3,8 @@
 [ext_resource type="Script" path="res://scripts/furniture/pass_counter.gd" id="1_pass"]
 [ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
 [ext_resource type="Script" path="res://scripts/player/held_item_display.gd" id="3_display"]
+[ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m0_model_fitgd"]
+[ext_resource type="PackedScene" path="res://design/Assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/plate.gltf" id="m1_plategltf"]
 
 [sub_resource type="StandardMaterial3D" id="Mat_top"]
 albedo_color = Color(0.92, 0.87, 0.77, 1)
@@ -58,10 +60,13 @@ mesh = SubResource("Mesh_trim")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.14, 0)
 mesh = SubResource("Mesh_top")
 
-[node name="Plate" type="MeshInstance3D" parent="Visual"]
+[node name="Plate" type="Node3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.19, 0)
 visible = false
-mesh = SubResource("Mesh_plate")
+script = ExtResource("m0_model_fitgd")
+model = ExtResource("m1_plategltf")
+size = Vector3(0.44, 0.046, 0.44)
+stretch = true
 
 [node name="Food" type="MeshInstance3D" parent="Visual/Plate"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.07, 0)

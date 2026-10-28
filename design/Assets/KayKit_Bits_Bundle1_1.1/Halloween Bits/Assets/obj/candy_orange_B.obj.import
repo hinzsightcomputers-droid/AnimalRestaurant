@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://cdbu3lt2377wc"
+path="res://.godot/imported/candy_orange_B.obj-52def5a924af19c104d34e18a01cbcff.mesh"
+
+[deps]
+
+files=["res://.godot/imported/candy_orange_B.obj-52def5a924af19c104d34e18a01cbcff.mesh"]
+
+source_file="res://design/Assets/KayKit_Bits_Bundle1_1.1/Halloween Bits/Assets/obj/candy_orange_B.obj"
+dest_files=["res://.godot/imported/candy_orange_B.obj-52def5a924af19c104d34e18a01cbcff.mesh", "res://.godot/imported/candy_orange_B.obj-52def5a924af19c104d34e18a01cbcff.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

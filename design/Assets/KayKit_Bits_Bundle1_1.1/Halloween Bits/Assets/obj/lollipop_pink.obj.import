@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://cn7uiopluk0c6"
+path="res://.godot/imported/lollipop_pink.obj-b459e94de30c1f85a0e24a3bff718568.mesh"
+
+[deps]
+
+files=["res://.godot/imported/lollipop_pink.obj-b459e94de30c1f85a0e24a3bff718568.mesh"]
+
+source_file="res://design/Assets/KayKit_Bits_Bundle1_1.1/Halloween Bits/Assets/obj/lollipop_pink.obj"
+dest_files=["res://.godot/imported/lollipop_pink.obj-b459e94de30c1f85a0e24a3bff718568.mesh", "res://.godot/imported/lollipop_pink.obj-b459e94de30c1f85a0e24a3bff718568.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

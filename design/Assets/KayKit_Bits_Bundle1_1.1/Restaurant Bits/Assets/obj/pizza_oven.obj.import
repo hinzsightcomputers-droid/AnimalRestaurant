@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://bdl5aqrp1636v"
+path="res://.godot/imported/pizza_oven.obj-ce48f0021d8a550ba78377c67b40e4c4.mesh"
+
+[deps]
+
+files=["res://.godot/imported/pizza_oven.obj-ce48f0021d8a550ba78377c67b40e4c4.mesh"]
+
+source_file="res://design/Assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/obj/pizza_oven.obj"
+dest_files=["res://.godot/imported/pizza_oven.obj-ce48f0021d8a550ba78377c67b40e4c4.mesh", "res://.godot/imported/pizza_oven.obj-ce48f0021d8a550ba78377c67b40e4c4.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

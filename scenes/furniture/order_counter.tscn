@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/furniture/station.gd" id="1_station"]
 [ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
+[ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m0_model_fitgd"]
+[ext_resource type="PackedScene" path="res://design/Assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/kitchencounter_straight_A.gltf" id="m1_kitchencounter_s"]
 
 [sub_resource type="StandardMaterial3D" id="Mat_body"]
 albedo_color = Color(0.42, 0.6, 0.5, 1)
@@ -33,13 +35,11 @@ display_name = "Order Counter"
 
 [node name="Visual" type="Node3D" parent="."]
 
-[node name="Body" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
-mesh = SubResource("Mesh_body")
-
-[node name="Top" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.03, 0)
-mesh = SubResource("Mesh_top")
+[node name="Model" type="Node3D" parent="Visual"]
+script = ExtResource("m0_model_fitgd")
+model = ExtResource("m1_kitchencounter_s")
+size = Vector3(2.5, 1.06, 0.8)
+stretch = true
 
 [node name="Register" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, 1.18, 0)

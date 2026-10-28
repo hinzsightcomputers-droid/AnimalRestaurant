@@ -1,6 +1,7 @@
 # CookedDish: a finished plate a player is carrying, with its cooking quality (0..1).
 # A dish cooked as a close-up recipe also keeps how it actually came out (its
-# look), so the plate you carry and the one you serve show that.
+# look), so the plate you carry and the one you serve show that. Other dishes
+# show their model from data/dishes.json.
 class_name CookedDish
 extends RefCounted
 
@@ -21,12 +22,14 @@ func dish_name() -> String:
 	return order.dish.get("name", "Dish")
 
 
-# Puts the look on another plate: `at` is that plate's top middle under
-# `parent`, `plate_radius` its size. Returns the node holding it (free it to
-# take it away), or null when there's no look.
+# Puts the dish on another plate: `at` is that plate's top middle under
+# `parent`, `plate_radius` its size. The close-up look if there is one, else
+# the dish's model. Returns the node holding it (free it to take it away), or
+# null when there's neither.
 func show_look(parent: Node3D, at: Vector3, plate_radius: float) -> Node3D:
 	if look.is_empty() or look_radius <= 0.0:
-		return null
+		var width := plate_radius * 1.5
+		return ModelFit.place(order.dish.get("model", ""), parent, at, Vector3(width, 0.0, width))
 	var holder := Node3D.new()
 	holder.position = at
 	holder.scale = Vector3.ONE * (plate_radius / look_radius)

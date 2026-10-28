@@ -11,12 +11,14 @@ extends Node3D
 
 @onready var label: Label3D = $Label
 
-const PLATE_TOP := 0.02     # The plate model's top, above its middle...
+const PLATE_TOP := 0.046    # The plate model's top, above its bottom...
 const PLATE_RADIUS := 0.22  # ...and its size, for a dish's own look.
+const CRATE_SIZE := Vector3(0.42, 0.22, 0.32)  # The plain crate, for an ingredient's own model.
 
 var _food_material := StandardMaterial3D.new()
 var _contents_material := StandardMaterial3D.new()
-var _look: Node3D = null    # A close-up dish as it came out, instead of the plain food.
+var _look: Node3D = null    # The dish (as it came out, or its model) instead of the plain food.
+var _ingredients_model: Node3D = null  # Ingredients' own model instead of the plain crate.
 
 
 func _ready() -> void:
@@ -35,6 +37,9 @@ func _on_held_item_changed(item: RefCounted) -> void:
 	if _look != null:
 		_look.queue_free()
 		_look = null
+	if _ingredients_model != null:
+		_ingredients_model.queue_free()
+		_ingredients_model = null
 	if dish != null:
 		_look = dish.show_look(food.get_parent(), Vector3(0.0, PLATE_TOP, 0.0), PLATE_RADIUS)
 		food.visible = _look == null
@@ -44,3 +49,6 @@ func _on_held_item_changed(item: RefCounted) -> void:
 	elif ingredients != null:
 		label.text = ingredients.display_name() + (" (chop first)" if ingredients.needs_chopping() else "")
 		_contents_material.albedo_color = ingredients.color()
+		var bottom := crate.position - Vector3(0.0, CRATE_SIZE.y * 0.5, 0.0)
+		_ingredients_model = ModelFit.place(ingredients.model_path(), crate.get_parent(), bottom, Vector3(CRATE_SIZE.x, 0.0, CRATE_SIZE.z))
+		crate.visible = _ingredients_model == null

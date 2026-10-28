@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://cn0f1408itt2f"
+path="res://.godot/imported/streetlight.obj-4550b476598e71d54a7aee2323322997.mesh"
+
+[deps]
+
+files=["res://.godot/imported/streetlight.obj-4550b476598e71d54a7aee2323322997.mesh"]
+
+source_file="res://design/Assets/KayKit_Bits_Bundle1_1.1/City Builder Bits/Assets/obj/streetlight.obj"
+dest_files=["res://.godot/imported/streetlight.obj-4550b476598e71d54a7aee2323322997.mesh", "res://.godot/imported/streetlight.obj-4550b476598e71d54a7aee2323322997.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

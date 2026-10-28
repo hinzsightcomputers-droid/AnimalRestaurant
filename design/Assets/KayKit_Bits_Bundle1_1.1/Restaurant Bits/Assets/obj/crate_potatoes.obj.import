@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://bjjva5navcifq"
+path="res://.godot/imported/crate_potatoes.obj-2c41afe1786f6e4dce16b5f6e7df0597.mesh"
+
+[deps]
+
+files=["res://.godot/imported/crate_potatoes.obj-2c41afe1786f6e4dce16b5f6e7df0597.mesh"]
+
+source_file="res://design/Assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/obj/crate_potatoes.obj"
+dest_files=["res://.godot/imported/crate_potatoes.obj-2c41afe1786f6e4dce16b5f6e7df0597.mesh", "res://.godot/imported/crate_potatoes.obj-2c41afe1786f6e4dce16b5f6e7df0597.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

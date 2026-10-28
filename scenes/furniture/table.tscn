@@ -4,6 +4,9 @@
 [ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
 [ext_resource type="Script" path="res://scripts/furniture/table_mess_display.gd" id="3_mess"]
 [ext_resource type="Script" path="res://scripts/camera/camera_zoom_settings.gd" id="4_zoom"]
+[ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m0_model_fitgd"]
+[ext_resource type="PackedScene" path="res://design/Assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/table_round_B_tablecloth_red.gltf" id="m1_table_round_B_ta"]
+[ext_resource type="PackedScene" path="res://design/Assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/plate_dirty.gltf" id="m2_plate_dirtygltf"]
 
 [sub_resource type="Resource" id="Zoom_cleaning"]
 script = ExtResource("4_zoom")
@@ -49,13 +52,11 @@ camera_zoom = SubResource("Zoom_cleaning")
 
 [node name="Visual" type="Node3D" parent="."]
 
-[node name="Top" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76, 0)
-mesh = SubResource("Mesh_top")
-
-[node name="Leg" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.36, 0)
-mesh = SubResource("Mesh_leg")
+[node name="Model" type="Node3D" parent="Visual"]
+script = ExtResource("m0_model_fitgd")
+model = ExtResource("m1_table_round_B_ta")
+size = Vector3(1.4, 0.8, 1.4)
+stretch = true
 
 [node name="Collision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0)
@@ -73,9 +74,12 @@ script = ExtResource("3_mess")
 
 [node name="Pile" type="Node3D" parent="Mess"]
 
-[node name="DirtyPlate" type="MeshInstance3D" parent="Mess/Pile"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
-mesh = SubResource("Mesh_dirty_plate")
+[node name="DirtyPlate" type="Node3D" parent="Mess/Pile"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+script = ExtResource("m0_model_fitgd")
+model = ExtResource("m2_plate_dirtygltf")
+size = Vector3(0.46, 0.05, 0.46)
+stretch = true
 
 [node name="Crumb1" type="MeshInstance3D" parent="Mess/Pile"]
 transform = Transform3D(0.8, 0, 0.6, 0, 1, 0, -0.6, 0, 0.8, 0.28, 0.015, 0.12)

@@ -20,6 +20,13 @@ func display_name() -> String:
 	return _ingredient().get("name", "Ingredients")
 
 
+# The model to carry them as (from data/dishes.json), or "" for the plain crate.
+func model_path() -> String:
+	if chopped and _chop().has("model"):
+		return _chop()["model"]
+	return _ingredient().get("model", "")
+
+
 func color() -> Color:
 	return Color.html(_ingredient().get("color", "#cccccc"))
 

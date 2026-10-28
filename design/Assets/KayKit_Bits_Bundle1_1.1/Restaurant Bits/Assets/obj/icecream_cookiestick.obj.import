@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://c2i70njvir8m"
+path="res://.godot/imported/icecream_cookiestick.obj-d1757a8df93429efbe040c848fc09d2f.mesh"
+
+[deps]
+
+files=["res://.godot/imported/icecream_cookiestick.obj-d1757a8df93429efbe040c848fc09d2f.mesh"]
+
+source_file="res://design/Assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/obj/icecream_cookiestick.obj"
+dest_files=["res://.godot/imported/icecream_cookiestick.obj-d1757a8df93429efbe040c848fc09d2f.mesh", "res://.godot/imported/icecream_cookiestick.obj-d1757a8df93429efbe040c848fc09d2f.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

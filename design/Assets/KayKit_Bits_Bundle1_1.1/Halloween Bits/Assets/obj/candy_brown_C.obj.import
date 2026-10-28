@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://cp2ouxms0b8fi"
+path="res://.godot/imported/candy_brown_C.obj-e66c23a1735d892da673ba783067d102.mesh"
+
+[deps]
+
+files=["res://.godot/imported/candy_brown_C.obj-e66c23a1735d892da673ba783067d102.mesh"]
+
+source_file="res://design/Assets/KayKit_Bits_Bundle1_1.1/Halloween Bits/Assets/obj/candy_brown_C.obj"
+dest_files=["res://.godot/imported/candy_brown_C.obj-e66c23a1735d892da673ba783067d102.mesh", "res://.godot/imported/candy_brown_C.obj-e66c23a1735d892da673ba783067d102.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://7y0ekv8oyt3y"
+path="res://.godot/imported/terrain_low_curved.obj-9c9333d789c84618d1181b368f837822.mesh"
+
+[deps]
+
+files=["res://.godot/imported/terrain_low_curved.obj-9c9333d789c84618d1181b368f837822.mesh"]
+
+source_file="res://design/Assets/KayKit_Bits_Bundle1_1.1/Space Base Bits/Assets/obj/terrain_low_curved.obj"
+dest_files=["res://.godot/imported/terrain_low_curved.obj-9c9333d789c84618d1181b368f837822.mesh", "res://.godot/imported/terrain_low_curved.obj-9c9333d789c84618d1181b368f837822.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

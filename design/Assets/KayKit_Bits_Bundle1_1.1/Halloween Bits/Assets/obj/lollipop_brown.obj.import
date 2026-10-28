@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://c0too5rhdehf3"
+path="res://.godot/imported/lollipop_brown.obj-7e9cf5e2af1c58c6ddf9b028dea2a45d.mesh"
+
+[deps]
+
+files=["res://.godot/imported/lollipop_brown.obj-7e9cf5e2af1c58c6ddf9b028dea2a45d.mesh"]
+
+source_file="res://design/Assets/KayKit_Bits_Bundle1_1.1/Halloween Bits/Assets/obj/lollipop_brown.obj"
+dest_files=["res://.godot/imported/lollipop_brown.obj-7e9cf5e2af1c58c6ddf9b028dea2a45d.mesh", "res://.godot/imported/lollipop_brown.obj-7e9cf5e2af1c58c6ddf9b028dea2a45d.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

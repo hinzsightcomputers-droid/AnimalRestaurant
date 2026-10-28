@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://eqvpt284yusk"
+path="res://.godot/imported/food_ingredient_bun_bottom.obj-05cb1c90a5749c1ab41df69c54cdbaec.mesh"
+
+[deps]
+
+files=["res://.godot/imported/food_ingredient_bun_bottom.obj-05cb1c90a5749c1ab41df69c54cdbaec.mesh"]
+
+source_file="res://design/Assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/obj/food_ingredient_bun_bottom.obj"
+dest_files=["res://.godot/imported/food_ingredient_bun_bottom.obj-05cb1c90a5749c1ab41df69c54cdbaec.mesh", "res://.godot/imported/food_ingredient_bun_bottom.obj-05cb1c90a5749c1ab41df69c54cdbaec.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://hlxsd5ke8bq5"
+path="res://.godot/imported/park_base_decorated_bushes.obj-035bd759c7f4b1a24d6fd83f84576d7a.mesh"
+
+[deps]
+
+files=["res://.godot/imported/park_base_decorated_bushes.obj-035bd759c7f4b1a24d6fd83f84576d7a.mesh"]
+
+source_file="res://design/Assets/KayKit_Bits_Bundle1_1.1/City Builder Bits/Assets/obj/park_base_decorated_bushes.obj"
+dest_files=["res://.godot/imported/park_base_decorated_bushes.obj-035bd759c7f4b1a24d6fd83f84576d7a.mesh", "res://.godot/imported/park_base_decorated_bushes.obj-035bd759c7f4b1a24d6fd83f84576d7a.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

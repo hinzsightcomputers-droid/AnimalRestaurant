@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://bkct0b34u288u"
+path="res://.godot/imported/Ammo_Box.obj-2620b1f7d94b86d626ff1aef2f5d55ed.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Ammo_Box.obj-2620b1f7d94b86d626ff1aef2f5d55ed.mesh"]
+
+source_file="res://design/Assets/KayKit_Bits_Bundle1_1.1/Prototype Bits/Assets/obj/Ammo_Box.obj"
+dest_files=["res://.godot/imported/Ammo_Box.obj-2620b1f7d94b86d626ff1aef2f5d55ed.mesh", "res://.godot/imported/Ammo_Box.obj-2620b1f7d94b86d626ff1aef2f5d55ed.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

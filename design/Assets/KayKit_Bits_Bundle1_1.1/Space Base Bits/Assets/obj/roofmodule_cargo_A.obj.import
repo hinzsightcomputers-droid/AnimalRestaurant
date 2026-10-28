@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://j65gxi7as2xt"
+path="res://.godot/imported/roofmodule_cargo_A.obj-818093b4ed758c9530331f42f7b9df10.mesh"
+
+[deps]
+
+files=["res://.godot/imported/roofmodule_cargo_A.obj-818093b4ed758c9530331f42f7b9df10.mesh"]
+
+source_file="res://design/Assets/KayKit_Bits_Bundle1_1.1/Space Base Bits/Assets/obj/roofmodule_cargo_A.obj"
+dest_files=["res://.godot/imported/roofmodule_cargo_A.obj-818093b4ed758c9530331f42f7b9df10.mesh", "res://.godot/imported/roofmodule_cargo_A.obj-818093b4ed758c9530331f42f7b9df10.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

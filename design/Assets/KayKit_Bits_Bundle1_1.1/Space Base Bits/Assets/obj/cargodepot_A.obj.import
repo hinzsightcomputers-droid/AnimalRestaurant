@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://dejt75cm0cljj"
+path="res://.godot/imported/cargodepot_A.obj-4eb00bca6866cbf822e7fa9e219cfe90.mesh"
+
+[deps]
+
+files=["res://.godot/imported/cargodepot_A.obj-4eb00bca6866cbf822e7fa9e219cfe90.mesh"]
+
+source_file="res://design/Assets/KayKit_Bits_Bundle1_1.1/Space Base Bits/Assets/obj/cargodepot_A.obj"
+dest_files=["res://.godot/imported/cargodepot_A.obj-4eb00bca6866cbf822e7fa9e219cfe90.mesh", "res://.godot/imported/cargodepot_A.obj-4eb00bca6866cbf822e7fa9e219cfe90.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

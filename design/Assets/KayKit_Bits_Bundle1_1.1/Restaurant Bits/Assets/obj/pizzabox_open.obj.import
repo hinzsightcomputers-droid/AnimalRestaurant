@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://72hhojk5p4d4"
+path="res://.godot/imported/pizzabox_open.obj-024e11d99a60ae44d78513f7fb81301b.mesh"
+
+[deps]
+
+files=["res://.godot/imported/pizzabox_open.obj-024e11d99a60ae44d78513f7fb81301b.mesh"]
+
+source_file="res://design/Assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/obj/pizzabox_open.obj"
+dest_files=["res://.godot/imported/pizzabox_open.obj-024e11d99a60ae44d78513f7fb81301b.mesh", "res://.godot/imported/pizzabox_open.obj-024e11d99a60ae44d78513f7fb81301b.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

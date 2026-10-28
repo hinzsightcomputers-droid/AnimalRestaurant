@@ -5,6 +5,9 @@
 [ext_resource type="Script" path="res://scripts/cooking/cooking_display.gd" id="3_display"]
 [ext_resource type="Script" path="res://scripts/camera/camera_zoom_settings.gd" id="4_zoom"]
 [ext_resource type="PackedScene" path="res://scenes/cooking/stovetop_closeup.tscn" id="5_closeup"]
+[ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m0_model_fitgd"]
+[ext_resource type="PackedScene" path="res://design/Assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/stove_multi.gltf" id="m1_stove_multigltf"]
+[ext_resource type="PackedScene" path="res://design/Assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/pot_A.gltf" id="m2_pot_Agltf"]
 
 [sub_resource type="Resource" id="Zoom_cooking"]
 script = ExtResource("4_zoom")
@@ -86,17 +89,17 @@ closeup_zoom = SubResource("Zoom_closeup")
 
 [node name="Visual" type="Node3D" parent="."]
 
-[node name="Body" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
-mesh = SubResource("Mesh_body")
+[node name="Model" type="Node3D" parent="Visual"]
+script = ExtResource("m0_model_fitgd")
+model = ExtResource("m1_stove_multigltf")
+size = Vector3(1.4, 0.92, 0.8)
+stretch = true
 
-[node name="Burner" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0.915, 0)
-mesh = SubResource("Mesh_burner")
-
-[node name="Pot" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.35, 1.025, 0)
-mesh = SubResource("Mesh_pot")
+[node name="Pot" type="Node3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.35, 0.92, 0)
+script = ExtResource("m0_model_fitgd")
+model = ExtResource("m2_pot_Agltf")
+size = Vector3(0.42, 0, 0)
 
 [node name="Collision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)

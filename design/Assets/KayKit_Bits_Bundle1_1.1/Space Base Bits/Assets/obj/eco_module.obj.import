@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://bvs521rw2qa36"
+path="res://.godot/imported/eco_module.obj-dd7df3e0c2ce925b4f850071fdb68340.mesh"
+
+[deps]
+
+files=["res://.godot/imported/eco_module.obj-dd7df3e0c2ce925b4f850071fdb68340.mesh"]
+
+source_file="res://design/Assets/KayKit_Bits_Bundle1_1.1/Space Base Bits/Assets/obj/eco_module.obj"
+dest_files=["res://.godot/imported/eco_module.obj-dd7df3e0c2ce925b4f850071fdb68340.mesh", "res://.godot/imported/eco_module.obj-dd7df3e0c2ce925b4f850071fdb68340.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

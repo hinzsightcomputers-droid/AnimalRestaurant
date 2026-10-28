@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://cvx1wa6wnra6g"
+path="res://.godot/imported/Weaponrack_Decorated.obj-c2df168ab8c3dabf7224f1d718ae19c7.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Weaponrack_Decorated.obj-c2df168ab8c3dabf7224f1d718ae19c7.mesh"]
+
+source_file="res://design/Assets/KayKit_Bits_Bundle1_1.1/Prototype Bits/Assets/obj/Weaponrack_Decorated.obj"
+dest_files=["res://.godot/imported/Weaponrack_Decorated.obj-c2df168ab8c3dabf7224f1d718ae19c7.mesh", "res://.godot/imported/Weaponrack_Decorated.obj-c2df168ab8c3dabf7224f1d718ae19c7.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false
