@@ -417,6 +417,10 @@ func _build() -> void:
 	_add_button(chopping_row, "Practice chopping (P1)", _practice_chopping)
 	_add_button(chopping_row, "Only serve carrot soup", _only_serve.bind("carrot_soup"))
 	_add_button(kitchen_row, "Whole menu", _only_serve.bind(""))
+	var fish_row := _add_row(box)
+	_add_button(fish_row, "Practice filleting (P1)", _practice_chopping.bind("filleting"))
+	_add_button(fish_row, "Practice fish stew (P1)", _practice.bind("fish_stew"))
+	_add_button(fish_row, "Only serve fish stew", _only_serve.bind("fish_stew"))
 	var dishes_row := _add_row(box)
 	_add_button(dishes_row, "Make tables messy", _make_tables_messy)
 	_add_button(dishes_row, "Empty the plate rack", _empty_rack)
@@ -457,12 +461,12 @@ func _practice(recipe_id: String) -> void:
 
 
 # Player 1 chops at the board right away, with nothing to hand back. Closes the panel.
-func _practice_chopping() -> void:
+func _practice_chopping(recipe_id := "chopping") -> void:
 	var boards := get_tree().root.find_children("*", "ChoppingBoard", true, false)
 	if boards.is_empty():
 		return
 	_set_open(false)
-	boards.front().practice(Player.find(get_tree(), 0))
+	boards.front().practice(Player.find(get_tree(), 0), CookRecipe.for_dish({ "recipe": recipe_id }))
 
 
 # Every table gets a dirty dish (a plate or a soup bowl) at each of its chairs.

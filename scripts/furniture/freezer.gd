@@ -35,7 +35,7 @@ func _on_interacted(player_index: int) -> void:
 	order_board.set_state(order, Order.State.GATHERED)
 	var ingredients := Ingredients.new(order)
 	player.set_held_item(ingredients)
-	var hint := " Chop them first!" if ingredients.needs_chopping() else ""
+	var hint := " %s them first!" % ingredients.chop_verb() if ingredients.needs_chopping() else ""
 	GameEvents.announce("Got %s for %s.%s" % [ingredients.display_name(), order.dish.get("name", "Dish"), hint])
 	_play_bounce()
 	used.emit(self, player_index)

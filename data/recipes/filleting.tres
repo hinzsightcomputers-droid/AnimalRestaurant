@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CookRecipe" format=3]
+
+[ext_resource type="Script" path="res://scripts/cooking/cook_recipe.gd" id="1_recipe"]
+[ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/fillet_action.gd" id="3_fillet"]
+
+[sub_resource type="Resource" id="Resource_fillet"]
+script = ExtResource("3_fillet")
+title = "Fillet the fish"
+hint = "Hold [grip] on the green ring and draw the knife along the dotted line with [stick]. Stay on the line!"
+
+[resource]
+script = ExtResource("1_recipe")
+display_name = "Filleting"
+pieces = 1
+serve_on = "Board"
+steps = Array[ExtResource("2_action")]([SubResource("Resource_fillet")])
