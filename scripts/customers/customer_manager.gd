@@ -210,7 +210,36 @@ func _order_chat(player: Player, customer: Customer) -> void:
 # instead, where the player picks the dish. Lines without choices are just said.
 func _regular_orders(player: Player, customer: Customer) -> void:
 	var record: Dictionary = GameState.regulars[customer.regular_id]
-	var context := _visit_context(customer, Accounts.id_of(player.player_index))
+	var chef_id := Accounts.id_of(player.player_index)
+	_lock_player(player, _at_counter(player, customer), order_chat_zoom, order_counter.interactable)
+	customer.talking = true
+	var box := _open_box(player, customer)
+	if not customer.greeting_line.is_empty():
+		customer.say(customer.greeting_line)
+		await box.tell(customer.display_name, customer.greeting_line)
+
+	# The first time they're close enough, they learn this chef's name (Cheddar
+	# also picks a nickname). Plays once per chef.
+	var name_line := RegularMemory.pick_line(record, "learn_name", _visit_context(customer, chef_id))
+	if name_line.has("choices"):
+		await _converse(box, player, customer, name_line)
+	elif not name_line.is_empty():
+		var text := DialoguePicker.fill(name_line["text"], _visit_context(customer, chef_id))
+		customer.say(text)
+		await box.tell(customer.display_name, text)
+		_after_line(customer, name_line, chef_id)
+
+	# The first visit after the restaurant is named (or renamed), they say what they think of the name.
+	var context_now := _visit_context(customer, chef_id)
+	var restaurant_line := RegularMemory.pick_line(record, "restaurant_name", context_now)
+	if not restaurant_line.is_empty():
+		var text := DialoguePicker.fill(restaurant_line["text"], context_now)
+		customer.say(text)
+		await box.tell(customer.display_name, text)
+		record["restaurant_name_heard"] = GameState.restaurant_name
+
+	# Picked now, so it can already use the name they just learned.
+	var context := _visit_context(customer, chef_id)
 	var line := {}
 	if GameState.force_pick_for_me or randf() < GameData.regular_settings.get("pick_for_me_chance", 0.35):
 		line = RegularMemory.pick_line(record, "pick_for_me", context)
@@ -218,15 +247,6 @@ func _regular_orders(player: Player, customer: Customer) -> void:
 			GameState.force_pick_for_me = false
 	if line.is_empty():
 		line = RegularMemory.pick_line(record, "order", context)
-	if line.is_empty() and customer.greeting_line.is_empty():
-		return  # Nothing to say: the generic bubble shows their order.
-
-	_lock_player(player, _at_counter(player, customer), order_chat_zoom, order_counter.interactable)
-	customer.talking = true
-	var box := _open_box(player, customer)
-	if not customer.greeting_line.is_empty():
-		customer.say(customer.greeting_line)
-		await box.tell(customer.display_name, customer.greeting_line)
 	if line.has("reactions"):
 		customer.order_line = await _pick_for_me(box, player, customer, line)
 	elif line.has("choices"):
@@ -238,6 +258,17 @@ func _regular_orders(player: Player, customer: Customer) -> void:
 	box.close()
 	customer.talking = false
 	_unlock_player(player)
+
+
+# Once a line has been said: its memory flags, and whether they learned the chef's name.
+func _after_line(customer: Customer, line: Dictionary, chef_id: String) -> void:
+	var record: Dictionary = GameState.regulars[customer.regular_id]
+	if Conversation.apply_line(record, line, chef_id):
+		customer.learned_name = true
+		GameEvents.announce("%s learned %s's name!" % [record["name"], Accounts.get_account(chef_id).get("name", "your")])
+		var nickname: String = record.get("nicknames", {}).get(chef_id, "")
+		if not nickname.is_empty():
+			GameEvents.announce("%s calls you \"%s\" now." % [record["name"], nickname])
 
 
 # A dialogue box for `player` talking with `customer`, in that player's view.
@@ -263,9 +294,10 @@ func _converse(box: ConversationBox, player: Player, customer: Customer, line: D
 	var picked := await box.ask(customer.display_name, opening, options)
 
 	var before: int = record["relationship"]
-	var result := Conversation.apply_choice(record, choices[picked], options[picked])
+	var result := Conversation.apply_choice(record, choices[picked], options[picked], chef_id)
+	_after_line(customer, line, chef_id)
 	_order_dish(customer, Conversation.dish_of(choices[picked], record))
-	context["dish"] = customer.dish.get("name", "")
+	context = _visit_context(customer, chef_id)  # The reply can use a nickname just picked.
 	_announce_change(record, before, choices[picked].get("tone", ""))
 
 	var reply := DialoguePicker.fill(result["reply"], context)
@@ -307,6 +339,8 @@ func _order_dish(customer: Customer, dish: Dictionary) -> void:
 
 func _announce_change(record: Dictionary, before: int, tone: String) -> void:
 	var after: int = record["relationship"]
+	if after == before and tone.is_empty():
+		return  # e.g. telling Stitches your name: nothing to report.
 	var how := " (%s)" % tone if not tone.is_empty() else ""
 	GameEvents.announce("%s%s: %+d -> %d (%s)" % [record["name"], how, after - before, after, RegularMemory.stage_name(record)])
 
@@ -476,17 +510,15 @@ func _remember_visit(customer: Customer, reaction_id: String) -> String:
 	var relationship_before: int = record["relationship"]
 	var now := GameClock.now_string()  # The real date, unless the debug panel moved it.
 	var server_id := customer.served_by_account
-	var learned_name := RegularMemory.record_visit(record, customer.served_quality, reaction_id, now, server_id)
+	RegularMemory.record_visit(record, customer.served_quality, reaction_id, now, server_id)
 	RegularMemory.end_visit(record)
 
 	if record["relationship"] != relationship_before:
 		GameEvents.announce("%s's friendship: %d -> %d (%s)" % [record["name"], relationship_before, record["relationship"], RegularMemory.stage_name(record)])
-	if learned_name:
-		GameEvents.announce("%s learned %s's name!" % [record["name"], Accounts.get_account(server_id).get("name", "your")])
 
 	return RegularMemory.say(record, "farewell", RegularMemory.dialogue_context(record, server_id, {
 		"reaction": reaction_id,
-		"learned_name": learned_name,
+		"learned_name": customer.learned_name,
 		# They've been here before, but this is the first time this chef served them.
 		"new_chef_for_them": record["times_visited"] > 1 and record["served_by"].get(server_id, 0) == 1,
 	}))

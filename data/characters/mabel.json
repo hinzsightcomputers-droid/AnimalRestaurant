@@ -2,6 +2,7 @@
 	"id": "mabel",
 	"name": "Mabel",
 	"species": "tortoise",
+	"name_color": "#3f8a3a",
 	"personality": ["blunt", "wise", "rambling"],
 	"favorite_dish": "carrot_soup",
 	"disliked_dish": "berry_pancakes",
@@ -30,7 +31,7 @@
 		{ "event": "greeting", "priority": 250, "conditions": { "stage": 1, "returned_after_away": true }, "text": "Closed for days without a sign on the door. In my day we'd have put up a sign. Were you ill, or just careless?" },
 		{ "event": "greeting", "priority": 220, "conditions": { "stage": 1, "last_quality_max": 0.4 }, "text": "I won't pretend last time was good. It wasn't. Let's see what you do with a second chance." },
 		{ "event": "greeting", "priority": 210, "conditions": { "stage": 1, "last_quality_min": 0.7 }, "text": "Your last dish was very good. Don't let it go to your head. Heads are heavy enough." },
-		{ "event": "greeting", "priority": 200, "conditions": { "stage": 1 }, "text": "Afternoon, [wrong name]." },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 1, "memory": { "name_test_passed": false } }, "text": "Afternoon, [wrong name]." },
 		{ "event": "greeting", "priority": 200, "conditions": { "stage": 1 }, "text": "I'll take the table by the window. I like to watch the door. Old habit." },
 
 		{ "event": "greeting", "priority": 250, "conditions": { "stage": 2, "returned_after_away": true }, "text": "[name]. You were closed three days. I worried. ...Don't tell anyone I said that." },
@@ -50,7 +51,7 @@
 		{ "event": "greeting", "priority": 200, "conditions": { "stage": -2 }, "text": "Good afternoon, chef." },
 
 		{ "event": "farewell", "priority": 300, "conditions": { "learned_name": true }, "text": "I know your name, dear. I've always known it. It's on your sign. I just wanted to see if you'd tell me the truth when I got it wrong. You did. That's rarer than you'd think. Thank you, [name]." },
-		{ "event": "farewell", "priority": 200, "conditions": { "stage": 1 }, "text": "Thank you, [wrong name]. Same time next week. Maybe sooner." },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 1, "memory": { "name_test_passed": false } }, "text": "Thank you, [wrong name]. Same time next week. Maybe sooner." },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 2 }, "text": "Goodnight, [name]. Taste everything." },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 3 }, "text": "Goodnight, [name]. Thank you for listening to an old lady ramble." },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 4 }, "text": "Goodnight, dear. Turn the left burner down." },
@@ -92,7 +93,7 @@
 			"choices": [
 				{ "tone": "warm", "text": "It's [name], but you can call me whatever you like!", "reply": "I'll call you by your name, dear. I'm not a barbarian.", "change": 1 },
 				{ "tone": "playful", "text": "[wrong name] is my evil twin. I'm [name].", "reply": "Hm. Keep an eye on him, then.", "change": 2 },
-				{ "tone": "straight", "text": "It's actually [name].", "reply": "Is it now. Noted.", "change": 3 },
+				{ "tone": "straight", "text": "It's actually [name].", "reply": "Is it now. Noted.", "change": 3, "set": { "name_test_passed": true } },
 				{ "tone": "rude", "text": "Can you not even get my name right?", "reply": "I'm ninety-one, chef. Can you not be kind?", "change": -6 }
 			]
 		},
@@ -150,6 +151,12 @@
 				"disliked": [{ "text": "Hm. You're brave. Wrong, but brave.", "change": -1 }],
 				"other": [{ "text": "Fair enough. Let's see.", "change": 1 }]
 			}
-		}
+		},
+
+		{ "event": "learn_name", "id": "mabel_learn_name", "priority": 200, "conditions": { "min_stage": 2, "knows_player_name": false }, "learns_name": true, "text": "I know your name, dear. I've always known it. It's on your sign. I just wanted to see if you'd tell me the truth when I got it wrong. You did. That's rarer than you'd think. Thank you, [name].", "set": { "name_test_passed": true } },
+
+		{ "event": "restaurant_name", "priority": 200, "conditions": { "min_stage": 1, "new_restaurant_name": true }, "text": "[restaurant]. Hm. Good name. Easy to say, easy to remember. Walter would have approved." },
+		{ "event": "restaurant_name", "priority": 200, "conditions": { "min_stage": 1, "new_restaurant_name": true }, "text": "In my day the diner was just called 'Diner.' [restaurant] is better. Don't let it go to your head." },
+		{ "event": "greeting", "priority": 200, "conditions": { "min_stage": 2 }, "text": "Afternoon. [restaurant] smells right today. That's a compliment, dear." }
 	]
 }

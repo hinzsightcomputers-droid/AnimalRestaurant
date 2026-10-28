@@ -2,6 +2,7 @@
 	"id": "stitches",
 	"name": "Stitches",
 	"species": "bear",
+	"name_color": "#8d5a2b",
 	"color": "#b98a5e",
 	"personality": ["shy", "kind", "hopeful"],
 	"favorite_dish": "berry_pancakes",
@@ -155,6 +156,16 @@
 				"disliked": [{ "conditions": { "memory": { "dislike_confessed": false } }, "text": "Okay. I need to confess something. I've never liked this one. I just never wanted to hurt your feelings.", "change": 0, "set": { "dislike_confessed": true } }],
 				"other": [{ "text": "New! I like new things now. That's new too.", "change": 0 }]
 			}
-		}
+		},
+
+		{ "event": "learn_name", "id": "stitches_learn_name", "priority": 200, "conditions": { "min_stage": 2, "knows_player_name": false }, "learns_name": true, "text": "Can I ask your name? You know mine. It feels rude that I don't know yours.",
+			"choices": [
+				{ "text": "(Tell him your name.)", "reply": "[name]. That's a nice name. I'll remember it. I promise.", "change": 0 }
+			]
+		},
+
+		{ "event": "restaurant_name", "priority": 200, "conditions": { "min_stage": 1, "new_restaurant_name": true }, "text": "[restaurant]... I like that name. It sounds like a place where people are allowed to stay a while." },
+		{ "event": "restaurant_name", "priority": 200, "conditions": { "min_stage": 1, "new_restaurant_name": true }, "text": "Is it okay if I say [restaurant] is my favorite place? ...It is. Sorry. It just is." },
+		{ "event": "greeting", "priority": 200, "conditions": { "min_stage": 2 }, "text": "Hi! ...Walking into [restaurant] feels a little like coming home. Is that weird? Don't answer that." }
 	]
 }

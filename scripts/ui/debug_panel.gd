@@ -100,6 +100,19 @@ func _force_pick_for_me() -> void:
 	_refresh()
 
 
+# They forget every chef's name (and nicknames, and Mabel's name test), so the
+# name moment plays again next time they're at stage 2 or higher.
+func _forget_names() -> void:
+	var record := _selected_record()
+	record["known_players"].clear()
+	if record.has("nicknames"):
+		record["nicknames"].clear()
+	if record.has("name_test_passed"):
+		record["name_test_passed"] = false
+	_changed = true
+	_refresh()
+
+
 func _reset_character() -> void:
 	GameState.reset_regular(_selected_id())
 	GameState.forced_visitors.erase(_selected_id())
@@ -115,6 +128,13 @@ func _replan_today() -> void:
 func _add_money() -> void:
 	GameState.add_money(100)
 	_changed = true
+
+
+# Clears the name, so the start screen asks for one again (next time it shows).
+func _rename_restaurant() -> void:
+	GameState.restaurant_name = ""
+	_changed = true
+	GameEvents.announce("The restaurant will be renamed on the start screen.")
 
 
 # --- Display ---------------------------------------------------------------
@@ -236,6 +256,7 @@ func _build() -> void:
 	_add_button(actions, "Visit next", _visit_next)
 	_add_button(actions, "Reset character", _reset_character)
 	_add_button(actions, "Next order: pick for me", _force_pick_for_me)
+	_add_button(actions, "Forget names", _forget_names)
 	_queue_label = _add_label(box, "")
 	_info = _add_label(box, "")
 
@@ -244,6 +265,9 @@ func _build() -> void:
 
 	_add_label(box, "Money", 18, true)
 	_add_button(_add_row(box), "+$100", _add_money)
+
+	_add_label(box, "Restaurant", 18, true)
+	_add_button(_add_row(box), "Rename restaurant", _rename_restaurant)
 
 
 func _add_label(parent: Control, text: String, font_size := 15, heading := false) -> Label:

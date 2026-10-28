@@ -67,6 +67,10 @@ const LOOK_ORDER := ["morning", "day", "evening", "night"]
 @onready var title_ui: CanvasLayer = $TitleUI
 @onready var prompt_label: Label = $TitleUI/Prompt
 @onready var clock_label: Label = $TitleUI/Clock
+@onready var name_label: Label3D = $Restaurant/NameLabel
+
+const NAME_PIXEL_SIZE := 0.0045
+const NAME_FITS_LETTERS := 17  # Longer names shrink to fit the board.
 
 var _look_name := ""
 var _look: Dictionary = {}
@@ -78,6 +82,7 @@ var _time := 0.0
 var _next_walker := 0.0
 var _walker_meshes: Dictionary = {}  # "capsule" / "ear" / "snout" -> shared mesh.
 var _walker_materials: Dictionary = {}  # Species id -> material.
+var _setup: RestaurantSetup = null  # Open while the restaurant is being named.
 
 
 func _ready() -> void:
@@ -88,6 +93,8 @@ func _ready() -> void:
 	chef_material.albedo_color = PlayerVisual.color_for(0)
 	$Chef/Model/Body.material_override = chef_material
 	_build_walker_meshes()
+	if not GameState.restaurant_name.is_empty():
+		_paint_sign(GameState.restaurant_name, Color(GameState.restaurant_color))
 	# A few people already out walking, so the street isn't empty at first.
 	for i in 3:
 		_spawn_walker(randf_range(-WALKER_EDGE + 2.0, WALKER_EDGE - 2.0))
@@ -124,14 +131,35 @@ func _unhandled_input(event: InputEvent) -> void:
 	if key_event != null and key_event.pressed and not key_event.echo and key_event.keycode == KEY_F4:
 		_apply_look(LOOK_ORDER[(LOOK_ORDER.find(_look_name) + 1) % LOOK_ORDER.size()])
 		return
-	if not _is_start_press(event):
+	if _setup != null or not _is_start_press(event):
 		return
 	get_viewport().set_input_as_handled()
-	if not _started:
+	if not _started and GameState.restaurant_name.is_empty():
+		_name_restaurant()  # First time: name it before opening up.
+	elif not _started:
 		_started = true
 		_play_opening()
 	else:
 		_leave()  # Skip the rest.
+
+
+# The naming panel, with the sign on the building changing as they type.
+func _name_restaurant() -> void:
+	title_ui.visible = false
+	_setup = RestaurantSetup.new()
+	_setup.changed.connect(_paint_sign)
+	add_child(_setup)
+	await _setup.done
+	_setup = null
+	_started = true
+	_play_opening()
+
+
+func _paint_sign(restaurant_name: String, color: Color) -> void:
+	name_label.text = restaurant_name
+	name_label.modulate = color.lightened(0.35)
+	name_label.outline_modulate = color.darkened(0.75)
+	name_label.pixel_size = NAME_PIXEL_SIZE * minf(1.0, float(NAME_FITS_LETTERS) / maxi(1, restaurant_name.length()))
 
 
 func _is_start_press(event: InputEvent) -> bool:

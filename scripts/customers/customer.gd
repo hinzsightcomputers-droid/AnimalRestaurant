@@ -25,6 +25,7 @@ var greeting_line := ""       # What a regular says at the counter (empty = gene
 var order_line := ""          # What a regular says when ordering (empty = generic).
 var speech := ""              # The latest one-off line, e.g. when served or chatted with.
 var chatted := false          # A regular can be chatted with once while eating.
+var learned_name := false     # A regular learned a chef's name this visit (for their goodbye).
 var talking := false:         # In a conversation: their wait and meal timers pause, so chatting is never punished.
 	set(value):
 		if talking != value:

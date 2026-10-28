@@ -142,8 +142,8 @@ func _load_characters() -> void:
 
 
 # A character's line, only for them, and only when its [tokens] can be filled
-# in: [name] and [nickname] need them to know the chef's name, and
-# [last_rude_line] needs a rude line to quote.
+# in: [name] and [nickname] need them to know the chef's name, [last_rude_line]
+# needs a rude line to quote, and [restaurant] needs the restaurant named.
 func _with_token_conditions(line: Dictionary, regular_id: String) -> Dictionary:
 	var result := line.duplicate(true)
 	var conditions: Dictionary = result.get_or_add("conditions", {})
@@ -153,4 +153,6 @@ func _with_token_conditions(line: Dictionary, regular_id: String) -> Dictionary:
 		conditions["knows_player_name"] = true
 	if "[last_rude_line]" in text and not conditions.has("has_rude_line"):
 		conditions["has_rude_line"] = true
+	if "[restaurant]" in text and not conditions.has("has_restaurant_name"):
+		conditions["has_restaurant_name"] = true
 	return result

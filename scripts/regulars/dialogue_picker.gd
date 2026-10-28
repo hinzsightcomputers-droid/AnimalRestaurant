@@ -113,7 +113,7 @@ static func _condition_met(key: String, want: Variant, context: Dictionary) -> b
 				if memory.get(field) != want[field]:
 					return false
 			return true
-		"knows_player_name", "returned_after_away", "ordered_favorite", "learned_name", "new_chef_for_them", "has_rude_line", "served_favorite", "served_disliked":
+		"knows_player_name", "returned_after_away", "ordered_favorite", "learned_name", "new_chef_for_them", "has_rude_line", "served_favorite", "served_disliked", "has_restaurant_name", "new_restaurant_name":
 			return context.get(key, false) == want
 		"min_known_here":
 			return context.get("known_here_count", 0) >= want

@@ -114,8 +114,8 @@ static func days_away(record: Dictionary, now_unix: int) -> int:
 
 
 # Update the record after a finished visit, served by the chef with account id
-# `server_id`. Returns true if they learned that chef's name just now.
-static func record_visit(record: Dictionary, quality: float, reaction_id: String, now_string: String, server_id: String) -> bool:
+# `server_id`. (Names are learned in their learn_name moment, not here.)
+static func record_visit(record: Dictionary, quality: float, reaction_id: String, now_string: String, server_id: String) -> void:
 	var settings := GameData.regular_settings
 	change_relationship(record, settings.get("relationship_change", {}).get(reaction_id, 0))
 	record["times_visited"] = int(record["times_visited"]) + 1
@@ -123,15 +123,20 @@ static func record_visit(record: Dictionary, quality: float, reaction_id: String
 	record["last_service_quality"] = quality
 	var stage_key := str(stage_of(record))
 	record["visits_by_stage"][stage_key] = int(record["visits_by_stage"].get(stage_key, 0)) + 1
-	if server_id.is_empty():
-		return false
+	# Mabel's wrong-name test: a different wrong name each visit until you correct her.
+	if record.has("wrong_name_index") and not record.get("name_test_passed", false):
+		record["wrong_name_index"] = int(record["wrong_name_index"]) + 1
+	if not server_id.is_empty():
+		record["served_by"][server_id] = int(record["served_by"].get(server_id, 0)) + 1
 
-	record["served_by"][server_id] = int(record["served_by"].get(server_id, 0)) + 1
+
+# They learn this chef's name (their learn_name moment). Returns true if it's new.
+static func learn_name(record: Dictionary, chef_id: String) -> bool:
 	var known: Array = record["known_players"]
-	if not server_id in known and stage_of(record) >= settings.get("learn_name_stage", 2):
-		known.append(server_id)
-		return true
-	return false
+	if chef_id.is_empty() or chef_id in known:
+		return false
+	known.append(chef_id)
+	return true
 
 
 # Of the chefs playing right now, the one this regular knows best (served them
@@ -159,7 +164,7 @@ static func dialogue_context(record: Dictionary, chef_id: String, extra: Diction
 		if account_id in record["known_players"]:
 			known_here.append(Accounts.get_account(account_id).get("name", ""))
 	var chef_name: String = Accounts.get_account(chef_id).get("name", "Chef")
-	var nickname: String = record.get("nickname", "")
+	var nickname: String = record.get("nicknames", {}).get(chef_id, "")  # Cheddar gives each chef their own.
 	var wrong_names: Array = record.get("wrong_names", [])
 	var dish_tokens: Dictionary = GameData.regular_settings.get("dish_tokens", {})
 	var context := {
@@ -179,6 +184,10 @@ static func dialogue_context(record: Dictionary, chef_id: String, extra: Diction
 		"last_quality": record["last_service_quality"],
 		"last_rude_line": record.get("last_rude_line", ""),
 		"has_rude_line": not String(record.get("last_rude_line", "")).is_empty(),
+		"restaurant": GameState.restaurant_name,
+		"has_restaurant_name": not GameState.restaurant_name.is_empty(),
+		# Named (or renamed) since they last reacted to it.
+		"new_restaurant_name": not GameState.restaurant_name.is_empty() and record.get("restaurant_name_heard", "") != GameState.restaurant_name,
 		"wrong_name": wrong_names[int(record.get("wrong_name_index", 0)) % wrong_names.size()] if not wrong_names.is_empty() else chef_name,
 		"player_favorite": record.get("player_favorite", ""),
 		"days": days,

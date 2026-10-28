@@ -9,6 +9,10 @@ signal money_changed(money: int)
 const SAVE_VERSION := 3
 
 var money := 0
+# What the players named their restaurant and the color it's written in (on the
+# sign, and when regulars say it). Empty until named on the start screen.
+var restaurant_name := ""
+var restaurant_color := "#d1453b"
 # The real local date of the current (or last) shift, e.g. "2026-10-27", and
 # which shift of that date it is (1 = the first). See begin_shift.
 var date := ""
@@ -160,6 +164,8 @@ func to_save_data() -> Dictionary:
 		"version": SAVE_VERSION,
 		"saved_at": Time.get_datetime_string_from_system(true),
 		"money": money,
+		"restaurant_name": restaurant_name,
+		"restaurant_color": restaurant_color,
 		"date": date,
 		"shift": shift,
 		"upgrades": upgrades,
@@ -172,6 +178,8 @@ func to_save_data() -> Dictionary:
 # without a character file any more are ignored.
 func apply_save_data(data: Dictionary) -> void:
 	money = int(data.get("money", money))
+	restaurant_name = data.get("restaurant_name", restaurant_name)
+	restaurant_color = data.get("restaurant_color", restaurant_color)
 	date = data.get("date", date)  # Saves from before real dates had a "day" number instead; it's dropped.
 	shift = int(data.get("shift", shift))
 	# Ignore upgrades that were removed from data/upgrades.json.

@@ -19,9 +19,10 @@ static func choices_of(line: Dictionary) -> Array:
 	return kind + rude
 
 
-# Apply the reply the player chose (its text already filled in). Returns
-# { change, reply } where reply is the unfilled text they answer with.
-static func apply_choice(record: Dictionary, choice: Dictionary, said: String) -> Dictionary:
+# Apply the reply chef `chef_id` chose (its text already filled in). Returns
+# { change, reply } where reply is the unfilled text they answer with. A reply
+# with "nickname" gives that chef a nickname ("" = just their name).
+static func apply_choice(record: Dictionary, choice: Dictionary, said: String, chef_id := "") -> Dictionary:
 	var tone: String = choice.get("tone", "")
 	var change := _change_of(record, choice, tone)
 	# Count the streak first, so the third rude reply in a row can go below 0.
@@ -32,6 +33,12 @@ static func apply_choice(record: Dictionary, choice: Dictionary, said: String) -
 		record["rude_streak"] = 0
 	RegularMemory.change_relationship(record, change)
 	_set_flags(record, choice)
+	if choice.has("nickname") and not chef_id.is_empty():
+		var nicknames: Dictionary = record.get_or_add("nicknames", {})
+		if String(choice["nickname"]).is_empty():
+			nicknames.erase(chef_id)
+		else:
+			nicknames[chef_id] = choice["nickname"]
 	# A playful reply can miss (e.g. Stitches at Nervous: +1 or -1).
 	var reply: String = choice.get("reply", "")
 	if change < 0 and choice.has("miss_reply"):
@@ -76,6 +83,14 @@ static func _change_of(record: Dictionary, choice: Dictionary, tone: String) -> 
 	if value is Array:
 		return int(value.pick_random()) if not value.is_empty() else 0
 	return int(value)
+
+
+# What a line itself does once said, whatever the reply: memory flags it sets
+# ("set") and whether they learn the chef's name ("learns_name"). Returns true
+# if they learned it just now.
+static func apply_line(record: Dictionary, line: Dictionary, chef_id: String) -> bool:
+	_set_flags(record, line)
+	return line.get("learns_name", false) and RegularMemory.learn_name(record, chef_id)
 
 
 static func _set_flags(record: Dictionary, entry: Dictionary) -> void:

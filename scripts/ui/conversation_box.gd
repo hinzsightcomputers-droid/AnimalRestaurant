@@ -9,6 +9,11 @@
 # "voice": { "sound": "res://...", "pitch": 1.0, "every": 2 }, the box plays that
 # sound itself every `every` letters, a little faster and higher when sped up.
 #
+# Names stand out in color: the chef's own name (and Cheddar's nickname for
+# them) in PLAYER_NAME_COLOR, each regular's name in their "name_color" from
+# their character file (also used for the speaker's name), and the restaurant's
+# name in the color picked for it.
+#
 # Display and input only: CustomerManager asks the questions and applies the answers.
 class_name ConversationBox
 extends Control
@@ -24,6 +29,7 @@ const REPLY_SECONDS := 8.0       # A finished reply moves on by itself after thi
 const TEXT_COLOR := Color(0.25, 0.18, 0.12)
 const DIM_COLOR := Color(0.25, 0.18, 0.12, 0.55)
 const PICKED_COLOR := Color(0.75, 0.33, 0.12)
+const PLAYER_NAME_COLOR := Color("#2f7fd8")
 
 enum Mode { IDLE, TYPING, CHOOSING, WAITING }
 
@@ -31,10 +37,12 @@ var player_index := 0
 var speaker_id := ""  # Regular id, for their voice.
 
 var _speaker := Label.new()
-var _line := Label.new()
+var _line := RichTextLabel.new()
 var _options := VBoxContainer.new()
 var _hint := Label.new()
-var _labels: Array[Label] = []
+var _labels: Array[RichTextLabel] = []
+var _highlights := {}  # Name -> color, longest names first (see _find_highlights).
+var _plain := ""       # The current line as shown, without BBCode tags.
 var _option_texts: Array = []
 var _selected := 0
 var _mode := Mode.IDLE
@@ -83,9 +91,7 @@ func _ready() -> void:
 	panel.add_child(column)
 	_speaker.add_theme_font_size_override("font_size", 20)
 	_speaker.add_theme_color_override("font_color", PICKED_COLOR)
-	_line.add_theme_font_size_override("font_size", 22)
-	_line.add_theme_color_override("font_color", TEXT_COLOR)
-	_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_set_up_rich_text(_line, 22)
 	_line.visible_characters_behavior = TextServer.VC_CHARS_AFTER_SHAPING  # Words don't jump lines as they type.
 	_options.add_theme_constant_override("separation", 2)
 	_hint.add_theme_font_size_override("font_size", 15)
@@ -95,19 +101,84 @@ func _ready() -> void:
 		column.add_child(node)
 	add_child(_voice)
 	_load_voice()
+	_find_highlights()
+
+
+func _set_up_rich_text(label: RichTextLabel, font_size: int) -> void:
+	label.bbcode_enabled = true
+	label.fit_content = true
+	label.scroll_active = false
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.add_theme_font_size_override("normal_font_size", font_size)
+	label.add_theme_font_size_override("bold_font_size", font_size)
+	label.add_theme_color_override("default_color", TEXT_COLOR)
+
+
+# Which names to color: this chef's name (and nickname, if the speaker gave them
+# one) and every regular's name.
+func _find_highlights() -> void:
+	var colors := {}
+	for id in GameData.characters:
+		var character: Dictionary = GameData.characters[id]
+		colors[character["name"]] = Color(character.get("name_color", "#555555"))
+	if not GameState.restaurant_name.is_empty():
+		colors[GameState.restaurant_name] = Color(GameState.restaurant_color)
+	var chef_id := Accounts.id_of(player_index)
+	var chef_name := Accounts.name_of(player_index)
+	if not chef_name.is_empty():
+		colors[chef_name] = PLAYER_NAME_COLOR
+	var nickname: String = GameState.regulars.get(speaker_id, {}).get("nicknames", {}).get(chef_id, "")
+	if not nickname.is_empty():
+		colors[nickname] = PLAYER_NAME_COLOR
+	# Longest first, so "The Stove Whisperer" is matched before any shorter name inside it.
+	var names := colors.keys()
+	names.sort_custom(func(a, b): return a.length() > b.length())
+	_highlights.clear()
+	for name in names:
+		_highlights[name] = colors[name]
+	var speaker_color: Color = colors.get(GameData.characters.get(speaker_id, {}).get("name", ""), PICKED_COLOR)
+	_speaker.add_theme_color_override("font_color", speaker_color)
+
+
+# `text` as BBCode with every highlighted name in its color (and bold).
+func _highlighted(text: String) -> String:
+	var result := text.replace("[", "[lb]")  # Show any brackets as typed.
+	var taken: Array = []  # [start, end] spans already highlighted.
+	var spans: Array = []  # [start, end, color]
+	for name in _highlights:
+		var regex := RegEx.create_from_string("\\b%s\\b" % _escape_regex(name))
+		for found in regex.search_all(result):
+			var overlaps := taken.any(func(s): return found.get_start() < s[1] and found.get_end() > s[0])
+			if not overlaps:
+				taken.append([found.get_start(), found.get_end()])
+				spans.append([found.get_start(), found.get_end(), _highlights[name]])
+	spans.sort_custom(func(a, b): return a[0] > b[0])  # Back to front, so earlier positions stay valid.
+	for span in spans:
+		var color: Color = span[2]
+		var word := result.substr(span[0], span[1] - span[0])
+		result = result.substr(0, span[0]) + "[color=#%s][b]%s[/b][/color]" % [color.to_html(false), word] + result.substr(span[1])
+	return result
+
+
+static func _escape_regex(text: String) -> String:
+	var escaped := ""
+	for c in text:
+		escaped += "\\" + c if c in "\\^$.|?*+()[]{}" else c
+	return escaped
 
 
 # Type out `speaker` saying `text`, then wait for the player to pick one of
 # `options`. Returns the index picked.
 func ask(speaker: String, text: String, options: Array) -> int:
+	_find_highlights()  # A nickname may have been picked since the last line.
 	for label in _labels:
 		label.queue_free()
 	_labels.clear()
 	_option_texts = options.duplicate()
 	for option in options:
-		var label := Label.new()
-		label.add_theme_font_size_override("font_size", 20)
-		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		var label := RichTextLabel.new()
+		_set_up_rich_text(label, 20)
 		_options.add_child(label)
 		_labels.append(label)
 	_selected = 0
@@ -118,6 +189,7 @@ func ask(speaker: String, text: String, options: Array) -> int:
 
 # Type out `speaker` saying `text`, then wait for interact (or a while to pass).
 func tell(speaker: String, text: String) -> void:
+	_find_highlights()
 	_start_typing(speaker, text, false)
 	await continued
 
@@ -161,7 +233,8 @@ func _process(delta: float) -> void:
 
 func _start_typing(speaker: String, text: String, then_choose: bool) -> void:
 	_speaker.text = speaker
-	_line.text = "\"%s\"" % text
+	_line.text = _highlighted("\"%s\"" % text)
+	_plain = _line.get_parsed_text()  # What's shown, without the color tags, for the letter-by-letter typing.
 	_line.visible_characters = 0
 	_typed = 0.0
 	_pause_left = 0.0
@@ -174,7 +247,7 @@ func _start_typing(speaker: String, text: String, then_choose: bool) -> void:
 
 # Reveal letters at `speed_scale` times the normal speed, pausing after punctuation.
 func _type(delta: float, speed_scale: float) -> void:
-	var total := _line.get_total_character_count()
+	var total := _plain.length()
 	var time := delta
 	while time > 0.0 and _line.visible_characters < total:
 		if _pause_left > 0.0:
@@ -185,7 +258,7 @@ func _type(delta: float, speed_scale: float) -> void:
 		_typed += time * LETTERS_PER_SECOND * speed_scale
 		time = 0.0
 		while _line.visible_characters < mini(int(_typed), total):
-			var letter := _line.text[_line.visible_characters]
+			var letter := _plain[_line.visible_characters]
 			_line.visible_characters += 1
 			_on_letter(letter, speed_scale)
 			if PAUSES.has(letter):
@@ -233,8 +306,8 @@ func _load_voice() -> void:
 func _refresh_options() -> void:
 	for i in _labels.size():
 		var picked := i == _selected
-		_labels[i].text = ("> " if picked else "   ") + _option_texts[i]
-		_labels[i].add_theme_color_override("font_color", PICKED_COLOR if picked else TEXT_COLOR)
+		_labels[i].text = ("> " if picked else "   ") + _highlighted(_option_texts[i])
+		_labels[i].add_theme_color_override("default_color", PICKED_COLOR if picked else TEXT_COLOR)
 
 
 func _button() -> String:

@@ -9,7 +9,6 @@
 		"relationship_min": -100,
 		"relationship_max": 100,
 		"rude_streak_to_go_negative": 3,
-		"learn_name_stage": 2,
 		"away_days": 3,
 		"relationship_change": { "delighted": 2, "happy": 1, "okay": 0, "unhappy": -1 },
 		"stages": [
@@ -39,6 +38,7 @@
 		"referred_by": "",
 		"big_moment_done": false,
 		"seen_lines": [],
+		"restaurant_name_heard": "",
 		"times_gone": 0,
 		"visits_by_stage": {}
 	}

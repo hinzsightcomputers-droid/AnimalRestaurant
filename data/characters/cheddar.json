@@ -2,6 +2,7 @@
 	"id": "cheddar",
 	"name": "Cheddar",
 	"species": "mouse",
+	"name_color": "#e0780f",
 	"color": "#f5922f",
 	"personality": ["playful", "chatty", "showman"],
 	"favorite_dish": "fish_stew",
@@ -20,7 +21,7 @@
 	},
 	"memory": {
 		"friends": ["mabel"],
-		"nickname": "",
+		"nicknames": {},
 		"player_favorite": ""
 	},
 	"lines": [
@@ -141,6 +142,19 @@
 				"disliked": [{ "text": "...You had ONE job.", "change": -3 }],
 				"other": [{ "text": "Ooh, a mystery! I love a mystery.", "change": 2 }]
 			}
-		}
+		},
+
+		{ "event": "learn_name", "id": "cheddar_learn_name", "priority": 200, "conditions": { "min_stage": 2, "knows_player_name": false }, "learns_name": true, "text": "Okay, I've been calling you 'chef' for weeks. What's your actual name? ...[name]. Cool. Too normal, though. You need a nickname.",
+			"choices": [
+				{ "text": "Captain Spatula", "nickname": "Captain Spatula", "change": 0 },
+				{ "text": "The Stove Whisperer", "nickname": "The Stove Whisperer", "change": 0 },
+				{ "text": "Chef Boss", "nickname": "Chef Boss", "change": 0 },
+				{ "text": "Just [name] is fine.", "nickname": "", "reply": "Wow. Okay. Fine. [name] it is. ...Captain Spatula was RIGHT there.", "change": 0 }
+			]
+		},
+
+		{ "event": "restaurant_name", "priority": 200, "conditions": { "min_stage": 1, "new_restaurant_name": true }, "text": "[restaurant]! Ooh, I like that name. Very classy. Almost as classy as me." },
+		{ "event": "restaurant_name", "priority": 200, "conditions": { "min_stage": 1, "new_restaurant_name": true }, "text": "Wow, [restaurant]. Officially my favorite restaurant. Don't tell the other three." },
+		{ "event": "greeting", "priority": 200, "conditions": { "min_stage": 2 }, "text": "Wow, [restaurant] is my favorite! Don't tell my mom. She thinks her kitchen is." }
 	]
 }
