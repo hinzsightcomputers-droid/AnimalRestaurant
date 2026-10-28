@@ -1,5 +1,5 @@
 # GameData (autoload): loads game content (dishes, species, reactions, regulars,
-# dialogue, upgrades) from JSON files in res://data/. Each regular has their own
+# dialogue, upgrades, phone callers) from JSON files in res://data/. Each regular has their own
 # file in res://data/characters/, so adding one only means adding a file. Other
 # scripts ask GameData for content instead of hard-coding it. This is the starting
 # content; what changes during play (like a regular's memory) lives in GameState.
@@ -12,6 +12,8 @@ const REGULARS_PATH := "res://data/regulars.json"
 const CHARACTERS_DIR := "res://data/characters"
 const DIALOGUE_PATH := "res://data/dialogue.json"
 const UPGRADES_PATH := "res://data/upgrades.json"
+const PHONE_PATH := "res://data/phone.json"
+const CALLERS_PATH := "res://data/callers.json"
 
 # Each dish: { id, name, price, cook_speed, ingredient: { name, color, chop? } }.
 # "chop" ({ name, chops }) means the ingredient goes to the chopping board first.
@@ -38,6 +40,11 @@ var dialogue: Array[Dictionary] = []
 # Each upgrade: { id, name, price, description, bonus?: { key: amount }, multiplier?: { key: factor } }.
 # See GameState.upgrade_bonus / upgrade_multiplier for the keys.
 var upgrades: Array[Dictionary] = []
+# Phone tuning: ring and gap timings, voicemail size, who calls, the courier.
+var phone_settings: Dictionary = {}
+# Townsfolk who phone in orders: { id, name, species, name_color, personality,
+# usual_order, lines: [{ part: greeting | order | chat, text, choices? }] }.
+var callers: Array[Dictionary] = []
 
 
 func _ready() -> void:
@@ -50,6 +57,8 @@ func _ready() -> void:
 	dialogue = _load_list(DIALOGUE_PATH, "lines")
 	_load_characters()
 	upgrades = _load_list(UPGRADES_PATH, "upgrades")
+	phone_settings = _load_dictionary(PHONE_PATH).get("settings", {})
+	callers = _load_list(CALLERS_PATH, "callers")
 
 
 func get_species(species_id: String) -> Dictionary:
@@ -73,6 +82,13 @@ func get_upgrade(upgrade_id: String) -> Dictionary:
 		if upgrade["id"] == upgrade_id:
 			return upgrade
 	push_error("Unknown upgrade id: %s" % upgrade_id)
+	return {}
+
+
+func get_caller(caller_id: String) -> Dictionary:
+	for caller in callers:
+		if caller["id"] == caller_id:
+			return caller
 	return {}
 
 

@@ -14,7 +14,7 @@ const STATE_NAMES := {
 	Order.State.WAITING: "waiting",
 	Order.State.GATHERED: "ingredients out",
 	Order.State.COOKING: "cooking",
-	Order.State.READY: "ready to serve",
+	Order.State.READY: "ready",
 }
 
 @export var order_board: OrderBoard
@@ -115,7 +115,7 @@ func _refresh_orders() -> void:
 		lines.append("  (none)")
 	for order in order_board.orders:
 		lines.append("  %s for %s - %s" % [
-			order.dish.get("name", "?"), order.customer.species.get("name", "?"), STATE_NAMES[order.state]])
+			order.dish.get("name", "?"), order.for_name(), STATE_NAMES[order.state]])
 	orders_label.text = "\n".join(lines)
 
 

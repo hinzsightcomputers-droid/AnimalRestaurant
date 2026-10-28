@@ -166,6 +166,18 @@
 
 		{ "event": "restaurant_name", "priority": 200, "conditions": { "min_stage": 1, "new_restaurant_name": true }, "text": "[restaurant]... I like that name. It sounds like a place where people are allowed to stay a while." },
 		{ "event": "restaurant_name", "priority": 200, "conditions": { "min_stage": 1, "new_restaurant_name": true }, "text": "Is it okay if I say [restaurant] is my favorite place? ...It is. Sorry. It just is." },
-		{ "event": "greeting", "priority": 200, "conditions": { "min_stage": 2 }, "text": "Hi! ...Walking into [restaurant] feels a little like coming home. Is that weird? Don't answer that." }
+		{ "event": "greeting", "priority": 200, "conditions": { "min_stage": 2 }, "text": "Hi! ...Walking into [restaurant] feels a little like coming home. Is that weird? Don't answer that." },
+
+		{ "event": "phone_greeting", "priority": 200, "conditions": { "stage": -3 }, "text": "...Hello. It's Stitches. For delivery. Sorry." },
+		{ "event": "phone_greeting", "priority": 200, "conditions": { "stage": -3 }, "text": "Hi. It's me. I'd like to order. From home. If that's okay." },
+		{ "event": "phone_order", "priority": 250, "conditions": { "stage": -3, "memory": { "last_note": "warm" } }, "set": { "last_note": "" }, "text": "Thank you for the note. I read it a few times. ...The [dish], please." },
+		{ "event": "phone_order", "priority": 200, "conditions": { "stage": -3 }, "text": "The [dish]. For the corner table person. No need to rush. Sorry." },
+		{ "event": "phone_note", "id": "stitches_phone_note", "priority": 200, "conditions": { "stage": -3 }, "text": "That's all. ...Bye.",
+			"choices": [
+				{ "tone": "warm", "text": "(Tuck a note in his bag: \"I'm sorry. Your corner table misses you.\")", "change": 5, "set": { "last_note": "warm" } },
+				{ "text": "(Just send the food.)", "change": 0 }
+			]
+		},
+		{ "event": "phone_chat", "id": "stitches_phone_chat_placeholder", "priority": 200, "conditions": { "stage": 4 }, "text": "Hi, [name]! It's Stitches. I'm not ordering anything. I just... wanted to call someone. And you were the first one I thought of. Okay. Bye!" }
 	]
 }

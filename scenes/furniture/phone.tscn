@@ -1,0 +1,91 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/phone/phone.gd" id="1_phone"]
+[ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_body"]
+albedo_color = Color(0.85, 0.32, 0.27, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_handset"]
+albedo_color = Color(0.3, 0.22, 0.2, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_dial"]
+albedo_color = Color(0.97, 0.93, 0.84, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_body"]
+material = SubResource("Mat_body")
+size = Vector3(0.52, 0.72, 0.14)
+
+[sub_resource type="BoxMesh" id="Mesh_handset"]
+material = SubResource("Mat_handset")
+size = Vector3(0.13, 0.66, 0.13)
+
+[sub_resource type="CylinderMesh" id="Mesh_dial"]
+material = SubResource("Mat_dial")
+top_radius = 0.13
+bottom_radius = 0.13
+height = 0.02
+
+[sub_resource type="SphereMesh" id="Mesh_light"]
+radius = 0.05
+height = 0.1
+
+[sub_resource type="BoxShape3D" id="Shape_phone"]
+size = Vector3(0.56, 0.76, 0.24)
+
+[node name="Phone" type="StaticBody3D"]
+script = ExtResource("1_phone")
+display_name = "Phone"
+
+[node name="Visual" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+
+[node name="Body" type="MeshInstance3D" parent="Visual"]
+mesh = SubResource("Mesh_body")
+
+[node name="Handset" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.18, 0, 0.13)
+mesh = SubResource("Mesh_handset")
+
+[node name="Dial" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.08, -0.06, 0.08)
+mesh = SubResource("Mesh_dial")
+
+[node name="VoicemailLight" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.18, 0.28, 0.08)
+mesh = SubResource("Mesh_light")
+
+[node name="Collision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+shape = SubResource("Shape_phone")
+
+[node name="RingLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.45, 0.1)
+visible = false
+pixel_size = 0.013
+billboard = 1
+no_depth_test = true
+modulate = Color(0.85, 0.25, 0.2, 1)
+outline_modulate = Color(1, 0.98, 0.92, 1)
+text = "Ring! Ring!"
+font_size = 56
+outline_size = 20
+
+[node name="VoicemailLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.05, 0.1)
+visible = false
+pixel_size = 0.009
+billboard = 1
+no_depth_test = true
+modulate = Color(0.25, 0.18, 0.12, 1)
+outline_modulate = Color(1, 0.98, 0.92, 1)
+text = "1 voicemail"
+font_size = 36
+outline_size = 16
+
+[node name="Interactable" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.75)
+script = ExtResource("2_interactable")
+prompt = "Answer"
+radius = 1.1
+prompt_height = 3.1

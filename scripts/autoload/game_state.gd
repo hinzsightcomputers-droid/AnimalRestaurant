@@ -36,6 +36,11 @@ var schedule := { "date": "", "visits": [] }
 var forced_visitors: Array[String] = []
 # Debug panel: the next regular who can asks "What do you recommend?" / "Surprise me". Not saved.
 var force_pick_for_me := false
+# Missed phone calls waiting on the phone, oldest first: { kind, id } (see PhoneCalls).
+# Saved, so they keep until someone plays them.
+var voicemails: Array = []
+# Debug panel: who rings the phone next (a caller or regular id). Not saved.
+var forced_caller := ""
 
 
 func _ready() -> void:
@@ -170,6 +175,7 @@ func to_save_data() -> Dictionary:
 		"shift": shift,
 		"upgrades": upgrades,
 		"schedule": schedule,
+		"voicemails": voicemails,
 		"regulars": regular_memory,
 	}
 
@@ -188,6 +194,7 @@ func apply_save_data(data: Dictionary) -> void:
 	if saved_schedule is Dictionary and saved_schedule.has("visits"):
 		var visits: Array = saved_schedule["visits"].filter(func(v): return regulars.has(v.get("id", "")))
 		schedule = { "date": saved_schedule.get("date", ""), "visits": visits }
+	voicemails = data.get("voicemails", []).filter(func(v): return v is Dictionary and v.has("kind") and v.has("id"))
 	var legacy_account_id := _account_from_old_save(data)
 	var saved_regulars: Dictionary = data.get("regulars", {})
 	for id in saved_regulars:

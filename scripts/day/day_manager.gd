@@ -1,6 +1,6 @@
 # DayManager: runs the restaurant day. Counts down while open, sending each of
 # today's scheduled regulars in when their time comes, then closes (no new
-# customers). Once the last customer has left, the day ends: the game pauses and
+# customers). Once the last customer has left (and every delivery is picked up), the day ends: the game pauses and
 # `day_ended` carries the summary for the summary screen.
 class_name DayManager
 extends Node
@@ -9,6 +9,7 @@ signal day_closed
 signal day_ended(summary: Dictionary)
 
 @export var customer_manager: CustomerManager
+@export var delivery_manager: DeliveryManager
 @export var day_length_seconds := 180.0
 
 var time_left := 0.0
@@ -31,7 +32,7 @@ func _process(delta: float) -> void:
 		_send_due_regulars()
 		if time_left <= 0.0:
 			_close()
-	elif not customer_manager.has_customers():
+	elif not customer_manager.has_customers() and not _deliveries_waiting():
 		_end_day()
 
 
@@ -45,6 +46,10 @@ func start_next_day() -> void:
 # How far through the open day we are: 0 at opening, 1 at closing.
 func progress() -> float:
 	return 1.0 - time_left / day_length_seconds if day_length_seconds > 0.0 else 1.0
+
+
+func _deliveries_waiting() -> bool:
+	return delivery_manager != null and delivery_manager.has_deliveries()
 
 
 func _send_due_regulars() -> void:

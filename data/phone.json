@@ -1,0 +1,18 @@
+{
+	"settings": {
+		"ring_seconds": 15,
+		"first_ring_delay": { "min": 12, "max": 20 },
+		"seconds_between_calls": { "min": 25, "max": 45 },
+		"max_voicemails": 6,
+		"quiet_while_regular_arrives": true,
+		"townsfolk_usual_order_chance": 0.75,
+		"townsfolk_chat_chance": 0.4,
+		"regular_order_call_stage": -3,
+		"regular_order_call_chance": 0.7,
+		"regular_chat_call_stage": 4,
+		"regular_chat_call_chance": 0.25,
+		"ring_sound": "",
+		"voicemail_suffix": " (voicemail)",
+		"courier": { "name": "Delivery Duck", "color": "#f2d24b", "walk_speed": 2.2, "spacing": 0.9 }
+	}
+}

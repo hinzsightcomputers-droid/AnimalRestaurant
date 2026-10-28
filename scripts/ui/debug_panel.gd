@@ -2,7 +2,7 @@
 # Pick a regular to see everything they remember, set their relationship (or
 # jump to a stage), queue them to visit next, or reset them. It can also fake the
 # date forward to test "you've been gone" lines, show and re-roll which regulars
-# come in today, and will list big-moment scenes to trigger once those exist. The game pauses while it's open, and changes are
+# come in today, ring the phone for any caller or fill its voicemail, and will list big-moment scenes to trigger once those exist. The game pauses while it's open, and changes are
 # saved when it closes. Built in code, since it's only a tool.
 extends CanvasLayer
 
@@ -18,6 +18,8 @@ var _stage_buttons: HBoxContainer
 var _date_label: Label
 var _queue_label: Label
 var _schedule_label: Label
+var _caller_picker: OptionButton
+var _phone_label: Label
 var _was_paused := false
 var _changed := false     # Something to save when the panel closes.
 var _updating := false    # True while _refresh moves the slider, so it isn't treated as an edit.
@@ -137,6 +139,24 @@ func _rename_restaurant() -> void:
 	GameEvents.announce("The restaurant will be renamed on the start screen.")
 
 
+# The phone rings for the picked caller as soon as the panel closes.
+func _ring_phone() -> void:
+	GameState.forced_caller = _caller_picker.get_item_metadata(_caller_picker.selected)
+	_refresh()
+
+
+func _fill_voicemail() -> void:
+	PhoneCalls.fill_voicemail()
+	_changed = true
+	_refresh()
+
+
+func _clear_voicemail() -> void:
+	GameState.voicemails.clear()
+	_changed = true
+	_refresh()
+
+
 # --- Display ---------------------------------------------------------------
 
 func _refresh() -> void:
@@ -150,6 +170,9 @@ func _refresh() -> void:
 		var when := "came already" if RegularMemory.visited_today(visitor) else "%d%% through a shift" % roundi(visit["at"] * 100)
 		visits.append("%s (%s)" % [visitor["name"], when])
 	_schedule_label.text = "%s: %s" % [GameClock.describe_date(GameState.date), ", ".join(visits) if not visits.is_empty() else "nobody"]
+
+	_phone_label.text = "Voicemails: %d%s" % [GameState.voicemails.size(),
+		"   Rings next: %s" % GameState.forced_caller if not GameState.forced_caller.is_empty() else ""]
 
 	var record := _selected_record()
 	if record.is_empty():
@@ -262,6 +285,21 @@ func _build() -> void:
 
 	_add_label(box, "Scenes", 18, true)
 	_add_label(box, "No big-moment scenes yet. They'll be listed here to trigger once they're built.")
+
+	_add_label(box, "Phone", 18, true)
+	_caller_picker = OptionButton.new()
+	for caller in GameData.callers:
+		_caller_picker.add_item("%s (%s)" % [caller["name"], caller["species"]])
+		_caller_picker.set_item_metadata(_caller_picker.item_count - 1, caller["id"])
+	for regular_id in GameState.regulars:  # They only call when Withdrawn (to order) or at their top stage (to chat).
+		_caller_picker.add_item("%s (regular)" % GameState.regulars[regular_id]["name"])
+		_caller_picker.set_item_metadata(_caller_picker.item_count - 1, regular_id)
+	box.add_child(_caller_picker)
+	var phone_row := _add_row(box)
+	_add_button(phone_row, "Ring now", _ring_phone)
+	_add_button(phone_row, "Fill voicemail", _fill_voicemail)
+	_add_button(phone_row, "Clear voicemail", _clear_voicemail)
+	_phone_label = _add_label(box, "")
 
 	_add_label(box, "Money", 18, true)
 	_add_button(_add_row(box), "+$100", _add_money)

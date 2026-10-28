@@ -22,6 +22,7 @@ signal chosen(index: int)
 signal continued
 signal letter_typed(letter: String, speed_scale: float)  # For voices: one per letter shown.
 
+const GROUP := "conversation_boxes"  # Every open box (the phone waits while anyone is talking).
 const LETTERS_PER_SECOND := 32.0
 const FAST_SCALE := 3.5          # How much faster text types while interact is held.
 const PAUSES := { ".": 0.22, "!": 0.22, "?": 0.22, ",": 0.1, "—": 0.15 }  # Seconds after these letters.
@@ -67,6 +68,7 @@ static func open(parent: Control, for_player: int, speaker := "") -> Conversatio
 
 
 func _ready() -> void:
+	add_to_group(GROUP)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
@@ -122,6 +124,8 @@ func _find_highlights() -> void:
 	for id in GameData.characters:
 		var character: Dictionary = GameData.characters[id]
 		colors[character["name"]] = Color(character.get("name_color", "#555555"))
+	for caller in GameData.callers:  # Townsfolk on the phone.
+		colors[caller["name"]] = Color(caller.get("name_color", "#555555"))
 	if not GameState.restaurant_name.is_empty():
 		colors[GameState.restaurant_name] = Color(GameState.restaurant_color)
 	var chef_id := Accounts.id_of(player_index)
@@ -137,8 +141,6 @@ func _find_highlights() -> void:
 	_highlights.clear()
 	for name in names:
 		_highlights[name] = colors[name]
-	var speaker_color: Color = colors.get(GameData.characters.get(speaker_id, {}).get("name", ""), PICKED_COLOR)
-	_speaker.add_theme_color_override("font_color", speaker_color)
 
 
 # `text` as BBCode with every highlighted name in its color (and bold).
@@ -233,6 +235,8 @@ func _process(delta: float) -> void:
 
 func _start_typing(speaker: String, text: String, then_choose: bool) -> void:
 	_speaker.text = speaker
+	# In their name color ("Pip (voicemail)" is colored as Pip).
+	_speaker.add_theme_color_override("font_color", _highlights.get(speaker.get_slice(" (", 0), PICKED_COLOR))
 	_line.text = _highlighted("\"%s\"" % text)
 	_plain = _line.get_parsed_text()  # What's shown, without the color tags, for the letter-by-letter typing.
 	_line.visible_characters = 0

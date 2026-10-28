@@ -157,6 +157,20 @@
 
 		{ "event": "restaurant_name", "priority": 200, "conditions": { "min_stage": 1, "new_restaurant_name": true }, "text": "[restaurant]. Hm. Good name. Easy to say, easy to remember. Walter would have approved." },
 		{ "event": "restaurant_name", "priority": 200, "conditions": { "min_stage": 1, "new_restaurant_name": true }, "text": "In my day the diner was just called 'Diner.' [restaurant] is better. Don't let it go to your head." },
-		{ "event": "greeting", "priority": 200, "conditions": { "min_stage": 2 }, "text": "Afternoon. [restaurant] smells right today. That's a compliment, dear." }
+		{ "event": "greeting", "priority": 200, "conditions": { "min_stage": 2 }, "text": "Afternoon. [restaurant] smells right today. That's a compliment, dear." },
+
+		{ "event": "phone_greeting", "priority": 200, "conditions": { "stage": -3 }, "text": "This is Mabel. I would like to place an order for delivery." },
+		{ "event": "phone_greeting", "priority": 200, "conditions": { "stage": -3 }, "text": "Good evening. Mabel speaking. Delivery, please." },
+		{ "event": "phone_order", "priority": 250, "conditions": { "stage": -3, "memory": { "last_note": "straight" } }, "set": { "last_note": "" }, "text": "Received. Thank you for not making excuses. ...[dish], please." },
+		{ "event": "phone_order", "priority": 200, "conditions": { "stage": -3 }, "dish": "soup", "text": "Soup. No bread. Thank you." },
+		{ "event": "phone_order", "priority": 200, "conditions": { "stage": -3 }, "text": "[dish]. The left burner still runs hot." },
+		{ "event": "phone_note", "id": "mabel_phone_note", "priority": 200, "conditions": { "stage": -3 }, "text": "That will be all.",
+			"choices": [
+				{ "tone": "straight", "text": "(Tuck a note in her bag: \"I was wrong, and I'm sorry.\")", "change": 5, "set": { "last_note": "straight" } },
+				{ "tone": "warm", "text": "(Tuck a note in her bag: \"I'm so sorry, Mabel! We miss you here!\")", "change": 2, "set": { "last_note": "warm" } },
+				{ "text": "(Just send the food.)", "change": 0 }
+			]
+		},
+		{ "event": "phone_chat", "id": "mabel_phone_chat_placeholder", "priority": 200, "conditions": { "stage": 4 }, "text": "It's Mabel, dear. Nothing to order. I only wanted to hear how my kitchen's doing. ...Your kitchen. Turn the left burner down. Goodnight." }
 	]
 }

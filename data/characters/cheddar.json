@@ -155,6 +155,21 @@
 
 		{ "event": "restaurant_name", "priority": 200, "conditions": { "min_stage": 1, "new_restaurant_name": true }, "text": "[restaurant]! Ooh, I like that name. Very classy. Almost as classy as me." },
 		{ "event": "restaurant_name", "priority": 200, "conditions": { "min_stage": 1, "new_restaurant_name": true }, "text": "Wow, [restaurant]. Officially my favorite restaurant. Don't tell the other three." },
-		{ "event": "greeting", "priority": 200, "conditions": { "min_stage": 2 }, "text": "Wow, [restaurant] is my favorite! Don't tell my mom. She thinks her kitchen is." }
+		{ "event": "greeting", "priority": 200, "conditions": { "min_stage": 2 }, "text": "Wow, [restaurant] is my favorite! Don't tell my mom. She thinks her kitchen is." },
+
+		{ "event": "phone_greeting", "priority": 200, "conditions": { "stage": -3 }, "text": "Yeah, it's Cheddar. Delivery. Don't get excited." },
+		{ "event": "phone_greeting", "priority": 200, "conditions": { "stage": -3 }, "text": "It's me. Ordering from over here, where it's safe." },
+		{ "event": "phone_order", "priority": 250, "conditions": { "stage": -3, "memory": { "last_note": "playful" } }, "set": { "last_note": "" }, "text": "...Okay, that one got me. Doesn't mean we're cool. [dish]." },
+		{ "event": "phone_order", "priority": 200, "conditions": { "stage": -3 }, "text": "[dish]. Hold the attitude." },
+		{ "event": "phone_order", "priority": 200, "conditions": { "stage": -3 }, "text": "[dish]. Five stars for the delivery duck. Zero for the chef." },
+		{ "event": "phone_order", "priority": 200, "conditions": { "stage": -3 }, "text": "[dish]. No cheese. You'd know that if you'd listened." },
+		{ "event": "phone_note", "id": "cheddar_phone_note", "priority": 200, "conditions": { "stage": -3 }, "text": "That's it. Bye.",
+			"choices": [
+				{ "tone": "playful", "text": "(Draw on his bag: a tiny mouse in a chef's hat, crying into the soup. \"Sorry I was a jerk. Chef out.\")", "change": 5, "set": { "last_note": "playful" } },
+				{ "tone": "warm", "text": "(Tuck a note in his bag: \"I'm sorry. No joke. I mean it.\")", "change": 3, "set": { "last_note": "warm" } },
+				{ "text": "(Just send the food.)", "change": 0 }
+			]
+		},
+		{ "event": "phone_chat", "id": "cheddar_phone_chat_placeholder", "priority": 200, "conditions": { "stage": 4 }, "text": "Partner! No order. I just called to say... hi. That's it. That's the whole call. Okay bye!" }
 	]
 }

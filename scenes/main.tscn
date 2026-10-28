@@ -18,6 +18,8 @@
 [ext_resource type="PackedScene" path="res://scenes/furniture/pass_counter.tscn" id="16_pass"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/chopping_board.tscn" id="17_board"]
 [ext_resource type="PackedScene" path="res://scenes/ui/debug_panel.tscn" id="18_debug"]
+[ext_resource type="PackedScene" path="res://scenes/furniture/phone.tscn" id="19_phone"]
+[ext_resource type="Script" path="res://scripts/delivery/delivery_manager.gd" id="20_delivery"]
 
 [sub_resource type="Environment" id="Env"]
 background_mode = 1
@@ -113,6 +115,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8, 0, -8.55)
 [node name="PassCounter" parent="Furniture" unique_id=1418804096 instance=ExtResource("16_pass")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, -5.15)
 
+[node name="Phone" parent="Furniture" node_paths=PackedStringArray("delivery_manager", "view_manager", "day_manager", "customer_manager") instance=ExtResource("19_phone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.3, 0, -4.9)
+delivery_manager = NodePath("../../DeliveryManager")
+view_manager = NodePath("../../Views")
+day_manager = NodePath("../../DayManager")
+customer_manager = NodePath("../../CustomerManager")
+
 [node name="OrderBoard" type="Node" parent="." unique_id=1808753145]
 script = ExtResource("9_orders")
 
@@ -131,6 +140,16 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 7.6)
 
 [node name="CustomerDoor" type="Marker3D" parent="CustomerManager" unique_id=76533005]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 4.3)
+
+[node name="DeliveryManager" type="Node3D" parent="." node_paths=PackedStringArray("order_board", "spawn_point", "door_point", "pickup_point")]
+script = ExtResource("20_delivery")
+order_board = NodePath("../OrderBoard")
+spawn_point = NodePath("../CustomerManager/CustomerSpawn")
+door_point = NodePath("../CustomerManager/CustomerDoor")
+pickup_point = NodePath("PickupPoint")
+
+[node name="PickupPoint" type="Marker3D" parent="DeliveryManager"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 0, -2.4)
 
 [node name="PlayerManager" type="Node3D" parent="." unique_id=997305182]
 script = ExtResource("2_players")
@@ -152,9 +171,10 @@ layer = -1
 script = ExtResource("3_views")
 player_manager = NodePath("../PlayerManager")
 
-[node name="DayManager" type="Node" parent="." unique_id=297707749 node_paths=PackedStringArray("customer_manager")]
+[node name="DayManager" type="Node" parent="." unique_id=297707749 node_paths=PackedStringArray("customer_manager", "delivery_manager")]
 script = ExtResource("11_day")
 customer_manager = NodePath("../CustomerManager")
+delivery_manager = NodePath("../DeliveryManager")
 
 [node name="HUD" parent="." unique_id=1664110998 node_paths=PackedStringArray("order_board", "day_manager") instance=ExtResource("10_hud")]
 order_board = NodePath("../OrderBoard")

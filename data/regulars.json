@@ -39,6 +39,8 @@
 		"big_moment_done": false,
 		"seen_lines": [],
 		"restaurant_name_heard": "",
+		"last_called": "",
+		"last_note": "",
 		"times_gone": 0,
 		"visits_by_stage": {}
 	}

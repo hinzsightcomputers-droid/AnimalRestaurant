@@ -68,6 +68,14 @@ func has_customers() -> bool:
 	return false
 
 
+# A regular walking in or waiting at the counter (the phone stays quiet then).
+func regular_arriving() -> bool:
+	for child in get_children():
+		if child is Customer and child.is_regular() and child.state in [Customer.State.ARRIVING, Customer.State.WAITING_TO_ORDER]:
+			return true
+	return false
+
+
 func _try_spawn_customer() -> void:
 	if not accepting_customers:
 		return
