@@ -56,6 +56,8 @@ func close() -> void:
 		_seat_owners.erase(customer.seat)
 		var path: Array[Vector3] = [_on_front_lane(customer.global_position), door_point.global_position, spawn_point.global_position]
 		customer.leave(path, "Oh, you're closing? Next time!", 0)
+		if customer.is_regular():
+			RegularMemory.end_visit(GameState.regulars[customer.regular_id])
 	_queue.clear()
 
 
@@ -127,6 +129,7 @@ func _next_regular() -> Dictionary:
 # aimed at the chef here they know best.
 func _setup_regular(customer: Customer, record: Dictionary, seat: Seat) -> void:
 	_regulars_today.append(record["id"])
+	RegularMemory.begin_visit(record)  # From here, this visit can drop them at most one stage.
 	var dish := RegularMemory.choose_dish(record)
 	var species := GameData.get_species(record["species"]).duplicate()
 	if record.has("color"):
@@ -474,6 +477,7 @@ func _remember_visit(customer: Customer, reaction_id: String) -> String:
 	var now := GameClock.now_string()  # The real date, unless the debug panel moved it.
 	var server_id := customer.served_by_account
 	var learned_name := RegularMemory.record_visit(record, customer.served_quality, reaction_id, now, server_id)
+	RegularMemory.end_visit(record)
 
 	if record["relationship"] != relationship_before:
 		GameEvents.announce("%s's friendship: %d -> %d (%s)" % [record["name"], relationship_before, record["relationship"], RegularMemory.stage_name(record)])

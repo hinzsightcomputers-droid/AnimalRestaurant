@@ -8,6 +8,7 @@ class_name RegularMemory
 extends RefCounted
 
 const SECONDS_PER_DAY := 86400
+const VISIT_START_STAGE := "visit_start_stage"  # On a record during a visit only (see begin_visit).
 
 
 # Withdrawn and Gone regulars stay away, and referral-only ones wait for someone
@@ -59,17 +60,42 @@ static func tone_change(record: Dictionary, tone: String) -> int:
 	return int(value)
 
 
-# Add to their relationship, kept between relationship_min and _max. It can't
-# drop below 0 unless they've had a run of rude replies (rude_streak); that rule
-# keeps the negative stages a deliberate choice. Returns the new value.
+# Add to their relationship, kept between relationship_min and _max. Two rules
+# keep the dark side deliberate:
+#   - It can't drop below 0 unless they've had a run of rude replies (rude_streak).
+#   - During a visit (see begin_visit) it can't drop more than one stage below
+#     the stage they walked in at, however rude that visit gets.
+# Returns the new value.
 static func change_relationship(record: Dictionary, amount: int) -> int:
 	var settings := GameData.regular_settings
 	var before: int = record["relationship"]
 	var after := clampi(before + amount, settings.get("relationship_min", -100), settings.get("relationship_max", 100))
 	if after < 0 and before >= 0 and record["rude_streak"] < settings.get("rude_streak_to_go_negative", 3):
 		after = 0
+	if amount < 0 and record.has(VISIT_START_STAGE):
+		after = maxi(after, mini(before, _lowest_in_stage_below(int(record[VISIT_START_STAGE]))))
 	record["relationship"] = after
 	return after
+
+
+# A visit starts: remember their stage, for the one-stage-per-visit rule. Not
+# saved (it isn't a memory field), and cleared by end_visit.
+static func begin_visit(record: Dictionary) -> void:
+	record[VISIT_START_STAGE] = stage_of(record)
+
+
+static func end_visit(record: Dictionary) -> void:
+	record.erase(VISIT_START_STAGE)
+
+
+# The lowest relationship in the stage just below `stage` (e.g. stage 3 -> 25,
+# the bottom of stage 2), or relationship_min if there's nothing below.
+static func _lowest_in_stage_below(stage: int) -> int:
+	var stages: Array = GameData.regular_settings.get("stages", [])  # Highest stage first.
+	for i in stages.size() - 1:
+		if int(stages[i]["stage"]) == stage:
+			return int(stages[i + 1]["min"])
+	return GameData.regular_settings.get("relationship_min", -100)
 
 
 # Set their relationship directly (debug panel), ignoring the rules above.
