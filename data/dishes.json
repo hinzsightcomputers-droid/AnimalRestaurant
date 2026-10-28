@@ -8,6 +8,9 @@
 		{ "id": "fish_stew", "name": "Fish Stew", "price": 18, "cook_speed": 1.4,
 			"ingredient": { "name": "Frozen Fish", "color": "#7fb6d9" } },
 		{ "id": "acorn_cookies", "name": "Acorn Cookies", "price": 8, "cook_speed": 0.8,
-			"ingredient": { "name": "Acorn Dough", "color": "#b07a45" } }
+			"ingredient": { "name": "Acorn Dough", "color": "#b07a45" } },
+		{ "id": "storm_soup", "name": "Walter's Storm Soup", "price": 20, "cook_speed": 0.9, "unlock": "storm_soup", "invented": true,
+			"ingredient": { "name": "Soup Vegetables", "color": "#c9a24a",
+				"chop": { "name": "Chopped Vegetables", "chops": 6 } } }
 	]
 }

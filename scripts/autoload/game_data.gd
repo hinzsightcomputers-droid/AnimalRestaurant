@@ -17,8 +17,9 @@ const CALLERS_PATH := "res://data/callers.json"
 const GOSSIP_PATH := "res://data/gossip.json"
 const SCENES_PATH := "res://data/scenes.json"
 
-# Each dish: { id, name, price, cook_speed, ingredient: { name, color, chop? } }.
+# Each dish: { id, name, price, cook_speed, ingredient: { name, color, chop? }, unlock? }.
 # "chop" ({ name, chops }) means the ingredient goes to the chopping board first.
+# A dish with "unlock" is only on the menu once that reward is unlocked (see menu()).
 var dishes: Array[Dictionary] = []
 # Each species: { id, name, color }
 var species: Array[Dictionary] = []
@@ -107,8 +108,14 @@ func get_caller(caller_id: String) -> Dictionary:
 	return {}
 
 
+# The dishes on the menu right now: everything, except dishes still waiting for their unlock.
+func menu() -> Array[Dictionary]:
+	return dishes.filter(func(d): return not d.has("unlock") or d["unlock"] in GameState.unlocks)
+
+
 func random_dish() -> Dictionary:
-	return dishes.pick_random() if not dishes.is_empty() else {}
+	var on_menu := menu()
+	return on_menu.pick_random() if not on_menu.is_empty() else {}
 
 
 func random_species() -> Dictionary:

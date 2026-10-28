@@ -2,6 +2,7 @@
 	"_about": "Big moment scenes. Each plays once, at closing after the last customer leaves, when its regular meets 'conditions' (the same conditions dialogue lines use). Steps run in order: 'narrate' (stage directions, no speaker), 'say' (the regular, optionally with 'choices': each { text, reply }), 'cook' (the co-cooking minigame at the stove: it can't fail). 'staging': dim (light multiplier), music (the scene's song; without one, music_db is how far the usual music drops), rain, flicker. 'done' sets memory fields and unlocks rewards (flags in GameState.unlocks for now).",
 	"settings": {
 		"staging_seconds": 1.5,
+		"bell_sound": "",
 		"reward_names": {
 			"patchwork_apron": "Patchwork apron",
 			"best_chef_sign": "\"World's Best Chef (don't tell anyone I said that)\" sign",

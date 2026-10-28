@@ -372,12 +372,10 @@ func _pick_for_me(box: ConversationBox, player: Player, customer: Customer, line
 	var context := _visit_context(customer, Accounts.id_of(player.player_index))
 	var question := DialoguePicker.fill(line["text"], context)
 	customer.say(question)
-	var options := []
-	for dish in GameData.dishes:
-		options.append(dish["name"])
-	var picked := await box.ask(customer.display_name, question, options)
+	var menu := GameData.menu()
+	var picked := await box.ask(customer.display_name, question, menu.map(func(d): return d["name"]))
 
-	_order_dish(customer, GameData.dishes[picked])
+	_order_dish(customer, menu[picked])
 	context["dish"] = customer.dish.get("name", "")
 	var before: int = record["relationship"]
 	var result := Conversation.apply_dish_pick(record, line, customer.dish, context)
@@ -523,8 +521,9 @@ func _ask_dish(box: ConversationBox, customer: Customer, line: Dictionary, conte
 	var record: Dictionary = GameState.regulars[customer.regular_id]
 	var question := DialoguePicker.fill(line["text"], context)
 	customer.say(question)
-	var picked := await box.ask(customer.display_name, question, GameData.dishes.map(func(d): return d["name"]))
-	record[line["asks_dish"]] = GameData.dishes[picked]["id"]
+	var menu := GameData.menu()
+	var picked := await box.ask(customer.display_name, question, menu.map(func(d): return d["name"]))
+	record[line["asks_dish"]] = menu[picked]["id"]
 	var reply := DialoguePicker.fill(line.get("reply", ""), RegularMemory.dialogue_context(record, Accounts.id_of(box.player_index)))
 	if not reply.is_empty():
 		customer.say(reply)

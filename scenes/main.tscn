@@ -21,6 +21,7 @@
 [ext_resource type="PackedScene" path="res://scenes/furniture/phone.tscn" id="19_phone"]
 [ext_resource type="Script" path="res://scripts/delivery/delivery_manager.gd" id="20_delivery"]
 [ext_resource type="Script" path="res://scripts/scenes/scene_player.gd" id="21_scenes"]
+[ext_resource type="Script" path="res://scripts/world/reward_decorations.gd" id="22_rewards"]
 
 [sub_resource type="Environment" id="Env"]
 background_mode = 1
@@ -172,6 +173,18 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0, 3.8)
 layer = -1
 script = ExtResource("3_views")
 player_manager = NodePath("../PlayerManager")
+
+[node name="RewardDecorations" type="Node3D" parent="." node_paths=PackedStringArray("customer_manager", "sign_spot", "bell_spot")]
+script = ExtResource("22_rewards")
+customer_manager = NodePath("../CustomerManager")
+sign_spot = NodePath("SignSpot")
+bell_spot = NodePath("BellSpot")
+
+[node name="SignSpot" type="Marker3D" parent="RewardDecorations"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.6, 2.6, -8.97)
+
+[node name="BellSpot" type="Marker3D" parent="RewardDecorations"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 5)
 
 [node name="ScenePlayer" type="Node" parent="." node_paths=PackedStringArray("customer_manager", "view_manager", "cooking_station", "sun", "world_environment")]
 script = ExtResource("21_scenes")

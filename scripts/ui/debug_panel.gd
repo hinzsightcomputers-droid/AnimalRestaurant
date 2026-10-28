@@ -230,6 +230,7 @@ func _meet_trigger(scene_id: String) -> void:
 
 func _clear_unlocks() -> void:
 	GameState.unlocks.clear()
+	GameState.unlocks_changed.emit()
 	_changed = true
 	_refresh()
 

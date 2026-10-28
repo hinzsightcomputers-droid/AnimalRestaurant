@@ -37,6 +37,7 @@ static func finish(scene: Dictionary) -> void:
 	for reward in done.get("unlock", []):
 		if not reward in GameState.unlocks:
 			GameState.unlocks.append(reward)
+			GameState.unlocks_changed.emit()
 			GameEvents.announce("Unlocked: %s!" % reward_name(reward))
 	if GameState.forced_scene == scene.get("id", ""):
 		GameState.forced_scene = ""

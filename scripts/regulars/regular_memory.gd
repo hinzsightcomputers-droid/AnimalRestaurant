@@ -23,7 +23,7 @@ static func visits_in_person(record: Dictionary) -> bool:
 static func choose_dish(record: Dictionary) -> Dictionary:
 	if randf() < GameData.regular_settings.get("favorite_order_chance", 0.7):
 		return GameData.get_dish(record["favorite_dish"])
-	var options: Array = GameData.dishes.filter(func(d): return d["id"] != record["disliked_dish"])
+	var options: Array = GameData.menu().filter(func(d): return d["id"] != record["disliked_dish"])
 	return options.pick_random() if not options.is_empty() else GameData.random_dish()
 
 

@@ -5,6 +5,7 @@
 extends Node
 
 signal money_changed(money: int)
+signal unlocks_changed  # A big moment reward was unlocked (or the debug panel cleared them).
 
 const SAVE_VERSION := 3
 
