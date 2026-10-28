@@ -94,6 +94,12 @@ func _visit_next() -> void:
 	_refresh()
 
 
+# The next regular who's close enough asks you to pick their dish.
+func _force_pick_for_me() -> void:
+	GameState.force_pick_for_me = true
+	_refresh()
+
+
 func _reset_character() -> void:
 	GameState.reset_regular(_selected_id())
 	GameState.forced_visitors.erase(_selected_id())
@@ -229,6 +235,7 @@ func _build() -> void:
 	var actions := _add_row(box)
 	_add_button(actions, "Visit next", _visit_next)
 	_add_button(actions, "Reset character", _reset_character)
+	_add_button(actions, "Next order: pick for me", _force_pick_for_me)
 	_queue_label = _add_label(box, "")
 	_info = _add_label(box, "")
 

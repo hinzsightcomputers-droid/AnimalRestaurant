@@ -14,6 +14,7 @@ const SEAT_GROUP := "seats"
 @export var order_board: OrderBoard
 @export var spawn_point: Marker3D   # Outside the front door.
 @export var door_point: Marker3D    # Just inside the front door.
+@export var view_manager: ViewManager  # To show dialogue boxes in the right player's view.
 @export var first_arrival_delay := 3.0
 @export var arrival_interval := 8.0
 @export var queue_spacing := 0.9    # Gap between customers waiting in line.
@@ -24,7 +25,6 @@ const SEAT_GROUP := "seats"
 @export var serve_seconds := 1.5              # How long the server watches the customer start eating.
 @export var serve_zoom: CameraZoomSettings    # The serving player's camera during that moment.
 @export_group("Eating chat")
-@export var eating_chat_seconds := 3.0        # How long a player chats with a regular who's eating.
 @export var eating_chat_zoom: CameraZoomSettings  # The chatting player's camera (falls back to order_chat_zoom).
 
 var accepting_customers := true     # False after closing time.
@@ -73,8 +73,11 @@ func _try_spawn_customer() -> void:
 	if seat == null:
 		return
 
-	var customer: Customer = CUSTOMER_SCENE.instantiate()
 	var regular := _next_regular()
+	if regular.is_empty() and not GameData.regular_settings.get("strangers_walk_in", false):
+		return  # Only the regulars come in.
+
+	var customer: Customer = CUSTOMER_SCENE.instantiate()
 	if regular.is_empty():
 		customer.setup(GameData.random_species(), GameData.random_dish(), seat)
 	else:
@@ -133,24 +136,25 @@ func _setup_regular(customer: Customer, record: Dictionary, seat: Seat) -> void:
 	customer.display_name = record["name"]
 	var eating: Dictionary = GameData.regular_settings.get("eating_seconds", { "min": 60, "max": 90 })
 	customer.eat_duration = randf_range(eating["min"], eating["max"])  # Regulars linger over their meal.
-	customer.greeting_line = DialoguePicker.pick("greeting",
+	customer.greeting_line = RegularMemory.say(record, "greeting",
 		RegularMemory.dialogue_context(record, RegularMemory.favorite_chef_here(record)))
 
 
-# What a regular says when ordering, to the chef taking the order.
-func _pick_order_line(customer: Customer, chef_id: String) -> String:
+# What a regular's lines can depend on, talking to chef `chef_id` about their order.
+func _visit_context(customer: Customer, chef_id: String, extra: Dictionary = {}) -> Dictionary:
 	var record: Dictionary = GameState.regulars[customer.regular_id]
-	return DialoguePicker.pick("order", RegularMemory.dialogue_context(record, chef_id, {
+	var context := RegularMemory.dialogue_context(record, chef_id, {
 		"dish": customer.dish.get("name", ""),
 		"ordered_favorite": customer.dish.get("id", "") == record["favorite_dish"],
-	}))
+	})
+	context.merge(extra, true)
+	return context
 
 
 # What a regular says when the food arrives, to the chef who brought it.
 func _pick_served_line(customer: Customer, chef_id: String) -> String:
 	var record: Dictionary = GameState.regulars[customer.regular_id]
-	return DialoguePicker.pick("served", RegularMemory.dialogue_context(record, chef_id, {
-		"dish": customer.dish.get("name", ""),
+	return RegularMemory.say(record, "served", _visit_context(customer, chef_id, {
 		"served_quality": customer.served_quality,
 		"served_favorite": customer.dish.get("id", "") == record["favorite_dish"],
 		"served_disliked": customer.dish.get("id", "") == record["disliked_dish"],
@@ -169,13 +173,17 @@ func _on_order_counter_used(_station: Station, player_index: int) -> void:
 		return  # Front customer hasn't reached the counter yet.
 
 	_queue.pop_front()
-	if customer.is_regular():
-		customer.order_line = _pick_order_line(customer, Accounts.id_of(player_index))
+	_chatting = true
+	var player := Player.find(get_tree(), player_index)
+	if customer.is_regular() and player != null:
+		await _regular_orders(player, customer)  # May change what they order.
 	customer.place_order()
 	order_board.add_order(customer)
 	GameEvents.announce("%s took an order: %s wants %s." % [
 		Accounts.name_of(player_index), customer.display_name, customer.dish.get("name", "?")])
-	await _order_chat(player_index, customer)
+	if not customer.is_regular() and player != null:
+		await _order_chat(player, customer)
+	_chatting = false
 
 	var approach := customer.seat.approach_point.global_position
 	var path: Array[Vector3] = [
@@ -187,30 +195,160 @@ func _on_order_counter_used(_station: Station, player_index: int) -> void:
 	_move_queue_forward()
 
 
-# A short chat while the customer says their order: the player stays at the
-# counter and their camera zooms in on the two of them.
-func _order_chat(player_index: int, customer: Customer) -> void:
-	var player := Player.find(get_tree(), player_index)
-	if player == null:
-		return
-	_chatting = true
-	var between := (player.global_position + customer.global_position) * 0.5 + Vector3.UP * 1.2
-	await _hold_with_zoom(player, between, order_chat_zoom, order_chat_seconds, order_counter.interactable)
-	_chatting = false
+# A short chat while an ordinary customer says their order: the player stays at
+# the counter and their camera zooms in on the two of them.
+func _order_chat(player: Player, customer: Customer) -> void:
+	await _hold_with_zoom(player, _at_counter(player, customer), order_chat_zoom, order_chat_seconds, order_counter.interactable)
+
+
+# A regular orders, all in one dialogue box: first the greeting they walked in
+# with (press interact), then usually the ordering conversation from their file,
+# sometimes (once they trust you) "What do you recommend?" or "Surprise me"
+# instead, where the player picks the dish. Lines without choices are just said.
+func _regular_orders(player: Player, customer: Customer) -> void:
+	var record: Dictionary = GameState.regulars[customer.regular_id]
+	var context := _visit_context(customer, Accounts.id_of(player.player_index))
+	var line := {}
+	if GameState.force_pick_for_me or randf() < GameData.regular_settings.get("pick_for_me_chance", 0.35):
+		line = RegularMemory.pick_line(record, "pick_for_me", context)
+		if not line.is_empty():
+			GameState.force_pick_for_me = false
+	if line.is_empty():
+		line = RegularMemory.pick_line(record, "order", context)
+	if line.is_empty() and customer.greeting_line.is_empty():
+		return  # Nothing to say: the generic bubble shows their order.
+
+	_lock_player(player, _at_counter(player, customer), order_chat_zoom, order_counter.interactable)
+	customer.talking = true
+	var box := _open_box(player, customer)
+	if not customer.greeting_line.is_empty():
+		customer.say(customer.greeting_line)
+		await box.tell(customer.display_name, customer.greeting_line)
+	if line.has("reactions"):
+		customer.order_line = await _pick_for_me(box, player, customer, line)
+	elif line.has("choices"):
+		customer.order_line = await _converse(box, player, customer, line)
+	elif not line.is_empty():
+		customer.order_line = DialoguePicker.fill(line["text"], context)
+		customer.say(customer.order_line)
+		await box.tell(customer.display_name, customer.order_line)
+	box.close()
+	customer.talking = false
+	_unlock_player(player)
+
+
+# A dialogue box for `player` talking with `customer`, in that player's view.
+func _open_box(player: Player, customer: Customer) -> ConversationBox:
+	return ConversationBox.open(_view_of(player), player.player_index, customer.regular_id)
+
+
+# Run a conversation `line` (with choices) between `player` and `customer` in
+# `box`. Returns what the customer said last. The line, or the chosen reply, can
+# decide what they order.
+func _converse(box: ConversationBox, player: Player, customer: Customer, line: Dictionary) -> String:
+	var record: Dictionary = GameState.regulars[customer.regular_id]
+	var chef_id := Accounts.id_of(player.player_index)
+	_order_dish(customer, Conversation.dish_of(line, record))
+	var context := _visit_context(customer, chef_id)
+	var opening := DialoguePicker.fill(line["text"], context)
+	customer.say(opening)
+
+	var choices := Conversation.choices_of(line)
+	var options := []
+	for choice in choices:
+		options.append(DialoguePicker.fill(choice["text"], context))
+	var picked := await box.ask(customer.display_name, opening, options)
+
+	var before: int = record["relationship"]
+	var result := Conversation.apply_choice(record, choices[picked], options[picked])
+	_order_dish(customer, Conversation.dish_of(choices[picked], record))
+	context["dish"] = customer.dish.get("name", "")
+	_announce_change(record, before, choices[picked].get("tone", ""))
+
+	var reply := DialoguePicker.fill(result["reply"], context)
+	if not reply.is_empty():
+		customer.say(reply)
+		await box.tell(customer.display_name, reply)
+	return reply if not reply.is_empty() else opening
+
+
+# "What do you recommend?" / "Surprise me": the player picks a dish from the
+# menu and the regular reacts to it (favorite, disliked, or anything else).
+func _pick_for_me(box: ConversationBox, player: Player, customer: Customer, line: Dictionary) -> String:
+	var record: Dictionary = GameState.regulars[customer.regular_id]
+	var context := _visit_context(customer, Accounts.id_of(player.player_index))
+	var question := DialoguePicker.fill(line["text"], context)
+	customer.say(question)
+	var options := []
+	for dish in GameData.dishes:
+		options.append(dish["name"])
+	var picked := await box.ask(customer.display_name, question, options)
+
+	_order_dish(customer, GameData.dishes[picked])
+	context["dish"] = customer.dish.get("name", "")
+	var before: int = record["relationship"]
+	var result := Conversation.apply_dish_pick(record, line, customer.dish, context)
+	_announce_change(record, before, "")
+	var reply := DialoguePicker.fill(result["reply"], context)
+	if not reply.is_empty():
+		customer.say(reply)
+		await box.tell(customer.display_name, reply)
+	return reply
+
+
+# Change what the customer orders (ignored if `dish` is {}).
+func _order_dish(customer: Customer, dish: Dictionary) -> void:
+	if not dish.is_empty():
+		customer.dish = dish
+
+
+func _announce_change(record: Dictionary, before: int, tone: String) -> void:
+	var after: int = record["relationship"]
+	var how := " (%s)" % tone if not tone.is_empty() else ""
+	GameEvents.announce("%s%s: %+d -> %d (%s)" % [record["name"], how, after - before, after, RegularMemory.stage_name(record)])
+
+
+# Where a dialogue box goes for this player: their own view (or the screen if
+# there's no view manager, e.g. in tests).
+func _view_of(player: Player) -> Control:
+	var view := view_manager.view_for(player.player_index) if view_manager != null else null
+	if view != null:
+		return view
+	var layer := CanvasLayer.new()
+	layer.layer = 5
+	add_child(layer)
+	var screen := Control.new()
+	screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	screen.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(screen)
+	screen.child_exiting_tree.connect(func(_box): layer.queue_free())
+	return screen
 
 
 # Keep `player` in place for `seconds` with their camera zoomed in on `point`,
 # their presses stuck to `lock_target` so they can't drift to something nearby.
 func _hold_with_zoom(player: Player, point: Vector3, settings: CameraZoomSettings, seconds: float, lock_target: Interactable) -> void:
+	_lock_player(player, point, settings, lock_target)
+	await get_tree().create_timer(seconds, false).timeout
+	_unlock_player(player)
+
+
+func _lock_player(player: Player, point: Vector3, settings: CameraZoomSettings, lock_target: Interactable) -> void:
 	player.movement_locked = true
 	player.interactor.lock_to(lock_target)
 	player.request_camera_focus(point, settings)
 
-	await get_tree().create_timer(seconds, false).timeout
 
+func _unlock_player(player: Player) -> void:
+	player.ignore_interact_until_released()  # The press that ended it shouldn't start something new.
 	player.movement_locked = false
 	player.interactor.unlock()
 	player.release_camera_focus()
+
+
+# Between the player at the counter and the customer they're serving.
+func _at_counter(player: Player, customer: Customer) -> Vector3:
+	return (player.global_position + customer.global_position) * 0.5 + Vector3.UP * 1.2
 
 
 # A player pressed interact on a seated customer: serve them if holding their
@@ -240,23 +378,48 @@ func _on_customer_interacted(player_index: int, customer: Customer) -> void:
 	GameState.record_chef_action(player_index, "served")
 	customer.serve(plate.quality)
 	GameEvents.announce("Served %s to %s." % [plate.dish_name(), customer_name])
-	if customer.is_regular():
-		customer.say(_pick_served_line(customer, customer.served_by_account))
+	if not customer.is_regular():
+		# A short zoom on the customer digging in.
+		_hold_with_zoom(player, _at_table(customer), serve_zoom, serve_seconds, customer.interactable)
+		return
 
-	# A short zoom on the customer digging in.
-	_hold_with_zoom(player, _at_table(customer), serve_zoom, serve_seconds, customer.interactable)
+	# A regular says something about the food in a dialogue box (the meal waits).
+	var line := _pick_served_line(customer, customer.served_by_account)
+	if line.is_empty():
+		_hold_with_zoom(player, _at_table(customer), serve_zoom, serve_seconds, customer.interactable)
+		return
+	customer.talking = true
+	_lock_player(player, _at_table(customer), serve_zoom, customer.interactable)
+	customer.say(line)
+	var box := _open_box(player, customer)
+	await box.tell(customer.display_name, line)
+	box.close()
+	_unlock_player(player)
+	customer.talking = false
 
 
 # Walking up to a regular mid-meal: they say something fitting how well they
-# know you. Once per visit; the player stays put while they talk.
+# know you, sometimes with replies to choose from. Once per visit; the player
+# stays put and the meal waits while they talk.
 func _eating_chat(player: Player, customer: Customer) -> void:
-	var chef_id := Accounts.id_of(player.player_index)
 	var record: Dictionary = GameState.regulars[customer.regular_id]
-	var line := DialoguePicker.pick("eating_chat", RegularMemory.dialogue_context(record, chef_id))
-	customer.chat(line if not line.is_empty() else "Mm. It's good.")
+	var context := _visit_context(customer, Accounts.id_of(player.player_index))
+	var line := RegularMemory.pick_line(record, "eating_chat", context)
 	GameEvents.announce("%s chatted with %s." % [Accounts.name_of(player.player_index), customer.display_name])
 	var zoom := eating_chat_zoom if eating_chat_zoom != null else order_chat_zoom
-	await _hold_with_zoom(player, _at_table(customer), zoom, eating_chat_seconds, customer.interactable)
+	customer.chat("")  # Uses up the chat; the dialogue box says the lines.
+	customer.talking = true
+	_lock_player(player, _at_table(customer), zoom, customer.interactable)
+	var box := _open_box(player, customer)
+	if line.has("choices"):
+		await _converse(box, player, customer, line)
+	else:
+		var text := DialoguePicker.fill(line["text"], context) if not line.is_empty() else "Mm. It's good."
+		customer.say(text)
+		await box.tell(customer.display_name, text)
+	box.close()
+	_unlock_player(player)
+	customer.talking = false
 
 
 # Between a seated customer and their plate, a little above the table.
@@ -317,7 +480,7 @@ func _remember_visit(customer: Customer, reaction_id: String) -> String:
 	if learned_name:
 		GameEvents.announce("%s learned %s's name!" % [record["name"], Accounts.get_account(server_id).get("name", "your")])
 
-	return DialoguePicker.pick("farewell", RegularMemory.dialogue_context(record, server_id, {
+	return RegularMemory.say(record, "farewell", RegularMemory.dialogue_context(record, server_id, {
 		"reaction": reaction_id,
 		"learned_name": learned_name,
 		# They've been here before, but this is the first time this chef served them.
@@ -325,7 +488,7 @@ func _remember_visit(customer: Customer, reaction_id: String) -> String:
 	}))
 
 
-# "Mabel" for a regular, "the Rabbit" for anyone else.
+# "Mabel" for a regular, "the Frog" for anyone else.
 func _who(customer: Customer) -> String:
 	return customer.display_name if customer.is_regular() else "the %s" % customer.display_name
 

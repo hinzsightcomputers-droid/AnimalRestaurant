@@ -30,6 +30,8 @@ var regulars: Dictionary = {}
 var schedule := { "date": "", "visits": [] }
 # Regular ids the debug panel asked to visit next, in order. Not saved.
 var forced_visitors: Array[String] = []
+# Debug panel: the next regular who can asks "What do you recommend?" / "Surprise me". Not saved.
+var force_pick_for_me := false
 
 
 func _ready() -> void:

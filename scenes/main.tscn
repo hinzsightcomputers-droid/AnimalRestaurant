@@ -116,12 +116,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, -5.15)
 [node name="OrderBoard" type="Node" parent="." unique_id=1808753145]
 script = ExtResource("9_orders")
 
-[node name="CustomerManager" type="Node3D" parent="." unique_id=1218034980 node_paths=PackedStringArray("order_counter", "order_board", "spawn_point", "door_point")]
+[node name="CustomerManager" type="Node3D" parent="." unique_id=1218034980 node_paths=PackedStringArray("order_counter", "order_board", "spawn_point", "door_point", "view_manager")]
 script = ExtResource("8_customers")
 order_counter = NodePath("../Furniture/OrderCounter")
 order_board = NodePath("../OrderBoard")
 spawn_point = NodePath("CustomerSpawn")
 door_point = NodePath("CustomerDoor")
+view_manager = NodePath("../Views")
 order_chat_zoom = SubResource("Zoom_order_chat")
 serve_zoom = SubResource("Zoom_serve")
 

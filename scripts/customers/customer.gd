@@ -9,6 +9,7 @@ enum State { ARRIVING, WAITING_TO_ORDER, WALKING_TO_SEAT, WAITING_FOR_FOOD, EATI
 signal state_changed(customer: Customer)
 signal finished_eating(customer: Customer)
 signal spoke(customer: Customer)  # Said a one-off line (see say()).
+signal talking_changed(customer: Customer)  # A conversation started or ended.
 
 @export var walk_speed := 2.0
 @export var turn_speed := 10.0
@@ -18,12 +19,17 @@ var state: State = State.ARRIVING
 var species: Dictionary = {}  # From data/species.json
 var dish: Dictionary = {}     # From data/dishes.json. Picked on arrival, revealed when ordering.
 var seat: Seat = null         # The chair reserved for this customer.
-var display_name := ""        # "Mabel" for a regular, "Rabbit" for anyone else.
+var display_name := ""        # "Mabel" for a regular, "Frog" for anyone else.
 var regular_id := ""          # Empty unless this is a regular (data/characters/).
 var greeting_line := ""       # What a regular says at the counter (empty = generic).
 var order_line := ""          # What a regular says when ordering (empty = generic).
 var speech := ""              # The latest one-off line, e.g. when served or chatted with.
 var chatted := false          # A regular can be chatted with once while eating.
+var talking := false:         # In a conversation: their wait and meal timers pause, so chatting is never punished.
+	set(value):
+		if talking != value:
+			talking = value
+			talking_changed.emit(self)
 
 var wait_seconds := 0.0       # From reaching the counter until the food arrives.
 var served_quality := 0.0     # Quality of the dish they were served (0..1).
@@ -130,14 +136,15 @@ func leave(points: Array[Vector3], line: String, amount: int) -> void:
 
 
 func _physics_process(delta: float) -> void:
-	match state:
-		State.WAITING_TO_ORDER, State.WALKING_TO_SEAT, State.WAITING_FOR_FOOD:
-			wait_seconds += delta
-		State.EATING:
-			_eat_time_left -= delta
-			if _eat_time_left <= 0.0 and not _done_eating:
-				_done_eating = true
-				finished_eating.emit(self)
+	if not talking:
+		match state:
+			State.WAITING_TO_ORDER, State.WALKING_TO_SEAT, State.WAITING_FOR_FOOD:
+				wait_seconds += delta
+			State.EATING:
+				_eat_time_left -= delta
+				if _eat_time_left <= 0.0 and not _done_eating:
+					_done_eating = true
+					finished_eating.emit(self)
 
 	_follow_path(delta)
 

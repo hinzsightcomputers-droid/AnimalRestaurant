@@ -21,6 +21,7 @@ func _ready() -> void:
 	food.material_override = _food_material
 	customer.state_changed.connect(_on_state_changed)
 	customer.spoke.connect(_on_spoke)
+	customer.talking_changed.connect(_on_talking_changed)
 	_speech_timer.one_shot = true
 	_speech_timer.timeout.connect(_on_speech_timer_timeout)
 	add_child(_speech_timer)
@@ -37,9 +38,11 @@ func _on_state_changed(_customer: Customer) -> void:
 		Customer.State.ARRIVING, Customer.State.GONE:
 			bubble.visible = false
 		Customer.State.WAITING_TO_ORDER:
-			bubble.text = _quoted(customer.greeting_line, "Ready to order!")
+			bubble.text = "Ready to order!"  # A regular's greeting is said in the dialogue box when you take their order.
 		Customer.State.WALKING_TO_SEAT, Customer.State.WAITING_FOR_FOOD:
-			bubble.text = _quoted(customer.order_line, "%s, please!" % dish_name)
+			# A regular already said everything in the dialogue box; the order board has their dish.
+			bubble.visible = not customer.is_regular()
+			bubble.text = "%s, please!" % dish_name
 		Customer.State.EATING:
 			bubble.text = "Nom nom..."
 			# Same look as the plate the player carried: golden = good, dark = burnt.
@@ -57,8 +60,17 @@ func _on_state_changed(_customer: Customer) -> void:
 func _on_spoke(_customer: Customer) -> void:
 	_speech_state = customer.state
 	bubble.visible = true
-	bubble.text = _quoted(customer.speech, "")
+	# In a conversation the dialogue box has the words; the bubble just shows they're talking.
+	bubble.text = "..." if customer.talking else _quoted(customer.speech, "")
 	_speech_timer.start(SPEECH_SECONDS)
+
+
+# When a conversation ends, the bubble goes straight back to normal (the dialogue
+# box had the words, so nothing lingers over their head).
+func _on_talking_changed(_customer: Customer) -> void:
+	if not customer.talking:
+		_speech_timer.stop()
+		_on_state_changed(customer)
 
 
 func _on_speech_timer_timeout() -> void:

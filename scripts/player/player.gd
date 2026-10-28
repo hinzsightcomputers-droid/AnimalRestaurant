@@ -19,6 +19,7 @@ signal camera_focus_released
 var movement_locked := false      # True while busy (e.g. cooking).
 var has_acted := false            # Becomes true the first time this player moves or interacts.
 var held_item: RefCounted = null  # What the player is carrying, e.g. a CookedDish.
+var _interact_blocked := false    # See ignore_interact_until_released().
 
 @onready var input: PlayerInput = $PlayerInput
 @onready var visual: Node3D = $Visual
@@ -73,6 +74,14 @@ func _physics_process(delta: float) -> void:
 
 	if input_vector != Vector2.ZERO:
 		has_acted = true
-	if input.is_interact_just_pressed():
+	if _interact_blocked and not input.is_interact_pressed():
+		_interact_blocked = false
+	if input.is_interact_just_pressed() and not _interact_blocked:
 		has_acted = true
 		interactor.try_interact(player_index)
+
+
+# The press that's down right now (e.g. the one that closed a dialogue box)
+# shouldn't also use whatever's in front of us: wait until it's let go.
+func ignore_interact_until_released() -> void:
+	_interact_blocked = true

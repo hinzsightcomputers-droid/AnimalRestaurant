@@ -67,12 +67,80 @@
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Wanna hear a secret? I hid something in this restaurant. Don't look. ...You're gonna look." },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Rate my chewing. Out of ten. Be honest. Actually don't." },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "I have thirteen siblings. Thirteen. Dinner at my house was a contact sport." },
-		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 2 }, "text": "Tell me a joke. Any joke. I've been doing all the work here." },
-		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3 }, "text": "At home, if I wasn't being funny, nobody looked at me. Thirteen siblings. You had to earn the spotlight." },
-		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3 }, "text": "Can I just... sit here for a minute without doing a bit? Is that allowed?" },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3 }, "text": "Mabel thinks I'm her grandson. I'm not. I don't correct her. ...Okay, I'm kind of her grandson now." },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "I don't have to be 'on' here. You know how rare that is?" },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "You know you're my favorite chef in the whole world, right? And I've eaten at, like, four places." },
-		{ "event": "eating_chat", "priority": 200, "conditions": { "max_stage": -1 }, "text": "Did I ask for a visit? Pretty sure I didn't." }
+		{ "event": "eating_chat", "priority": 200, "conditions": { "max_stage": -1 }, "text": "Did I ask for a visit? Pretty sure I didn't." },
+
+		{ "event": "order", "id": "cheddar_order_1a", "priority": 200, "conditions": { "stage": 1 }, "text": "Okay, okay, don't tell me the menu. I'm gonna guess. ...Is it soup? It's soup, isn't it.",
+			"choices": [
+				{ "tone": "warm", "text": "You can order whatever you like. Take your time.", "reply": "Aw, look at you being all nice. Suspicious. I'll have the [dish].", "change": 1 },
+				{ "tone": "playful", "text": "It's actually all soup. Every dish. Soup restaurant.", "reply": "I KNEW it. Give me the soupiest soup you've got.", "change": 4, "dish": "soup" },
+				{ "tone": "straight", "text": "Here's the menu.", "reply": "Booooring. Fine. The [dish].", "change": -2 },
+				{ "tone": "rude", "text": "Just order. You're not funny.", "reply": "Ooh, ROASTED! Okay, chef! The [dish].", "change": -4 }
+			]
+		},
+		{ "event": "order", "id": "cheddar_order_1b", "priority": 200, "conditions": { "stage": 1 }, "text": "Let me guess, you're gonna recommend the [cheese dish]. Because I'm a mouse. Named Cheddar. Classic.",
+			"choices": [
+				{ "tone": "warm", "text": "I'd rather know what you actually like.", "reply": "...Huh. Nobody asks that. The [dish], I guess.", "change": 3 },
+				{ "tone": "playful", "text": "No way. Cheese is for amateurs.", "reply": "FINALLY. A chef who gets it.", "change": 4 },
+				{ "tone": "straight", "text": "The [cheese dish] is popular.", "reply": "Yeah, yeah. Everyone says that.", "change": -2 },
+				{ "tone": "rude", "text": "You're a mouse. Just eat the cheese.", "reply": "Ha. Never heard that one before.", "change": -4 }
+			]
+		},
+		{ "event": "order", "id": "cheddar_order_2", "priority": 200, "conditions": { "stage": 2 }, "text": "Okay, new bit. You describe a dish without saying its name, and I guess. Go.",
+			"choices": [
+				{ "tone": "warm", "text": "It's warm, it's cozy, it's perfect for you.", "reply": "Aww. Okay, that's cheating, but I'll allow it. The [dish].", "change": 2 },
+				{ "tone": "playful", "text": "It's crunchy, it's mysterious, and it is NOT cheese.", "reply": "I'll take it, sight unseen. Best bit ever.", "change": 4 },
+				{ "tone": "straight", "text": "I'm kind of busy. Just order.", "reply": "Ugh. Fine. The [dish].", "change": -1 },
+				{ "tone": "rude", "text": "Your bits are getting old.", "reply": "...Wow. Okay. The [dish].", "change": -8 }
+			]
+		},
+		{ "event": "order", "id": "cheddar_order_3", "priority": 200, "conditions": { "stage": 3 }, "text": "Can I tell you something kinda weird? You're the first person who asked what I like instead of just handing me cheese. ...That's it. That's the thing. Ha. Order time!",
+			"choices": [
+				{ "tone": "warm", "text": "Of course I asked. You matter to me.", "reply": "...Okay. Okay! Wow. The [dish], please. I need to eat my feelings.", "change": 4 },
+				{ "tone": "playful", "text": "I'll never hand you cheese. That's my promise.", "reply": "Put it in writing. Laminate it.", "change": 3 },
+				{ "tone": "straight", "text": "It's just good service.", "reply": "Ha. Right. Sure.", "change": 0 },
+				{ "tone": "rude", "text": "Don't make it weird.", "reply": "...Yeah. Sorry. Forget I said it.", "change": -12 }
+			]
+		},
+		{ "event": "order", "id": "cheddar_order_4", "priority": 200, "conditions": { "stage": 4 }, "text": "Real talk, then bit. Real talk: I'm really glad this place exists. Bit: I'll have one of everything. Kidding. The [dish].",
+			"choices": [
+				{ "tone": "warm", "text": "I'm really glad you exist.", "reply": "...You can't follow my real talk with BETTER real talk. That's illegal.", "change": 3 },
+				{ "tone": "playful", "text": "One of everything, coming right up. Hope you're hungry.", "reply": "Wait, no, I was kidding— ...actually, let's see where this goes.", "change": 3 },
+				{ "tone": "straight", "text": "Good to hear. Coming right up.", "reply": "Yes, chef!", "change": 1 },
+				{ "tone": "rude", "text": "Can you just order like a normal person?", "reply": "...I thought we were past this.", "change": -12 }
+			]
+		},
+		{ "event": "order", "priority": 200, "conditions": { "stage": -1 }, "text": "I'll have the [dish]. Try not to set it on fire. Or do. Whatever." },
+		{ "event": "order", "priority": 200, "conditions": { "max_stage": -2 }, "text": "[dish]." },
+		{ "event": "eating_chat", "id": "cheddar_chat_2", "priority": 200, "conditions": { "stage": 2 }, "text": "Tell me a joke. Any joke. I've been doing all the work here.",
+			"choices": [
+				{ "tone": "warm", "text": "I'm not funny like you, but I like hearing yours.", "reply": "...Okay, that was nice. Don't do that. I'll get emotional in front of my food.", "change": 2 },
+				{ "tone": "playful", "text": "Why did the mouse cross the road? To steal my job as the funny one.", "change": 4 },
+				{ "tone": "straight", "text": "I don't really do jokes.", "reply": "Tragic. Truly.", "change": -1 },
+				{ "tone": "rude", "text": "You're the joke.", "reply": "...Ha. Good one.", "change": -8 }
+			]
+		},
+		{ "event": "eating_chat", "id": "cheddar_chat_seen", "priority": 200, "conditions": { "stage": 3 }, "text": "At home, if I wasn't being funny, nobody looked at me. Thirteen siblings. You had to earn the spotlight.",
+			"choices": [
+				{ "tone": "warm", "text": "You don't have to earn it here.", "reply": "...Don't say stuff like that while I'm chewing.", "change": 4 },
+				{ "tone": "playful", "text": "Well, here you're the headliner.", "reply": "Headliner! Put my name in lights!", "change": 3 },
+				{ "tone": "rude", "text": "Sounds exhausting. You're exhausting.", "reply": "...Yeah. I've heard.", "change": -12 }
+			]
+		},
+		{ "event": "eating_chat", "id": "cheddar_chat_quiet", "priority": 200, "conditions": { "stage": 3 }, "text": "Can I just... sit here for a minute without doing a bit? Is that allowed?",
+			"choices": [
+				{ "tone": "warm", "text": "(Sit with him quietly.)", "change": 3 },
+				{ "tone": "straight", "text": "(Leave him to it.)", "change": 0 }
+			]
+		},
+		{ "event": "pick_for_me", "id": "cheddar_surprise", "priority": 200, "conditions": { "min_relationship": 40 }, "text": "Surprise me, [nickname]. Shock me. Rock my world.",
+			"reactions": {
+				"favorite": [{ "text": "This is my FAVORITE. Are you reading my diary? I don't have a diary. Are you reading my mind?", "change": 5 }],
+				"disliked": [{ "text": "...You had ONE job.", "change": -3 }],
+				"other": [{ "text": "Ooh, a mystery! I love a mystery.", "change": 2 }]
+			}
+		}
 	]
 }

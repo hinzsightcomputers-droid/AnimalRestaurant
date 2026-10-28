@@ -60,6 +60,11 @@ func rig_for(player_index: int) -> CameraRig:
 	return view.rig if view != null else null
 
 
+# A player's own view (null if they have none yet), e.g. to show UI just for them.
+func view_for(player_index: int) -> Control:
+	return _views.get(player_index)
+
+
 # Groups currently on screen, e.g. [[0, 2], [1]].
 func groups() -> Array:
 	return _groups.duplicate(true)

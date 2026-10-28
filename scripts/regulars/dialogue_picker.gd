@@ -1,7 +1,9 @@
 # DialoguePicker: chooses what a regular says. Looks through data/dialogue.json
 # for lines of the given event whose conditions all match the context, takes the
-# highest priority (random among ties), and fills in {placeholders} like {player}
-# and the character files' [tokens] like [name].
+# highest priority, and fills in {placeholders} like {player} and the character
+# files' [tokens] like [name]. Among equally good lines it prefers ones the
+# regular hasn't said yet (the context's seen_lines, oldest first), so they
+# don't repeat themselves.
 class_name DialoguePicker
 extends RefCounted
 
@@ -14,10 +16,16 @@ const TOKENS := {
 
 
 static func pick(event: String, context: Dictionary) -> String:
+	var line := pick_line(event, context)
+	return fill(line["text"], context) if not line.is_empty() else ""
+
+
+# The best line itself (unfilled, with any choices), or {} if none fits.
+static func pick_line(event: String, context: Dictionary) -> Dictionary:
 	var best: Array = []
 	var best_priority := -INF
 	for line in GameData.dialogue:
-		if line["event"] != event or not _all_conditions_met(line.get("conditions", {}), context):
+		if line["event"] != event or not conditions_met(line.get("conditions", {}), context):
 			continue
 		var priority: float = line.get("priority", 0)
 		if priority > best_priority:
@@ -27,9 +35,27 @@ static func pick(event: String, context: Dictionary) -> String:
 			best.append(line)
 
 	if best.is_empty():
-		return ""
-	var text: String = best.pick_random()["text"]
-	return fill(text, context)
+		return {}
+	return _least_seen(best, context.get("seen_lines", []))
+
+
+# How seen_lines refers to a line: its "id", or a hash of its text.
+static func line_key(line: Dictionary) -> String:
+	return line.get("id", str(String(line.get("text", "")).hash()))
+
+
+# The line from `lines` said longest ago (never said counts as longest), random among ties.
+static func _least_seen(lines: Array, seen: Array) -> Dictionary:
+	var oldest: Array = []
+	var oldest_index := INF
+	for line in lines:
+		var index := float(seen.find(line_key(line)))  # -1 if never said.
+		if index < oldest_index:
+			oldest_index = index
+			oldest = [line]
+		elif index == oldest_index:
+			oldest.append(line)
+	return oldest.pick_random()
 
 
 # {key} and [token] placeholders -> values from the context.
@@ -43,7 +69,7 @@ static func fill(text: String, context: Dictionary) -> String:
 	return result
 
 
-static func _all_conditions_met(conditions: Dictionary, context: Dictionary) -> bool:
+static func conditions_met(conditions: Dictionary, context: Dictionary) -> bool:
 	for key in conditions:
 		if not _condition_met(key, conditions[key], context):
 			return false
@@ -79,8 +105,14 @@ static func _condition_met(key: String, want: Variant, context: Dictionary) -> b
 			return context.get("stage", 0) <= want
 		"served_quality_min":
 			return context.get("served_quality", -1.0) >= want
-		"served_quality_max":
+		"served_quality_max":  # Below, so a 0.4 dish counts as okay, not burnt.
 			return context.has("served_quality") and context["served_quality"] < want
+		"memory":  # { field: value } in the regular's memory, e.g. { "dislike_confessed": false }.
+			var memory: Dictionary = context.get("memory", {})
+			for field in want:
+				if memory.get(field) != want[field]:
+					return false
+			return true
 		"knows_player_name", "returned_after_away", "ordered_favorite", "learned_name", "new_chef_for_them", "has_rude_line", "served_favorite", "served_disliked":
 			return context.get(key, false) == want
 		"min_known_here":

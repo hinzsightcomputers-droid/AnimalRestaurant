@@ -159,11 +159,31 @@ static func dialogue_context(record: Dictionary, chef_id: String, extra: Diction
 		"returned_after_away": days >= GameData.regular_settings.get("away_days", 3),
 		"favorite": GameData.get_dish(record["favorite_dish"]).get("name", ""),
 		"disliked": GameData.get_dish(record["disliked_dish"]).get("name", ""),
+		"seen_lines": record.get("seen_lines", []),
+		"memory": record,  # For "memory" conditions on character-specific fields.
 	}
 	for token in dish_tokens:  # "soup", "cheese dish"... -> that dish's name.
 		context[token] = GameData.get_dish(dish_tokens[token]).get("name", token)
 	context.merge(extra, true)
 	return context
+
+
+# The line this regular says for `event` (unfilled, with any choices), or {}.
+# Remembers it in seen_lines, so they say something else next time.
+static func pick_line(record: Dictionary, event: String, context: Dictionary) -> Dictionary:
+	var line := DialoguePicker.pick_line(event, context)
+	if not line.is_empty():
+		var seen: Array = record.get_or_add("seen_lines", [])
+		var key := DialoguePicker.line_key(line)
+		seen.erase(key)
+		seen.append(key)  # Most recent last.
+	return line
+
+
+# Like pick_line, but just the filled-in text ("" if nothing fits).
+static func say(record: Dictionary, event: String, context: Dictionary) -> String:
+	var line := pick_line(record, event, context)
+	return DialoguePicker.fill(line["text"], context) if not line.is_empty() else ""
 
 
 # "Alex", "Alex and Sam", "Alex, Sam and Jo".

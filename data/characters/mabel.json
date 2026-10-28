@@ -66,13 +66,90 @@
 		{ "event": "served", "priority": 200, "conditions": { "max_stage": -1 }, "text": "Thank you." },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Your stove runs hot on the left side. Turn it down a notch. Trust me." },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "I ran a diner for fifty years. Don't look so surprised. I wasn't always this slow. ...I was always this slow." },
-		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Have you seen my glasses? I had them when I came in." },
-		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 2 }, "text": "Can I give you some advice? You don't have to take it." },
-		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3 }, "text": "I haven't cooked for anyone since Walter. Not even myself. That's why I come here, I suppose." },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3 }, "text": "That bear with the patches. Stitches. He sits alone every time. Someone ought to say hello to him." },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3 }, "text": "My grandson Cheddar thinks I don't notice his pranks. I notice everything. I let him have it." },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "You taste everything before it goes out now. I've watched you. That's how I know you'll be fine." },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "If I had a granddaughter or grandson who cooked like you, I'd be very proud. ...Well. I suppose I do." },
-		{ "event": "eating_chat", "priority": 200, "conditions": { "max_stage": -1 }, "text": "Is there something you need, chef? I'm quite comfortable." }
+		{ "event": "eating_chat", "priority": 200, "conditions": { "max_stage": -1 }, "text": "Is there something you need, chef? I'm quite comfortable." },
+
+		{ "event": "order", "id": "mabel_order_1a", "priority": 200, "conditions": { "stage": 1 }, "text": "Tell me honestly, chef. What's the best thing you make? Not the thing you want to sell me. The best thing.",
+			"choices": [
+				{ "tone": "warm", "text": "Everything's made with love, so all of it!", "reply": "Love doesn't season a pot, dear. I'll have the [dish].", "change": 1 },
+				{ "tone": "playful", "text": "Honestly? The bread. I bought it.", "reply": "Well, at least you're honest. The [dish].", "change": 1 },
+				{ "tone": "straight", "text": "The [dish]. It's the one I get right every time.", "reply": "Good. That's the answer I wanted. I'll have it.", "change": 4 },
+				{ "tone": "rude", "text": "Just read the menu yourself.", "reply": "I've survived worse than you, chef. The [dish].", "change": -6 }
+			]
+		},
+		{ "event": "order", "id": "mabel_order_1b", "priority": 200, "conditions": { "stage": 1 }, "dish": "soup", "text": "Did I ever tell you about the summer of '62? No? Well, there was a storm, and Walter had just— ...well, it'll keep. Soup, please.",
+			"choices": [
+				{ "tone": "warm", "text": "I'd love to hear it sometime.", "reply": "Hm. Maybe you will.", "change": 1 },
+				{ "tone": "playful", "text": "You can't stop there! That's a cliffhanger!", "reply": "Patience is a virtue, dear. Soup.", "change": 1 },
+				{ "tone": "straight", "text": "I'll get your soup. Tell me the rest when you're ready.", "reply": "Good answer. Some stories have to be earned.", "change": 4 },
+				{ "tone": "rude", "text": "Nobody asked.", "reply": "No. No one ever does.", "change": -6 }
+			]
+		},
+		{ "event": "order", "id": "mabel_order_1c", "priority": 200, "conditions": { "stage": 1, "memory": { "name_test_passed": false } }, "text": "Thank you, [wrong name]. Now, what's good today?",
+			"choices": [
+				{ "tone": "warm", "text": "It's [name], but you can call me whatever you like!", "reply": "I'll call you by your name, dear. I'm not a barbarian.", "change": 1 },
+				{ "tone": "playful", "text": "[wrong name] is my evil twin. I'm [name].", "reply": "Hm. Keep an eye on him, then.", "change": 2 },
+				{ "tone": "straight", "text": "It's actually [name].", "reply": "Is it now. Noted.", "change": 3 },
+				{ "tone": "rude", "text": "Can you not even get my name right?", "reply": "I'm ninety-one, chef. Can you not be kind?", "change": -6 }
+			]
+		},
+		{ "event": "order", "id": "mabel_order_2", "priority": 200, "conditions": { "stage": 2 }, "text": "Be honest. Are you tired? You look tired. A tired cook burns things.",
+			"choices": [
+				{ "tone": "warm", "text": "I'm fine, but thank you for caring.", "reply": "Hm. I'll take your word for it. The [dish].", "change": 2 },
+				{ "tone": "playful", "text": "Tired? Me? I'm running on pure soup.", "reply": "Ha. Well, don't drink the stock.", "change": 2 },
+				{ "tone": "straight", "text": "Yeah, honestly. It's been a long week.", "reply": "Thank you for telling me. Make mine simple today. Soup.", "change": 4, "dish": "soup" },
+				{ "tone": "rude", "text": "Mind your own business.", "reply": "Hm. I'll have the [dish]. And I'll mind my business.", "change": -8 }
+			]
+		},
+		{ "event": "order", "id": "mabel_order_3", "priority": 200, "conditions": { "stage": 3 }, "dish": "soup", "text": "Walter used to say you can tell everything about a cook by their soup. What would yours say about you?",
+			"choices": [
+				{ "tone": "warm", "text": "That I care about the people I'm feeding.", "reply": "...Yes. I think it would. Soup, please.", "change": 3 },
+				{ "tone": "playful", "text": "That I need more salt.", "reply": "Ha! Walter would've liked you.", "change": 2 },
+				{ "tone": "straight", "text": "That I'm still learning, but I'm trying.", "reply": "That's the best thing a cook can be. Soup.", "change": 3 },
+				{ "tone": "rude", "text": "That I don't care about your husband's sayings.", "reply": "...Soup.", "change": -10 }
+			]
+		},
+		{ "event": "order", "id": "mabel_order_4", "priority": 200, "conditions": { "stage": 4 }, "dish": "soup", "text": "I'm going to order the soup, and then you're going to tell me honestly how your week has been. All of it.",
+			"choices": [
+				{ "tone": "warm", "text": "It's better now that you're here.", "reply": "Flatterer. ...Thank you, dear.", "change": 3 },
+				{ "tone": "playful", "text": "All of it? You might need two bowls.", "reply": "Then bring two.", "change": 2 },
+				{ "tone": "straight", "text": "(Tell her honestly that it was hard.)", "reply": "Thank you for telling me. Hard weeks end. Good soup helps.", "change": 3 },
+				{ "tone": "rude", "text": "You're not my grandma.", "reply": "...No. I suppose I'm not.", "change": -12 }
+			]
+		},
+		{ "event": "order", "priority": 200, "conditions": { "stage": -1 }, "text": "The [dish], please. Thank you." },
+		{ "event": "order", "priority": 200, "conditions": { "max_stage": -2 }, "text": "The [dish]." },
+		{ "event": "eating_chat", "id": "mabel_chat_glasses", "priority": 200, "conditions": { "stage": 1 }, "text": "Have you seen my glasses? I had them when I came in.",
+			"choices": [
+				{ "tone": "straight", "text": "They're on your head, Mabel.", "change": 2 },
+				{ "tone": "playful", "text": "Have you tried looking up?", "change": 1 },
+				{ "tone": "straight", "text": "(Say nothing.)", "change": 0 }
+			]
+		},
+		{ "event": "eating_chat", "id": "mabel_chat_2", "priority": 200, "conditions": { "stage": 2 }, "text": "Can I give you some advice? You don't have to take it.",
+			"choices": [
+				{ "tone": "warm", "text": "I'd love that, Mabel.", "reply": "Taste everything before it leaves your kitchen. Everything. That's it. That's the advice.", "change": 2 },
+				{ "tone": "playful", "text": "Is it 'more salt'? It's always more salt.", "reply": "It's sometimes more salt. Today it's not.", "change": 2 },
+				{ "tone": "straight", "text": "Yes. Tell me what I'm doing wrong.", "reply": "You rush the plating. Food deserves a second look before it goes out.", "change": 4 },
+				{ "tone": "rude", "text": "I don't need advice from you.", "reply": "No. You don't need anything from me.", "change": -8 }
+			]
+		},
+		{ "event": "eating_chat", "id": "mabel_chat_walter", "priority": 200, "conditions": { "stage": 3 }, "text": "I haven't cooked for anyone since Walter. Not even myself. That's why I come here, I suppose.",
+			"choices": [
+				{ "tone": "warm", "text": "I'm glad you come here.", "reply": "So am I, dear.", "change": 3 },
+				{ "tone": "straight", "text": "Maybe you could cook something with me sometime.", "reply": "...Maybe. Don't push your luck.", "change": 3 },
+				{ "tone": "rude", "text": "That's kind of sad.", "reply": "Yes. It is.", "change": -10 }
+			]
+		},
+		{ "event": "pick_for_me", "id": "mabel_recommend", "priority": 200, "conditions": { "min_relationship": 40 }, "text": "Recommend me something. And tell me why. A recommendation without a reason is just a guess.",
+			"reactions": {
+				"favorite": [{ "text": "Soup. Of course you'd pick soup. You've been paying attention.", "change": 5 }],
+				"disliked": [{ "text": "Hm. You're brave. Wrong, but brave.", "change": -1 }],
+				"other": [{ "text": "Fair enough. Let's see.", "change": 1 }]
+			}
+		}
 	]
 }

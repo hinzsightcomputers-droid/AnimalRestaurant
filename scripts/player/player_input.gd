@@ -16,5 +16,9 @@ func is_interact_just_pressed() -> bool:
 	return Input.is_action_just_pressed(_action("interact"))
 
 
+func is_interact_pressed() -> bool:
+	return Input.is_action_pressed(_action("interact"))
+
+
 func _action(action: String) -> String:
 	return InputSetup.action_name(player_index, action)

@@ -70,13 +70,91 @@
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Oh! Hi. Is something wrong? Am I eating too slow?" },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "It's quiet in here today. I like quiet. ...I'm used to it." },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Sorry if I'm staring at the kitchen. It's nice watching someone make something with care." },
-		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 2 }, "text": "Can I tell you something? This is the only place where nobody stares at my patches." },
-		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3 }, "text": "When I was little, my ear got torn off in a fight I didn't start. I sewed it back on myself. It came out crooked. It's still crooked." },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3 }, "text": "Do you ever feel like you're too much? Or not enough? ...Sorry. That's a big question for lunch." },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3 }, "text": "I could fix that loose button on your apron. If you want. I'm good at fixing things. Just not myself. ...That was a joke! Mostly." },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "I used to think my patches made me broken. Now I think they just make me... me." },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "I said hi to someone at the park today. First. I went first. My heart was pounding." },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "Do you need anything mended? I mean it. You've fixed a lot for me. Let me fix something for you." },
-		{ "event": "eating_chat", "priority": 200, "conditions": { "max_stage": -1 }, "text": "Did you need something? I'm almost done. I'll go soon." }
+		{ "event": "eating_chat", "priority": 200, "conditions": { "max_stage": -1 }, "text": "Did you need something? I'm almost done. I'll go soon." },
+
+		{ "event": "order", "id": "stitches_order_1a", "priority": 200, "conditions": { "stage": 1 }, "text": "Um... I'll just have whatever's easiest for you. I don't want to make extra work.",
+			"choices": [
+				{ "tone": "warm", "text": "You're never extra work. Order what you really want.", "reply": "...Really? Okay. Then the [dish]. Thank you. Thank you.", "change": 4 },
+				{ "tone": "playful", "text": "Easiest for me is nothing. Want a bowl of air?", "reply": "Ha... that was funny. I think.", "change": [1, -1], "miss_reply": "Oh. Sorry. I'll pick something." },
+				{ "tone": "straight", "text": "Just tell me what you want.", "reply": "S-sorry. The [dish]. Sorry.", "change": -1 },
+				{ "tone": "rude", "text": "Then hurry up and pick. People are waiting.", "reply": "...Right. Sorry. The [dish].", "change": -8 }
+			]
+		},
+		{ "event": "order", "id": "stitches_order_1b", "priority": 200, "conditions": { "stage": 1 }, "text": "Sorry, I'm slow to decide. Everything sounds nice. That's a good problem, I guess.",
+			"choices": [
+				{ "tone": "warm", "text": "Take all the time you need. I'll wait.", "reply": "...Nobody ever says that to me.", "change": 4 },
+				{ "tone": "playful", "text": "Close your eyes and point at the menu.", "reply": "Okay... oh! That's a good one, actually.", "change": 1 },
+				{ "tone": "straight", "text": "I'll come back in a minute.", "reply": "Okay. Sorry.", "change": -1 },
+				{ "tone": "rude", "text": "Seriously? It's not that hard.", "reply": "...I know. I'm sorry.", "change": -8 }
+			]
+		},
+		{ "event": "order", "id": "stitches_order_1c", "priority": 200, "conditions": { "stage": 1 }, "text": "Sorry, my paw's stitching came loose again. Please don't mind it.",
+			"choices": [
+				{ "tone": "warm", "text": "Your stitching is really neat. Did you do it yourself?", "reply": "...You noticed? I did. Thank you.", "change": 5 },
+				{ "tone": "playful", "text": "It matches the tablecloth. Very stylish.", "reply": "Oh... does it? I didn't plan that.", "change": 1 },
+				{ "tone": "straight", "text": "No problem. What can I get you?", "reply": "The [dish], please.", "change": 0 },
+				{ "tone": "rude", "text": "Just don't get stuffing in the food.", "reply": "...I'll be careful.", "change": -8 }
+			]
+		},
+		{ "event": "order", "id": "stitches_order_2", "priority": 200, "conditions": { "stage": 2 }, "text": "I tried to guess what I'd order on the way here. I changed my mind three times.",
+			"choices": [
+				{ "tone": "warm", "text": "Whatever you pick will be the right choice.", "reply": "...You always say nice things. I'm not used to it yet.", "change": 3 },
+				{ "tone": "playful", "text": "Let me guess for you. I'm amazing at guessing.", "reply": "You'll just pick what you're best at making! ...That was a joke. Was it okay?", "change": 2 },
+				{ "tone": "straight", "text": "What did you land on?", "reply": "The [dish], please.", "change": 0 },
+				{ "tone": "rude", "text": "Can you not ramble? I'm busy.", "reply": "Oh... right. Sorry.", "change": -8 }
+			]
+		},
+		{ "event": "order", "id": "stitches_order_3", "priority": 200, "conditions": { "stage": 3 }, "text": "How's your day been? You always ask about mine. It's your turn.",
+			"choices": [
+				{ "tone": "warm", "text": "Better now that you're here.", "reply": "You can't just say things like that. Now I'll be smiling all day.", "change": 3 },
+				{ "tone": "playful", "text": "A customer asked about my day. Very suspicious.", "reply": "Okay, okay! I'll order! The [dish].", "change": 3 },
+				{ "tone": "straight", "text": "Busy, but good.", "reply": "I'm glad. Don't work too hard, okay?", "change": 1 },
+				{ "tone": "rude", "text": "Why do you even care?", "reply": "...Because I do. Sorry. I'll just order.", "change": -10 }
+			]
+		},
+		{ "event": "order", "id": "stitches_order_4", "priority": 200, "conditions": { "stage": 4 }, "text": "I'm going to order something I've never tried. Old me would never. New me is brave. Mostly.",
+			"choices": [
+				{ "tone": "warm", "text": "I'm really proud of you, you know.", "reply": "...Don't make me cry before I've even eaten.", "change": 2 },
+				{ "tone": "playful", "text": "New you better tip less than old you.", "reply": "Never! Old me and new me agree on tipping.", "change": 3 },
+				{ "tone": "straight", "text": "Go for it. I'll make it good.", "reply": "I know you will.", "change": 1 },
+				{ "tone": "rude", "text": "Nobody cares, just order.", "reply": "...Oh. Okay.", "change": -12 }
+			]
+		},
+		{ "event": "order", "priority": 200, "conditions": { "stage": -1 }, "text": "I'll be quick. I won't bother you." },
+		{ "event": "order", "priority": 200, "conditions": { "max_stage": -2 }, "text": "The [dish]. Please." },
+		{ "event": "eating_chat", "id": "stitches_chat_2", "priority": 200, "conditions": { "stage": 2 }, "text": "Can I tell you something? This is the only place where nobody stares at my patches.",
+			"choices": [
+				{ "tone": "warm", "text": "They're part of you. I like them.", "reply": "...Okay.", "change": 3 },
+				{ "tone": "playful", "text": "Everyone's too busy staring at my cooking.", "reply": "Ha! That's true. It's very stare-able.", "change": 2 },
+				{ "tone": "straight", "text": "Glad you feel comfortable here.", "reply": "I really do.", "change": 0 },
+				{ "tone": "rude", "text": "Probably because you hide in the corner.", "reply": "...Yeah. Probably.", "change": -8 }
+			]
+		},
+		{ "event": "eating_chat", "id": "stitches_chat_ear", "priority": 200, "conditions": { "stage": 3 }, "text": "When I was little, my ear got torn off in a fight I didn't start. I sewed it back on myself. It came out crooked. It's still crooked.",
+			"choices": [
+				{ "tone": "warm", "text": "You fixed it yourself. That's brave.", "reply": "Nobody ever called it brave. They called it ugly.", "change": 3 },
+				{ "tone": "playful", "text": "Crooked ears are in this season.", "reply": "Then I'm very fashionable.", "change": 3 },
+				{ "tone": "rude", "text": "Yeah, I can tell.", "change": -10 }
+			]
+		},
+		{ "event": "pick_for_me", "id": "stitches_recommend", "priority": 200, "conditions": { "min_relationship": 40, "max_stage": 3 }, "text": "Um, [name]? What would you recommend? You'd know better than me.",
+			"reactions": {
+				"favorite": [{ "text": "This is my favorite. How did you know? ...Did you remember?", "change": 5 }],
+				"disliked": [{ "text": "Oh! It's good. I'm going to eat all of it.", "change": 0 }],
+				"other": [{ "text": "I'll trust you. You haven't been wrong yet.", "change": 1 }]
+			}
+		},
+		{ "event": "pick_for_me", "id": "stitches_surprise", "priority": 200, "conditions": { "stage": 4 }, "text": "Surprise me. I trust you completely.",
+			"reactions": {
+				"favorite": [{ "text": "You KNOW me. This is the best day.", "change": 0 }],
+				"disliked": [{ "conditions": { "memory": { "dislike_confessed": false } }, "text": "Okay. I need to confess something. I've never liked this one. I just never wanted to hurt your feelings.", "change": 0, "set": { "dislike_confessed": true } }],
+				"other": [{ "text": "New! I like new things now. That's new too.", "change": 0 }]
+			}
+		}
 	]
 }

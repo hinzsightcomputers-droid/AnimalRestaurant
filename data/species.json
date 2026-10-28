@@ -1,10 +1,8 @@
 {
 	"species": [
-		{ "id": "rabbit", "name": "Rabbit", "color": "#f3e9dc" },
 		{ "id": "cat", "name": "Cat", "color": "#f0a35e" },
 		{ "id": "bear", "name": "Bear", "color": "#8b5a3c" },
 		{ "id": "frog", "name": "Frog", "color": "#7cc46a" },
-		{ "id": "duck", "name": "Duck", "color": "#f5d76e" },
 		{ "id": "mouse", "name": "Mouse", "color": "#a9a7ae" },
 		{ "id": "tortoise", "name": "Tortoise", "color": "#6f9e5a" }
 	]
