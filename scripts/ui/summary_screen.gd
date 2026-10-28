@@ -1,8 +1,11 @@
 # SummaryScreen: the end-of-day results panel. Hidden until the DayManager
 # reports the day has ended, then shows the totals, what each chef did, and a
 # button to start the next day. The Friends button flips to a page of which
-# chefs each regular knows. Runs while the game is paused.
+# chefs each regular knows, and the Shop button to the upgrades you can buy.
+# Runs while the game is paused.
 extends CanvasLayer
+
+enum Page { SUMMARY, FRIENDS, SHOP }
 
 const INPUT_DELAY := 1.0  # Ignore input briefly so a held E doesn't skip the screen.
 # Chef actions in the order they're listed, with how to say each count.
@@ -17,19 +20,22 @@ const ACTION_WORDS := [
 
 @onready var title_label: Label = $Panel/Content/Title
 @onready var body_label: Label = $Panel/Content/Body
+@onready var upgrade_list: VBoxContainer = $Panel/Content/UpgradeList
 @onready var friends_button: Button = $Panel/Content/Buttons/FriendsButton
+@onready var shop_button: Button = $Panel/Content/Buttons/ShopButton
 @onready var next_button: Button = $Panel/Content/Buttons/NextDayButton
 
 var _input_delay_left := 0.0
 var _summary: Dictionary = {}
-var _showing_friends := false
+var _page := Page.SUMMARY
 
 
 func _ready() -> void:
 	visible = false
 	day_manager.day_ended.connect(_show_summary)
 	next_button.pressed.connect(_on_next_pressed)
-	friends_button.pressed.connect(_toggle_friends)
+	friends_button.pressed.connect(_toggle_page.bind(Page.FRIENDS))
+	shop_button.pressed.connect(_toggle_page.bind(Page.SHOP))
 
 
 func _process(delta: float) -> void:
@@ -38,20 +44,25 @@ func _process(delta: float) -> void:
 		next_button.disabled = _input_delay_left > 0.0
 
 
-# Any player's interact button also continues (the button itself handles Enter / click).
+# Any player's interact button presses the focused button (Start Day at first;
+# the button itself handles Enter / click / gamepad accept).
 func _unhandled_input(event: InputEvent) -> void:
 	if not visible:
 		return
 	for player_index in InputSetup.MAX_PLAYERS:
 		if event.is_action_pressed(InputSetup.action_name(player_index, "interact")):
 			get_viewport().set_input_as_handled()
-			_on_next_pressed()
+			var focused := get_viewport().gui_get_focus_owner() as Button
+			if focused != null and focused != next_button and not focused.disabled:
+				focused.pressed.emit()
+			else:
+				_on_next_pressed()
 			return
 
 
 func _show_summary(summary: Dictionary) -> void:
 	_summary = summary
-	_showing_friends = false
+	_page = Page.SUMMARY
 	_refresh_page()
 	next_button.text = "Start Day %d" % GameState.day
 	next_button.disabled = true
@@ -82,20 +93,72 @@ func _summary_text(summary: Dictionary) -> String:
 	return "\n".join(lines)
 
 
-func _toggle_friends() -> void:
-	_showing_friends = not _showing_friends
+# Friends and Shop open their page, or go back to the summary if already open.
+func _toggle_page(page: Page) -> void:
+	_page = Page.SUMMARY if _page == page else page
 	_refresh_page()
 
 
 func _refresh_page() -> void:
-	if _showing_friends:
-		title_label.text = "Friends"
-		body_label.text = _friends_text()
-		friends_button.text = "Back to summary"
-	else:
-		title_label.text = "Day %d complete!" % _summary["day"]
-		body_label.text = _summary_text(_summary)
-		friends_button.text = "Friends"
+	upgrade_list.visible = _page == Page.SHOP
+	body_label.size_flags_vertical = Control.SIZE_FILL if _page == Page.SHOP else Control.SIZE_EXPAND_FILL
+	friends_button.text = "Back to summary" if _page == Page.FRIENDS else "Friends"
+	shop_button.text = "Back to summary" if _page == Page.SHOP else _shop_button_text()
+	match _page:
+		Page.FRIENDS:
+			title_label.text = "Friends"
+			body_label.text = _friends_text()
+		Page.SHOP:
+			title_label.text = "Shop"
+			body_label.text = "You have $%d. Treat the restaurant to something nice!" % GameState.money
+			_build_upgrade_list()
+		_:
+			title_label.text = "Day %d complete!" % _summary["day"]
+			body_label.text = _summary_text(_summary)
+			if not next_button.disabled:
+				next_button.grab_focus()  # Back on the summary, interact starts the day again.
+
+
+# "Shop (2 new!)" when there are upgrades you can afford right now.
+func _shop_button_text() -> String:
+	var affordable := 0
+	for upgrade in GameData.upgrades:
+		if not GameState.has_upgrade(upgrade["id"]) and GameState.money >= upgrade["price"]:
+			affordable += 1
+	return "Shop (%d new!)" % affordable if affordable > 0 else "Shop"
+
+
+# One button per upgrade: buyable, too pricey, or already owned.
+func _build_upgrade_list() -> void:
+	for child in upgrade_list.get_children():
+		upgrade_list.remove_child(child)
+		child.queue_free()
+	var first_buyable: Button = null
+	for upgrade in GameData.upgrades:
+		var button := Button.new()
+		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		button.custom_minimum_size = Vector2(0, 60)
+		button.add_theme_font_size_override("font_size", 18)
+		var status: String
+		if GameState.has_upgrade(upgrade["id"]):
+			status = "Owned"
+			button.disabled = true
+		elif GameState.money < upgrade["price"]:
+			status = "$%d (need $%d more)" % [upgrade["price"], upgrade["price"] - GameState.money]
+			button.disabled = true
+		else:
+			status = "Buy for $%d" % upgrade["price"]
+			if first_buyable == null:
+				first_buyable = button
+		button.text = "%s  -  %s\n%s" % [upgrade["name"], status, upgrade["description"]]
+		button.pressed.connect(_buy.bind(upgrade["id"]))
+		upgrade_list.add_child(button)
+	(first_buyable if first_buyable != null else shop_button).grab_focus()
+
+
+func _buy(upgrade_id: String) -> void:
+	if GameState.buy_upgrade(upgrade_id):
+		_refresh_page()
 
 
 # One line per chef playing (and anyone who did something today), e.g.

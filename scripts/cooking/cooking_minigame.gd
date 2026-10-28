@@ -23,7 +23,7 @@ var _direction := 1.0
 
 
 func _init(dish: Dictionary) -> void:
-	speed = BASE_SPEED * float(dish.get("cook_speed", 1.0))
+	speed = BASE_SPEED * float(dish.get("cook_speed", 1.0)) * GameState.upgrade_multiplier("stir_speed")
 
 
 func update(delta: float) -> void:

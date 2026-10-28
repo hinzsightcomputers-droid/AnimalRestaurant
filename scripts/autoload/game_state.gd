@@ -1,6 +1,7 @@
-# GameState (autoload): the restaurant's progress. Money, the current day, what
-# each regular remembers, and a record of every customer served today (for the
-# end-of-day summary). Loads the save file on startup and saves after each day.
+# GameState (autoload): the restaurant's progress. Money, the current day, the
+# upgrades bought, what each regular remembers, and a record of every customer
+# served today (for the end-of-day summary). Loads the save file on startup and
+# saves after each day.
 extends Node
 
 signal money_changed(money: int)
@@ -13,6 +14,8 @@ const REGULAR_MEMORY_FIELDS := ["relationship", "times_visited", "last_seen", "k
 
 var money := 0
 var day := 1
+# Ids of upgrades bought (see data/upgrades.json), in the order they were bought.
+var upgrades: Array[String] = []
 # One entry per served customer today:
 # { species, regular, dish, price, quality, wait_seconds, satisfaction, reaction, payment }
 var services_today: Array[Dictionary] = []
@@ -58,6 +61,39 @@ func add_money(amount: int) -> void:
 	money_changed.emit(money)
 
 
+func has_upgrade(upgrade_id: String) -> bool:
+	return upgrade_id in upgrades
+
+
+# Spend money on an upgrade and save. Returns false if it's owned or too pricey.
+func buy_upgrade(upgrade_id: String) -> bool:
+	var upgrade := GameData.get_upgrade(upgrade_id)
+	if upgrade.is_empty() or has_upgrade(upgrade_id) or money < upgrade["price"]:
+		return false
+	upgrades.append(upgrade_id)
+	add_money(-int(upgrade["price"]))
+	SaveGame.save_game()
+	return true
+
+
+# What owned upgrades add to a number, e.g. upgrade_bonus("patient_seconds").
+# Keys: chops, patient_seconds, tip_percent.
+func upgrade_bonus(key: String) -> float:
+	var total := 0.0
+	for upgrade_id in upgrades:
+		total += GameData.get_upgrade(upgrade_id).get("bonus", {}).get(key, 0.0)
+	return total
+
+
+# What owned upgrades scale a number by, e.g. upgrade_multiplier("stir_speed").
+# Keys: stir_speed, arrival_interval.
+func upgrade_multiplier(key: String) -> float:
+	var factor := 1.0
+	for upgrade_id in upgrades:
+		factor *= GameData.get_upgrade(upgrade_id).get("multiplier", {}).get(key, 1.0)
+	return factor
+
+
 func record_service(service: Dictionary) -> void:
 	services_today.append(service)
 
@@ -82,6 +118,7 @@ func to_save_data() -> Dictionary:
 		"saved_at": Time.get_datetime_string_from_system(true),
 		"money": money,
 		"day": day,
+		"upgrades": upgrades,
 		"regulars": regular_memory,
 	}
 
@@ -91,6 +128,8 @@ func to_save_data() -> Dictionary:
 func apply_save_data(data: Dictionary) -> void:
 	money = int(data.get("money", money))
 	day = int(data.get("day", day))
+	# Ignore upgrades that were removed from data/upgrades.json.
+	upgrades.assign(data.get("upgrades", []).filter(func(id): return GameData.upgrades.any(func(u): return u["id"] == id)))
 	var legacy_account_id := _account_from_old_save(data)
 	var saved_regulars: Dictionary = data.get("regulars", {})
 	for id in saved_regulars:

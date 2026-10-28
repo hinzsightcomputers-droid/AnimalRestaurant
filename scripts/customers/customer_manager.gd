@@ -38,7 +38,7 @@ func _ready() -> void:
 	_try_spawn_customer()
 
 	var timer := Timer.new()
-	timer.wait_time = arrival_interval
+	timer.wait_time = arrival_interval * GameState.upgrade_multiplier("arrival_interval")  # Welcome Sign.
 	timer.timeout.connect(_try_spawn_customer)
 	add_child(timer)
 	timer.start()

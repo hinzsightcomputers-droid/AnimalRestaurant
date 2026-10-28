@@ -1,5 +1,5 @@
 # GameData (autoload): loads game content (dishes, species, reactions, regulars,
-# dialogue) from JSON files in res://data/. Other scripts ask GameData for content
+# dialogue, upgrades) from JSON files in res://data/. Other scripts ask GameData for content
 # instead of hard-coding it. This is the starting content; what changes during
 # play (like a regular's memory) lives in GameState.
 extends Node
@@ -9,6 +9,7 @@ const SPECIES_PATH := "res://data/species.json"
 const REACTIONS_PATH := "res://data/reactions.json"
 const REGULARS_PATH := "res://data/regulars.json"
 const DIALOGUE_PATH := "res://data/dialogue.json"
+const UPGRADES_PATH := "res://data/upgrades.json"
 
 # Each dish: { id, name, price, cook_speed, ingredient: { name, color, chop? } }.
 # "chop" ({ name, chops }) means the ingredient goes to the chopping board first.
@@ -26,6 +27,9 @@ var regulars: Array[Dictionary] = []
 var regular_settings: Dictionary = {}
 # Each line: { event, priority, conditions, text }
 var dialogue: Array[Dictionary] = []
+# Each upgrade: { id, name, price, description, bonus?: { key: amount }, multiplier?: { key: factor } }.
+# See GameState.upgrade_bonus / upgrade_multiplier for the keys.
+var upgrades: Array[Dictionary] = []
 
 
 func _ready() -> void:
@@ -35,6 +39,7 @@ func _ready() -> void:
 	regulars = _load_list(REGULARS_PATH, "regulars")
 	regular_settings = _load_dictionary(REGULARS_PATH).get("settings", {})
 	dialogue = _load_list(DIALOGUE_PATH, "lines")
+	upgrades = _load_list(UPGRADES_PATH, "upgrades")
 
 
 func get_species(species_id: String) -> Dictionary:
@@ -50,6 +55,14 @@ func get_dish(dish_id: String) -> Dictionary:
 		if dish["id"] == dish_id:
 			return dish
 	push_error("Unknown dish id: %s" % dish_id)
+	return {}
+
+
+func get_upgrade(upgrade_id: String) -> Dictionary:
+	for upgrade in upgrades:
+		if upgrade["id"] == upgrade_id:
+			return upgrade
+	push_error("Unknown upgrade id: %s" % upgrade_id)
 	return {}
 
 

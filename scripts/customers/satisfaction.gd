@@ -15,8 +15,9 @@ static func calculate(quality: float, wait_seconds: float) -> float:
 # 1.0 up to patient_seconds, then drops to 0.0 at max_wait_seconds.
 static func wait_score(wait_seconds: float) -> float:
 	var config := GameData.reactions
-	var patient: float = config.get("patient_seconds", 40.0)
-	var max_wait: float = config.get("max_wait_seconds", 100.0)
+	var extra_patience := GameState.upgrade_bonus("patient_seconds")  # Comfy Cushions.
+	var patient: float = config.get("patient_seconds", 40.0) + extra_patience
+	var max_wait: float = config.get("max_wait_seconds", 100.0) + extra_patience
 	if wait_seconds <= patient:
 		return 1.0
 	return clampf(1.0 - (wait_seconds - patient) / (max_wait - patient), 0.0, 1.0)
@@ -36,4 +37,6 @@ static func reaction_for(satisfaction: float) -> Dictionary:
 static func payment_for(dish: Dictionary, reaction: Dictionary) -> int:
 	var price: float = dish.get("price", 0)
 	var percent: float = reaction.get("payment_percent", 100)
+	if percent > 100.0:
+		percent += GameState.upgrade_bonus("tip_percent")  # Tip Jar: bigger tips only.
 	return roundi(price * percent / 100.0)

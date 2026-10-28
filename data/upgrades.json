@@ -1,0 +1,19 @@
+{
+	"upgrades": [
+		{ "id": "sharp_knife", "name": "Sharp Knife", "price": 30,
+			"description": "Chopping takes 2 fewer chops.",
+			"bonus": { "chops": -2 } },
+		{ "id": "comfy_cushions", "name": "Comfy Cushions", "price": 45,
+			"description": "Customers wait 15 seconds longer before getting grumpy.",
+			"bonus": { "patient_seconds": 15 } },
+		{ "id": "steady_stove", "name": "Steady Stove", "price": 60,
+			"description": "The stirring marker moves 15% slower.",
+			"multiplier": { "stir_speed": 0.85 } },
+		{ "id": "tip_jar", "name": "Tip Jar", "price": 80,
+			"description": "Happy and delighted customers tip 10% more.",
+			"bonus": { "tip_percent": 10 } },
+		{ "id": "welcome_sign", "name": "Welcome Sign", "price": 100,
+			"description": "Customers arrive 20% more often.",
+			"multiplier": { "arrival_interval": 0.8 } }
+	]
+}
