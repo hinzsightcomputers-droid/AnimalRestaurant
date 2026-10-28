@@ -256,6 +256,8 @@
 		{ "event": "phone_chat", "id": "stitches_phone_chat_placeholder", "priority": 200, "conditions": { "stage": 4 }, "text": "Hi, [name]! It's Stitches. I'm not ordering anything. I just... wanted to call someone. And you were the first one I thought of. Okay. Bye!" },
 
 		{ "event": "return_scene", "id": "stitches_return", "priority": 200, "text": "Hi. ...I almost didn't come in. That's twice now, at this restaurant.", "choices": [ { "text": "I'm so sorry. You didn't deserve any of it.", "reply": "...I kept thinking it was my fault. That I was too much.", "change": 0 },{ "text": "I was cruel to you. There's no excuse.", "reply": "Thank you for not making one.", "change": 0 },{ "text": "I want to start over, if you'll let me.", "reply": "Starting over is okay. I'm good at fixing things.", "change": 0 } ]},
-		{ "event": "return_closing", "id": "stitches_return_closing", "priority": 200, "text": "I forgive you. I think I already did, a little, before I even walked in. ...Can I have the corner table? Just for now." }
+		{ "event": "return_closing", "id": "stitches_return_closing", "priority": 200, "text": "I forgive you. I think I already did, a little, before I even walked in. ...Can I have the corner table? Just for now." },
+
+		{ "event": "eating_chat", "id": "stitches_notices_bell", "priority": 240, "once": true, "conditions": { "unlocked": "mabel_bell" }, "text": "Mabel told me about the bell. She said it's in good hands. She looked really happy, [name]." }
 	]
 }

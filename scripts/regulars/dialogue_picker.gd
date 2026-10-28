@@ -27,6 +27,8 @@ static func pick_line(event: String, context: Dictionary) -> Dictionary:
 	for line in GameData.dialogue:
 		if line["event"] != event or not conditions_met(line.get("conditions", {}), context):
 			continue
+		if line.get("once", false) and line_key(line) in context.get("seen_lines", []):
+			continue  # Said already, and it's a one-time line.
 		var priority: float = line.get("priority", 0)
 		if priority > best_priority:
 			best_priority = priority
@@ -109,6 +111,27 @@ static func _condition_met(key: String, want: Variant, context: Dictionary) -> b
 			return context.get("served_quality", -1.0) >= want
 		"served_quality_max":  # Below, so a 0.4 dish counts as okay, not burnt.
 			return context.has("served_quality") and context["served_quality"] < want
+		"memory_min":  # { field: n }: a number in their memory is at least n, e.g. { "story_part": 3 }.
+			var memory: Dictionary = context.get("memory", {})
+			for field in want:
+				if float(memory.get(field, 0)) < float(want[field]):
+					return false
+			return true
+		"memory_set":  # [field, ...]: each is filled in (not "" or empty), e.g. ["player_favorite"].
+			var memory: Dictionary = context.get("memory", {})
+			for field in want:
+				var value = memory.get(field, "")
+				if value == null or (value is String and value.is_empty()):
+					return false
+			return true
+		"visits_at_stage":  # { "4": 3 }: at least 3 visits while at stage 4.
+			var by_stage: Dictionary = context.get("memory", {}).get("visits_by_stage", {})
+			for stage in want:
+				if int(by_stage.get(stage, 0)) < int(want[stage]):
+					return false
+			return true
+		"unlocked":  # A big moment reward the restaurant has, e.g. "mabel_bell".
+			return want in GameState.unlocks
 		"memory":  # { field: value } in the regular's memory, e.g. { "dislike_confessed": false }.
 			var memory: Dictionary = context.get("memory", {})
 			for field in want:

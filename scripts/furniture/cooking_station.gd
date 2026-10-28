@@ -1,6 +1,8 @@
 # CookingStation: the stove. Using it while carrying Ingredients starts the
 # timing minigame for that order; pressing interact again while cooking "stirs".
 # When the minigame ends, the cook is handed the finished dish.
+# A big moment scene can also cook together here (cook_together): a regular
+# stands beside the chef and coaches each stir, and it can't fail.
 class_name CookingStation
 extends Station
 
@@ -14,6 +16,9 @@ const RESULT_SHOW_TIME := 1.2  # Seconds the result stays up before the player c
 var minigame: CookingMinigame = null  # Not null while someone is cooking.
 var _cook: Player = null
 var _order: Order = null
+var _together := {}  # During cook_together: the scene's cook step, plus "helper" (the regular).
+
+signal cooked_together(quality: float)
 
 
 func _ready() -> void:
@@ -80,7 +85,36 @@ func _try_start_cooking(player_index: int) -> void:
 	used.emit(self, player_index)
 
 
+# Cook `dish` ({ name, cook_speed }) with `helper` beside the chef: they say
+# one of step.coach per stir, and if it would come out below step.min_quality
+# they quietly fix it (step.rescue). Returns the quality.
+func cook_together(player: Player, dish: Dictionary, step: Dictionary, helper: Customer) -> float:
+	_cook = player
+	_order = null
+	_together = step.duplicate()
+	_together["helper"] = helper
+	_together["dish"] = dish
+	minigame = CookingMinigame.new(dish)
+	minigame.hit_registered.connect(_on_together_stir)
+	minigame.finished.connect(_on_minigame_finished)
+	player.movement_locked = true
+	player.interactor.lock_to(interactable)
+	player.request_camera_focus(global_position + zoom_look_offset, camera_zoom)
+	_play_bounce()
+	return await cooked_together
+
+
+func _on_together_stir(_score: float) -> void:
+	var lines: Array = _together.get("coach", [])
+	var index := minigame.scores.size() - 1
+	if index < lines.size():
+		_together["helper"].say(lines[index])
+
+
 func _on_minigame_finished(quality: float) -> void:
+	if not _together.is_empty():
+		_finish_together(quality)
+		return
 	_play_bounce()
 	GameEvents.announce("%s came out %s (%d%%)" % [
 		_order.dish.get("name", "Dish"), CookingMinigame.quality_label(quality).to_lower(), roundi(quality * 100)])
@@ -96,3 +130,24 @@ func _on_minigame_finished(quality: float) -> void:
 	_cook = null
 	_order = null
 	minigame = null
+
+
+func _finish_together(quality: float) -> void:
+	_play_bounce()
+	var floor_quality: float = _together.get("min_quality", 0.75)
+	var rescued := quality < floor_quality
+	if rescued:
+		minigame.quality = floor_quality  # The display shows the fixed result.
+	GameEvents.announce("%s came out %s." % [_together["dish"].get("name", "It"), CookingMinigame.quality_label(minigame.quality).to_lower()])
+	await get_tree().create_timer(RESULT_SHOW_TIME).timeout
+	if rescued:  # After their last coaching line has had a moment.
+		_together["helper"].say(_together.get("rescue", ""))
+		await get_tree().create_timer(RESULT_SHOW_TIME * 1.5).timeout
+	_cook.movement_locked = false
+	_cook.interactor.unlock()
+	_cook.release_camera_focus()
+	var result := minigame.quality
+	_cook = null
+	_together = {}
+	minigame = null
+	cooked_together.emit(result)

@@ -246,6 +246,9 @@ func _regular_orders(player: Player, customer: Customer) -> void:
 	_lock_player(player, _at_counter(player, customer), order_chat_zoom, order_counter.interactable)
 	customer.talking = true
 	var box := _open_box(player, customer)
+	var arrival := RegularMemory.say(record, "arrival", _visit_context(customer, chef_id))  # e.g. Mabel rings her bell.
+	if not arrival.is_empty():
+		await box.tell("", arrival)
 	if not customer.greeting_line.is_empty():
 		customer.say(customer.greeting_line)
 		await box.tell(customer.display_name, customer.greeting_line)
@@ -498,6 +501,9 @@ func _eating_chat(player: Player, customer: Customer) -> void:
 	var box := _open_box(player, customer)
 	if line.has("choices"):
 		await _converse(box, player, customer, line)
+	elif line.has("asks_dish"):
+		await _ask_dish(box, customer, line, context)
+		_after_line(customer, line, Accounts.id_of(player.player_index))
 	else:
 		var text := DialoguePicker.fill(line["text"], context) if not line.is_empty() else "Mm. It's good."
 		customer.say(text)
@@ -508,6 +514,21 @@ func _eating_chat(player: Player, customer: Customer) -> void:
 	box.close()
 	_unlock_player(player)
 	customer.talking = false
+
+
+# A line that asks the chef to pick a dish from the menu ("What's YOUR
+# favorite food?"): the dish id goes in the memory field its "asks_dish" names,
+# then they say its "reply".
+func _ask_dish(box: ConversationBox, customer: Customer, line: Dictionary, context: Dictionary) -> void:
+	var record: Dictionary = GameState.regulars[customer.regular_id]
+	var question := DialoguePicker.fill(line["text"], context)
+	customer.say(question)
+	var picked := await box.ask(customer.display_name, question, GameData.dishes.map(func(d): return d["name"]))
+	record[line["asks_dish"]] = GameData.dishes[picked]["id"]
+	var reply := DialoguePicker.fill(line.get("reply", ""), RegularMemory.dialogue_context(record, Accounts.id_of(box.player_index)))
+	if not reply.is_empty():
+		customer.say(reply)
+		await box.tell(customer.display_name, reply)
 
 
 # --- Gone regulars (see Redemption) ------------------------------------------
@@ -561,6 +582,13 @@ func _write_letter(player: Player) -> void:
 # A Gone regular comes back at closing (after a sincere letter, or a friend's
 # word) and waits just inside the door for someone to talk to them.
 func _bring_back(record: Dictionary) -> void:
+	walk_in(record, Customer.State.WAITING_BY_DOOR)
+	GameEvents.announce("%s is standing by the door." % record["name"])
+
+
+# A regular comes in outside the usual visits (a return or big moment scene)
+# and stops just inside the door, switching to `state_on_arrival`.
+func walk_in(record: Dictionary, state_on_arrival: Customer.State) -> Customer:
 	var customer: Customer = CUSTOMER_SCENE.instantiate()
 	var species := GameData.get_species(record["species"]).duplicate()
 	if record.has("color"):
@@ -575,8 +603,14 @@ func _bring_back(record: Dictionary) -> void:
 	customer.state_changed.connect(_on_customer_state_changed)
 	var inside := door_point.global_position + Vector3(0.0, 0.0, -0.8)
 	var path: Array[Vector3] = [door_point.global_position, inside]
-	customer.walk_to(path, Customer.State.WAITING_BY_DOOR)
-	GameEvents.announce("%s is standing by the door." % record["name"])
+	customer.walk_to(path, state_on_arrival)
+	return customer
+
+
+# Someone from walk_in heads home (from wherever they are).
+func walk_out(customer: Customer) -> void:
+	var path: Array[Vector3] = [_on_front_lane(customer.global_position), door_point.global_position, spawn_point.global_position]
+	customer.leave(path, "...", 0)
 
 
 # Their return scene: the opening, your reply and theirs, their closing line.
@@ -602,8 +636,7 @@ func _return_scene(player: Player, customer: Customer) -> void:
 	customer.talking = false
 	Redemption.welcome_back(record)
 	GameEvents.announce("%s is back! (%d, %s)" % [record["name"], record["relationship"], RegularMemory.stage_name(record)])
-	var path: Array[Vector3] = [door_point.global_position, spawn_point.global_position]
-	customer.leave(path, "...", 0)
+	walk_out(customer)
 
 
 # Between a seated customer and their plate, a little above the table.

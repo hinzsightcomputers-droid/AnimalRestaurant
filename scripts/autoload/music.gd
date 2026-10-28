@@ -59,6 +59,16 @@ func fade_out(seconds: float) -> void:
 	_tween.tween_callback(_player.stop)
 
 
+# Drop the music to `db` (0 = full volume again) over `seconds`, e.g. under a
+# big moment scene.
+func dip(db: float, seconds: float) -> void:
+	if not _player.playing or _fading_out:
+		return
+	_kill_tween()
+	_tween = create_tween()
+	_tween.tween_property(_player, "volume_db", db, seconds).set_trans(Tween.TRANS_SINE)
+
+
 func is_playing() -> bool:
 	return _player.playing
 

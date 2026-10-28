@@ -89,8 +89,8 @@ func _process(delta: float) -> void:
 	if not GameState.forced_caller.is_empty():  # Debug panel.
 		_ring_forced(GameState.forced_caller)
 		return
-	if not day_manager.is_open or _someone_talking() or _regular_arriving():
-		return
+	if not day_manager.is_open or _someone_talking() or _regular_arriving() or not BigMoments.due().is_empty():
+		return  # (No calls at all on the evening of a big moment.)
 	_until_next_ring -= delta
 	if _until_next_ring > 0.0:
 		return

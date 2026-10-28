@@ -229,6 +229,10 @@
 		{ "event": "phone_chat", "id": "cheddar_phone_chat_placeholder", "priority": 200, "conditions": { "stage": 4 }, "text": "Partner! No order. I just called to say... hi. That's it. That's the whole call. Okay bye!" },
 
 		{ "event": "return_scene", "id": "cheddar_return", "priority": 200, "text": "So. I had a bit planned for this. A whole thing. I forgot it on the way here.", "choices": [ { "text": "I'm sorry. I said things that really hurt you.", "reply": "Yeah. You did. ...Thanks for saying it without a joke.", "change": 0 },{ "text": "I missed your jokes. I missed you.", "reply": "...Okay, that's a low blow. In a nice way.", "change": 0 },{ "text": "Knock knock.", "change": 0, "then": { "text": "...Who's there?", "choices": [ { "text": "Your chef, who's really sorry.", "reply": "Your chef, who's really sorry who? ...No, wait, that's not how it... HA. Okay. Okay, that got me.", "change": 0, "invented": true} ]}} ]},
-		{ "event": "return_closing", "id": "cheddar_return_closing", "priority": 200, "text": "Fine. Starting over. Hi, I'm Cheddar. I hate cheese. Nice to meet you." }
+		{ "event": "return_closing", "id": "cheddar_return_closing", "priority": 200, "text": "Fine. Starting over. Hi, I'm Cheddar. I hate cheese. Nice to meet you." },
+
+		{ "event": "eating_chat", "id": "cheddar_asks_favorite", "priority": 220, "conditions": { "min_stage": 4, "memory": { "player_favorite": "" }}, "asks_dish": "player_favorite", "text": "Wait. What's YOUR favorite food? You always ask me. Nobody asks you.", "reply": "[player_favorite]. Got it. Locked in the vault. The vault is my brain. It's a small vault.", "invented_reply": true },
+		{ "event": "eating_chat", "id": "cheddar_notices_apron", "priority": 240, "once": true, "conditions": { "unlocked": "patchwork_apron" }, "text": "Stitches showed me the apron he made you. Okay, I'm jealous. I can't sew. I can make you a sign, though." },
+		{ "event": "eating_chat", "id": "cheddar_notices_bell", "priority": 240, "once": true, "conditions": { "unlocked": "mabel_bell" }, "text": "Wait, is that Grandma's bell? She gave you the BELL? ...She's never even let me TOUCH the bell." }
 	]
 }

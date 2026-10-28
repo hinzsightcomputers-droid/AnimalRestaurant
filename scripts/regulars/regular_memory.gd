@@ -192,7 +192,7 @@ static func dialogue_context(record: Dictionary, chef_id: String, extra: Diction
 		# Named (or renamed) since they last reacted to it.
 		"new_restaurant_name": not GameState.restaurant_name.is_empty() and record.get("restaurant_name_heard", "") != GameState.restaurant_name,
 		"wrong_name": wrong_names[int(record.get("wrong_name_index", 0)) % wrong_names.size()] if not wrong_names.is_empty() else chef_name,
-		"player_favorite": record.get("player_favorite", ""),
+		"player_favorite": _dish_name(record.get("player_favorite", "")),  # Yours, if Cheddar asked.
 		"days": days,
 		"returned_after_away": days >= GameData.regular_settings.get("away_days", 3),
 		"favorite": GameData.get_dish(record["favorite_dish"]).get("name", ""),
@@ -224,6 +224,10 @@ static func pick_line(record: Dictionary, event: String, context: Dictionary) ->
 static func say(record: Dictionary, event: String, context: Dictionary) -> String:
 	var line := pick_line(record, event, context)
 	return DialoguePicker.fill(line["text"], context) if not line.is_empty() else ""
+
+
+static func _dish_name(dish_id: String) -> String:
+	return GameData.get_dish(dish_id).get("name", "") if not dish_id.is_empty() else ""
 
 
 # Regular id -> relationship, for every regular.

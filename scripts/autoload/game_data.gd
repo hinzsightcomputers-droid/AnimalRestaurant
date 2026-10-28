@@ -15,6 +15,7 @@ const UPGRADES_PATH := "res://data/upgrades.json"
 const PHONE_PATH := "res://data/phone.json"
 const CALLERS_PATH := "res://data/callers.json"
 const GOSSIP_PATH := "res://data/gossip.json"
+const SCENES_PATH := "res://data/scenes.json"
 
 # Each dish: { id, name, price, cook_speed, ingredient: { name, color, chop? } }.
 # "chop" ({ name, chops }) means the ingredient goes to the chopping board first.
@@ -46,6 +47,9 @@ var phone_settings: Dictionary = {}
 # Townsfolk who phone in orders: { id, name, species, name_color, personality,
 # usual_order, lines: [{ part: greeting | order | chat, text, choices? }] }.
 var callers: Array[Dictionary] = []
+# Big moment scenes: { id, name, regular, conditions, staging, done, steps } (see BigMoments).
+var scenes: Array[Dictionary] = []
+var scene_settings: Dictionary = {}
 
 
 func _ready() -> void:
@@ -61,6 +65,8 @@ func _ready() -> void:
 	phone_settings = _load_dictionary(PHONE_PATH).get("settings", {})
 	callers = _load_list(CALLERS_PATH, "callers")
 	_load_gossip()
+	scenes = _load_list(SCENES_PATH, "scenes")
+	scene_settings = _load_dictionary(SCENES_PATH).get("settings", {})
 
 
 func get_species(species_id: String) -> Dictionary:
@@ -84,6 +90,13 @@ func get_upgrade(upgrade_id: String) -> Dictionary:
 		if upgrade["id"] == upgrade_id:
 			return upgrade
 	push_error("Unknown upgrade id: %s" % upgrade_id)
+	return {}
+
+
+func get_scene(scene_id: String) -> Dictionary:
+	for scene in scenes:
+		if scene["id"] == scene_id:
+			return scene
 	return {}
 
 

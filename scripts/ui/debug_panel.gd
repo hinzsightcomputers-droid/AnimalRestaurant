@@ -3,7 +3,8 @@
 # jump to a stage), queue them to visit next, or reset them. It can also fake the
 # date forward to test "you've been gone" lines, show and re-roll which regulars
 # come in today, ring the phone for any caller or fill its voicemail, send a
-# regular to Gone and skip through winning them back, and will list big-moment scenes to trigger once those exist. The game pauses while it's open, and changes are
+# regular to Gone and skip through winning them back, and play each big moment
+# scene at closing (or set up its trigger). The game pauses while it's open, and changes are
 # saved when it closes. Built in code, since it's only a tool.
 extends CanvasLayer
 
@@ -22,6 +23,7 @@ var _schedule_label: Label
 var _caller_picker: OptionButton
 var _phone_label: Label
 var _gone_label: Label
+var _scene_label: Label
 var _was_paused := false
 var _changed := false     # Something to save when the panel closes.
 var _updating := false    # True while _refresh moves the slider, so it isn't treated as an edit.
@@ -204,6 +206,34 @@ func _close_now() -> void:
 	_refresh()
 
 
+# The scene plays at closing this shift, once the last customer has left.
+func _play_scene(scene_id: String) -> void:
+	GameState.forced_scene = scene_id
+	_refresh()
+
+
+# Everything its trigger needs: 90 relationship, 3 visits at stage 4, and its
+# setup (Cheddar knowing your favorite food, Mabel's story told), not played yet.
+func _meet_trigger(scene_id: String) -> void:
+	var scene := GameData.get_scene(scene_id)
+	var record: Dictionary = GameState.regulars[scene["regular"]]
+	RegularMemory.set_relationship(record, 90)
+	record["visits_by_stage"]["4"] = maxi(3, int(record["visits_by_stage"].get("4", 0)))
+	record["big_moment_done"] = false
+	if record.has("player_favorite") and String(record["player_favorite"]).is_empty():
+		record["player_favorite"] = GameData.dishes[0]["id"]
+	if record.has("story_part"):
+		record["story_part"] = maxi(3, int(record["story_part"]))
+	_changed = true
+	_refresh()
+
+
+func _clear_unlocks() -> void:
+	GameState.unlocks.clear()
+	_changed = true
+	_refresh()
+
+
 # --- Display ---------------------------------------------------------------
 
 func _refresh() -> void:
@@ -236,6 +266,15 @@ func _refresh() -> void:
 	for regular_id in GameState.forced_visitors:
 		names.append(GameState.regulars[regular_id]["name"])
 	_gone_label.text = _gone_text(record)
+	var scene_lines := PackedStringArray()
+	for scene in GameData.scenes:
+		var scene_record: Dictionary = GameState.regulars.get(scene["regular"], {})
+		var status := "done" if scene_record.get("big_moment_done", false) else ("due at closing" if BigMoments.is_ready(scene) else "not yet")
+		if GameState.forced_scene == scene["id"]:
+			status = "playing at closing (forced)"
+		scene_lines.append("%s: %s" % [scene["name"], status])
+	scene_lines.append("Unlocked: %s" % (", ".join(GameState.unlocks.map(BigMoments.reward_name)) if not GameState.unlocks.is_empty() else "nothing yet"))
+	_scene_label.text = "\n".join(scene_lines)
 	_queue_label.text = "Coming next: %s (at the next free seat)" % ", ".join(names) if not names.is_empty() else ""
 
 
@@ -356,7 +395,15 @@ func _build() -> void:
 	_gone_label = _add_label(box, "")
 
 	_add_label(box, "Scenes", 18, true)
-	_add_label(box, "No big-moment scenes yet. They'll be listed here to trigger once they're built.")
+	for scene in GameData.scenes:
+		var scene_row := _add_row(box)
+		_add_label(scene_row, scene["name"]).custom_minimum_size.x = 170
+		_add_button(scene_row, "Play at closing", _play_scene.bind(scene["id"]))
+		_add_button(scene_row, "Meet trigger", _meet_trigger.bind(scene["id"]))
+	var scene_row_2 := _add_row(box)
+	_add_button(scene_row_2, "Close now", _close_now)
+	_add_button(scene_row_2, "Clear unlocks", _clear_unlocks)
+	_scene_label = _add_label(box, "")
 
 	_add_label(box, "Phone", 18, true)
 	_caller_picker = OptionButton.new()

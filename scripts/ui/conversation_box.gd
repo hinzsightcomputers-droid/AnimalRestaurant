@@ -254,7 +254,7 @@ func _start_typing(speaker: String, text: String, then_choose: bool) -> void:
 	_speaker.text = speaker
 	# In their name color ("Pip (voicemail)" is colored as Pip).
 	_speaker.add_theme_color_override("font_color", _highlights.get(speaker.get_slice(" (", 0), PICKED_COLOR))
-	_line.text = _highlighted("\"%s\"" % text)
+	_line.text = _highlighted(text if text.begins_with("(") else "\"%s\"" % text)  # "(He waves.)" is narration, not speech.
 	_plain = _line.get_parsed_text()  # What's shown, without the color tags, for the letter-by-letter typing.
 	_line.visible_characters = 0
 	_typed = 0.0
@@ -286,8 +286,10 @@ func _type(delta: float, speed_scale: float) -> void:
 				_pause_left = PAUSES[letter] / speed_scale
 				_typed = _line.visible_characters
 				break
-	if _line.visible_characters >= total and _pause_left <= 0.0:
-		_finish_typing()
+	if _line.visible_characters >= total:
+		_pause_left -= time  # A line can end on punctuation (narration has no closing quote).
+		if _pause_left <= 0.0:
+			_finish_typing()
 
 
 func _finish_typing() -> void:

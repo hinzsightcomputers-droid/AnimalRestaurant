@@ -41,6 +41,11 @@ var force_pick_for_me := false
 var voicemails: Array = []
 # Debug panel: who rings the phone next (a caller or regular id). Not saved.
 var forced_caller := ""
+# Rewards from big moment scenes, e.g. "patchwork_apron", "mabel_bell" (see
+# data/scenes.json). Just flags for now. Saved.
+var unlocks: Array[String] = []
+# Debug panel: a big moment scene to play at closing this shift, whatever its trigger. Not saved.
+var forced_scene := ""
 
 
 func _ready() -> void:
@@ -176,6 +181,7 @@ func to_save_data() -> Dictionary:
 		"upgrades": upgrades,
 		"schedule": schedule,
 		"voicemails": voicemails,
+		"unlocks": unlocks,
 		"regulars": regular_memory,
 	}
 
@@ -194,6 +200,7 @@ func apply_save_data(data: Dictionary) -> void:
 	if saved_schedule is Dictionary and saved_schedule.has("visits"):
 		var visits: Array = saved_schedule["visits"].filter(func(v): return regulars.has(v.get("id", "")))
 		schedule = { "date": saved_schedule.get("date", ""), "visits": visits }
+	unlocks.assign(data.get("unlocks", []))
 	voicemails = data.get("voicemails", []).filter(func(v): return v is Dictionary and v.has("kind") and v.has("id"))
 	var legacy_account_id := _account_from_old_save(data)
 	var saved_regulars: Dictionary = data.get("regulars", {})
