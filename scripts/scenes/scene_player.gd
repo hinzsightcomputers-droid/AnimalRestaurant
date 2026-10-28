@@ -5,6 +5,8 @@
 # for it, and the chef they know best has their camera moved in close. Then the
 # steps play in one dialogue box: narration, lines, choices (each with its own
 # reply), and "cook", the co-cooking minigame at the stove, which can't fail.
+# A line or a choice can have an "emotion" for how the regular feels saying it
+# (see Conversation).
 # Afterwards the regular leaves, everything goes back to normal, and
 # BigMoments.finish sets the scene's flags and rewards.
 class_name ScenePlayer
@@ -76,17 +78,20 @@ func play(scene: Dictionary) -> void:
 		var context := RegularMemory.dialogue_context(record, chef_id)
 		var speaker: String = "" if step.has("narrate") else record["name"]
 		var text := DialoguePicker.fill(step.get("narrate", step.get("say", "")), context)
+		var feeling := Conversation.emotion_of(step)
 		if not step.has("narrate"):
 			visitor.say(text)
+			visitor.emote(feeling)
 		var choices: Array = step.get("choices", [])
 		if choices.is_empty():
-			await box.tell(speaker, text)
+			await box.tell(speaker, text, feeling)
 			continue
-		var picked := await box.ask(speaker, text, choices.map(func(c): return DialoguePicker.fill(c["text"], context)))
+		var picked := await box.ask(speaker, text, choices.map(func(c): return DialoguePicker.fill(c["text"], context)), feeling)
 		var reply := DialoguePicker.fill(choices[picked].get("reply", ""), context)
 		if not reply.is_empty():
 			visitor.say(reply)
-			await box.tell(record["name"], reply)
+			visitor.emote(Conversation.emotion_of(choices[picked]))
+			await box.tell(record["name"], reply, Conversation.emotion_of(choices[picked]))
 	box.close()
 
 	player.ignore_interact_until_released()

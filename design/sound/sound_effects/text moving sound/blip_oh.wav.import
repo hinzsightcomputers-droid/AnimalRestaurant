@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://dsgtpelehyuy0"
+path="res://.godot/imported/blip_oh.wav-fbaf43928010b80407b6e8ac4f634ab2.sample"
+
+[deps]
+
+source_file="res://design/sound/sound_effects/text moving sound/blip_oh.wav"
+dest_files=["res://.godot/imported/blip_oh.wav-fbaf43928010b80407b6e8ac4f634ab2.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

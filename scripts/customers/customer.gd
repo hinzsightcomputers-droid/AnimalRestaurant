@@ -11,6 +11,7 @@ signal state_changed(customer: Customer)
 signal finished_eating(customer: Customer)
 signal spoke(customer: Customer)  # Said a one-off line (see say()).
 signal talking_changed(customer: Customer)  # A conversation started or ended.
+signal emoted(customer: Customer, emotion: StringName)  # Showed a feeling (see emote()).
 
 @export var walk_speed := 2.0
 @export var turn_speed := 10.0
@@ -119,6 +120,13 @@ func say(line: String) -> void:
 		return
 	speech = line
 	spoke.emit(self)
+
+
+# Show a feeling, e.g. &"happy" (EmotionLibrary has them all): icons over
+# their head, a little sound and a bounce. Nothing for "" or "neutral".
+func emote(emotion: StringName) -> void:
+	if emotion != &"" and emotion != &"neutral":
+		emoted.emit(self, emotion)
 
 
 # A regular who's eating and hasn't been chatted with yet this visit.

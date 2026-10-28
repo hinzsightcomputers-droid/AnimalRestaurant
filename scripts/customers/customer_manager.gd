@@ -254,8 +254,7 @@ func _regular_orders(player: Player, customer: Customer) -> void:
 	if not arrival.is_empty():
 		await box.tell("", arrival)
 	if not customer.greeting_line.is_empty():
-		customer.say(customer.greeting_line)
-		await box.tell(customer.display_name, customer.greeting_line)
+		await _say(box, customer, customer.greeting_line)
 
 	# The first time they're close enough, they learn this chef's name (Cheddar
 	# also picks a nickname). Plays once per chef.
@@ -264,8 +263,7 @@ func _regular_orders(player: Player, customer: Customer) -> void:
 		await _converse(box, player, customer, name_line)
 	elif not name_line.is_empty():
 		var text := DialoguePicker.fill(name_line["text"], _visit_context(customer, chef_id))
-		customer.say(text)
-		await box.tell(customer.display_name, text)
+		await _say(box, customer, text, Conversation.emotion_of(name_line))
 		_after_line(customer, name_line, chef_id)
 
 	# The first visit after the restaurant is named (or renamed), they say what they think of the name.
@@ -273,8 +271,7 @@ func _regular_orders(player: Player, customer: Customer) -> void:
 	var restaurant_line := RegularMemory.pick_line(record, "restaurant_name", context_now)
 	if not restaurant_line.is_empty():
 		var text := DialoguePicker.fill(restaurant_line["text"], context_now)
-		customer.say(text)
-		await box.tell(customer.display_name, text)
+		await _say(box, customer, text, Conversation.emotion_of(restaurant_line))
 		record["restaurant_name_heard"] = GameState.restaurant_name
 
 	# Something a friend told them about you since last time.
@@ -286,8 +283,7 @@ func _regular_orders(player: Player, customer: Customer) -> void:
 			await _converse(box, player, customer, gossip_line, gossip_context)
 		elif not gossip_line.is_empty():
 			var text := DialoguePicker.fill(gossip_line["text"], _visit_context(customer, chef_id, gossip_context))
-			customer.say(text)
-			await box.tell(customer.display_name, text)
+			await _say(box, customer, text, Conversation.emotion_of(gossip_line))
 
 	# Picked now, so it can already use the name they just learned.
 	var context := _visit_context(customer, chef_id)
@@ -304,8 +300,7 @@ func _regular_orders(player: Player, customer: Customer) -> void:
 		customer.order_line = await _converse(box, player, customer, line)
 	elif not line.is_empty():
 		customer.order_line = DialoguePicker.fill(line["text"], context)
-		customer.say(customer.order_line)
-		await box.tell(customer.display_name, customer.order_line)
+		await _say(box, customer, customer.order_line, Conversation.emotion_of(line))
 	box.close()
 	customer.talking = false
 	_unlock_player(player)
@@ -330,6 +325,14 @@ func _open_box(player: Player, customer: Customer) -> ConversationBox:
 	return ConversationBox.open(_view_of(player), player.player_index, customer.regular_id)
 
 
+# `customer` says `text` in `box` feeling `emotion` (it shows over their
+# head and colors their voice; &"" for nothing in particular).
+func _say(box: ConversationBox, customer: Customer, text: String, emotion: StringName = &"") -> void:
+	customer.say(text)
+	customer.emote(emotion)
+	await box.tell(customer.display_name, text, emotion)
+
+
 # Run a conversation `line` (with choices) between `player` and `customer` in
 # `box`. Returns what the customer said last. The line, or the chosen reply, can
 # decide what they order, or change how other regulars feel (gossip). `extra`
@@ -341,12 +344,13 @@ func _converse(box: ConversationBox, player: Player, customer: Customer, line: D
 	var context := _visit_context(customer, chef_id, extra)
 	var opening := DialoguePicker.fill(line["text"], context)
 	customer.say(opening)
+	customer.emote(Conversation.emotion_of(line))
 
 	var choices := Conversation.choices_of(line)
 	var options := []
 	for choice in choices:
 		options.append(DialoguePicker.fill(choice["text"], context))
-	var picked := await box.ask(customer.display_name, opening, options)
+	var picked := await box.ask(customer.display_name, opening, options, Conversation.emotion_of(line))
 
 	var before: int = record["relationship"]
 	var others_before := {}
@@ -362,8 +366,7 @@ func _converse(box: ConversationBox, player: Player, customer: Customer, line: D
 
 	var reply := DialoguePicker.fill(result["reply"], context)
 	if not reply.is_empty():
-		customer.say(reply)
-		await box.tell(customer.display_name, reply)
+		await _say(box, customer, reply, result["emotion"])
 	if choices[picked].has("then"):  # e.g. "Knock knock." -> "...Who's there?" and you finish the joke.
 		return await _converse(box, player, customer, choices[picked]["then"], extra)
 	return reply if not reply.is_empty() else opening
@@ -376,8 +379,9 @@ func _pick_for_me(box: ConversationBox, player: Player, customer: Customer, line
 	var context := _visit_context(customer, Accounts.id_of(player.player_index))
 	var question := DialoguePicker.fill(line["text"], context)
 	customer.say(question)
+	customer.emote(Conversation.emotion_of(line))
 	var menu := GameData.menu()
-	var picked := await box.ask(customer.display_name, question, menu.map(func(d): return d["name"]))
+	var picked := await box.ask(customer.display_name, question, menu.map(func(d): return d["name"]), Conversation.emotion_of(line))
 
 	_order_dish(customer, menu[picked])
 	context["dish"] = customer.dish.get("name", "")
@@ -386,8 +390,7 @@ func _pick_for_me(box: ConversationBox, player: Player, customer: Customer, line
 	_announce_change(record, before, "")
 	var reply := DialoguePicker.fill(result["reply"], context)
 	if not reply.is_empty():
-		customer.say(reply)
-		await box.tell(customer.display_name, reply)
+		await _say(box, customer, reply, result["emotion"])
 	return reply
 
 
@@ -480,9 +483,8 @@ func _on_customer_interacted(player_index: int, customer: Customer) -> void:
 		return
 	customer.talking = true
 	_lock_player(player, _at_table(customer), serve_zoom, customer.interactable)
-	customer.say(line)
 	var box := _open_box(player, customer)
-	await box.tell(customer.display_name, line)
+	await _say(box, customer, line, &"joyful" if plate.quality >= 0.85 else (&"happy" if plate.quality >= 0.5 else &"sad"))
 	box.close()
 	_unlock_player(player)
 	customer.talking = false
@@ -508,8 +510,7 @@ func _eating_chat(player: Player, customer: Customer) -> void:
 		_after_line(customer, line, Accounts.id_of(player.player_index))
 	else:
 		var text := DialoguePicker.fill(line["text"], context) if not line.is_empty() else "Mm. It's good."
-		customer.say(text)
-		await box.tell(customer.display_name, text)
+		await _say(box, customer, text, Conversation.emotion_of(line))
 		if not line.is_empty():
 			_after_line(customer, line, Accounts.id_of(player.player_index))
 	await _ask_about_gone(box, player, customer)
@@ -525,13 +526,13 @@ func _ask_dish(box: ConversationBox, customer: Customer, line: Dictionary, conte
 	var record: Dictionary = GameState.regulars[customer.regular_id]
 	var question := DialoguePicker.fill(line["text"], context)
 	customer.say(question)
+	customer.emote(Conversation.emotion_of(line))
 	var menu := GameData.menu()
-	var picked := await box.ask(customer.display_name, question, menu.map(func(d): return d["name"]))
+	var picked := await box.ask(customer.display_name, question, menu.map(func(d): return d["name"]), Conversation.emotion_of(line))
 	record[line["asks_dish"]] = menu[picked]["id"]
 	var reply := DialoguePicker.fill(line.get("reply", ""), RegularMemory.dialogue_context(record, Accounts.id_of(box.player_index)))
 	if not reply.is_empty():
-		customer.say(reply)
-		await box.tell(customer.display_name, reply)
+		await _say(box, customer, reply, StringName(line.get("reply_emotion", "")))
 
 
 # --- Gone regulars (see Redemption) ------------------------------------------
@@ -547,9 +548,9 @@ func _ask_about_gone(box: ConversationBox, player: Player, customer: Customer) -
 			["\"%s\"" % Redemption.ask_friend_text(gone), Redemption.text("not_now")])
 		if asked == 0:
 			var context := Redemption.help_context(record, gone_id, chef_id)
-			var text := DialoguePicker.fill(RegularMemory.pick_line(record, "gossip", context)["text"], context)
-			customer.say(text)
-			await box.tell(customer.display_name, text)
+			var help_line := RegularMemory.pick_line(record, "gossip", context)
+			var text := DialoguePicker.fill(help_line["text"], context)
+			await _say(box, customer, text, Conversation.emotion_of(help_line))
 			Redemption.friend_agreed(gone)
 			GameEvents.announce("%s will talk to %s." % [record["name"], gone["name"]])
 		return  # One ask per chat.
@@ -631,8 +632,7 @@ func _return_scene(player: Player, customer: Customer) -> void:
 	var closing := RegularMemory.pick_line(record, "return_closing", context)
 	if not closing.is_empty():
 		var text := DialoguePicker.fill(closing["text"], context)
-		customer.say(text)
-		await box.tell(customer.display_name, text)
+		await _say(box, customer, text, Conversation.emotion_of(closing))
 		_after_line(customer, closing, chef_id)
 	box.close()
 	_unlock_player(player)

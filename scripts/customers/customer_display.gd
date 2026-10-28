@@ -3,7 +3,8 @@
 # the table while eating. A regular with a "model" in their character file
 # looks like that model instead (scaled to its height), walking, sitting and
 # talking with its animations (named in model_animations in data/regulars.json).
-# A model without animations bobs along as it walks. Display only.
+# A model without animations bobs along as it walks. A regular's feelings
+# (Customer.emote) pop up over their head with a sound and a bounce. Display only.
 extends Node3D
 
 @onready var customer: Customer = get_parent()
@@ -23,15 +24,20 @@ var _look: Node3D = null           # A close-up dish as it came out, on their pl
 var _model: Node3D = null          # A regular's own model, instead of the placeholder shapes.
 var _animations: AnimationPlayer = null
 var _walk_time := 0.0
+var _body := Node3D.new()          # Holds the model: hops and droops with their feelings.
+var _emotions := EmotionPlayer.new()  # On top of their head (the placeholder's, unless a model moves it).
 
 
 func _ready() -> void:
 	_apply_species_color()
+	_emotions.position.y = 1.5
 	_load_model()
+	add_child(_emotions)
 	food.material_override = _food_material
 	customer.state_changed.connect(_on_state_changed)
 	customer.spoke.connect(_on_spoke)
 	customer.talking_changed.connect(_on_talking_changed)
+	customer.emoted.connect(func(_customer, emotion): _emotions.play_emotion(emotion))
 	_speech_timer.one_shot = true
 	_speech_timer.timeout.connect(_on_speech_timer_timeout)
 	add_child(_speech_timer)
@@ -125,10 +131,13 @@ func _load_model() -> void:
 	if path.is_empty() or not ResourceLoader.exists(path):
 		return
 	_model = load(path).instantiate()
-	add_child(_model)
+	add_child(_body)
+	_body.add_child(_model)
 	var height := _bounds(_model).size.y
 	if height > 0.0:
 		_model.scale = Vector3.ONE * (float(settings.get("height", 1.2)) / height)
+	_emotions.body_root = _body
+	_emotions.position.y = float(settings.get("height", 1.2)) + 0.1
 	for child in get_children():  # The placeholder shapes.
 		if child is MeshInstance3D:
 			child.visible = false

@@ -5,6 +5,7 @@
 	"name_color": "#e0780f",
 	"color": "#f5922f",
 	"model": { "path": "res://design/characters/Stitches/maple-the-cat.glb", "height": 0.95 },
+	"voice": { "blips": "res://design/sound/sound_effects/text moving sound", "pitch": 1.5, "every": 2 },
 	"personality": ["playful", "chatty", "showman"],
 	"favorite_dish": "fish_stew",
 	"disliked_dish": "acorn_cookies",

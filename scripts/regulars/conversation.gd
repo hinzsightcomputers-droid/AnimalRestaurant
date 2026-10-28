@@ -7,6 +7,12 @@
 # sets, any dish it orders, and what it does to other regulars ("others", e.g.
 # apologizing to Mabel about Stitches also gives Stitches +3). CustomerManager
 # runs the flow; ConversationBox shows it.
+#
+# Feelings: any line, choice or reaction can say how they feel saying it with
+# "emotion" (happy, joyful, excited, surprised, sad, angry, nervous, confused,
+# tired, shy; see EmotionLibrary). A reply without one feels like what you said
+# did to them: a big boost is joyful, a small one happy, a dip confused, and a
+# rude reply their "rude_emotion" (sad if their file doesn't say).
 class_name Conversation
 extends RefCounted
 
@@ -21,7 +27,7 @@ static func choices_of(line: Dictionary) -> Array:
 
 
 # Apply the reply chef `chef_id` chose (its text already filled in). Returns
-# { change, reply, others } where reply is the unfilled text they answer with
+# { change, reply, emotion, others } where reply is the unfilled text they answer with
 # and others is { regular_id: change } for anyone else it affected. A reply with
 # "nickname" gives that chef a nickname ("" = just their name). A rude reply is
 # news for their friends. A choice's "quote" is what's remembered as said
@@ -56,11 +62,12 @@ static func apply_choice(record: Dictionary, choice: Dictionary, said: String, c
 	var reply: String = choice.get("reply", "")
 	if change < 0 and choice.has("miss_reply"):
 		reply = choice["miss_reply"]
-	return { "change": change, "reply": reply, "others": others }
+	return { "change": change, "reply": reply, "emotion": _reply_emotion(record, choice, tone, change), "others": others }
 
 
 # What they say when the player picks `dish` for them, and apply its change.
-# Returns { change, reply }.
+# Returns { change, reply, emotion } (their favorite is joyful, the one they
+# dislike sad, anything else as the change goes, unless the reaction says).
 static func apply_dish_pick(record: Dictionary, line: Dictionary, dish: Dictionary, context: Dictionary) -> Dictionary:
 	var kind := "other"
 	if dish.get("id", "") == record["favorite_dish"]:
@@ -74,7 +81,27 @@ static func apply_dish_pick(record: Dictionary, line: Dictionary, dish: Dictiona
 	var change := int(reaction.get("change", 0))
 	RegularMemory.change_relationship(record, change)
 	_set_flags(record, reaction)
-	return { "change": change, "reply": reaction.get("text", "") }
+	var feeling := emotion_of(reaction)
+	if feeling == &"":
+		feeling = { "favorite": &"joyful", "disliked": &"sad" }.get(kind, &"happy" if change > 0 else (&"sad" if change < 0 else &""))
+	return { "change": change, "reply": reaction.get("text", ""), "emotion": feeling }
+
+
+# How they feel saying a line (its "emotion"), or &"" for nothing in particular.
+static func emotion_of(entry: Dictionary) -> StringName:
+	return StringName(entry.get("emotion", ""))
+
+
+static func _reply_emotion(record: Dictionary, choice: Dictionary, tone: String, change: int) -> StringName:
+	if choice.has("emotion"):
+		return emotion_of(choice)
+	if tone == "rude":
+		return StringName(GameData.characters.get(record["id"], {}).get("rude_emotion", "sad"))
+	if change >= 4:
+		return &"joyful"
+	if change > 0:
+		return &"happy"
+	return &"confused" if change < 0 else &""
 
 
 # The dish a line or choice orders ("dish": a dish id, a token like "soup", or

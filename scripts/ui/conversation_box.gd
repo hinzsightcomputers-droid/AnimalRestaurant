@@ -6,8 +6,11 @@
 #
 # Voices: each letter that appears emits letter_typed, at the current typing
 # speed, so a voice can stay in sync. If the speaker's character file has
-# "voice": { "sound": "res://...", "pitch": 1.0, "every": 2 }, the box plays that
-# sound itself every `every` letters, a little faster and higher when sped up.
+# "voice": { "blips": "res://folder", "pitch": 1.0, "every": 2 }, the box babbles
+# every `every` letters, a little faster and higher when sped up: a blip from
+# the folder named for the vowel it's on or coming up (blip_a, blip_oh...), so
+# it follows the words. "sound": "res://..." instead plays that one sound. A
+# line's emotion (see tell) lifts or lowers the voice, e.g. higher when excited.
 #
 # Names stand out in color: the chef's own name (and Cheddar's nickname for
 # them) in PLAYER_NAME_COLOR, each regular's name in their "name_color" from
@@ -31,6 +34,12 @@ const TEXT_COLOR := Color(0.25, 0.18, 0.12)
 const DIM_COLOR := Color(0.25, 0.18, 0.12, 0.55)
 const PICKED_COLOR := Color(0.75, 0.33, 0.12)
 const PLAYER_NAME_COLOR := Color("#2f7fd8")
+const VOWEL_BLIPS := { "a": ["a", "ah"], "e": ["e", "eh"], "i": ["i"], "y": ["i"], "o": ["o", "oh"], "u": ["u"] }
+const EMOTION_PITCH := {  # How a feeling changes the voice (from the emotion starter).
+	&"happy": 1.08, &"joyful": 1.15, &"excited": 1.22, &"surprised": 1.18,
+	&"sad": 0.88, &"angry": 0.82, &"nervous": 1.12, &"confused": 0.98,
+	&"tired": 0.84, &"shy": 1.06,
+}
 
 enum Mode { IDLE, TYPING, CHOOSING, WAITING }
 
@@ -55,6 +64,8 @@ var _armed := false  # True once interact is let go, so a held press doesn't ans
 var _voice := AudioStreamPlayer.new()
 var _voice_pitch := 1.0
 var _voice_every := 2
+var _blips := {}  # Vowel sound ("a", "oh"...) -> its blip, from the voice's "blips" folder.
+var _mood_pitch := 1.0
 var _letters_since_voice := 0
 
 
@@ -188,8 +199,8 @@ static func _escape_regex(text: String) -> String:
 
 
 # Type out `speaker` saying `text`, then wait for the player to pick one of
-# `options`. Returns the index picked.
-func ask(speaker: String, text: String, options: Array) -> int:
+# `options`. Returns the index picked. `emotion` colors the voice (see tell).
+func ask(speaker: String, text: String, options: Array, emotion: StringName = &"") -> int:
 	_find_highlights()  # A nickname may have been picked since the last line.
 	for label in _labels:
 		label.queue_free()
@@ -202,14 +213,15 @@ func ask(speaker: String, text: String, options: Array) -> int:
 		_labels.append(label)
 	_selected = 0
 	_refresh_options()
-	_start_typing(speaker, text, true)
+	_start_typing(speaker, text, true, emotion)
 	return await chosen
 
 
 # Type out `speaker` saying `text`, then wait for interact (or a while to pass).
-func tell(speaker: String, text: String) -> void:
+# `emotion` (e.g. &"excited") is how they feel saying it, for their voice.
+func tell(speaker: String, text: String, emotion: StringName = &"") -> void:
 	_find_highlights()
-	_start_typing(speaker, text, false)
+	_start_typing(speaker, text, false, emotion)
 	await continued
 
 
@@ -250,7 +262,8 @@ func _process(delta: float) -> void:
 				continued.emit()
 
 
-func _start_typing(speaker: String, text: String, then_choose: bool) -> void:
+func _start_typing(speaker: String, text: String, then_choose: bool, emotion: StringName) -> void:
+	_mood_pitch = EMOTION_PITCH.get(emotion, 1.0)
 	_speaker.text = speaker
 	# In their name color ("Pip (voicemail)" is colored as Pip).
 	_speaker.add_theme_color_override("font_color", _highlights.get(speaker.get_slice(" (", 0), PICKED_COLOR))
@@ -281,7 +294,7 @@ func _type(delta: float, speed_scale: float) -> void:
 		while _line.visible_characters < mini(int(_typed), total):
 			var letter := _plain[_line.visible_characters]
 			_line.visible_characters += 1
-			_on_letter(letter, speed_scale)
+			_on_letter(_line.visible_characters - 1, speed_scale)
 			if PAUSES.has(letter):
 				_pause_left = PAUSES[letter] / speed_scale
 				_typed = _line.visible_characters
@@ -305,15 +318,30 @@ func _finish_typing() -> void:
 		_mode = Mode.WAITING
 
 
-func _on_letter(letter: String, speed_scale: float) -> void:
+func _on_letter(at: int, speed_scale: float) -> void:
+	var letter := _plain[at]
 	letter_typed.emit(letter, speed_scale)
-	if _voice.stream == null or letter.strip_edges().is_empty() or letter == "\"":
-		return
+	if (_voice.stream == null and _blips.is_empty()) or letter.to_lower() == letter.to_upper():
+		return  # No voice, or not a letter (spaces, punctuation, digits).
 	_letters_since_voice += 1
 	if _letters_since_voice >= _voice_every:
 		_letters_since_voice = 0
-		_voice.pitch_scale = _voice_pitch * randf_range(0.92, 1.08) * (1.15 if speed_scale > 1.0 else 1.0)
+		if not _blips.is_empty():
+			_voice.stream = _blip_for(at)
+		_voice.pitch_scale = _voice_pitch * _mood_pitch * randf_range(0.92, 1.08) * (1.15 if speed_scale > 1.0 else 1.0)
 		_voice.play()
+
+
+# The blip for the vowel at `at`, or the next one in the word (a random one if
+# the word has none left, like the "th" in "with").
+func _blip_for(at: int) -> AudioStream:
+	var i := at
+	while i < _plain.length() and _plain[i].to_lower() != _plain[i].to_upper():
+		var found: Array = VOWEL_BLIPS.get(_plain[i].to_lower(), []).filter(func(sound): return _blips.has(sound))
+		if not found.is_empty():
+			return _blips[found.pick_random()]
+		i += 1
+	return _blips.values().pick_random()
 
 
 # The speaker's "voice" from their character file, if they have one.
@@ -322,6 +350,8 @@ func _load_voice() -> void:
 	var path: String = voice.get("sound", "")
 	if not path.is_empty() and ResourceLoader.exists(path):
 		_voice.stream = load(path)
+	for blip in EmotionLibrary.load_sounds_from_folder(voice.get("blips", "")):
+		_blips[blip.resource_path.get_file().get_basename().trim_prefix("blip_")] = blip
 	_voice_pitch = voice.get("pitch", 1.0)
 	_voice_every = maxi(1, int(voice.get("every", 2)))
 
