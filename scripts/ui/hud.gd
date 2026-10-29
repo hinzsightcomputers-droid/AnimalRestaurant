@@ -2,6 +2,8 @@
 # shows short messages from GameEvents. The real date and time sit big at the
 # top: there when a shift starts, fading away as soon as anyone moves, and
 # fading back once everyone has stood still for CLOCK_STILL_SECONDS.
+# In split screen, anything over a view that's zoomed in on a minigame or a
+# chat hides until it's done, so it doesn't cover it.
 # Display only.
 extends CanvasLayer
 
@@ -51,6 +53,7 @@ func _process(delta: float) -> void:
 	_refresh_day_and_money()
 	_refresh_clock(delta)
 	_refresh_join_hint()
+	_keep_clear_of_close_ups()
 	if _messages.is_empty():
 		return
 	for message in _messages:
@@ -117,6 +120,13 @@ func _refresh_join_hint() -> void:
 	options.append("A (gamepad)")
 	join_label.visible = InputSetup.active_players().size() < InputSetup.MAX_PLAYERS
 	join_label.text = "More players: press %s to join" % " or ".join(options)
+
+
+func _keep_clear_of_close_ups() -> void:
+	var close_ups := _view_manager.close_up_rects() if _view_manager != null else ([] as Array[Rect2])
+	for control: Control in [orders_label, money_label, message_label, clock]:
+		control.visible = not close_ups.any(func(r: Rect2): return r.intersects(control.get_global_rect()))
+	join_label.visible = join_label.visible and not close_ups.any(func(r: Rect2): return r.intersects(join_label.get_global_rect()))
 
 
 # The first MAX_ORDERS_SHOWN orders, then "+2 more".

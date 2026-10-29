@@ -30,6 +30,7 @@ const LAYOUTS := {
 	4: [Rect2(0, 0, 0.5, 0.5), Rect2(0.5, 0, 0.5, 0.5), Rect2(0, 0.5, 0.5, 0.5), Rect2(0.5, 0.5, 0.5, 0.5)],
 }
 const FOLLOW_ZOOM := { 1: 1.0, 2: 0.88, 4: 0.58 }  # Camera follow distance for each layout.
+const FOCUS_ZOOM := { 1: 1.0, 2: 0.9, 4: 0.78 }    # Close-up (minigame) distance for each layout.
 
 @export var player_manager: PlayerManager
 @export var fixed_split_players := 3  # This many players or more: the fixed four-way split.
@@ -209,6 +210,19 @@ func _apply_groups(new_groups: Array) -> void:
 	for view in _views.values():
 		view.set_ui_scale(ui_scale)
 		view.rig.view_zoom = FOLLOW_ZOOM[slots]
+		view.rig.focus_zoom = FOCUS_ZOOM[slots]
+
+
+# Where on screen views are zoomed in on something (a minigame, a chat), in
+# split screen only: the HUD keeps clear of them.
+func close_up_rects() -> Array[Rect2]:
+	var rects: Array[Rect2] = []
+	if _groups.size() <= 1:
+		return rects
+	for view in _views.values():
+		if view.visible and view.rig.focus_requested:
+			rects.append(view.get_global_rect())
+	return rects
 
 
 func _rect_of(view: Control) -> Rect2:

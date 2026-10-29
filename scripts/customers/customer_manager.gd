@@ -50,6 +50,7 @@ var day_manager: DayManager         # Set by the DayManager: rings the bell.
 var accepting_customers := true     # False after closing time.
 var _queue: Array[Customer] = []    # Waiting at the host stand to be seated, front of the line first.
 var _leading: Dictionary = {}       # Player index -> the Customer following them to a table.
+var _greeting: Dictionary = {}      # Player index -> the Customer they're welcoming at the host stand.
 var _busy: Array[Customer] = []     # Customers in the middle of a step (so a second press waits).
 var _seat_owners: Dictionary = {}   # seat (Station) -> Customer sitting there or walking to it.
 var _pending: Array = []            # This meal's customers still to come: [plan index, entry].
@@ -287,7 +288,7 @@ func _counter_prompt(player_index: int) -> String:
 		return "Print the bill"
 	var next := _next_to_seat()
 	if next != null:
-		return "Seat %s" % next.display_name if not _leading.has(player_index) else ""
+		return "Seat %s" % next.display_name if not _leading.has(player_index) and not _greeting.has(player_index) else ""
 	if not Redemption.letter_targets().is_empty():
 		return "Write a letter"
 	return ""
@@ -342,9 +343,12 @@ func _on_order_counter_used(_station: Station, player_index: int) -> void:
 # Step 1: `player` welcomes `customer` at the host stand (a regular says their
 # greeting and so on in a dialogue box), then they follow the player to a table.
 func _greet(player: Player, customer: Customer, lock_target: Interactable) -> void:
+	if _greeting.has(player.player_index):
+		return  # One at a time: still welcoming someone (an extra press at the host stand).
 	if _leading.has(player.player_index):
 		GameEvents.announce("Seat %s first!" % _who(_leading[player.player_index]))
 		return
+	_greeting[player.player_index] = customer
 	_busy.append(customer)
 	var seating := {}
 	if customer.is_regular():
@@ -353,6 +357,7 @@ func _greet(player: Player, customer: Customer, lock_target: Interactable) -> vo
 		customer.say(_townsfolk_line("host_stand"))
 		await _hold_with_zoom(player, _at_counter(player, customer), order_chat_zoom, order_chat_seconds, lock_target)
 	_busy.erase(customer)
+	_greeting.erase(player.player_index)
 	if not is_instance_valid(customer) or customer.state != Customer.State.WAITING_TO_BE_SEATED:
 		return  # Sent home meanwhile (closing, or the debug panel).
 	_queue.erase(customer)

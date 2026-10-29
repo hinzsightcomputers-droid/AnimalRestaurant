@@ -37,6 +37,7 @@ var focus_point := Vector3.ZERO           # What FOCUS looks at.
 var zoom: CameraZoomSettings = null       # Settings of the current (or last) zoom-in.
 var focus_requested := false              # The player asked for a zoom-in and hasn't released it.
 var view_zoom := 1.0                      # Follow distance times this (closer in a small split view).
+var focus_zoom := 1.0                     # Zoom-in distance times this (closer close-ups in a small view).
 
 var _offset := Vector3.ZERO               # Current camera offset from the rig.
 var _blend := 1.0                         # 0 -> 1 while tweening into the current mode.
@@ -146,7 +147,7 @@ func _change_mode(new_mode: Mode, duration: float, delay := 0.0) -> void:
 # Where the current mode wants the camera: [point to look at, camera offset].
 func _goal() -> Array:
 	if mode == Mode.FOCUS:
-		return [focus_point, zoom.offset()]
+		return [focus_point, zoom.offset() * focus_zoom]
 	return _follow_goal()
 
 

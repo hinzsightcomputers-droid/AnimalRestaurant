@@ -41,6 +41,7 @@ static func find(tree: SceneTree, index: int) -> Player:
 func _ready() -> void:
 	add_to_group(GROUP)
 	input.player_index = player_index
+	set_collision_mask_value(Customer.BODY_LAYER, true)  # Bump into customers, not through them.
 
 
 # `settings` = how close / what angle / how fast (null = the camera's default zoom).

@@ -24,6 +24,7 @@ signal finished(quality: float)
 @export_group("Feedback")
 @export var text_size := 0.0017            # Pop-up text size.
 @export var hint_top := 110.0              # Pixels from the top of the cook's view to the instructions.
+@export var split_hint_top := 14.0         # The same in split screen: right at the top, off the close-up.
 @export var hint_font_size := 22
 
 var recipe: CookRecipe
@@ -364,7 +365,8 @@ func _build_hint(view_manager: ViewManager) -> void:
 	_hint.add_theme_constant_override("outline_size", 8)
 	_screen.add_child(_hint)
 	_hint.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
-	_hint.offset_top = hint_top
+	# With 2+ players a cook always has a view of their own, a small one.
+	_hint.offset_top = split_hint_top if InputSetup.active_players().size() > 1 else hint_top
 	_hint.offset_left = 40.0
 	_hint.offset_right = -40.0
 

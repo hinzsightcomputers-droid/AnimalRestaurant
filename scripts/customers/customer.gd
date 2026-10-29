@@ -3,6 +3,8 @@
 # and what happens at each step; CustomerDisplay decides how they look.
 # A visit: wait at the host stand, follow a player to a table, order a drink,
 # get it, order food, get it, eat, ask for the bill, pay and leave.
+# They're solid while on their feet (players bump into them, not through), and
+# wait for a player or a customer standing in their way to move (see _blocked).
 class_name Customer
 extends Node3D
 
@@ -10,6 +12,10 @@ const GROUP := "customers"
 const FOLLOW_DISTANCE := 1.1  # How far behind the player leading them they walk.
 const TRAIL_STEP := 0.3       # How often (in metres) the leader's footsteps are dropped on their trail.
 const BODY_RADIUS := 0.22     # How wide a gap they need to cut straight across to the trail.
+const BODY_LAYER := 3         # Physics layer of their body, which players collide with.
+const SOLID_RADIUS := 0.28    # Their body, for players to bump into.
+const BLOCK_DISTANCE := 0.8   # They stop for a player or a standing customer this close ahead...
+const MAX_WAIT_SECONDS := 2.5 # ...but (outside the line) no longer than this, so nobody's stuck for good.
 
 # WAITING_BY_DOOR: a Gone regular come back at closing, waiting for their return scene.
 enum State {
@@ -73,6 +79,10 @@ var _warned := false          # Said they should get going.
 var _trail: Array[Vector3] = [] # Where the leader has walked, oldest first: followed so they go around furniture.
 var _done_eating := false
 var _pace := 1.0              # Walking speed factor for the current walk (Mabel takes her time).
+var _waited := 0.0            # How long they've been stopped by someone in the way.
+var _waiting_on_customer := false  # Stopped behind another customer.
+var _last_step := Vector3.ZERO  # How far they moved last frame (others check whether they're coming at them).
+var _body := StaticBody3D.new()
 
 @onready var interactable: Interactable = $Interactable
 
@@ -91,6 +101,16 @@ func is_regular() -> bool:
 func _ready() -> void:
 	add_to_group(GROUP)
 	interactable.prompt_for_player = _prompt_for
+	var shape := CylinderShape3D.new()
+	shape.radius = SOLID_RADIUS
+	shape.height = 1.0
+	var collision := CollisionShape3D.new()
+	collision.shape = shape
+	collision.position.y = 0.5
+	_body.add_child(collision)
+	_body.collision_mask = 0
+	add_child(_body)
+	_update_body()
 	_update_interactable()
 
 
@@ -269,10 +289,12 @@ func _physics_process(delta: float) -> void:
 				wait_seconds += delta
 			State.EATING:
 				_eat(delta)
+	var before := global_position
 	if state == State.FOLLOWING:
 		_follow_leader(delta)
 	else:
 		_follow_path(delta)
+	_last_step = global_position - before
 
 
 func _eat(delta: float) -> void:
@@ -303,6 +325,8 @@ func _follow_leader(delta: float) -> void:
 	if not _skip_ahead():
 		var facing := here - global_position
 		rotation.y = lerp_angle(rotation.y, atan2(facing.x, facing.z), turn_speed * delta)
+		return
+	if _blocked(_trail[0] - global_position, delta):
 		return
 	var left := minf(walk_speed * 1.4 * delta, _trail_length() - FOLLOW_DISTANCE)
 	while left > 0.0 and not _trail.is_empty():
@@ -347,7 +371,7 @@ func _clear_walk_to(point: Vector3) -> bool:
 			var hit := space.intersect_ray(query)
 			if hit.is_empty():
 				break
-			if not hit["collider"] is Player:
+			if not hit["collider"] is Player and not hit["collider"].get_parent() is Customer:
 				return false
 			exclude.append(hit["rid"])
 	return true
@@ -369,6 +393,8 @@ func _follow_path(delta: float) -> void:
 
 	var offset := _path[0] - global_position
 	var step := walk_speed * _pace * delta
+	if _blocked(offset, delta):
+		return
 
 	if offset.length() <= step:
 		global_position = _path[0]
@@ -382,6 +408,43 @@ func _follow_path(delta: float) -> void:
 		rotation.y = lerp_angle(rotation.y, atan2(offset.x, offset.z), turn_speed * delta)
 
 
+# Someone is just ahead going `direction`: a player (not the one they're
+# following), or a customer on their feet who isn't coming straight at them
+# (two walking head-on just pass; two stuck waiting on each other: one goes).
+# In line at the host stand they wait for the customer ahead as long as it
+# takes; anywhere else they wait up to MAX_WAIT_SECONDS, then carry on. When
+# following a player they only stop for other players (the trail goes where
+# the player could walk).
+func _blocked(direction: Vector3, delta: float) -> bool:
+	direction.y = 0.0
+	if direction.length() < 0.01:
+		return false
+	direction = direction.normalized()
+	var by_player := false
+	for node in get_tree().get_nodes_in_group(Player.GROUP):
+		if node != leader and _is_ahead(node.global_position, direction):
+			by_player = true
+	_waiting_on_customer = false
+	if state != State.FOLLOWING:
+		for node in get_tree().get_nodes_in_group(GROUP):
+			var other := node as Customer
+			if other != self and not other.is_seated() and other.state != State.GONE 					and other._last_step.dot(direction) >= -0.001 and _is_ahead(other.global_position, direction) 					and not (other._waiting_on_customer and get_instance_id() < other.get_instance_id()):
+				_waiting_on_customer = true
+	if _waiting_on_customer and state in [State.ARRIVING, State.WAITING_TO_BE_SEATED]:
+		return true
+	if not by_player and not _waiting_on_customer:
+		_waited = 0.0
+		return false
+	_waited += delta
+	return _waited < MAX_WAIT_SECONDS
+
+
+func _is_ahead(point: Vector3, direction: Vector3) -> bool:
+	var to := point - global_position
+	to.y = 0.0
+	return to.length() > 0.05 and to.length() < BLOCK_DISTANCE and to.normalized().dot(direction) > 0.5
+
+
 func _on_path_finished() -> void:
 	_pace = 1.0
 	# Once seated, face the same way as the chair (toward the table).
@@ -392,8 +455,14 @@ func _on_path_finished() -> void:
 
 func _set_state(new_state: State) -> void:
 	state = new_state
+	_update_body()
 	_update_interactable()
 	state_changed.emit(self)
+
+
+# Solid on their feet; not once sat at the table (the chair is solid already).
+func _update_body() -> void:
+	_body.collision_layer = 0 if is_seated() else 1 << (BODY_LAYER - 1)
 
 
 # Players can interact with a customer at every step that needs them (the
