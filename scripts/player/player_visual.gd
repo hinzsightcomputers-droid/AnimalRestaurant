@@ -41,6 +41,7 @@ func _ready() -> void:
 	Accounts.player_account_changed.connect(_refresh_tag)
 	_refresh_tag()
 	_apron = _build_apron()
+	player.held_item_changed.connect(func(item): chef.carrying = item != null)  # Arms up to hold it.
 	GameState.unlocks_changed.connect(_refresh_apron)
 	_refresh_apron()
 
