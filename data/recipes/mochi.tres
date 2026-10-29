@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="CookRecipe" format=3]
+
+[ext_resource type="Script" path="res://scripts/cooking/cook_recipe.gd" id="1_recipe"]
+[ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/roll_action.gd" id="roll"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/cut_action.gd" id="cut"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/top_action.gd" id="top"]
+[ext_resource type="PackedScene" path="res://scenes/cooking/cookie_closeup.tscn" id="scene"]
+
+[sub_resource type="Resource" id="Resource_0"]
+script = ExtResource("roll")
+title = "Knead the dough"
+hint = "Hold [grip] and roll the pin across the dough with [stick]. It stretches the way you roll: fill the dashed square."
+
+[sub_resource type="Resource" id="Resource_1"]
+script = ExtResource("cut")
+title = "Shape the mochi"
+hint = "Move the cutter with [stick] and press [button] to cut. Keep them on the dough and apart!"
+cookies = 6
+piece_name = "Mochi"
+
+[sub_resource type="Resource" id="Resource_2"]
+script = ExtResource("top")
+title = "Red bean filling"
+hint = "Press [button] to put red bean paste right in the middle of each one."
+topping = "Filled"
+on_name = "mochi"
+acorn_shape = false
+nut_radius = 0.02
+nut_color = Color(0.4, 0.15, 0.12, 1)
+weight = 0.8
+
+[resource]
+script = ExtResource("1_recipe")
+display_name = "Mochi"
+pieces = 6
+serve_on = ""
+scene = ExtResource("scene")
+steps = Array[ExtResource("2_action")]([SubResource("Resource_0"), SubResource("Resource_1"), SubResource("Resource_2")])

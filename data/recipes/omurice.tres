@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="CookRecipe" format=3]
+
+[ext_resource type="Script" path="res://scripts/cooking/cook_recipe.gd" id="1_recipe"]
+[ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/heat_action.gd" id="heat"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/pour_action.gd" id="pour"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/flip_action.gd" id="flip"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/place_action.gd" id="place"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/drizzle_action.gd" id="drizzle"]
+
+[sub_resource type="Resource" id="Resource_0"]
+script = ExtResource("heat")
+background = true
+
+[sub_resource type="Resource" id="Resource_1"]
+script = ExtResource("pour")
+title = "Cook the omelette"
+hint = "Aim with [stick] and hold [button] to pour. Let go when it fills the ring."
+batter_color = Color(0.98, 0.84, 0.32, 1)
+
+[sub_resource type="Resource" id="Resource_2"]
+script = ExtResource("flip")
+title = "Fold it over"
+hint = "When the edge turns golden, hold [grip] on it and [flick_up] to flip it."
+
+[sub_resource type="Resource" id="Resource_3"]
+script = ExtResource("place")
+title = "Over the rice"
+hint = "Hold [button] on it, move it onto the plate and let go. Neatly!"
+
+[sub_resource type="Resource" id="Resource_4"]
+script = ExtResource("drizzle")
+title = "Draw with ketchup"
+hint = "Hold [button] and move to draw on it with ketchup. A little goes a long way!"
+syrup_color = Color(0.8, 0.1, 0.06, 1)
+target_coverage = 0.3
+
+[resource]
+script = ExtResource("1_recipe")
+display_name = "Omurice"
+pieces = 1
+steps = Array[ExtResource("2_action")]([SubResource("Resource_0"), SubResource("Resource_1"), SubResource("Resource_2"), SubResource("Resource_3"), SubResource("Resource_4")])

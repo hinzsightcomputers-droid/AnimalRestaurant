@@ -1,10 +1,14 @@
 # TopAction: put a topping on each cookie (the session's context "cookies",
-# from CutAction): an acorn on top of each. Press over a cookie to set one
-# down; it scores how near the middle it lands. Done when every cookie has
-# one. A press off the cookies just drops it on the tray.
+# from CutAction): an acorn on top of each, or with acorn_shape off a plain dollop
+# (custard, filling, cherries...). Press over a cookie to set one down; it
+# scores how near the middle it lands. Done when every cookie has one. A press
+# off the cookies just drops it on the tray.
 class_name TopAction
 extends CookAction
 
+@export var topping := "Acorns"           # For the count, e.g. "Cherries".
+@export var on_name := "cookie"           # What it goes on, e.g. "On a tart!".
+@export var acorn_shape := true           # Off: a plain round dollop of nut_color.
 @export var nut_radius := 0.013
 @export var nut_color := Color(0.62, 0.4, 0.2)
 @export var cap_color := Color(0.4, 0.27, 0.15)
@@ -33,7 +37,7 @@ func cursor_height() -> float:
 func update(delta: float, input: CookInput) -> void:
 	var spot := Vector3(input.cursor.x, _cookie_top(), input.cursor.z)
 	_hand.position = _hand.position.lerp(spot + Vector3(0.0, 0.06, 0.0), 1.0 - exp(-20.0 * delta))
-	session.set_status("Acorns: %d of %d" % [_topped.size(), _cookies.size()])
+	session.set_status("%s: %d of %d" % [topping, _topped.size(), _cookies.size()])
 	if input.just_pressed:
 		_drop(spot)
 	if _topped.size() >= _cookies.size():
@@ -43,7 +47,7 @@ func update(delta: float, input: CookInput) -> void:
 func _drop(spot: Vector3) -> void:
 	var cookie := _cookie_at(spot)
 	if cookie == null:
-		session.pop_text("On a cookie!", spot, -1)
+		session.pop_text("On a %s!" % on_name, spot, -1)
 		return
 	if _topped.has(cookie):
 		session.pop_text("That one has one", spot, 0)
@@ -77,8 +81,11 @@ func _cookie_top() -> float:
 	return cookie.position.y + (cookie.mesh as CylinderMesh).height * 0.5
 
 
-# A little acorn: a nut with a darker cap and a stalk, lying on its side.
+# A little acorn: a nut with a darker cap and a stalk, lying on its side (or
+# just a squashed dollop, without acorn_shape).
 func _make_acorn() -> Node3D:
+	if not acorn_shape:
+		return _make_dollop()
 	var acorn := Node3D.new()
 	var nut := MeshInstance3D.new()
 	var nut_mesh := SphereMesh.new()
@@ -114,3 +121,17 @@ func _make_acorn() -> Node3D:
 	acorn.rotation.z = PI * 0.5  # On its side (its middle at its origin), so it sits on the cookie.
 	session.add_child(acorn)
 	return acorn
+
+
+func _make_dollop() -> Node3D:
+	var dollop := MeshInstance3D.new()
+	var mesh := SphereMesh.new()
+	mesh.radius = nut_radius
+	mesh.height = nut_radius * 1.2
+	var material := StandardMaterial3D.new()
+	material.albedo_color = nut_color
+	material.roughness = 0.5
+	mesh.material = material
+	dollop.mesh = mesh
+	session.add_child(dollop)
+	return dollop

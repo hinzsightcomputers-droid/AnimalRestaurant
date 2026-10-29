@@ -8,6 +8,7 @@ extends CookAction
 
 @export var onto := "Tray"
 @export var cookies := 6
+@export var piece_name := "Cookies"        # What they are, for the count, e.g. "Croissants".
 @export var cookie_radius := 0.045
 @export var cookie_thickness := 0.012
 @export var columns := 3                   # On the tray.
@@ -45,7 +46,7 @@ func update(delta: float, input: CookInput) -> void:
 	_cutter.position = _cutter.position.lerp(Vector3(input.cursor.x, _top() + 0.01, input.cursor.z), 1.0 - exp(-25.0 * delta))
 	if _moving:
 		return
-	session.set_status("Cookies: %d of %d" % [_cut.size(), cookies])
+	session.set_status("%s: %d of %d" % [piece_name, _cut.size(), cookies])
 	if input.just_pressed:
 		_press(Vector3(input.cursor.x, 0.0, input.cursor.z))
 

@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="CookRecipe" format=3]
+
+[ext_resource type="Script" path="res://scripts/cooking/cook_recipe.gd" id="1_recipe"]
+[ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/scrape_action.gd" id="scrape"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/season_action.gd" id="season"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/stir_action.gd" id="stir"]
+[ext_resource type="PackedScene" path="res://scenes/cooking/soup_closeup.tscn" id="scene"]
+
+[sub_resource type="Resource" id="Resource_0"]
+script = ExtResource("scrape")
+title = "Pasta in"
+hint = "Hold [grip] on the board and carry it to the pot. Then hold [grip] and push the knife to sweep everything in. Gently, or it splashes!"
+weight = 0.5
+piece_radius = 0.014
+piece_thickness = 0.01
+
+[sub_resource type="Resource" id="Resource_1"]
+script = ExtResource("season")
+title = "Cheese!"
+hint = "Shake [button] over the pot to melt in the cheese. All four kinds. Stop when the meter is in the green."
+seasoning = "Cheese"
+flake_color = Color(0.98, 0.8, 0.25, 1)
+cap_color = Color(0.95, 0.75, 0.2, 1)
+band = Vector2(0.65, 0.85)
+
+[sub_resource type="Resource" id="Resource_2"]
+script = ExtResource("stir")
+title = "Mix it"
+hint = "Roll [stick] round and round to stir it (with the mouse, hold [grip] and circle the pot). Not too slow, not too fast!"
+turns = 6
+
+[resource]
+script = ExtResource("1_recipe")
+display_name = "Four-Cheese Mac"
+pieces = 1
+serve_on = ""
+scene = ExtResource("scene")
+steps = Array[ExtResource("2_action")]([SubResource("Resource_0"), SubResource("Resource_1"), SubResource("Resource_2")])

@@ -26,6 +26,7 @@ var _phone_label: Label
 var _gone_label: Label
 var _scene_label: Label
 var _kitchen_label: Label
+var _dish_picker: OptionButton
 var _was_paused := false
 var _changed := false     # Something to save when the panel closes.
 var _updating := false    # True while _refresh moves the slider, so it isn't treated as an edit.
@@ -423,6 +424,14 @@ func _build() -> void:
 	var cookie_row := _add_row(box)
 	_add_button(cookie_row, "Practice acorn cookies (P1)", _practice.bind("acorn_cookies", "oven"))
 	_add_button(cookie_row, "Unlock all dishes", _unlock_all_dishes)
+	var any_dish_row := _add_row(box)
+	_dish_picker = OptionButton.new()
+	for dish in GameData.dishes:
+		_dish_picker.add_item(dish["name"])
+		_dish_picker.set_item_metadata(_dish_picker.item_count - 1, dish["id"])
+	any_dish_row.add_child(_dish_picker)
+	_add_button(any_dish_row, "Practice it (P1)", _practice_picked)
+	_add_button(any_dish_row, "Only serve it", func(): _only_serve(_picked_dish()["id"]))
 	var dishes_row := _add_row(box)
 	_add_button(dishes_row, "Make tables messy", _make_tables_messy)
 	_add_button(dishes_row, "Empty the plate rack", _empty_rack)
@@ -461,6 +470,20 @@ func _practice(recipe_id: String, station_id := "stove") -> void:
 		return
 	_set_open(false)
 	stove.practice(Player.find(get_tree(), 0), recipe)
+
+
+func _picked_dish() -> Dictionary:
+	return GameData.get_dish(_dish_picker.get_item_metadata(_dish_picker.selected))
+
+
+# The dish picked in the Kitchen section, at its own station (dishes without a
+# close-up recipe have nothing to practice).
+func _practice_picked() -> void:
+	var dish := _picked_dish()
+	if not dish.has("recipe"):
+		_kitchen_label.text = "%s has no close-up recipe." % dish["name"]
+		return
+	_practice(dish["recipe"], CookingStation.station_of(dish))
 
 
 # Player 1 chops at the board right away, with nothing to hand back. Closes the panel.

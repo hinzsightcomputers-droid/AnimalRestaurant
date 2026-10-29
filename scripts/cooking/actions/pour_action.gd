@@ -15,6 +15,7 @@ extends CookAction
 @export var thickness := 0.022
 @export var bottle_height := 0.2          # How high the nozzle is above the surface.
 @export var show_guide := true            # A faint ring the size of a perfect pour.
+@export var stack := false                # Poured straight onto a plate: it starts the plate's stack, so toppings and drizzles go on it.
 
 var _bottle: Node3D
 var _stream: MeshInstance3D
@@ -88,7 +89,7 @@ func end() -> void:
 
 func _try_start(spot: Vector3) -> void:
 	if not session.surface(surface).contains(spot):
-		session.pop_text("Pour it on the griddle!", spot, -1)
+		session.pop_text("Pour it on the %s!" % surface.to_lower(), spot, -1)
 		session.wobble(_bottle)
 		return
 	for piece in session.pieces:
@@ -115,6 +116,8 @@ func _stop_pouring() -> void:
 		words = "Over the edge!"
 	piece.scores["pour"] = score
 	_scores.append(score)
+	if stack:
+		session.stack_push(surface, piece, piece.position, piece.thickness)
 	session.pop_text(words, piece.position, CookSession.mood_of(score))
 	session.wobble(piece, 0.1)
 	session.play_sound("plop", piece.position, -6.0, 0.8)
