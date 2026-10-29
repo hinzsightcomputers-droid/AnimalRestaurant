@@ -1,28 +1,38 @@
 # ViewManager: hybrid split screen. Every player has their own PlayerView
 # (SubViewport + CameraRig); this decides which views are on screen and where.
 #
+# With 3 or 4 players the screen is simply split four ways, a quarter each
+# (player 1 top left, 2 top right, 3 bottom left, 4 bottom right) that never
+# moves, whatever anyone is doing. With 2 players the views are dynamic:
+#
 # Each frame players are sorted into groups:
-#   - A player whose camera wants to zoom in (cooking, cleaning, taking an order)
-#     is always a group of one, so they get their own zoomed-in view.
+#   - A player whose camera wants to zoom in (cooking, cleaning, taking an order),
+#     or who has something open just for them (a dialogue box, the drinks list),
+#     is always a group of one, so they get their own view to see it in.
 #   - Everyone else is grouped with anyone close by. Groups split when players
 #     drift further than split_distance apart and merge again once they're within
 #     merge_distance (the gap stops the screen flickering at the edge).
 # Each group gets one view on screen: the view of its lowest-numbered player,
 # with that player's rig following the whole group. Views slide into place.
+# The smaller the views, the smaller the UI drawn in them (dialogue boxes,
+# popups: see PlayerView.set_ui_scale) and the HUD's text (UiScale), and the
+# closer each camera follows its chef, so they don't look far away.
 class_name ViewManager
 extends CanvasLayer
 
 const PLAYER_VIEW_SCENE := preload("res://scenes/camera/player_view.tscn")
 
-# Screen areas (left, top, right, bottom as fractions of the screen) for 1-4 views.
-const LAYOUTS := [
-	[Rect2(0, 0, 1, 1)],
-	[Rect2(0, 0, 0.5, 1), Rect2(0.5, 0, 0.5, 1)],
-	[Rect2(0, 0, 0.5, 0.5), Rect2(0.5, 0, 0.5, 0.5), Rect2(0, 0.5, 1, 0.5)],
-	[Rect2(0, 0, 0.5, 0.5), Rect2(0.5, 0, 0.5, 0.5), Rect2(0, 0.5, 0.5, 0.5), Rect2(0.5, 0.5, 0.5, 0.5)],
-]
+# Screen areas (left, top, right, bottom as fractions of the screen): one view,
+# two side by side, and the four-way split.
+const LAYOUTS := {
+	1: [Rect2(0, 0, 1, 1)],
+	2: [Rect2(0, 0, 0.5, 1), Rect2(0.5, 0, 0.5, 1)],
+	4: [Rect2(0, 0, 0.5, 0.5), Rect2(0.5, 0, 0.5, 0.5), Rect2(0, 0.5, 0.5, 0.5), Rect2(0.5, 0.5, 0.5, 0.5)],
+}
+const FOLLOW_ZOOM := { 1: 1.0, 2: 0.88, 4: 0.58 }  # Camera follow distance for each layout.
 
 @export var player_manager: PlayerManager
+@export var fixed_split_players := 3  # This many players or more: the fixed four-way split.
 @export var split_distance := 6.5     # Meters apart before a shared view splits.
 @export var merge_distance := 5.0     # Meters apart before split views join again.
 @export var transition_time := 0.45   # Seconds for views to slide into a new layout.
@@ -33,6 +43,8 @@ const LAYOUTS := [
 var _views: Dictionary = {}     # player_index -> PlayerView
 var _groups: Array = []         # Current groups, e.g. [[0, 2], [1]], each sorted, lowest first.
 var _layout_tween: Tween = null
+var _fixed := false             # Using the fixed four-way split.
+var ui_scale := 1.0             # Size of the UI for the current layout (UiScale).
 
 
 func _ready() -> void:
@@ -90,9 +102,15 @@ func _find_groups() -> Array:
 	indices.sort()
 
 	var result: Array = []
+	_fixed = indices.size() >= fixed_split_players
+	if _fixed:
+		for index in indices:
+			result.append([index])
+		return result
+
 	var free: Array = []
 	for index in indices:
-		if _views[index].rig.focus_requested:
+		if _views[index].rig.focus_requested or _views[index].has_own_ui():
 			result.append([index])
 		else:
 			free.append(index)
@@ -151,11 +169,13 @@ func _apply_groups(new_groups: Array) -> void:
 	_layout_tween = create_tween().set_parallel(true) \
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
-	var layout: Array = LAYOUTS[clampi(new_groups.size(), 1, LAYOUTS.size()) - 1]
+	var slots := 4 if _fixed else clampi(new_groups.size(), 1, 2)
+	var layout: Array = LAYOUTS[slots]
 	var owners := []
 	for i in new_groups.size():
 		var group: Array = new_groups[i]
 		var view: PlayerView = _views[group[0]]
+		var rect: Rect2 = layout[group[0] % 4 if _fixed else mini(i, slots - 1)]  # Fixed: each player's own corner.
 		owners.append(group[0])
 
 		var targets: Array[Node3D] = []
@@ -170,9 +190,9 @@ func _apply_groups(new_groups: Array) -> void:
 			if shown_in != -1 and shown_in != group[0]:
 				view.rig.copy_view_from(_views[shown_in].rig, transition_time + camera_glide_extra)
 			view.set_active(true)
-			_set_rect(view, old_rects.get(group[0], layout[mini(i, layout.size() - 1)]), new_groups.size())
+			_set_rect(view, old_rects.get(group[0], rect), slots)
 		move_child(view, -1)  # Views on screen draw above ones leaving it.
-		_tween_rect(view, layout[mini(i, layout.size() - 1)], new_groups.size())
+		_tween_rect(view, rect, slots)
 
 	# Views no longer on screen go back to following just their own player,
 	# and hide once the others have slid over them.
@@ -185,6 +205,10 @@ func _apply_groups(new_groups: Array) -> void:
 		if view.visible:
 			_layout_tween.chain().tween_callback(view.set_active.bind(false))
 	_groups = new_groups
+	ui_scale = UiScale.for_view_count(slots)
+	for view in _views.values():
+		view.set_ui_scale(ui_scale)
+		view.rig.view_zoom = FOLLOW_ZOOM[slots]
 
 
 func _rect_of(view: Control) -> Rect2:

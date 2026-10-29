@@ -121,6 +121,7 @@ func _try_start_cooking(player_index: int) -> void:
 	player.movement_locked = true
 	player.interactor.lock_to(interactable)
 	player.request_camera_focus(global_position + zoom_look_offset, camera_zoom)  # Only this player's camera.
+	player.hide_from_own_view(true)  # So the chef doesn't block it.
 	_play_bounce()
 	used.emit(self, player_index)
 
@@ -162,6 +163,7 @@ func _open_closeup(player: Player, recipe: CookRecipe, ingredients: Ingredients 
 	var zoom: CameraZoomSettings = closeup_zoom.duplicate()
 	zoom.yaw_degrees += rad_to_deg(global_rotation.y)  # From in front, however the station turns.
 	player.request_camera_focus(global_transform * closeup_look_offset, zoom)
+	player.hide_from_own_view(true)
 	session.finished.connect(_on_minigame_finished)
 	session.start(recipe, player, view_manager if view_manager != null else get_tree().root.find_children("*", "ViewManager", true, false).front(), ingredients)
 	_play_bounce()
@@ -189,6 +191,7 @@ func cook_together(player: Player, dish: Dictionary, step: Dictionary, helper: C
 	player.movement_locked = true
 	player.interactor.lock_to(interactable)
 	player.request_camera_focus(global_position + zoom_look_offset, camera_zoom)
+	player.hide_from_own_view(true)
 	_play_bounce()
 	return await cooked_together
 
@@ -229,6 +232,7 @@ func _on_minigame_finished(quality: float) -> void:
 	_cook.movement_locked = false
 	_cook.interactor.unlock()
 	_cook.release_camera_focus()
+	_cook.hide_from_own_view(false)
 	_cook = null
 	_order = null
 	minigame = null
@@ -248,6 +252,7 @@ func _finish_together(quality: float) -> void:
 	_cook.movement_locked = false
 	_cook.interactor.unlock()
 	_cook.release_camera_focus()
+	_cook.hide_from_own_view(false)
 	var result := minigame.quality
 	_cook = null
 	_together = {}

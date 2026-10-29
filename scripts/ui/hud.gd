@@ -10,6 +10,7 @@ const CLOCK_FADE_SECONDS := 0.4
 const MOVING_SPEED := 0.2  # A player going faster than this (m/s) counts as moving.
 const MESSAGE_TIME := 4.0
 const MAX_MESSAGES := 3
+const MAX_ORDERS_SHOWN := 3  # Then "+2 more", so the list doesn't fill the screen.
 const STATE_NAMES := {
 	Order.State.WAITING: "waiting",
 	Order.State.GATHERED: "ingredients out",
@@ -32,6 +33,8 @@ var _messages: Array[Dictionary] = []  # Recent messages, oldest first: { text, 
 var _still_seconds := 0.0   # How long nobody has moved.
 var _clock_shown := true    # Shown at the start of the shift.
 var _clock_tween: Tween
+var _view_manager: ViewManager
+var _ui_scale := 1.0
 
 
 func _ready() -> void:
@@ -39,9 +42,12 @@ func _ready() -> void:
 	GameEvents.message.connect(_show_message)
 	_refresh_orders()
 	message_label.text = ""
+	var managers := get_tree().root.find_children("*", "ViewManager", true, false)
+	_view_manager = managers.front() if not managers.is_empty() else null
 
 
 func _process(delta: float) -> void:
+	_refresh_scale()
 	_refresh_day_and_money()
 	_refresh_clock(delta)
 	_refresh_join_hint()
@@ -113,14 +119,25 @@ func _refresh_join_hint() -> void:
 	join_label.text = "More players: press %s to join" % " or ".join(options)
 
 
+# The first MAX_ORDERS_SHOWN orders, then "+2 more".
 func _refresh_orders() -> void:
 	var lines := PackedStringArray(["Orders"])
 	if order_board.orders.is_empty():
 		lines.append("  (none)")
-	for order in order_board.orders:
+	for order in order_board.orders.slice(0, MAX_ORDERS_SHOWN):
 		var state: String = STATE_NAMES[order.state] if order.on_wheel or order.state != Order.State.WAITING else "ticket not on the wheel"
 		lines.append("  #%d %s for %s - %s" % [order.number, order.dish.get("name", "?"), order.for_name(), state])
+	if order_board.orders.size() > MAX_ORDERS_SHOWN:
+		lines.append("  +%d more" % (order_board.orders.size() - MAX_ORDERS_SHOWN))
 	orders_label.text = "\n".join(lines)
+
+
+# Smaller text in split screen, like the views' (see UiScale).
+func _refresh_scale() -> void:
+	var scale := _view_manager.ui_scale if _view_manager != null else 1.0
+	if scale != _ui_scale:
+		_ui_scale = scale
+		UiScale.apply(self, scale)
 
 
 func _show_message(text: String) -> void:

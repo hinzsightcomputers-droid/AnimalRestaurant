@@ -68,7 +68,7 @@ func _on_state_changed(_customer: Customer) -> void:
 		Customer.State.WAITING_DRINK_ORDER:
 			bubble.text = "Ready for a drink!"
 		Customer.State.WAITING_FOR_DRINK:
-			bubble.text = "%s, please!" % customer.drink.get("name", "A drink")
+			bubble.text = "The usual, please!" if customer.drink_secret else "%s, please!" % customer.drink.get("name", "A drink")
 		Customer.State.WAITING_FOOD_ORDER:
 			bubble.text = "Ready to order!"
 		Customer.State.WAITING_FOR_FOOD:
@@ -85,9 +85,9 @@ func _on_state_changed(_customer: Customer) -> void:
 		Customer.State.WANTS_BILL:
 			bubble.text = "Check, please!"
 		Customer.State.LEAVING:
-			bubble.text = "\"%s\"" % customer.reaction_line
-			if customer.payment > 0:
-				bubble.text += "\n+$%d" % customer.payment
+			# Their goodbye was in the dialogue box; walking out, just what they paid.
+			bubble.visible = customer.payment > 0
+			bubble.text = "+$%d" % customer.payment
 
 	_update_name_tag()
 

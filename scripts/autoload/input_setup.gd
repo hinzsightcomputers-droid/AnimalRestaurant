@@ -110,6 +110,11 @@ func up_hint(player_index: int) -> String:
 
 
 # The gamepad a player is on, or -1 for a keyboard.
+# "keys_left", "keys_right", "pad_0"... ("" if none).
+func device_of(player_index: int) -> String:
+	return _devices.get(player_index, "")
+
+
 func pad_of(player_index: int) -> int:
 	var device: String = _devices.get(player_index, "")
 	return int(device.trim_prefix("pad_")) if device.begins_with("pad_") else -1

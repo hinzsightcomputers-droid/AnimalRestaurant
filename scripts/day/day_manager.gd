@@ -11,6 +11,8 @@
 # a phone) the day ends: the game pauses and `day_ended` carries the summary
 # for the summary screen. After that it's closed until tomorrow, and opening
 # the game again the same day finds it closed (`closed_for_today`).
+# On launch a banner says if today's a special day (EventCalendar), and chefs
+# are asked their birthday on their first day (BirthdayAsker).
 class_name DayManager
 extends Node
 
@@ -38,6 +40,11 @@ func _ready() -> void:
 	customer_manager.day_manager = self
 	GameState.begin_day()
 	Music.play_hour_themes()  # In the restaurant the music follows the real hour.
+	EventBanner.show_today(self)  # "Happy Halloween!", birthdays (see EventCalendar).
+	var birthday_asker := BirthdayAsker.new()  # Asks new chefs their birthday once it's open.
+	birthday_asker.day_manager = self
+	birthday_asker.view_manager = customer_manager.view_manager
+	add_child(birthday_asker)
 	if GameState.phone_news:
 		GameState.phone_news = false
 		get_tree().create_timer(2.0, false).timeout.connect(func(): GameEvents.announce(String(GameData.service.get("phone_installed", "There's a phone on the wall now."))))

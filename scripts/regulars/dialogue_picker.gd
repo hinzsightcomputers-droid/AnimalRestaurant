@@ -149,13 +149,19 @@ static func _condition_met(key: String, want: Variant, context: Dictionary) -> b
 				if not dish_id.is_empty() and not GameData.is_unlocked(dish_id):
 					return false
 			return true
+		"drinks_unlocked":  # ["bubble_tea", ...]: each of those drinks is on the menu.
+			return want.all(func(id): return GameData.is_unlocked(id))
+		"drinks_locked":  # ["bubble_tea", ...]: none of those drinks is on the menu yet.
+			return not want.any(func(id): return GameData.is_unlocked(id))
+		"served_drink", "served_drink_type":  # The drink just brought (an id), or its type (e.g. "soda").
+			return context.get(key, "") == want
 		"memory":  # { field: value } in the regular's memory, e.g. { "dislike_confessed": false }.
 			var memory: Dictionary = context.get("memory", {})
 			for field in want:
 				if memory.get(field) != want[field]:
 					return false
 			return true
-		"knows_player_name", "returned_after_away", "ordered_favorite", "learned_name", "new_chef_for_them", "has_rude_line", "served_favorite", "served_disliked", "right_drink", "served_favorite_drink", "has_restaurant_name", "new_restaurant_name":
+		"knows_player_name", "returned_after_away", "ordered_favorite", "learned_name", "new_chef_for_them", "has_rude_line", "served_favorite", "served_disliked", "right_drink", "served_favorite_drink", "wants_favorite", "has_restaurant_name", "new_restaurant_name":
 			return context.get(key, false) == want
 		"friends_with":  # { regular_id: true/false }
 			for id in want:

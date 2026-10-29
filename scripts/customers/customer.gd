@@ -37,6 +37,10 @@ var dish: Dictionary = {}     # From GameData.dishes. Picked on arrival, reveale
 var drink: Dictionary = {}    # The drink they ordered (GameData.drinks), {} until then.
 var served_drink: Dictionary = {}  # The drink they got (maybe not the one they asked for).
 var drink_quality := 0.0      # How well it was poured.
+var drink_secret := false     # A regular who just asked for "the usual" without naming it.
+var wanted_table := ""        # The table spot a regular asked for this visit ("" for none).
+var surprise_meal := false    # A regular who asked to be surprised with the food too.
+var seat_note := ""           # Something they do as they sit (e.g. Mabel inspecting the table), announced then.
 var seat: Seat = null         # Their chair, once a player seats them.
 var leader: Player = null     # The player leading them to a table.
 var display_name := ""        # "Mabel" for a regular, "Frog" for anyone else.
@@ -68,6 +72,7 @@ var _stay_left := 0.0         # A regular nobody chatted with asks for the bill 
 var _warned := false          # Said they should get going.
 var _trail: Array[Vector3] = [] # Where the leader has walked, oldest first: followed so they go around furniture.
 var _done_eating := false
+var _pace := 1.0              # Walking speed factor for the current walk (Mabel takes her time).
 
 @onready var interactable: Interactable = $Interactable
 
@@ -170,6 +175,16 @@ func sit_at(chair: Seat) -> void:
 	_trail.clear()
 	path.append_array([chair.approach_point.global_position, chair.seat_point.global_position])
 	walk_to(path, State.WAITING_DRINK_ORDER)
+	_set_state(State.WALKING_TO_SEAT)
+
+
+# They found a table on their own: walk `points` to `chair` and sit, at
+# `speed_factor` of their usual pace.
+func seat_self(chair: Seat, points: Array[Vector3], speed_factor := 1.0) -> void:
+	leader = null
+	seat = chair
+	_pace = speed_factor
+	walk_to(points, State.WAITING_DRINK_ORDER)
 	_set_state(State.WALKING_TO_SEAT)
 
 
@@ -353,7 +368,7 @@ func _follow_path(delta: float) -> void:
 		return
 
 	var offset := _path[0] - global_position
-	var step := walk_speed * delta
+	var step := walk_speed * _pace * delta
 
 	if offset.length() <= step:
 		global_position = _path[0]
@@ -368,6 +383,7 @@ func _follow_path(delta: float) -> void:
 
 
 func _on_path_finished() -> void:
+	_pace = 1.0
 	# Once seated, face the same way as the chair (toward the table).
 	if _state_after_path == State.WAITING_DRINK_ORDER and seat != null:
 		rotation.y = seat.global_rotation.y

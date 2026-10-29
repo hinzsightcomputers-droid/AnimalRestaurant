@@ -20,6 +20,13 @@ func unlock() -> void:
 
 
 func _physics_process(_delta: float) -> void:
+	var player := get_parent() as Player
+	if player != null and player.in_conversation():
+		# Talking: interact moves the dialogue box on, so no prompt ("Chat") hangs over it.
+		if focused != null:
+			focused = null
+			focus_changed.emit(null)
+		return
 	if locked_to != null:
 		var stuck_on: Interactable = locked_to if locked_to.enabled else null  # A disabled target shows no prompt.
 		if focused != stuck_on:

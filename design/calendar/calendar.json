@@ -1,0 +1,21 @@
+{
+	"_about": "Special days (see EventCalendar). holidays: a fixed date as \"MM-DD\", or \"easter\" (worked out for each year). Chefs are asked their birthday on their first day (birthday_question); a regular's birthday is the \"birthday\" field in their character file. On launch, a banner says what today is (banner_seconds on screen). {player} and {name} fill in. Real event content comes later.",
+	"banner_seconds": 6,
+	"holidays": [
+		{ "id": "new_years_day", "name": "New Year's Day", "date": "01-01", "banner": "Happy New Year!" },
+		{ "id": "easter", "name": "Easter", "date": "easter", "banner": "Happy Easter!" },
+		{ "id": "halloween", "name": "Halloween", "date": "10-31", "banner": "Happy Halloween!" },
+		{ "id": "christmas", "name": "Christmas", "date": "12-25", "banner": "Merry Christmas!" }
+	],
+	"chef_birthday": { "banner": "Happy birthday, {player}!" },
+	"regular_birthday": { "banner": "It's {name}'s birthday today!" },
+	"birthday_question": {
+		"title": "Before we open",
+		"ask_month": "{player}, when's your birthday? So the restaurant can celebrate.",
+		"ask_part": "Which part of {month}?",
+		"ask_day": "And the day?",
+		"rather_not_say": "I'd rather not say",
+		"thanks": "Got it: {date}. We'll remember!",
+		"no_thanks": "No problem!"
+	}
+}

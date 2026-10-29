@@ -4,6 +4,7 @@ class_name Player
 extends CharacterBody3D
 
 const GROUP := "players"
+const OWN_VIEW_LAYER := 11  # Render layers 11-14: each player's own, see hide_from_own_view().
 
 signal held_item_changed(item: RefCounted)
 signal tickets_changed
@@ -18,6 +19,7 @@ signal camera_focus_released
 @export var turn_speed := 12.0    # How quickly the body turns to face the move direction.
 
 var movement_locked := false      # True while busy (e.g. cooking).
+var hidden_from_own_view := false  # In a close-up: their own camera leaves them out.
 var has_acted := false            # Becomes true the first time this player moves or interacts.
 var held_item: RefCounted = null  # What the player is carrying, e.g. a CookedDish.
 var tickets: Array[Order] = []    # Order tickets in their pocket, for the TicketWheel (hands stay free).
@@ -48,6 +50,21 @@ func request_camera_focus(point: Vector3, settings: CameraZoomSettings = null) -
 
 func release_camera_focus() -> void:
 	camera_focus_released.emit()
+
+
+# During a close-up (the oven, pouring a drink) the chef would stand in the way
+# of their own camera: hide them from it while it's zoomed in. Everyone else's
+# view still shows them. Their meshes get a render layer of their own
+# (OWN_VIEW_LAYER + player_index) that their CameraRig leaves out.
+func hide_from_own_view(hidden: bool) -> void:
+	if hidden:
+		for node in visual.find_children("*", "VisualInstance3D", true, false):
+			(node as VisualInstance3D).set_layer_mask_value(own_view_layer(), true)
+	hidden_from_own_view = hidden
+
+
+func own_view_layer() -> int:
+	return OWN_VIEW_LAYER + player_index
 
 
 func set_held_item(item: RefCounted) -> void:

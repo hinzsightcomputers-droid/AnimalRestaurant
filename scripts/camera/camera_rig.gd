@@ -36,6 +36,7 @@ var follow_targets: Array[Node3D] = []    # Who FOLLOW keeps in view.
 var focus_point := Vector3.ZERO           # What FOCUS looks at.
 var zoom: CameraZoomSettings = null       # Settings of the current (or last) zoom-in.
 var focus_requested := false              # The player asked for a zoom-in and hasn't released it.
+var view_zoom := 1.0                      # Follow distance times this (closer in a small split view).
 
 var _offset := Vector3.ZERO               # Current camera offset from the rig.
 var _blend := 1.0                         # 0 -> 1 while tweening into the current mode.
@@ -166,9 +167,12 @@ func _follow_goal() -> Array:
 		spread = maxf(spread, Vector2(offset.x, offset.z).length())
 
 	var pull_back := clampf(1.0 + maxf(spread - zoom_out_after, 0.0) * zoom_per_meter, 1.0, max_zoom)
-	return [center, follow_offset * pull_back]
+	return [center, follow_offset * pull_back * view_zoom]
 
 
 func _place_camera() -> void:
 	camera.global_position = global_position + _offset
 	camera.look_at(global_position, Vector3.UP)
+	if player != null:
+		# Zoomed in on a close-up their own chef would block: leave them out of this view.
+		camera.set_cull_mask_value(player.own_view_layer(), not (player.hidden_from_own_view and mode == Mode.FOCUS))

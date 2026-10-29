@@ -140,6 +140,7 @@ func _start_pour(player: Player, drink: Dictionary) -> void:
 	player.movement_locked = true
 	player.interactor.lock_to(interactable)
 	player.request_camera_focus(cup_spot.global_position + Vector3.UP * DrinkModel.HEIGHT * CUP_SCALE * LINE, _pour_zoom())
+	player.hide_from_own_view(true)  # So the chef doesn't block the cup.
 	_show_cup(drink, 0.0)
 	status_label.text = "Hold to pour %s.\nLet go at the line!" % drink["name"]
 	status_label.position = POUR_LABEL_AT
@@ -186,6 +187,7 @@ func _finish_pour(spilled: bool) -> void:
 	player.movement_locked = false
 	player.interactor.unlock()
 	player.release_camera_focus()
+	player.hide_from_own_view(false)
 	_play_bounce()
 	if spilled:
 		GameEvents.announce("Oops, the %s spilled over!" % _pour_drink["name"])

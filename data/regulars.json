@@ -60,6 +60,7 @@
 		"reply_given": false,
 		"returns_on": "",
 		"times_gone": 0,
-		"visits_by_stage": {}
+		"visits_by_stage": {},
+		"last_table": ""
 	}
 }

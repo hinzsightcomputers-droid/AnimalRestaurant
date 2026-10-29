@@ -28,6 +28,7 @@ var _scene_label: Label
 var _kitchen_label: Label
 var _dish_picker: OptionButton
 var _was_paused := false
+var _players_label: Label
 var _changed := false     # Something to save when the panel closes.
 var _updating := false    # True while _refresh moves the slider, so it isn't treated as an edit.
 
@@ -73,8 +74,71 @@ func _skip_days(days: int) -> void:
 	_refresh()
 
 
+# Another player without a gamepad: Player 2 gets the arrow keys (and Enter),
+# Players 3 and 4 no device at all (they stand still until "WASD: P3").
+# Each gets a "Test chef" account (made once, then reused), with no birthday
+# question, so nothing waits on input they can't give.
+func _add_player() -> void:
+	var player_manager := get_tree().root.find_children("*", "PlayerManager", true, false).front() as PlayerManager
+	var players := InputSetup.active_players()
+	if player_manager == null or players.size() >= InputSetup.MAX_PLAYERS:
+		return
+	var index := 0
+	while index in players:
+		index += 1
+	var account := Accounts.find_by_name("Test chef %d" % (index + 1))
+	if account.is_empty():
+		account = Accounts.create("Test chef %d" % (index + 1))
+	if Accounts.is_in_use(account["id"]):
+		return
+	Accounts.assign(index, account["id"])
+	GameState.birthdays[account["id"]] = GameState.birthdays.get(account["id"], "")
+	_changed = true
+	InputSetup.assign_device(index, "keys_right" if not InputSetup.is_device_used("keys_right") else "debug_%d" % index)
+	player_manager._spawn(index)
+	_refresh()
+
+
+# Everyone to a different corner of the dining room, so each gets their own view.
+func _spread_players() -> void:
+	var spots := [Vector3(-6, 0, 4), Vector3(6, 0, 4), Vector3(-6, 0, -4), Vector3(6, 0, -4)]
+	for node in get_tree().get_nodes_in_group(Player.GROUP):
+		var player := node as Player
+		player.global_position = spots[player.player_index % spots.size()]
+		player.reset_physics_interpolation()
+
+
+# WASD (and E) move `index` instead; whoever had them stands still.
+func _control_player(index: int) -> void:
+	if Player.find(get_tree(), index) == null:
+		return
+	for other in InputSetup.active_players():
+		if other != index and InputSetup.device_of(other) == "keys_left":
+			InputSetup.assign_device(other, "debug_%d" % other)
+	InputSetup.assign_device(index, "keys_left")
+	_refresh()
+
+
 func _real_date() -> void:
 	GameClock.set_offset_days(0)
+	_refresh()
+
+
+# Move the date forward to the next holiday or birthday (see EventCalendar).
+# Restart the game (or force a new day) to see its banner on launch.
+func _next_special_day() -> void:
+	var today := GameClock.calendar_date()
+	var next := EventCalendar.next_event_after(today)
+	if next.is_empty():
+		return
+	var days := roundi((Time.get_unix_time_from_datetime_string(next) - Time.get_unix_time_from_datetime_string(today)) / 86400.0)
+	_skip_days(days)
+
+
+# Every chef gets asked their birthday again.
+func _forget_birthdays() -> void:
+	GameState.birthdays.clear()
+	_changed = true
 	_refresh()
 
 
@@ -256,9 +320,20 @@ func _clear_unlocks() -> void:
 # --- Display ---------------------------------------------------------------
 
 func _refresh() -> void:
+	_players_label.text = "  ".join(PackedStringArray(InputSetup.active_players().map(func(i): return "P%d %s (%s)" % [
+		i + 1, Accounts.name_of(i), { "keys_left": "WASD", "keys_right": "arrows" }.get(InputSetup.device_of(i), "pad" if InputSetup.device_of(i).begins_with("pad_") else "idle")])))
 	var offset := GameClock.offset_days()
-	_date_label.text = "Game date: %s%s" % [GameClock.now_string().left(10),
-		"  (real date + %d days)" % offset if offset > 0 else "  (real date)"]
+	var events: Array = EventCalendar.events_on(GameClock.calendar_date()).map(func(e): return e["banner"])
+	var birthdays: Array = GameState.birthdays.keys().map(func(id): return "%s: %s" % [
+		Accounts.get_account(id).get("name", "?"), EventCalendar.describe(GameState.birthdays[id]) if GameState.birthdays[id] != "" else "rather not say"])
+	_date_label.text = "Game date: %s%s
+Today: %s
+Next special day: %s
+Chef birthdays: %s" % [GameClock.now_string().left(10),
+		"  (real date + %d days)" % offset if offset > 0 else "  (real date)",
+		" / ".join(PackedStringArray(events)) if not events.is_empty() else "nothing special",
+		EventCalendar.next_event_after(GameClock.calendar_date()),
+		", ".join(PackedStringArray(birthdays)) if not birthdays.is_empty() else "none yet"]
 
 	var meals := PackedStringArray()
 	var plan := GameState.todays_plan()
@@ -387,6 +462,10 @@ func _build() -> void:
 	for days in DAY_STEPS:
 		_add_button(date_row, "+%d day%s" % [days, "" if days == 1 else "s"], _skip_days.bind(days))
 	_add_button(date_row, "Real date", _real_date)
+	var event_row := _add_row(box)
+	_add_button(event_row, "Next special day", _next_special_day)
+	_add_button(event_row, "Show today's banner", func(): EventBanner.show_today(get_tree().current_scene))
+	_add_button(event_row, "Forget birthdays", _forget_birthdays)
 
 	_add_label(box, "Today", 18, true)
 	_schedule_label = _add_label(box, "")
@@ -474,6 +553,15 @@ func _build() -> void:
 	_add_button(dishes_row, "Make tables messy", _make_tables_messy)
 	_add_button(dishes_row, "Empty the plate rack", _empty_rack)
 	_kitchen_label = _add_label(box, "")
+
+	_add_label(box, "Players", 18, true)
+	_players_label = _add_label(box, "")
+	var players_row := _add_row(box)
+	_add_button(players_row, "Add a player", _add_player)
+	_add_button(players_row, "Spread players out", _spread_players)
+	var control_row := _add_row(box)
+	for i in InputSetup.MAX_PLAYERS:
+		_add_button(control_row, "WASD: P%d" % (i + 1), _control_player.bind(i))
 
 	_add_label(box, "Phone", 18, true)
 	_caller_picker = OptionButton.new()

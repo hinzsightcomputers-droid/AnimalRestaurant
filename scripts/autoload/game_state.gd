@@ -70,6 +70,12 @@ var phone_news := false  # The phone went up this morning: say so once the day s
 # many have rung so far. Saved, so a night picked up again doesn't start over.
 var night_calls_total := 0
 var night_calls_used := 0
+# The last drink a chef brought anyone (a drink id), for regulars who ask for
+# "whatever you like". Saved.
+var last_drink_served := ""
+# Each chef's birthday, by account id: "MM-DD", or "" if they'd rather not say
+# (then they aren't asked again). Asked on their first day; see EventCalendar. Saved.
+var birthdays: Dictionary = {}
 # Debug panel: a dish id that's the only thing on the menu (e.g. to test its recipe). Not saved.
 var forced_dish := ""
 
@@ -293,6 +299,8 @@ func to_save_data() -> Dictionary:
 		"phone_unlocked": phone_unlocked,
 		"night_calls_total": night_calls_total,
 		"night_calls_used": night_calls_used,
+		"last_drink_served": last_drink_served,
+		"birthdays": birthdays,
 		"regulars": regular_memory,
 	}
 
@@ -322,6 +330,8 @@ func apply_save_data(data: Dictionary) -> void:
 	phone_unlocked = bool(data.get("phone_unlocked", false))  # Saves from before the phone had to be unlocked start without it.
 	night_calls_total = int(data.get("night_calls_total", 0))
 	night_calls_used = int(data.get("night_calls_used", 0))
+	last_drink_served = String(data.get("last_drink_served", ""))
+	birthdays = data.get("birthdays", {}) if data.get("birthdays", {}) is Dictionary else {}
 	voicemails = data.get("voicemails", []).filter(func(v): return v is Dictionary and v.has("kind") and v.has("id"))
 	var legacy_account_id := _account_from_old_save(data)
 	var saved_regulars: Dictionary = data.get("regulars", {})
