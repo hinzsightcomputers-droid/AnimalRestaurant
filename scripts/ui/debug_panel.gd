@@ -273,12 +273,16 @@ func _refresh() -> void:
 				walk_ins += 1
 		var now := " <- now" if i == GameState.phase else ""
 		meals.append("%s: %d townsfolk%s%s%s" % [GameState.phase_info(i).get("name", "?"), walk_ins, ", " if not regulars.is_empty() else "", ", ".join(regulars), now])
-	var state := "closed" if GameState.phase == GameState.CLOSED else "%d of this meal done" % GameState.phase_done.size()
+	var state := "closed" if GameState.phase == GameState.CLOSED else (
+		"night, %d of %d calls" % [GameState.night_calls_used, GameState.night_calls_total] if GameState.phase == GameState.NIGHT
+		else "%d of this meal done" % GameState.phase_done.size())
 	_schedule_label.text = "Day %d, %s (%s)
 %s" % [GameState.day_number, GameClock.describe_date(GameState.date), state, "
 ".join(meals)]
 
-	_phone_label.text = "Voicemails: %d%s" % [GameState.voicemails.size(),
+	_phone_label.text = "Phone: %s.  Voicemails: %d%s" % [
+		"on the wall" if GameState.phone_unlocked else ("goes up tomorrow" if GameState.delivery_asked else "not yet (a townsfolk asks at the bill on day 3+)"),
+		GameState.voicemails.size(),
 		"   Rings next: %s" % GameState.forced_caller if not GameState.forced_caller.is_empty() else ""]
 
 	var record := _selected_record()
@@ -390,6 +394,7 @@ func _build() -> void:
 	for i in GameState.phase_count():
 		_add_button(phase_row, GameState.phase_info(i).get("name", "?"), _skip_to_phase.bind(i))
 	_add_button(phase_row, "Closing", _skip_to_phase.bind(GameState.CLOSED))
+	_add_button(phase_row, "Night", _skip_to_phase.bind(GameState.NIGHT))
 	var today_row := _add_row(box)
 	_add_button(today_row, "Re-roll today", _replan_today)
 	_add_button(today_row, "Force a new day", _force_new_day)
@@ -456,6 +461,7 @@ func _build() -> void:
 	var cookie_row := _add_row(box)
 	_add_button(cookie_row, "Practice acorn cookies (P1)", _practice.bind("acorn_cookies", "oven"))
 	_add_button(cookie_row, "Unlock all dishes", _unlock_all_dishes)
+	_add_button(cookie_row, "Unlock all drinks", _unlock_all_drinks)
 	var any_dish_row := _add_row(box)
 	_dish_picker = OptionButton.new()
 	for dish in GameData.dishes:
@@ -482,6 +488,9 @@ func _build() -> void:
 	_add_button(phone_row, "Ring now", _ring_phone)
 	_add_button(phone_row, "Fill voicemail", _fill_voicemail)
 	_add_button(phone_row, "Clear voicemail", _clear_voicemail)
+	var phone_row_2 := _add_row(box)
+	_add_button(phone_row_2, "Unlock the phone", _unlock_phone)
+	_add_button(phone_row_2, "Remove the phone", _remove_phone)
 	_phone_label = _add_label(box, "")
 
 	_add_label(box, "Money", 18, true)
@@ -547,6 +556,31 @@ func _empty_rack() -> void:
 
 
 # Every dish on the menu, as if they were all bought (and the scene ones played).
+func _unlock_all_drinks() -> void:
+	for drink in GameData.shop_drinks():
+		if not drink["id"] in GameState.unlocks:
+			GameState.unlocks.append(drink["id"])
+	GameState.unlocks_changed.emit()
+	_changed = true
+	_refresh()
+
+
+# The phone goes up right away (as if a customer had asked yesterday).
+func _unlock_phone() -> void:
+	GameState.delivery_asked = true
+	GameState.phone_unlocked = true
+	_changed = true
+	_refresh()
+
+
+# Back to no phone, and nobody's asked yet (to see the unlock again).
+func _remove_phone() -> void:
+	GameState.delivery_asked = false
+	GameState.phone_unlocked = false
+	_changed = true
+	_refresh()
+
+
 func _unlock_all_dishes() -> void:
 	for dish in GameData.dishes:
 		if not GameData.is_unlocked(dish["id"]):

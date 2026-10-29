@@ -25,6 +25,7 @@
 [ext_resource type="PackedScene" path="res://scenes/furniture/ticket_wheel.tscn" id="23_wheel"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/sink.tscn" id="24_sink"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/oven.tscn" id="25_oven"]
+[ext_resource type="PackedScene" path="res://scenes/furniture/drink_station.tscn" id="26_drinks"]
 
 [sub_resource type="Environment" id="Env"]
 background_mode = 1
@@ -61,6 +62,7 @@ shadow_enabled = true
 
 [node name="Table1" parent="Furniture" unique_id=2112538647 instance=ExtResource("4_table")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0, -0.8)
+spot = "middle"
 
 [node name="Chair1Left" parent="Furniture" unique_id=1055042702 node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -0.8, 0, -0.8)
@@ -72,6 +74,7 @@ table = NodePath("../Table1")
 
 [node name="Table2" parent="Furniture" unique_id=787319518 instance=ExtResource("4_table")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2, 0, -0.8)
+spot = "kitchen"
 
 [node name="Chair2Left" parent="Furniture" unique_id=1137991521 node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 3.1, 0, -0.8)
@@ -83,6 +86,7 @@ table = NodePath("../Table2")
 
 [node name="Table3" parent="Furniture" unique_id=1366934731 instance=ExtResource("4_table")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0, 2.2)
+spot = "corner"
 
 [node name="Chair3Left" parent="Furniture" unique_id=966094167 node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -0.8, 0, 2.2)
@@ -94,6 +98,7 @@ table = NodePath("../Table3")
 
 [node name="Table4" parent="Furniture" unique_id=440212546 instance=ExtResource("4_table")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2, 0, 2.2)
+spot = "window"
 
 [node name="Chair4Left" parent="Furniture" unique_id=1915090137 node_paths=PackedStringArray("table") instance=ExtResource("5_chair")]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 3.1, 0, 2.2)
@@ -130,6 +135,10 @@ view_manager = NodePath("../../Views")
 
 [node name="Sink" parent="Furniture" node_paths=PackedStringArray("view_manager") instance=ExtResource("24_sink")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 6.6, 0, -6.4)
+view_manager = NodePath("../../Views")
+
+[node name="DrinkStation" parent="Furniture" node_paths=PackedStringArray("view_manager") instance=ExtResource("26_drinks")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -6.55, 0, 0.6)
 view_manager = NodePath("../../Views")
 
 [node name="PassCounter" parent="Furniture" unique_id=1418804096 instance=ExtResource("16_pass")]
@@ -213,8 +222,9 @@ sun = NodePath("../Sun")
 world_environment = NodePath("../WorldEnvironment")
 camera_zoom = SubResource("Zoom_order_chat")
 
-[node name="DayManager" type="Node" parent="." unique_id=297707749 node_paths=PackedStringArray("customer_manager", "delivery_manager", "scene_player", "sun", "world_environment")]
+[node name="DayManager" type="Node" parent="." unique_id=297707749 node_paths=PackedStringArray("customer_manager", "delivery_manager", "scene_player", "sun", "world_environment", "phone")]
 script = ExtResource("11_day")
+phone = NodePath("../Furniture/Phone")
 customer_manager = NodePath("../CustomerManager")
 delivery_manager = NodePath("../DeliveryManager")
 scene_player = NodePath("../ScenePlayer")

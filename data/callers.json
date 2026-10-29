@@ -18,7 +18,7 @@
 			]
 		},
 		{
-			"id": "juniper", "name": "Juniper", "species": "cat", "name_color": "#c46a1e",
+			"id": "juniper", "name": "Juniper", "species": "cat", "name_color": "#c46a1e", "night_only": true,
 			"personality": "Sleepy night owl who yawns through every call.",
 			"usual_order": "four_cheese_mac",
 			"lines": [

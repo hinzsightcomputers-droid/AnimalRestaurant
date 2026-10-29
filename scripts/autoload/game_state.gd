@@ -8,9 +8,11 @@ extends Node
 signal money_changed(money: int)
 signal unlocks_changed  # A big moment reward or a dish was unlocked (or the debug panel cleared them).
 
-const SAVE_VERSION := 4
-# Where the day is: one of the meals in data/day.json (0 = the first), or CLOSED
-# once the last one is over.
+const SAVE_VERSION := 5
+# Where the day is: one of the meals in data/day.json (0 = the first), NIGHT
+# (the phone-only night shift after closing, once the phone is on the wall), or
+# CLOSED once the day is over.
+const NIGHT := 98
 const CLOSED := 99
 
 var money := 0
@@ -33,7 +35,8 @@ var phase_done: Array = []
 # Ids of upgrades bought (see data/upgrades.json), in the order they were bought.
 var upgrades: Array[String] = []
 # One entry per customer served today:
-# { species, regular, dish, price, quality, wait_seconds, satisfaction, reaction, payment }
+# { species, regular, dish, drink?, price, quality, wait_seconds, satisfaction, reaction, payment }
+# (price: the menu price of everything they had, so payment above it is the tip).
 var services_today: Array[Dictionary] = []
 # What each chef did today, for the summary: account id -> { chopped, cooked, served, cleaned }.
 var chef_actions_today: Dictionary = {}
@@ -57,6 +60,16 @@ var forced_caller := ""
 var unlocks: Array[String] = []
 # Debug panel: a big moment scene to play at closing today, whatever its trigger. Not saved.
 var forced_scene := ""
+# The phone: a townsfolk asked "Do you deliver?" (on day 3+, see data/service.json),
+# so the next morning the phone is on the wall. Until then there are no phone
+# orders and no night shift. Saved.
+var delivery_asked := false
+var phone_unlocked := false
+var phone_news := false  # The phone went up this morning: say so once the day starts. Not saved.
+# Tonight's night shift: how many calls it gets (picked when it starts) and how
+# many have rung so far. Saved, so a night picked up again doesn't start over.
+var night_calls_total := 0
+var night_calls_used := 0
 # Debug panel: a dish id that's the only thing on the menu (e.g. to test its recipe). Not saved.
 var forced_dish := ""
 
@@ -101,6 +114,11 @@ func begin_day() -> void:
 	day_number += 1
 	phase = 0
 	phase_done.clear()
+	night_calls_total = 0
+	night_calls_used = 0
+	if delivery_asked and not phone_unlocked:
+		phone_unlocked = true
+		phone_news = true
 	services_today.clear()
 	chef_actions_today.clear()
 	replan_today()
@@ -141,8 +159,10 @@ static func phase_count() -> int:
 	return GameData.day_settings.get("phases", []).size()
 
 
-# The meal's settings from data/day.json ({} for CLOSED).
+# The meal's settings from data/day.json (the night shift's for NIGHT, {} for CLOSED).
 static func phase_info(index: int) -> Dictionary:
+	if index == NIGHT:
+		return GameData.day_settings.get("night", { "name": "Night" })
 	var phases: Array = GameData.day_settings.get("phases", [])
 	return phases[index] if index >= 0 and index < phases.size() else {}
 
@@ -185,6 +205,18 @@ func buy_dish(dish_id: String) -> bool:
 	unlocks.append(dish_id)
 	unlocks_changed.emit()
 	add_money(-int(dish["unlock_cost"]))
+	SaveGame.save_game()
+	return true
+
+
+# Same for a drink from the shop.
+func buy_drink(drink_id: String) -> bool:
+	var drink := GameData.get_drink(drink_id)
+	if drink.get("unlock", "") != "upgrade" or GameData.is_unlocked(drink_id) or money < int(drink["unlock_cost"]):
+		return false
+	unlocks.append(drink_id)
+	unlocks_changed.emit()
+	add_money(-int(drink["unlock_cost"]))
 	SaveGame.save_game()
 	return true
 
@@ -257,6 +289,10 @@ func to_save_data() -> Dictionary:
 		"upgrades": upgrades,
 		"voicemails": voicemails,
 		"unlocks": unlocks,
+		"delivery_asked": delivery_asked,
+		"phone_unlocked": phone_unlocked,
+		"night_calls_total": night_calls_total,
+		"night_calls_used": night_calls_used,
 		"regulars": regular_memory,
 	}
 
@@ -282,6 +318,10 @@ func apply_save_data(data: Dictionary) -> void:
 	# Ignore upgrades that were removed from data/upgrades.json.
 	upgrades.assign(data.get("upgrades", []).filter(func(id): return GameData.upgrades.any(func(u): return u["id"] == id)))
 	unlocks.assign(data.get("unlocks", []).map(func(id): return "walters_storm_soup" if id == "storm_soup" else id))  # Its old id.
+	delivery_asked = bool(data.get("delivery_asked", false))
+	phone_unlocked = bool(data.get("phone_unlocked", false))  # Saves from before the phone had to be unlocked start without it.
+	night_calls_total = int(data.get("night_calls_total", 0))
+	night_calls_used = int(data.get("night_calls_used", 0))
 	voicemails = data.get("voicemails", []).filter(func(v): return v is Dictionary and v.has("kind") and v.has("id"))
 	var legacy_account_id := _account_from_old_save(data)
 	var saved_regulars: Dictionary = data.get("regulars", {})

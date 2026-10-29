@@ -16,18 +16,27 @@ extends RefCounted
 # Who rings next (Withdrawn regulars first, sometimes a friend just to chat,
 # otherwise someone from town), or {} if nobody. Skips anyone already waiting
 # in voicemail, and `last_id` so the same townsfolk don't call twice in a row.
-static func next_call(last_id := "") -> Dictionary:
+# Regulars mostly call at `night` (in the day their chance is scaled by
+# regular_day_call_factor); townsfolk marked night_only only call at night,
+# and are likelier then (night_only_weight).
+static func next_call(last_id := "", night := false) -> Dictionary:
 	var settings := GameData.phone_settings
 	var waiting := GameState.voicemails.map(func(v): return v["id"])
+	var factor: float = 1.0 if night else settings.get("regular_day_call_factor", 0.25)
 	for kind in ["order", "chat"]:
-		var chance: float = settings.get("regular_%s_call_chance" % kind, 0.0)
+		var chance: float = settings.get("regular_%s_call_chance" % kind, 0.0) * factor
 		var ids := GameState.regulars.keys().filter(func(id): return _calls_today(id, kind) and not id in waiting)
 		if not ids.is_empty() and randf() < chance:
 			return { "kind": kind, "id": ids.pick_random() }
-	var townsfolk := GameData.callers.filter(func(c): return c["id"] != last_id and not c["id"] in waiting)
+	var awake := GameData.callers.filter(func(c): return night or not c.get("night_only", false))
+	var townsfolk := awake.filter(func(c): return c["id"] != last_id and not c["id"] in waiting)
 	if townsfolk.is_empty():
-		townsfolk = GameData.callers
-	return { "kind": "townsfolk", "id": townsfolk.pick_random()["id"] } if not townsfolk.is_empty() else {}
+		townsfolk = awake
+	var pool := []
+	for caller in townsfolk:
+		for i in (int(settings.get("night", {}).get("night_only_weight", 3)) if night and caller.get("night_only", false) else 1):
+			pool.append(caller)
+	return { "kind": "townsfolk", "id": pool.pick_random()["id"] } if not pool.is_empty() else {}
 
 
 # The call for a specific caller (debug panel), or {} with `why` explaining.

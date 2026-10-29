@@ -1,14 +1,28 @@
 # Customer: one animal guest. Holds its state (arriving, waiting, eating...) and
 # walks along the waypoints it is given. CustomerManager decides where customers go
-# and what happens when they're served; CustomerDisplay decides how they look.
+# and what happens at each step; CustomerDisplay decides how they look.
+# A visit: wait at the host stand, follow a player to a table, order a drink,
+# get it, order food, get it, eat, ask for the bill, pay and leave.
 class_name Customer
 extends Node3D
 
+const GROUP := "customers"
+const FOLLOW_DISTANCE := 1.1  # How far behind the player leading them they walk.
+const TRAIL_STEP := 0.3       # How often (in metres) the leader's footsteps are dropped on their trail.
+const BODY_RADIUS := 0.22     # How wide a gap they need to cut straight across to the trail.
+
 # WAITING_BY_DOOR: a Gone regular come back at closing, waiting for their return scene.
-enum State { ARRIVING, WAITING_TO_ORDER, WALKING_TO_SEAT, WAITING_FOR_FOOD, EATING, LEAVING, GONE, WAITING_BY_DOOR }
+enum State {
+	ARRIVING, WAITING_TO_BE_SEATED, FOLLOWING, WALKING_TO_SEAT,
+	WAITING_DRINK_ORDER, WAITING_FOR_DRINK, WAITING_FOOD_ORDER, WAITING_FOR_FOOD,
+	EATING, WANTS_BILL, LEAVING, GONE, WAITING_BY_DOOR,
+}
+# Sitting at their table, from being seated until they leave.
+const SEATED_STATES: Array[State] = [State.WAITING_DRINK_ORDER, State.WAITING_FOR_DRINK, State.WAITING_FOOD_ORDER, State.WAITING_FOR_FOOD, State.EATING, State.WANTS_BILL]
 
 signal state_changed(customer: Customer)
-signal finished_eating(customer: Customer)
+signal finished_eating(customer: Customer)  # Done with the meal: they want the bill.
+signal getting_going(customer: Customer)    # A regular nobody chatted with will ask for the bill soon.
 signal spoke(customer: Customer)  # Said a one-off line (see say()).
 signal talking_changed(customer: Customer)  # A conversation started or ended.
 signal emoted(customer: Customer, emotion: StringName)  # Showed a feeling (see emote()).
@@ -20,10 +34,14 @@ signal emoted(customer: Customer, emotion: StringName)  # Showed a feeling (see 
 var state: State = State.ARRIVING
 var species: Dictionary = {}  # From data/species.json
 var dish: Dictionary = {}     # From GameData.dishes. Picked on arrival, revealed when ordering.
-var seat: Seat = null         # The chair reserved for this customer.
+var drink: Dictionary = {}    # The drink they ordered (GameData.drinks), {} until then.
+var served_drink: Dictionary = {}  # The drink they got (maybe not the one they asked for).
+var drink_quality := 0.0      # How well it was poured.
+var seat: Seat = null         # Their chair, once a player seats them.
+var leader: Player = null     # The player leading them to a table.
 var display_name := ""        # "Mabel" for a regular, "Frog" for anyone else.
 var regular_id := ""          # Empty unless this is a regular (data/characters/).
-var greeting_line := ""       # What a regular says at the counter (empty = generic).
+var greeting_line := ""       # What a regular says at the host stand (empty = generic).
 var greeting_emotion := &""   # How they feel saying it.
 var order_line := ""          # What a regular says when ordering (empty = generic).
 var speech := ""              # The latest one-off line, e.g. when served or chatted with.
@@ -35,7 +53,7 @@ var talking := false:         # In a conversation: their wait and meal timers pa
 			talking = value
 			talking_changed.emit(self)
 
-var wait_seconds := 0.0       # From reaching the counter until the food arrives.
+var wait_seconds := 0.0       # From ordering food until it arrives.
 var plan_index := -1          # Which of the meal's planned customers this is (-1: not from the plan).
 var served_quality := 0.0     # Quality of the dish they were served (0..1).
 var served_dish: CookedDish = null  # The plate itself (its look shows on the table), if there was one.
@@ -46,6 +64,9 @@ var payment := 0              # What they paid.
 var _path: Array[Vector3] = []
 var _state_after_path: State = State.ARRIVING
 var _eat_time_left := 0.0
+var _stay_left := 0.0         # A regular nobody chatted with asks for the bill when this runs out.
+var _warned := false          # Said they should get going.
+var _trail: Array[Vector3] = [] # Where the leader has walked, oldest first: followed so they go around furniture.
 var _done_eating := false
 
 @onready var interactable: Interactable = $Interactable
@@ -63,25 +84,43 @@ func is_regular() -> bool:
 
 
 func _ready() -> void:
+	add_to_group(GROUP)
 	interactable.prompt_for_player = _prompt_for
 	_update_interactable()
 
 
-# "Serve" for whoever carries this customer's plate, "Check order" for free
-# hands (pressing says what they're waiting for), nothing for anyone carrying
-# something else. "Talk" to someone waiting by the door.
+# What a player can do with this customer right now, given what they carry:
+# seat them, take their drink or food order, give them their drink, food or
+# bill, chat, or "" for nothing.
 func _prompt_for(player_index: int) -> String:
 	var player := Player.find(get_tree(), player_index)
 	if player == null:
 		return ""
-	var plate := player.held_item as CookedDish
-	if plate != null:
-		return interactable.prompt if plate.order.customer == self else ""
-	if player.held_item != null:
-		return ""
-	if state == State.WAITING_BY_DOOR:
-		return "Talk"
-	return "Chat" if state == State.EATING else "Check order"
+	var held := player.held_item
+	match state:
+		State.WAITING_TO_BE_SEATED:
+			return "Seat %s" % display_name if held == null and not is_walking() else ""
+		State.WAITING_DRINK_ORDER:
+			return "Take drink order" if held == null else ""
+		State.WAITING_FOR_DRINK:
+			if held is Drink:
+				return "Give %s" % held.display_name()
+			return "Check drink" if held == null else ""
+		State.WAITING_FOOD_ORDER:
+			return "Take order" if held == null else ""
+		State.WAITING_FOR_FOOD:
+			if held is CookedDish:
+				return interactable.prompt if held.order.customer == self else ""
+			return "Check order" if held == null else ""
+		State.EATING:
+			return "Chat" if held == null and can_chat() else ""
+		State.WANTS_BILL:
+			if held is Receipt:
+				return "Give the bill"
+			return "Check" if held == null else ""
+		State.WAITING_BY_DOOR:
+			return "Talk" if held == null else ""
+	return ""
 
 
 # Walk through the given points in order, then switch to `state_on_arrival`.
@@ -103,17 +142,73 @@ func is_walking() -> bool:
 	return not _path.is_empty()
 
 
-# Called when a player takes this customer's order.
-func place_order() -> void:
+func is_seated() -> bool:
+	return state in SEATED_STATES
+
+
+# A player starts leading them from the host stand to a table.
+func follow(player: Player) -> void:
+	leader = player
+	_path.clear()
+	_trail = [player.global_position]
+	_set_state(State.FOLLOWING)
+
+
+# Back to waiting to be seated (their leader left the game).
+func stop_following() -> void:
+	leader = null
+	_set_state(State.WAITING_TO_BE_SEATED)
+
+
+# The player leading them picked a table: walk to `chair` and sit.
+# They finish walking the leader's trail first, so they don't cut across.
+func sit_at(chair: Seat) -> void:
+	leader = null
+	seat = chair
+	_skip_ahead()
+	var path: Array[Vector3] = _trail.duplicate()
+	_trail.clear()
+	path.append_array([chair.approach_point.global_position, chair.seat_point.global_position])
+	walk_to(path, State.WAITING_DRINK_ORDER)
 	_set_state(State.WALKING_TO_SEAT)
 
 
-# Called when a player brings the food.
+# They asked for `drink_data`.
+func order_drink(drink_data: Dictionary) -> void:
+	drink = drink_data
+	_set_state(State.WAITING_FOR_DRINK)
+
+
+# A player brought them a drink (the one they ordered or not), poured this well.
+func serve_drink(drink_data: Dictionary, quality: float) -> void:
+	served_drink = drink_data
+	drink_quality = quality
+	_set_state(State.WAITING_FOOD_ORDER)
+
+
+func got_the_drink_they_ordered() -> bool:
+	return not served_drink.is_empty() and served_drink.get("id", "") == drink.get("id", "")
+
+
+# Called when a player takes this customer's food order.
+func place_order() -> void:
+	_set_state(State.WAITING_FOR_FOOD)
+
+
+# Called when a player brings the food. Townsfolk ask for the bill once they've
+# eaten; a regular stays until someone has chatted with them, or for
+# regular_stay_seconds (data/service.json), whichever comes first.
 func serve(quality: float, plate: CookedDish = null) -> void:
 	served_quality = quality
 	served_dish = plate
 	_eat_time_left = eat_duration
+	_stay_left = maxf(float(GameData.service.get("regular_stay_seconds", 180)), eat_duration)
 	_set_state(State.EATING)
+
+
+# Done eating: waiting for the bill.
+func want_bill() -> void:
+	_set_state(State.WANTS_BILL)
 
 
 # Say a one-off line in the speech bubble.
@@ -147,6 +242,7 @@ func chat(line: String) -> void:
 func leave(points: Array[Vector3], line: String, amount: int) -> void:
 	reaction_line = line
 	payment = amount
+	leader = null
 	walk_to(points, State.GONE)
 	_set_state(State.LEAVING)
 
@@ -154,15 +250,102 @@ func leave(points: Array[Vector3], line: String, amount: int) -> void:
 func _physics_process(delta: float) -> void:
 	if not talking:
 		match state:
-			State.WAITING_TO_ORDER, State.WALKING_TO_SEAT, State.WAITING_FOR_FOOD:
+			State.WAITING_FOR_FOOD:
 				wait_seconds += delta
 			State.EATING:
-				_eat_time_left -= delta
-				if _eat_time_left <= 0.0 and not _done_eating:
-					_done_eating = true
-					finished_eating.emit(self)
+				_eat(delta)
+	if state == State.FOLLOWING:
+		_follow_leader(delta)
+	else:
+		_follow_path(delta)
 
-	_follow_path(delta)
+
+func _eat(delta: float) -> void:
+	_eat_time_left -= delta
+	_stay_left -= delta
+	if _done_eating or _eat_time_left > 0.0:
+		return
+	if not is_regular() or chatted or _stay_left <= 0.0:
+		_done_eating = true
+		_update_interactable()
+		finished_eating.emit(self)
+	elif not _warned and _stay_left <= float(GameData.service.get("get_going_warning_seconds", 20)):
+		_warned = true
+		getting_going.emit(self)
+
+
+# Walk the way the player leading them walked, staying a step behind. They
+# cut straight to the furthest bit of the trail they can walk to without
+# bumping into anything, and wait if they can't reach any of it yet (the player
+# is still behind the host stand).
+func _follow_leader(delta: float) -> void:
+	if leader == null or not is_instance_valid(leader):
+		return
+	var here := leader.global_position
+	here.y = global_position.y
+	if _trail.is_empty() or _trail.back().distance_to(here) >= TRAIL_STEP:
+		_trail.append(here)
+	if not _skip_ahead():
+		var facing := here - global_position
+		rotation.y = lerp_angle(rotation.y, atan2(facing.x, facing.z), turn_speed * delta)
+		return
+	var left := minf(walk_speed * 1.4 * delta, _trail_length() - FOLLOW_DISTANCE)
+	while left > 0.0 and not _trail.is_empty():
+		var offset := _trail[0] - global_position
+		offset.y = 0.0
+		if offset.length() <= left:
+			global_position += offset
+			left -= offset.length()
+			_trail.pop_front()
+			continue
+		global_position += offset.normalized() * left
+		if offset.length() > 0.01:
+			rotation.y = lerp_angle(rotation.y, atan2(offset.x, offset.z), turn_speed * delta)
+		left = 0.0
+
+
+# Drop the trail up to the last point they have a clear walk to. False if
+# they can't get to any of it.
+func _skip_ahead() -> bool:
+	for i in range(_trail.size() - 1, -1, -1):
+		if _clear_walk_to(_trail[i]):
+			_trail = _trail.slice(i)
+			return true
+	return false
+
+
+# Nothing in the way (players aside) walking straight to `point`: rays at waist
+# height down the middle and either side.
+func _clear_walk_to(point: Vector3) -> bool:
+	var space := get_world_3d().direct_space_state
+	var along := point - global_position
+	along.y = 0.0
+	if along.length() < 0.05:
+		return true
+	var side := along.normalized().cross(Vector3.UP) * BODY_RADIUS
+	for shift in [Vector3.ZERO, side, -side]:
+		var from: Vector3 = global_position + shift + Vector3.UP * 0.4
+		var query := PhysicsRayQueryParameters3D.create(from, from + along)
+		var exclude: Array[RID] = []
+		for i in 4:
+			query.exclude = exclude
+			var hit := space.intersect_ray(query)
+			if hit.is_empty():
+				break
+			if not hit["collider"] is Player:
+				return false
+			exclude.append(hit["rid"])
+	return true
+
+
+# How far they'd walk along the trail to reach the leader.
+func _trail_length() -> float:
+	var length := 0.0
+	var from := global_position
+	for point in _trail:
+		length += Vector2(point.x - from.x, point.z - from.z).length()
+		from = point
+	return length
 
 
 func _follow_path(delta: float) -> void:
@@ -186,7 +369,7 @@ func _follow_path(delta: float) -> void:
 
 func _on_path_finished() -> void:
 	# Once seated, face the same way as the chair (toward the table).
-	if _state_after_path == State.WAITING_FOR_FOOD and seat != null:
+	if _state_after_path == State.WAITING_DRINK_ORDER and seat != null:
 		rotation.y = seat.global_rotation.y
 	_set_state(_state_after_path)
 
@@ -197,7 +380,8 @@ func _set_state(new_state: State) -> void:
 	state_changed.emit(self)
 
 
-# Players can interact with a customer who is waiting for food or by the door,
-# or chat once with a regular who is eating.
+# Players can interact with a customer at every step that needs them (the
+# prompt says what), or chat once with a regular who is eating.
 func _update_interactable() -> void:
-	interactable.enabled = state in [State.WAITING_FOR_FOOD, State.WAITING_BY_DOOR] or can_chat()
+	interactable.enabled = state in [State.WAITING_TO_BE_SEATED, State.WAITING_DRINK_ORDER, State.WAITING_FOR_DRINK,
+		State.WAITING_FOOD_ORDER, State.WAITING_FOR_FOOD, State.WANTS_BILL, State.WAITING_BY_DOOR] or can_chat()

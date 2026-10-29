@@ -1,0 +1,34 @@
+{
+	"_about": "How drinks look and get made, beside the menu in design/menu/drinks.json. Per drink: color (of the drink) and vessel (mug, glass or bottle). settings: brew_seconds (how long a brew drink takes before it can be poured), fill_seconds (holding interact this long fills a glass exactly to the line), spill_fill (filled past this and it spills over), the chance a townsfolk asks for water, how often a regular orders their favorite, the friendship a regular's favorite drink adds, and how much the right or wrong drink adds to a customer's mood (0..1, like a dish's quality).",
+	"settings": {
+		"brew_seconds": 6.0,
+		"fill_seconds": 1.6,
+		"spill_fill": 1.25,
+		"townsfolk_water_chance": 0.15,
+		"regular_favorite_chance": 0.7,
+		"favorite_relationship_bonus": 1,
+		"right_drink_mood": 0.05,
+		"wrong_drink_mood": -0.05
+	},
+	"drinks": {
+		"water": { "color": "#cfe8ff", "vessel": "glass" },
+		"coffee": { "color": "#4a2c1a", "vessel": "mug" },
+		"black_tea": { "color": "#8a4a1c", "vessel": "mug" },
+		"hot_chocolate": { "color": "#6b3a22", "vessel": "mug" },
+		"lemonade": { "color": "#f5e66a", "vessel": "glass" },
+		"apple_cider": { "color": "#c9822f", "vessel": "mug" },
+		"bubble_tea": { "color": "#d9b48f", "vessel": "glass" },
+		"matcha_latte": { "color": "#9fc46a", "vessel": "mug" },
+		"banana_milk": { "color": "#f7e08a", "vessel": "bottle" },
+		"koala_cola": { "color": "#3a1d12", "vessel": "bottle" },
+		"pupsi": { "color": "#2a3a8a", "vessel": "bottle" },
+		"dr_salt": { "color": "#6a1a22", "vessel": "bottle" },
+		"mr_dibs": { "color": "#7a2a2a", "vessel": "bottle" },
+		"fawnta": { "color": "#ff8a1c", "vessel": "bottle" },
+		"moose_tain_dew": { "color": "#a6e83a", "vessel": "bottle" },
+		"root_bear": { "color": "#5b3420", "vessel": "bottle" },
+		"gander_ale": { "color": "#e6d38a", "vessel": "bottle" },
+		"hamster_energy": { "color": "#e83a8a", "vessel": "bottle" },
+		"red_gull": { "color": "#3a6ae8", "vessel": "bottle" }
+	}
+}

@@ -7,6 +7,9 @@ extends Node
 
 const DISHES_PATH := "res://design/menu/dishes.json"
 const DISH_KITCHEN_PATH := "res://data/dish_kitchen.json"
+const DRINKS_PATH := "res://design/menu/drinks.json"
+const DRINK_KITCHEN_PATH := "res://data/drink_kitchen.json"
+const SERVICE_PATH := "res://data/service.json"
 const SPECIES_PATH := "res://data/species.json"
 const REACTIONS_PATH := "res://data/reactions.json"
 const REGULARS_PATH := "res://data/regulars.json"
@@ -28,6 +31,14 @@ const DAY_PATH := "res://data/day.json"
 # bought in the end-of-day shop, "scene" ones once a big moment unlocks them
 # (see is_unlocked()).
 var dishes: Array[Dictionary] = []
+# Each drink, from design/menu/drinks.json: { id, name, type, description,
+# prep (grab | pour | brew), temperature, base_price, tags, unlock, unlock_cost },
+# plus color and vessel from data/drink_kitchen.json. Unlocked like dishes.
+var drinks: Array[Dictionary] = []
+var drink_settings: Dictionary = {}
+# The steps of a walk-in's visit: townsfolk lines per step, how long regulars
+# stay, the delivery question (data/service.json).
+var service: Dictionary = {}
 # Each species: { id, name, color, models?, height? }. Those with "models" (and
 # a [min, max] "height") are the ones who walk in off the street; the rest are
 # for regulars and callers.
@@ -70,6 +81,12 @@ func _ready() -> void:
 	var kitchen: Dictionary = _load_dictionary(DISH_KITCHEN_PATH).get("dishes", {})
 	for dish in dishes:
 		dish.merge(kitchen.get(dish["id"], {}))
+	drinks = _load_list(DRINKS_PATH, "drinks")
+	var drink_kitchen := _load_dictionary(DRINK_KITCHEN_PATH)
+	drink_settings = drink_kitchen.get("settings", {})
+	for drink in drinks:
+		drink.merge(drink_kitchen.get("drinks", {}).get(drink["id"], {}))
+	service = _load_dictionary(SERVICE_PATH)
 	species = _load_list(SPECIES_PATH, "species")
 	reactions = _load_dictionary(REACTIONS_PATH)
 	var regulars_file := _load_dictionary(REGULARS_PATH)
@@ -104,6 +121,13 @@ func get_dish(dish_id: String) -> Dictionary:
 	return {}
 
 
+func get_drink(drink_id: String) -> Dictionary:
+	for drink in drinks:
+		if drink["id"] == drink_id:
+			return drink
+	return {}
+
+
 func get_upgrade(upgrade_id: String) -> Dictionary:
 	for upgrade in upgrades:
 		if upgrade["id"] == upgrade_id:
@@ -134,12 +158,30 @@ func menu() -> Array[Dictionary]:
 	return dishes.filter(func(d): return is_unlocked(d["id"]))
 
 
-# True for a "start" dish, or one bought in the shop or unlocked by a scene
+# The drinks customers can order right now: the unlocked ones.
+func drink_menu() -> Array[Dictionary]:
+	return drinks.filter(func(d): return is_unlocked(d["id"]))
+
+
+# The drinks the end-of-day shop sells, bought or not.
+func shop_drinks() -> Array[Dictionary]:
+	return drinks.filter(func(d): return d.get("unlock", "") == "upgrade")
+
+
+# A drink for a townsfolk to order: sometimes water, else anything else unlocked.
+func random_drink() -> Dictionary:
+	var others := drink_menu().filter(func(d): return d["id"] != "water")
+	if others.is_empty() or randf() < drink_settings.get("townsfolk_water_chance", 0.15):
+		return get_drink("water")
+	return others.pick_random()
+
+
+# True for a "start" dish or drink, or one bought in the shop or unlocked by a scene
 # (its id is in GameState.unlocks).
 func is_unlocked(dish_id: String) -> bool:
-	for dish in dishes:
-		if dish["id"] == dish_id:
-			return dish.get("unlock", "start") == "start" or dish_id in GameState.unlocks
+	for item in dishes + drinks:
+		if item["id"] == dish_id:
+			return item.get("unlock", "start") == "start" or dish_id in GameState.unlocks
 	return false
 
 

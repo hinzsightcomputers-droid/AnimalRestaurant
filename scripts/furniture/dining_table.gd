@@ -4,10 +4,14 @@
 # clears the dishes into it (a close-up, see BusAction), then someone with free
 # hands wipes the spills (see WipeAction). Its seats aren't given to new
 # customers until both are done.
+# A player leading a customer to their seat seats them here (see
+# CustomerManager), and each table has a spot (corner, window...) a regular can
+# ask for.
 class_name DiningTable
 extends Station
 
 signal cleanliness_changed(table: DiningTable)
+signal seat_requested(table: DiningTable, player_index: int)
 
 const TOP_HEIGHT := 0.82
 const PLATE_MODEL := "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/plate_dirty.gltf"
@@ -15,6 +19,7 @@ const RESULT_SHOW_TIME := 1.0  # Seconds the close-up stays after the chore is d
 
 @export var view_manager: ViewManager  # For the close-up's mouse aiming (found if not set).
 @export var spills_per_dish := 2
+@export var spot := ""  # Where it is, for regulars with a usual table: corner, window, middle or kitchen.
 @export_group("Close-up")
 @export var closeup_scene: PackedScene          # Put on the table top (a CookSession).
 @export var clear_recipe: CookRecipe
@@ -27,6 +32,9 @@ var spills: Array[Vector3] = []       # Where (world).
 var session: CookSession = null       # Not null while someone is clearing or wiping.
 var _worker: Player = null
 var _bin: DishBin = null              # The bin being filled, while clearing.
+# Set by CustomerManager: (player_index, table) -> "Seat Mabel" if that player
+# is leading someone who can sit here, else "".
+var seating_prompt: Callable
 
 
 func _ready() -> void:
@@ -60,6 +68,9 @@ func make_dirty(at: Vector3, dish: Dictionary = {}) -> void:
 func _prompt_for(player_index: int) -> String:
 	if session != null:
 		return ""
+	var seating := _seating_prompt(player_index)
+	if not seating.is_empty():
+		return seating
 	var player := Player.find(get_tree(), player_index)
 	if player == null:
 		return ""
@@ -76,6 +87,10 @@ func _prompt_for(player_index: int) -> String:
 func _on_interacted(player_index: int) -> void:
 	if session != null:
 		return  # The session reads the worker's button itself.
+	if not _seating_prompt(player_index).is_empty():
+		seat_requested.emit(self, player_index)
+		_play_bounce()
+		return
 	var player := Player.find(get_tree(), player_index)
 	if player == null:
 		return
@@ -164,7 +179,11 @@ func _on_done(_quality: float) -> void:
 	cleanliness_changed.emit(self)
 
 
-# Messy tables can be used; clean ones have nothing to do.
+func _seating_prompt(player_index: int) -> String:
+	return seating_prompt.call(player_index, self) if seating_prompt.is_valid() else ""
+
+
+# Always usable: the prompt says what there is to do (seat someone, clear, wipe), or nothing.
 func _update_interactable() -> void:
-	interactable.enabled = not is_clean()
+	interactable.enabled = true
 	interactable.prompt = "Clear dishes" if not dishes.is_empty() else "Wipe table"

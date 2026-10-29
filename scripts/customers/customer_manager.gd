@@ -1,14 +1,28 @@
 # CustomerManager: runs each customer's visit. Sends in this meal's customers
-# from today's plan (DayPlan) one at a time, each once a seat at a clean table
-# is free, lines them up at the order counter, seats them once their order is
-# taken, handles serving, then has them pay, leave a dirty table, and walk out.
-# Once the meal's last customer has gone, the counter's bell (ServiceBell) is
-# rung for the next meal (see DayManager).
+# from today's plan (DayPlan) one at a time, while there are seats at clean
+# tables for them. Each visit goes step by step, one interaction each:
+#   1. They wait at the host stand (the old order counter). A player seats
+#      them there (or by talking to them): a regular says their greeting and
+#      what's on their mind, and asks for their usual table if they have one.
+#   2. They follow that player, who picks a clean table for them (the table's
+#      prompt). They sit and get a menu.
+#   3. A player takes their drink order, 4. makes it at the DrinkStation and
+#      brings it (a regular's favorite drink adds a little friendship).
+#   5. A player takes their food order: a regular's ordering conversation, and
+#      the ticket goes on the wheel. 6. The food is cooked and served.
+#   7. They eat. A regular lingers until someone chats with them (or about
+#      three minutes, saying they should get going first).
+#   8. They ask for the bill: a player prints it at the host stand and brings
+#      it. They pay for the food and drink plus a tip by how happy they are, a
+#      regular says goodbye, and they leave a dirty table.
+# The lines townsfolk say at each step are in data/service.json; regulars use
+# their character files. Once the meal's last customer has gone, the host
+# stand's bell (ServiceBell) is rung for the next meal (see DayManager).
 # Customers walk along lanes so they don't cut through furniture: the front lane
-# (in line with the door), the back lane (in line with the counter), and straight
-# up and down the aisle behind each chair.
+# (in line with the door), the back lane (in line with the host stand), and
+# straight up and down the aisle behind each chair.
 # It also runs the Gone side of regulars (see Redemption): writing a letter at
-# the order counter when nobody's waiting, asking a friend about someone Gone
+# the host stand when nobody's waiting, asking a friend about someone Gone
 # while the friend eats, and the return scene when a Gone regular comes back
 # at closing time and waits by the door.
 class_name CustomerManager
@@ -17,15 +31,15 @@ extends Node3D
 const CUSTOMER_SCENE := preload("res://scenes/customers/customer.tscn")
 const SEAT_GROUP := "seats"
 
-@export var order_counter: Station
+@export var order_counter: Station  # The host stand.
 @export var order_board: OrderBoard
 @export var spawn_point: Marker3D   # Outside the front door.
 @export var door_point: Marker3D    # Just inside the front door.
 @export var view_manager: ViewManager  # To show dialogue boxes in the right player's view.
 @export var queue_spacing := 0.9    # Gap between customers waiting in line.
 @export_group("Order chat")
-@export var order_chat_seconds := 1.8         # How long the player and customer chat when ordering.
-@export var order_chat_zoom: CameraZoomSettings  # The ordering player's camera during the chat.
+@export var order_chat_seconds := 1.8         # How long the player and customer chat at each step.
+@export var order_chat_zoom: CameraZoomSettings  # The talking player's camera during the chat.
 @export_group("Serving moment")
 @export var serve_seconds := 1.5              # How long the server watches the customer start eating.
 @export var serve_zoom: CameraZoomSettings    # The serving player's camera during that moment.
@@ -34,12 +48,14 @@ const SEAT_GROUP := "seats"
 
 var day_manager: DayManager         # Set by the DayManager: rings the bell.
 var accepting_customers := true     # False after closing time.
-var _queue: Array[Customer] = []    # Customers waiting to order, front of the line first.
+var _queue: Array[Customer] = []    # Waiting at the host stand to be seated, front of the line first.
+var _leading: Dictionary = {}       # Player index -> the Customer following them to a table.
+var _busy: Array[Customer] = []     # Customers in the middle of a step (so a second press waits).
 var _seat_owners: Dictionary = {}   # seat (Station) -> Customer sitting there or walking to it.
 var _pending: Array = []            # This meal's customers still to come: [plan index, entry].
-var _chatting := false              # True while someone is taking an order.
+var _writing_letter := false
 var _arrival_timer := Timer.new()
-var bell := ServiceBell.new()     # On the counter: rung to start the next meal.
+var bell := ServiceBell.new()     # On the host stand: rung to start the next meal.
 
 
 func _ready() -> void:
@@ -50,6 +66,22 @@ func _ready() -> void:
 	bell.scale = Vector3.ONE * 1.8  # Big enough to spot from the usual camera.
 	_arrival_timer.timeout.connect(_try_spawn_customer)
 	add_child(_arrival_timer)
+	for table in _tables():
+		table.seating_prompt = _table_prompt
+		table.seat_requested.connect(_on_table_seat_requested)
+
+
+func _process(_delta: float) -> void:
+	# Someone leading a customer left the game: the customer goes back in line.
+	for player_index in _leading.keys():
+		var customer: Customer = _leading[player_index]
+		if not is_instance_valid(customer) or customer.state != Customer.State.FOLLOWING:
+			_leading.erase(player_index)
+		elif Player.find(get_tree(), player_index) == null:
+			_leading.erase(player_index)
+			customer.stop_following()
+			_queue.push_front(customer)
+			_move_queue_forward()
 
 
 # A meal starts: its customers from today's plan come in one at a time, except
@@ -87,26 +119,29 @@ func send_everyone_home() -> void:
 	_pending.clear()
 	_arrival_timer.stop()
 	_queue.clear()
+	_leading.clear()
+	_busy.clear()
 	for child in get_children():
 		if child is Customer and not child.is_queued_for_deletion():
-			_seat_owners.erase(child.seat)
 			child.queue_free()
 	_seat_owners.clear()
 
 
-# Closing time: no new arrivals, and anyone who hasn't ordered yet heads home.
-# Customers who already ordered stay until they're served.
+# Closing time: no new arrivals, and anyone not seated yet heads home.
+# Customers already at a table stay until they've paid.
 func close() -> void:
 	accepting_customers = false
 	_pending.clear()
 	_arrival_timer.stop()
-	for customer in _queue:
-		_seat_owners.erase(customer.seat)
+	var unseated: Array[Customer] = _queue.duplicate()
+	unseated.append_array(_leading.values())
+	_queue.clear()
+	_leading.clear()
+	for customer in unseated:
 		var path: Array[Vector3] = [_on_front_lane(customer.global_position), door_point.global_position, spawn_point.global_position]
 		customer.leave(path, "Oh, you're closing? Next time!", 0)
 		if customer.is_regular():
 			RegularMemory.end_visit(GameState.regulars[customer.regular_id])
-	_queue.clear()
 	for record in Redemption.returning_today():
 		_bring_back(record)
 
@@ -118,19 +153,20 @@ func has_customers() -> bool:
 	return false
 
 
-# A regular walking in or waiting at the counter (the phone stays quiet then).
+# A regular walking in or waiting at the host stand (the phone stays quiet then).
 func regular_arriving() -> bool:
 	for child in get_children():
-		if child is Customer and child.is_regular() and child.state in [Customer.State.ARRIVING, Customer.State.WAITING_TO_ORDER]:
+		if child is Customer and child.is_regular() and child.state in [Customer.State.ARRIVING, Customer.State.WAITING_TO_BE_SEATED]:
 			return true
 	return false
 
 
+# Someone comes in if there's a seat at a clean table for them (counting
+# everyone already waiting to be seated).
 func _try_spawn_customer() -> void:
 	if not accepting_customers:
 		return
-	var seat := _find_free_seat()
-	if seat == null:
+	if _free_seats().size() <= _queue.size() + _leading.size():
 		return
 	var next := _next_customer()
 	if next.is_empty():
@@ -140,21 +176,21 @@ func _try_spawn_customer() -> void:
 	var customer: Customer = CUSTOMER_SCENE.instantiate()
 	customer.plan_index = next["index"]
 	if regular.is_empty():
-		customer.setup(GameData.random_species(), GameData.random_dish(), seat)
+		customer.setup(GameData.random_species(), GameData.random_dish(), null)
 	else:
-		_setup_regular(customer, regular, seat)
+		_setup_regular(customer, regular)
 	add_child(customer)
 	customer.global_position = spawn_point.global_position
 	customer.reset_physics_interpolation()
 
 	customer.interactable.interacted.connect(_on_customer_interacted.bind(customer))
 	customer.finished_eating.connect(_on_customer_finished_eating)
+	customer.getting_going.connect(_on_customer_getting_going)
 	customer.state_changed.connect(_on_customer_state_changed)
 
-	_seat_owners[seat] = customer
 	_queue.append(customer)
 	var path: Array[Vector3] = [door_point.global_position, _on_front_lane(_queue_spot(0)), _queue_spot(_queue.size() - 1)]
-	customer.walk_to(path, Customer.State.WAITING_TO_ORDER)
+	customer.walk_to(path, Customer.State.WAITING_TO_BE_SEATED)
 	if customer.is_regular():
 		GameEvents.announce("%s the %s walked in." % [customer.display_name, customer.species.get("name", "?")])
 	else:
@@ -184,13 +220,13 @@ func _next_customer() -> Dictionary:
 # A regular: their own species and name, an order based on their tastes, and
 # a greeting picked from what they remember (before this visit changes anything),
 # aimed at the chef here they know best.
-func _setup_regular(customer: Customer, record: Dictionary, seat: Seat) -> void:
+func _setup_regular(customer: Customer, record: Dictionary) -> void:
 	RegularMemory.begin_visit(record)  # From here, this visit can drop them at most one stage.
 	var dish := RegularMemory.choose_dish(record)
 	var species := GameData.get_species(record["species"]).duplicate()
 	if record.has("color"):
 		species["color"] = record["color"]  # Their own tint, e.g. Cheddar's bright orange.
-	customer.setup(species, dish, seat)
+	customer.setup(species, dish, null)
 	customer.regular_id = record["id"]
 	customer.display_name = record["name"]
 	var eating: Dictionary = GameData.regular_settings.get("eating_seconds", { "min": 60, "max": 90 })
@@ -207,6 +243,7 @@ func _visit_context(customer: Customer, chef_id: String, extra: Dictionary = {})
 	var context := RegularMemory.dialogue_context(record, chef_id, {
 		"dish": customer.dish.get("name", ""),
 		"ordered_favorite": customer.dish.get("id", "") == record["favorite_dish"],
+		"drink": customer.drink.get("name", ""),
 	})
 	context.merge(extra, true)
 	return context
@@ -227,88 +264,111 @@ func _pick_served_line(customer: Customer, chef_id: String) -> Dictionary:
 	return line
 
 
-# "Take order", or "Write a letter" when nobody's ready to order and someone Gone could get one.
-# "Ticket wheel full!" when there's no clip left for another order. Once the
-# meal's over, ringing the bell for the next one.
-func _counter_prompt(_player_index: int) -> String:
+# One of the townsfolk lines for a step of the visit (data/service.json), with
+# {drink} and such filled in.
+func _townsfolk_line(step: String, context: Dictionary = {}) -> String:
+	var lines: Array = GameData.service.get("townsfolk", {}).get(step, [])
+	return String(lines.pick_random()).format(context) if not lines.is_empty() else ""
+
+
+# --- The host stand ------------------------------------------------------------
+
+# Once the meal's over, ringing the bell for the next one. Otherwise, for free
+# hands: "Print the bill" when someone's asked for one that nobody's carrying
+# yet, "Seat Mabel" for whoever's first in line, or "Write a letter" when
+# nobody's waiting and someone Gone could get one.
+func _counter_prompt(player_index: int) -> String:
 	if day_manager != null and day_manager.bell_ready():
 		return day_manager.bell_prompt()
-	if _someone_ready_to_order() and not _chatting and TicketWheel.is_full(get_tree()):
-		return "Ticket wheel full!"
-	if not _someone_ready_to_order() and not _chatting and not Redemption.letter_targets().is_empty():
+	var player := Player.find(get_tree(), player_index)
+	if player == null or player.held_item != null or _writing_letter:
+		return ""
+	if _bills_to_print() > 0:
+		return "Print the bill"
+	var next := _next_to_seat()
+	if next != null:
+		return "Seat %s" % next.display_name if not _leading.has(player_index) else ""
+	if not Redemption.letter_targets().is_empty():
 		return "Write a letter"
-	return order_counter.interactable.prompt
+	return ""
 
 
-func _someone_ready_to_order() -> bool:
-	return not _queue.is_empty() and _queue[0].state == Customer.State.WAITING_TO_ORDER and not _queue[0].is_walking()
+# First in line, standing at the host stand (not still walking up), or null.
+func _next_to_seat() -> Customer:
+	for customer in _queue:
+		if customer.state == Customer.State.WAITING_TO_BE_SEATED and not customer.is_walking() and not customer in _busy:
+			return customer
+	return null
+
+
+# Customers waiting for a bill that nobody has printed for them yet.
+func _bills_to_print() -> int:
+	var wanted := 0
+	for child in get_children():
+		if child is Customer and child.state == Customer.State.WANTS_BILL:
+			wanted += 1
+	for node in get_tree().get_nodes_in_group(Player.GROUP):
+		if node is Player and node.held_item is Receipt:
+			wanted -= 1
+	return wanted
 
 
 func _on_order_counter_used(_station: Station, player_index: int) -> void:
-	if _chatting:
+	if _writing_letter:
 		return
 	if day_manager != null and day_manager.bell_ready():
 		bell.ring()
 		day_manager.ring_bell()
 		return
 	var player := Player.find(get_tree(), player_index)
-	if not _someone_ready_to_order() and player != null and not Redemption.letter_targets().is_empty():
-		_chatting = true
+	if player == null or player.held_item != null:
+		return
+	if _bills_to_print() > 0:
+		player.set_held_item(Receipt.new())
+		GameEvents.announce("%s printed the bill." % Accounts.name_of(player_index))
+		return
+	var next := _next_to_seat()
+	if next != null:
+		_greet(player, next, order_counter.interactable)
+		return
+	if not Redemption.letter_targets().is_empty():
+		_writing_letter = true
 		await _write_letter(player)
-		_chatting = false
+		_writing_letter = false
 		return
-	if _queue.is_empty():
-		GameEvents.announce("Nobody is waiting to order.")
-		return
+	GameEvents.announce("Nobody is waiting to be seated.")
 
-	var customer := _queue[0]
-	if customer.state != Customer.State.WAITING_TO_ORDER or customer.is_walking():
-		return  # Front customer hasn't reached the counter yet.
-	if TicketWheel.is_full(get_tree()):
-		GameEvents.announce("The ticket wheel is full! Finish an order first.")
-		return
 
-	_queue.pop_front()
-	_chatting = true
-	if customer.is_regular() and player != null:
-		await _regular_orders(player, customer)  # May change what they order.
-	customer.place_order()
-	var order := order_board.add_order(customer)
-	GameEvents.announce("%s took an order: %s wants %s." % [
-		Accounts.name_of(player_index), customer.display_name, customer.dish.get("name", "?")])
-	if not customer.is_regular() and player != null:
-		await _order_chat(player, customer)
-	if player != null:
-		await TicketPopup.write(view_manager, player, order)
+# Step 1: `player` welcomes `customer` at the host stand (a regular says their
+# greeting and so on in a dialogue box), then they follow the player to a table.
+func _greet(player: Player, customer: Customer, lock_target: Interactable) -> void:
+	if _leading.has(player.player_index):
+		GameEvents.announce("Seat %s first!" % _who(_leading[player.player_index]))
+		return
+	_busy.append(customer)
+	if customer.is_regular():
+		await _regular_greets(player, customer, lock_target)
 	else:
-		order_board.clip(order)
-	_chatting = false
-
-	var approach := customer.seat.approach_point.global_position
-	var path: Array[Vector3] = [
-		Vector3(approach.x, 0.0, _queue_spot(0).z),  # Along the back lane...
-		approach,                                    # ...down the aisle behind the chair...
-		customer.seat.seat_point.global_position,    # ...and sit.
-	]
-	customer.walk_to(path, Customer.State.WAITING_FOR_FOOD)
+		customer.say(_townsfolk_line("host_stand"))
+		await _hold_with_zoom(player, _at_counter(player, customer), order_chat_zoom, order_chat_seconds, lock_target)
+	_busy.erase(customer)
+	if not is_instance_valid(customer) or customer.state != Customer.State.WAITING_TO_BE_SEATED:
+		return  # Sent home meanwhile (closing, or the debug panel).
+	_queue.erase(customer)
+	_leading[player.player_index] = customer
+	customer.follow(player)
 	_move_queue_forward()
+	GameEvents.announce("Lead %s to a clean table." % _who(customer))
 
 
-# A short chat while an ordinary customer says their order: the player stays at
-# the counter and their camera zooms in on the two of them.
-func _order_chat(player: Player, customer: Customer) -> void:
-	await _hold_with_zoom(player, _at_counter(player, customer), order_chat_zoom, order_chat_seconds, order_counter.interactable)
-
-
-# A regular orders, all in one dialogue box: first the greeting they walked in
-# with (press interact), then anything they've heard about you from a friend
-# (gossip, once), then usually the ordering conversation from their file,
-# sometimes (once they trust you) "What do you recommend?" or "Surprise me"
-# instead, where the player picks the dish. Lines without choices are just said.
-func _regular_orders(player: Player, customer: Customer) -> void:
+# A regular at the host stand, all in one dialogue box: first the greeting they
+# walked in with, then (the first time) learning this chef's name, what they
+# think of the restaurant's name, anything they've heard about you from a
+# friend (gossip, once), and which table they'd like (their "seating" line).
+func _regular_greets(player: Player, customer: Customer, lock_target: Interactable) -> void:
 	var record: Dictionary = GameState.regulars[customer.regular_id]
 	var chef_id := Accounts.id_of(player.player_index)
-	_lock_player(player, _at_counter(player, customer), order_chat_zoom, order_counter.interactable)
+	_lock_player(player, _at_counter(player, customer), order_chat_zoom, lock_target)
 	customer.talking = true
 	var box := _open_box(player, customer)
 	var arrival := RegularMemory.say(record, "arrival", _visit_context(customer, chef_id))  # e.g. Mabel rings her bell.
@@ -346,7 +406,190 @@ func _regular_orders(player: Player, customer: Customer) -> void:
 			var text := DialoguePicker.fill(gossip_line["text"], _visit_context(customer, chef_id, gossip_context))
 			await _say(box, customer, text, Conversation.emotion_of(gossip_line))
 
-	# Picked now, so it can already use the name they just learned.
+	# Where they'd like to sit (e.g. Stitches and the corner table).
+	var seating := RegularMemory.say_feeling(record, "seating", _visit_context(customer, chef_id))
+	if not String(seating["text"]).is_empty():
+		await _say(box, customer, seating["text"], seating["emotion"])
+	box.close()
+	customer.talking = false
+	_unlock_player(player)
+
+
+# --- Seating -------------------------------------------------------------------
+
+# Every table with chairs.
+func _tables() -> Array[DiningTable]:
+	var tables: Array[DiningTable] = []
+	for node in get_tree().get_nodes_in_group(SEAT_GROUP):
+		var seat := node as Seat
+		if seat != null and seat.table != null and not seat.table in tables:
+			tables.append(seat.table)
+	return tables
+
+
+# A table's prompt for a player leading someone: "Seat Mabel here" if it's
+# clean with a free chair, else "" (and the table offers its own chores).
+func _table_prompt(player_index: int, table: DiningTable) -> String:
+	var customer: Customer = _leading.get(player_index)
+	if customer == null or not table.is_clean() or _free_seat_at(table) == null:
+		return ""
+	return "Seat %s here" % customer.display_name
+
+
+# Step 2: the leading player picked `table`: the customer sits there. A regular
+# who wanted that spot is pleased; townsfolk say something about it.
+func _on_table_seat_requested(table: DiningTable, player_index: int) -> void:
+	var customer: Customer = _leading.get(player_index)
+	var seat := _free_seat_at(table)
+	if customer == null or seat == null:
+		return
+	_leading.erase(player_index)
+	_seat_owners[seat] = customer
+	customer.sit_at(seat)
+	if customer.is_regular():
+		var usual: String = GameState.regulars[customer.regular_id].get("usual_table", "")
+		if not usual.is_empty() and usual == table.spot:
+			customer.emote(&"happy")
+			GameEvents.announce("%s got the %s table." % [customer.display_name, usual])
+	else:
+		customer.say(_townsfolk_line("seated"))
+	GameEvents.announce("%s sat down. Take their drink order!" % _who(customer).capitalize())
+
+
+# A free chair at `table`, or null.
+func _free_seat_at(table: DiningTable) -> Seat:
+	for seat in _free_seats():
+		if seat.table == table:
+			return seat
+	return null
+
+
+# --- Drinks --------------------------------------------------------------------
+
+# Step 3: they say what they'd like to drink. A regular says it in a dialogue
+# box (their "drink_order" lines); townsfolk say a line from data/service.json.
+func _take_drink_order(player: Player, customer: Customer) -> void:
+	_busy.append(customer)
+	var drink := _choose_drink(customer)
+	if customer.is_regular():
+		var record: Dictionary = GameState.regulars[customer.regular_id]
+		var chef_id := Accounts.id_of(player.player_index)
+		var context := _visit_context(customer, chef_id, { "drink": drink.get("name", "") })
+		var line := RegularMemory.pick_line(record, "drink_order", context)
+		var line_drink := GameData.get_drink(line.get("drink", ""))  # A line can order a drink of its own.
+		if not line_drink.is_empty() and GameData.is_unlocked(line_drink["id"]):
+			drink = line_drink
+			context["drink"] = drink["name"]
+		if not line.is_empty():
+			await _talk(player, customer, DialoguePicker.fill(line["text"], context), Conversation.emotion_of(line))
+	else:
+		customer.say(_townsfolk_line("drink_order", { "drink": drink.get("name", "drink") }))
+		await _hold_with_zoom(player, _at_table(customer), order_chat_zoom, order_chat_seconds, customer.interactable)
+	_busy.erase(customer)
+	customer.order_drink(drink)
+	GameEvents.announce("%s would like %s." % [_who(customer).capitalize(), _a(drink.get("name", "a drink"))])
+
+
+# What they'll drink: a regular has their favorite most of the time (once it's
+# unlocked), else something else they can have; townsfolk anything unlocked.
+func _choose_drink(customer: Customer) -> Dictionary:
+	if not customer.is_regular():
+		return GameData.random_drink()
+	var record: Dictionary = GameState.regulars[customer.regular_id]
+	var favorite: String = record.get("favorite_drink", "")
+	if GameData.is_unlocked(favorite) and randf() < float(GameData.drink_settings.get("regular_favorite_chance", 0.7)):
+		return GameData.get_drink(favorite)
+	var others := GameData.drink_menu().filter(func(d): return d["id"] != favorite and d["id"] != "water")
+	return others.pick_random() if not others.is_empty() else GameData.get_drink("water")
+
+
+# Step 4: `player` brings them `item`. The one they ordered pleases them; a
+# regular's favorite adds a little friendship (favorite_relationship_bonus in
+# data/drink_kitchen.json). Any drink is accepted.
+func _give_drink(player: Player, customer: Customer, item: Drink) -> void:
+	_busy.append(customer)
+	player.set_held_item(null)
+	customer.serve_drink(item.drink, item.quality)
+	var right := customer.got_the_drink_they_ordered()
+	GameEvents.announce("%s brought %s %s." % [Accounts.name_of(player.player_index), _who(customer), _a(item.display_name())])
+	if customer.is_regular():
+		var record: Dictionary = GameState.regulars[customer.regular_id]
+		var favorite: bool = item.id() == record.get("favorite_drink", "")
+		if favorite:
+			var before: int = record["relationship"]
+			RegularMemory.change_relationship(record, int(GameData.drink_settings.get("favorite_relationship_bonus", 1)))
+			_announce_change(record, before, "favorite drink")
+		var context := _visit_context(customer, Accounts.id_of(player.player_index), {
+			"drink": item.display_name(),
+			"right_drink": right,
+			"served_favorite_drink": favorite,
+		})
+		var line := RegularMemory.say_feeling(record, "drink_served", context)
+		if not String(line["text"]).is_empty():
+			await _talk(player, customer, line["text"], line["emotion"] if line["emotion"] != &"" else (&"happy" if right else &"neutral"))
+		else:
+			customer.emote(&"happy" if right else &"neutral")
+	else:
+		customer.say(_townsfolk_line("drink_served" if right else "wrong_drink"))
+		customer.emote(&"happy" if right else &"neutral")
+	_busy.erase(customer)
+
+
+# "a Coffee", "an Apple Cider".
+func _a(thing: String) -> String:
+	return ("an %s" if thing.left(1).to_lower() in ["a", "e", "i", "o", "u"] else "a %s") % thing
+
+
+# `customer` says one line to `player` in a dialogue box, with the player held
+# at the table and the meal's timers paused.
+func _talk(player: Player, customer: Customer, text: String, emotion: StringName) -> void:
+	customer.talking = true
+	_lock_player(player, _at_table(customer), order_chat_zoom, customer.interactable)
+	var box := _open_box(player, customer)
+	await _say(box, customer, text, emotion)
+	box.close()
+	_unlock_player(player)
+	customer.talking = false
+
+
+# --- Food ----------------------------------------------------------------------
+
+# Step 5: the food order, at the table. A regular has their ordering
+# conversation; townsfolk say what they want. The ticket goes in the player's
+# pocket for the TicketWheel.
+func _take_food_order(player: Player, customer: Customer) -> void:
+	if TicketWheel.is_full(get_tree()):
+		GameEvents.announce("The ticket wheel is full! Finish an order first.")
+		return
+	_busy.append(customer)
+	if customer.is_regular():
+		await _regular_orders(player, customer)  # May change what they order.
+	customer.place_order()
+	var order := order_board.add_order(customer)
+	GameEvents.announce("%s took an order: %s wants %s." % [
+		Accounts.name_of(player.player_index), customer.display_name, customer.dish.get("name", "?")])
+	if not customer.is_regular():
+		await _order_chat(player, customer)
+	await TicketPopup.write(view_manager, player, order)
+	_busy.erase(customer)
+
+
+# A short chat while an ordinary customer says their order: the player stays at
+# the table and their camera zooms in on the two of them.
+func _order_chat(player: Player, customer: Customer) -> void:
+	await _hold_with_zoom(player, _at_table(customer), order_chat_zoom, order_chat_seconds, customer.interactable)
+
+
+# A regular orders, in a dialogue box: usually the ordering conversation from
+# their file, sometimes (once they trust you) "What do you recommend?" or
+# "Surprise me" instead, where the player picks the dish. Lines without
+# choices are just said.
+func _regular_orders(player: Player, customer: Customer) -> void:
+	var record: Dictionary = GameState.regulars[customer.regular_id]
+	var chef_id := Accounts.id_of(player.player_index)
+	_lock_player(player, _at_table(customer), order_chat_zoom, customer.interactable)
+	customer.talking = true
+	var box := _open_box(player, customer)
 	var context := _visit_context(customer, chef_id)
 	var line := {}
 	if GameState.force_pick_for_me or randf() < GameData.regular_settings.get("pick_for_me_chance", 0.35):
@@ -495,30 +738,53 @@ func _unlock_player(player: Player) -> void:
 	player.interactor.unlock()
 	player.release_camera_focus()
 
-
-# Between the player at the counter and the customer they're serving.
+# Between the player at the host stand and the customer they're greeting.
 func _at_counter(player: Player, customer: Customer) -> Vector3:
 	return (player.global_position + customer.global_position) * 0.5 + Vector3.UP * 1.2
 
 
-# A player pressed interact on a seated customer: serve them if holding their
-# dish, or chat with a regular who's eating.
+# A player pressed interact on a customer: whatever their step needs (see the
+# top of this file), or what they're waiting for if the player has nothing for them.
 func _on_customer_interacted(player_index: int, customer: Customer) -> void:
-	var customer_name := _who(customer)
 	var player := Player.find(get_tree(), player_index)
-	if customer.state == Customer.State.EATING:
-		# Not while still held in the serving moment, so one extra press doesn't use up the chat.
-		if player != null and player.held_item == null and not player.movement_locked and customer.can_chat():
-			_eating_chat(player, customer)
+	# Not while still held in a moment, so one extra press doesn't use up the next step.
+	if player == null or player.movement_locked or customer in _busy:
 		return
-	if customer.state == Customer.State.WAITING_BY_DOOR:
-		if player != null and player.held_item == null and not player.movement_locked:
-			_return_scene(player, customer)
-		return
-	var plate: CookedDish = null
-	if player != null:
-		plate = player.held_item as CookedDish
+	var held := player.held_item
+	match customer.state:
+		Customer.State.WAITING_TO_BE_SEATED:
+			if held == null and not customer.is_walking():
+				_greet(player, customer, customer.interactable)
+		Customer.State.WAITING_DRINK_ORDER:
+			if held == null:
+				_take_drink_order(player, customer)
+		Customer.State.WAITING_FOR_DRINK:
+			if held is Drink:
+				_give_drink(player, customer, held)
+			else:
+				GameEvents.announce("%s is waiting for %s. Make it at the drinks counter." % [_who(customer).capitalize(), _a(customer.drink.get("name", "a drink"))])
+		Customer.State.WAITING_FOOD_ORDER:
+			if held == null:
+				_take_food_order(player, customer)
+		Customer.State.WAITING_FOR_FOOD:
+			_serve(player, customer)
+		Customer.State.EATING:
+			if held == null and customer.can_chat():
+				_eating_chat(player, customer)
+		Customer.State.WANTS_BILL:
+			if held is Receipt:
+				_settle_bill(player, customer)
+			else:
+				GameEvents.announce("%s would like the bill. Print it at the host stand." % _who(customer).capitalize())
+		Customer.State.WAITING_BY_DOOR:
+			if held == null:
+				_return_scene(player, customer)
 
+
+# Step 6: serve them the plate the player's holding, if it's theirs.
+func _serve(player: Player, customer: Customer) -> void:
+	var customer_name := _who(customer)
+	var plate := player.held_item as CookedDish
 	if plate == null:
 		GameEvents.announce("%s is waiting for %s." % [customer_name.capitalize(), customer.dish.get("name", "their food")])
 		return
@@ -528,8 +794,8 @@ func _on_customer_interacted(player_index: int, customer: Customer) -> void:
 
 	player.set_held_item(null)
 	order_board.remove_order(plate.order)
-	customer.served_by_account = Accounts.id_of(player_index)
-	GameState.record_chef_action(player_index, "served")
+	customer.served_by_account = Accounts.id_of(player.player_index)
+	GameState.record_chef_action(player.player_index, "served")
 	customer.serve(plate.quality, plate)
 	GameEvents.announce("Served %s to %s." % [plate.dish_name(), customer_name])
 	if not customer.is_regular():
@@ -705,14 +971,42 @@ func _return_scene(player: Player, customer: Customer) -> void:
 
 # Between a seated customer and their plate, a little above the table.
 func _at_table(customer: Customer) -> Vector3:
+	if customer.seat == null:
+		return customer.global_position + Vector3.UP * 1.2
 	return (customer.global_position + customer.seat.meal_position()) * 0.5 + Vector3.UP * 0.8
 
 
-# Done eating: work out how happy they are, take payment, and walk them out.
+# A regular nobody has chatted with is about to ask for the bill.
+func _on_customer_getting_going(customer: Customer) -> void:
+	var record: Dictionary = GameState.regulars[customer.regular_id]
+	var line := RegularMemory.say(record, "get_going", _visit_context(customer, customer.served_by_account))
+	customer.say(line if not line.is_empty() else String(GameData.service.get("regular_get_going", "I should get going soon.")))
+
+
+# Step 7 is over: they'd like the bill.
 func _on_customer_finished_eating(customer: Customer) -> void:
+	customer.want_bill()
+	var line := ""
+	if customer.is_regular():
+		line = RegularMemory.say(GameState.regulars[customer.regular_id], "bill", _visit_context(customer, customer.served_by_account))
+	if line.is_empty():
+		line = _townsfolk_line("bill")
+	customer.say(line)
+	GameEvents.announce("%s would like the bill." % _who(customer).capitalize())
+
+
+# Step 8: `player` brings the bill. They work out how happy they are (the food,
+# how quickly it came, and the drink), pay for the food and drink plus a tip,
+# and walk out, leaving a dirty table. A regular says goodbye and remembers the
+# visit. On day 3 or later, before there's a phone, a townsfolk asks whether
+# you deliver (the phone goes up the next morning).
+func _settle_bill(player: Player, customer: Customer) -> void:
+	_busy.append(customer)
+	player.set_held_item(null)
 	var satisfaction := Satisfaction.calculate(customer.served_quality, customer.wait_seconds)
+	satisfaction = clampf(satisfaction + Satisfaction.drink_mood(customer.drink, customer.served_drink), 0.0, 1.0)
 	var reaction := Satisfaction.reaction_for(satisfaction)
-	var amount := Satisfaction.payment_for(customer.dish, reaction)
+	var amount := Satisfaction.bill_for(customer.dish, customer.served_drink, reaction)
 	var lines: Array = reaction.get("lines", ["Thank you!"])
 	var line: String = lines.pick_random()
 	var feeling := &""
@@ -720,13 +1014,24 @@ func _on_customer_finished_eating(customer: Customer) -> void:
 		var goodbye := _remember_visit(customer, reaction.get("id", ""))
 		line = goodbye["text"]
 		feeling = goodbye["emotion"]
+	elif _asks_about_delivery():
+		GameState.delivery_asked = true
+		SaveGame.save_game()
+		customer.talking = true
+		_lock_player(player, _at_table(customer), order_chat_zoom, customer.interactable)
+		var box := ConversationBox.open(_view_of(player), player.player_index, "")
+		await box.tell(customer.display_name, String(GameData.service.get("delivery_question", "Do you deliver?")))
+		box.close()
+		_unlock_player(player)
+		customer.talking = false
 
 	GameState.add_money(amount)
 	GameState.record_service({
 		"species": customer.species.get("id", ""),
 		"regular": customer.regular_id,
 		"dish": customer.dish.get("id", ""),
-		"price": customer.dish.get("base_price", 0),
+		"drink": customer.served_drink.get("id", ""),
+		"price": int(customer.dish.get("base_price", 0)) + int(customer.served_drink.get("base_price", 0)),
 		"quality": customer.served_quality,
 		"wait_seconds": customer.wait_seconds,
 		"satisfaction": satisfaction,
@@ -746,10 +1051,18 @@ func _on_customer_finished_eating(customer: Customer) -> void:
 		door_point.global_position,
 		spawn_point.global_position,
 	]
+	_busy.erase(customer)
 	customer.leave(path, line, amount)
 	customer.emote(feeling)
 	GameEvents.announce("%s paid $%d (%s, waited %ds)." % [
 		_who(customer).capitalize(), amount, reaction.get("id", "?"), roundi(customer.wait_seconds)])
+
+
+# Whether a townsfolk paying now asks "Do you deliver?": once, from
+# delivery_question_day on (data/service.json), while there's no phone yet.
+func _asks_about_delivery() -> bool:
+	return not GameState.delivery_asked and not GameState.phone_unlocked \
+		and GameState.day_number >= int(GameData.service.get("delivery_question_day", 3))
 
 
 # Update what the regular remembers about this visit and pick their goodbye
@@ -791,7 +1104,7 @@ func _move_queue_forward() -> void:
 		_queue[i].set_destination(_queue_spot(i))
 
 
-# Position in line: spot 0 is at the counter, later spots line up behind it.
+# Position in line: spot 0 is at the host stand, later spots line up behind it.
 func _queue_spot(index: int) -> Vector3:
 	var front: Vector3 = order_counter.get_node("CustomerSpot").global_position
 	return front + Vector3(0.0, 0.0, queue_spacing * index)
@@ -802,11 +1115,11 @@ func _on_front_lane(point: Vector3) -> Vector3:
 	return Vector3(point.x, 0.0, door_point.global_position.z)
 
 
-# A random seat nobody has claimed, at a clean table.
-func _find_free_seat() -> Seat:
+# Seats nobody has claimed, at clean tables (and not stacked up for the night).
+func _free_seats() -> Array[Seat]:
 	var free_seats: Array[Seat] = []
 	for node in get_tree().get_nodes_in_group(SEAT_GROUP):
 		var seat := node as Seat
-		if seat != null and not _seat_owners.has(seat) and seat.is_table_clean():
+		if seat != null and not _seat_owners.has(seat) and seat.is_table_clean() and not seat.is_put_up():
 			free_seats.append(seat)
-	return free_seats.pick_random() if not free_seats.is_empty() else null
+	return free_seats

@@ -1,5 +1,6 @@
-# Phone: the phone on the wall by the counter. Every so often while the
-# restaurant is open it rings (sound, shaking, "Ring! Ring!"). Walk up and
+# Phone: the phone on the wall by the host stand. It isn't there at first: it
+# goes up the morning after a customer asks whether you deliver (see
+# GameState.phone_unlocked). Every so often during the meals it rings (sound, shaking, "Ring! Ring!"). Walk up and
 # interact to answer: the call plays in the dialogue box (greeting, order,
 # sometimes one quick reply) and the order goes to DeliveryManager.
 # Nobody is ever punished for missing a call: if it rings out, or someone is
@@ -9,6 +10,8 @@
 # phone stays quiet while a regular is walking in. Timings: data/phone.json.
 # When it's quiet, you can also pick it up to call a friend of someone Gone and
 # ask them to talk to that regular for you (see Redemption).
+# The night shift after closing (see DayManager) is phone orders only: a few
+# calls (night in data/phone.json), closer together, then it goes quiet.
 class_name Phone
 extends Station
 
@@ -27,6 +30,8 @@ var _last_caller := ""
 var _ring_sound := AudioStreamPlayer.new()
 var _light_material := StandardMaterial3D.new()
 var _time := 0.0
+var _was_night := false
+var _collision_layer := 0
 
 @onready var ring_label: Label3D = $RingLabel
 @onready var voicemail_label: Label3D = $VoicemailLabel
@@ -41,6 +46,8 @@ func _ready() -> void:
 	_light_material.emission_enabled = true
 	voicemail_light.material_override = _light_material
 	_until_next_ring = _random_seconds("first_ring_delay")
+	_collision_layer = collision_layer
+	_show_installed()
 
 
 func is_ringing() -> bool:
@@ -81,9 +88,28 @@ func _on_interacted(player_index: int) -> void:
 		_call_friend(player)
 
 
+# The night's calls have all rung and nobody's on the phone.
+func quiet_for_tonight() -> bool:
+	return GameState.night_calls_used >= GameState.night_calls_total and not is_ringing() and not _in_call
+
+
+# Only on the wall once it's been put up.
+func _show_installed() -> void:
+	visible = GameState.phone_unlocked
+	interactable.enabled = GameState.phone_unlocked
+	collision_layer = _collision_layer if GameState.phone_unlocked else 0
+
+
 func _process(delta: float) -> void:
+	if visible != GameState.phone_unlocked:
+		_show_installed()  # e.g. the debug panel unlocked it.
+	if not GameState.phone_unlocked:
+		return
 	_time += delta
 	_update_look()
+	if day_manager.is_night and not _was_night:
+		_until_next_ring = _random_seconds("first_ring_delay")  # The night's first call comes soon.
+	_was_night = day_manager.is_night
 	if _in_call:
 		return
 	if is_ringing():
@@ -94,15 +120,21 @@ func _process(delta: float) -> void:
 	if not GameState.forced_caller.is_empty():  # Debug panel.
 		_ring_forced(GameState.forced_caller)
 		return
-	if not day_manager.is_open or _someone_talking() or _regular_arriving() or not BigMoments.due().is_empty():
+	if day_manager.is_night:
+		if GameState.night_calls_used >= GameState.night_calls_total or _someone_talking():
+			return
+	elif not day_manager.is_open or _someone_talking() or _regular_arriving() or not BigMoments.due().is_empty():
 		return  # (No calls at all on the evening of a big moment.)
 	_until_next_ring -= delta
 	if _until_next_ring > 0.0:
 		return
 	_until_next_ring = _random_seconds("seconds_between_calls")
+	if day_manager.is_night:
+		GameState.night_calls_used += 1  # Counts even if it doesn't ring, so the night always ends.
+		SaveGame.save_game()
 	if GameState.voicemails.size() >= _max_voicemails():
 		return  # Plenty waiting already: this call just doesn't happen.
-	var call := PhoneCalls.next_call(_last_caller)
+	var call := PhoneCalls.next_call(_last_caller, day_manager.is_night)
 	if not call.is_empty():
 		_ring(call)
 
@@ -233,8 +265,12 @@ func _max_voicemails() -> int:
 	return int(GameData.phone_settings.get("max_voicemails", 6))
 
 
+# A random time from data/phone.json (the night's own timings at night).
 func _random_seconds(key: String) -> float:
-	var range_: Dictionary = GameData.phone_settings.get(key, { "min": 20, "max": 40 })
+	var settings := GameData.phone_settings
+	if day_manager != null and day_manager.is_night:
+		settings = settings.get("night", settings)
+	var range_: Dictionary = settings.get(key, GameData.phone_settings.get(key, { "min": 20, "max": 40 }))
 	return randf_range(range_["min"], range_["max"])
 
 

@@ -8,6 +8,8 @@
 	"voice": { "blips": "res://design/sound/sound_effects/text moving sound", "pitch": 0.95 },
 	"personality": ["shy", "kind", "hopeful"],
 	"favorite_dish": "honey_pancakes",
+	"favorite_drink": "hot_chocolate",
+	"usual_table": "corner",
 	"disliked_dish": "fire_noodles",
 	"referral_only": false,
 	"stage_names": {
@@ -98,6 +100,13 @@
 		"dislike_confessed": false
 	},
 	"lines": [
+		{ "event": "seating", "id": "stitches_seating_placeholder", "priority": 100, "conditions": { "min_stage": 1 }, "text": "The corner table, if it's free?" },
+		{ "event": "seating", "id": "stitches_seating_placeholder_low", "priority": 100, "conditions": { "max_stage": -1 }, "text": "Anywhere is fine." },
+		{ "event": "drink_order", "id": "stitches_drink_placeholder", "priority": 100, "conditions": { "min_stage": 1 }, "text": "A [drink], please." },
+		{ "event": "drink_order", "id": "stitches_drink_placeholder_low", "priority": 100, "conditions": { "max_stage": -1 }, "text": "[drink]." },
+		{ "event": "drink_served", "id": "stitches_drink_served_placeholder", "priority": 100, "conditions": { "right_drink": true }, "text": "Thank you." },
+		{ "event": "drink_served", "id": "stitches_drink_served_placeholder_wrong", "priority": 100, "conditions": { "right_drink": false }, "text": "That's not what I asked for... but thank you." },
+
 		{ "event": "greeting", "priority": 300, "conditions": { "first_visit": true }, "text": "Oh... um. Hi. Is it okay if I sit here? In the corner? I won't be in the way.", "emotion": "nervous" },
 
 		{ "event": "greeting", "priority": 250, "conditions": { "stage": 1, "returned_after_away": true }, "text": "Oh... you're open. I came by a few times. It was closed. I thought maybe... never mind. I'm glad you're okay.", "emotion": "sad" },
@@ -125,7 +134,6 @@
 		{ "event": "greeting", "priority": 200, "conditions": { "stage": -1 }, "text": "Hi... um. Did I do something wrong last time? You can tell me. I'll fix it.", "emotion": "nervous" },
 		{ "event": "greeting", "priority": 200, "conditions": { "stage": -2 }, "text": "...Hi.", "emotion": "sad" },
 
-		{ "event": "farewell", "priority": 300, "conditions": { "learned_name": true }, "text": "Can I ask your name? You know mine. It feels rude that I don't know yours. ...[name]. That's a nice name. I'll remember it. I promise.", "emotion": "shy" },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 1 }, "text": "Thank you. Sorry for the trouble. I wiped the table already.", "emotion": "nervous" },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 1 }, "text": "I'll... maybe come back? If that's okay.", "emotion": "nervous" },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 2 }, "text": "See you soon, [name]. I still wiped the table. Old habits.", "emotion": "happy" },

@@ -136,20 +136,20 @@ Closed until tomorrow: we open again at 5 AM."
 				next_button.grab_focus()  # Back on the summary, interact starts the day again.
 
 
-# "Shop (2 new!)" when there are upgrades or dishes you can afford right now.
+# "Shop (2 new!)" when there are upgrades, dishes or drinks you can afford right now.
 func _shop_button_text() -> String:
 	var affordable := 0
 	for upgrade in GameData.upgrades:
 		if not GameState.has_upgrade(upgrade["id"]) and GameState.money >= upgrade["price"]:
 			affordable += 1
-	for dish in GameData.shop_dishes():
-		if not GameData.is_unlocked(dish["id"]) and GameState.money >= int(dish["unlock_cost"]):
+	for item in GameData.shop_dishes() + GameData.shop_drinks():
+		if not GameData.is_unlocked(item["id"]) and GameState.money >= int(item["unlock_cost"]):
 			affordable += 1
 	return "Shop (%d new!)" % affordable if affordable > 0 else "Shop"
 
 
-# One button per upgrade, then per dish to add to the menu: buyable, too
-# pricey, or already owned.
+# One button per upgrade, then per dish and per drink to add to the menu:
+# buyable, too pricey, or already owned.
 func _build_upgrade_list() -> void:
 	for child in upgrade_list.get_children():
 		upgrade_list.remove_child(child)
@@ -159,17 +159,26 @@ func _build_upgrade_list() -> void:
 		var button := _shop_button(upgrade["name"], upgrade["description"], int(upgrade["price"]), GameState.has_upgrade(upgrade["id"]), "Owned")
 		button.pressed.connect(_buy.bind(upgrade["id"]))
 		buttons.append(button)
-	var heading := Label.new()
-	heading.text = "New dishes"
-	heading.add_theme_font_size_override("font_size", 20)
-	heading.add_theme_color_override("font_color", body_label.get_theme_color("font_color"))
-	upgrade_list.add_child(heading)
+	_shop_heading("New dishes")
 	for dish in GameData.shop_dishes():
 		var button := _shop_button(dish["name"], dish["description"], int(dish["unlock_cost"]), GameData.is_unlocked(dish["id"]), "On the menu")
 		button.pressed.connect(_buy_dish.bind(dish["id"]))
 		buttons.append(button)
+	_shop_heading("New drinks")
+	for drink in GameData.shop_drinks():
+		var button := _shop_button(drink["name"], drink["description"], int(drink["unlock_cost"]), GameData.is_unlocked(drink["id"]), "On the menu")
+		button.pressed.connect(_buy_drink.bind(drink["id"]))
+		buttons.append(button)
 	var buyable := buttons.filter(func(b): return not b.disabled)
 	(buyable[0] if not buyable.is_empty() else shop_button).grab_focus()
+
+
+func _shop_heading(text: String) -> void:
+	var heading := Label.new()
+	heading.text = text
+	heading.add_theme_font_size_override("font_size", 20)
+	heading.add_theme_color_override("font_color", body_label.get_theme_color("font_color"))
+	upgrade_list.add_child(heading)
 
 
 # A shop entry, e.g. "Cherry Pie  -  Buy for $60" over its description, added
@@ -201,6 +210,11 @@ func _buy(upgrade_id: String) -> void:
 
 func _buy_dish(dish_id: String) -> void:
 	if GameState.buy_dish(dish_id):
+		_refresh_page()
+
+
+func _buy_drink(drink_id: String) -> void:
+	if GameState.buy_drink(drink_id):
 		_refresh_page()
 
 

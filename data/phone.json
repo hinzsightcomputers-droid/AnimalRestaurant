@@ -13,6 +13,8 @@
 		"regular_chat_call_chance": 0.25,
 		"ring_sound": "",
 		"voicemail_suffix": " (voicemail)",
+		"night": { "calls": { "min": 3, "max": 5 }, "first_ring_delay": { "min": 4, "max": 8 }, "seconds_between_calls": { "min": 10, "max": 18 }, "night_only_weight": 3 },
+		"regular_day_call_factor": 0.25,
 		"courier": { "name": "Delivery Duck", "color": "#f2d24b", "walk_speed": 2.2, "spacing": 0.9 }
 	}
 }

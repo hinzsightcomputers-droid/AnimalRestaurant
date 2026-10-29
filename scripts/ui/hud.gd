@@ -57,10 +57,13 @@ func _process(delta: float) -> void:
 
 # e.g. "Day 4  Lunch  3 to come   $18": which day and meal it is, how many of
 # its customers haven't left yet ("Ring the bell!" once they all have,
-# "Closed" from closing on), and money.
+# "Closed" from closing on, the calls still to come at night), and money.
 func _refresh_day_and_money() -> void:
 	var where := "Closed"
-	if day_manager.is_open:
+	if day_manager.is_night:
+		var calls := maxi(GameState.night_calls_total - GameState.night_calls_used, 0)
+		where = "Night  %s" % ("%d call%s to come" % [calls, "" if calls == 1 else "s"] if calls > 0 else "quiet")
+	elif day_manager.is_open:
 		var left := day_manager.customer_manager.customers_left()
 		where = "%s  %s" % [GameState.phase_info(GameState.phase).get("name", "?"), "Ring the bell!" if day_manager.bell_ready() else "%d to go" % left]
 	money_label.text = "Day %d  %s   $%d" % [GameState.day_number, where, GameState.money]

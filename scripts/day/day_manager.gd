@@ -4,10 +4,13 @@
 # and once they've all been and gone, a player rings the bell at the counter
 # for the next meal, and the lights change with it. Ringing it after the last
 # meal closes up: anyone Gone who's due back comes to the door, any big moment
-# scene due tonight plays (ScenePlayer), then the day ends: the game pauses and
-# `day_ended` carries the summary for the summary screen. After that it's
-# closed until tomorrow, and opening the game again the same day finds it
-# closed (`closed_for_today`).
+# scene due tonight plays (ScenePlayer). Once the phone is on the wall (see
+# GameState.phone_unlocked) the night shift follows: the chairs go up, the
+# lights go down, nobody walks in, and the phone takes a few calls (night in
+# data/phone.json). When it's gone quiet (or straight after closing, without
+# a phone) the day ends: the game pauses and `day_ended` carries the summary
+# for the summary screen. After that it's closed until tomorrow, and opening
+# the game again the same day finds it closed (`closed_for_today`).
 class_name DayManager
 extends Node
 
@@ -21,17 +24,23 @@ signal phase_started(phase: int)
 @export var scene_player: ScenePlayer
 @export var sun: DirectionalLight3D               # Lit for each meal (data/day.json "lighting").
 @export var world_environment: WorldEnvironment
+@export var phone: Phone                          # Takes the night shift's calls.
 
 var is_open := true       # During the meals; false from closing on.
+var is_night := false     # The night shift: phone orders only.
 var _has_ended := false
 var _announced_bell := false
 var _lighting: Tween
+var _night_ending := false
 
 
 func _ready() -> void:
 	customer_manager.day_manager = self
 	GameState.begin_day()
 	Music.play_hour_themes()  # In the restaurant the music follows the real hour.
+	if GameState.phone_news:
+		GameState.phone_news = false
+		get_tree().create_timer(2.0, false).timeout.connect(func(): GameEvents.announce(String(GameData.service.get("phone_installed", "There's a phone on the wall now."))))
 	if GameState.is_closed_today():
 		is_open = false
 		_has_ended = true
@@ -39,6 +48,11 @@ func _ready() -> void:
 		customer_manager.accepting_customers = false
 		get_tree().set_deferred("paused", true)
 		closed_for_today.emit.call_deferred()
+		return
+	if GameState.phase == GameState.NIGHT:
+		is_open = false
+		customer_manager.accepting_customers = false
+		_start_night(0.0)
 		return
 	_start_phase(GameState.phase, 0.0)
 
@@ -52,10 +66,16 @@ func _process(_delta: float) -> void:
 			_announced_bell = true
 			GameEvents.announce("Everyone's been served! Ring the bell at the counter %s." % (
 				"for %s" % GameState.phase_info(GameState.phase + 1).get("name", "the next meal") if not _is_last_phase() else "to close up"))
+	elif is_night:
+		if not _night_ending and phone != null and phone.quiet_for_tonight() and not _deliveries_waiting() and not customer_manager.has_customers():
+			_end_night()
 	elif not customer_manager.has_customers() and not _deliveries_waiting():
 		if scene_player != null and scene_player.play_due():
 			return  # Wait for tonight's big moment.
-		_end_day()
+		if GameState.phone_unlocked and phone != null:
+			_start_night()
+		else:
+			_end_day()
 
 
 # The meal's customers have all been and gone, so the bell can be rung.
@@ -81,12 +101,19 @@ func ring_bell() -> void:
 		_start_phase(GameState.phase)
 
 
-# Debug: straight to meal `phase` (or closing, for GameState.CLOSED), sending
-# everyone in the restaurant home.
+# Debug: straight to meal `phase` (or closing, for GameState.CLOSED, or the
+# night shift for GameState.NIGHT), sending everyone in the restaurant home.
 func skip_to(phase: int) -> void:
-	if _has_ended:
+	if _has_ended or is_night:
 		return
 	customer_manager.send_everyone_home()
+	if phase == GameState.NIGHT:
+		if not GameState.phone_unlocked:
+			GameEvents.announce("The night shift needs the phone: unlock it first.")
+			return
+		_close()
+		_start_night()
+		return
 	if phase == GameState.CLOSED:
 		GameState.set_phase(GameState.phase_count() - 1)
 		_close()
@@ -129,6 +156,32 @@ func _close() -> void:
 	_light(GameData.day_settings.get("closing", {}).get("lighting", {}))
 	GameEvents.announce("Closing time! Time to tidy up.")
 	day_closed.emit()
+
+
+# The night shift: night lighting, chairs up on the tables, and a few phone
+# calls (picked now, or carried on from a save). `light_seconds` 0 = at once.
+func _start_night(light_seconds := -1.0) -> void:
+	is_night = true
+	if GameState.phase != GameState.NIGHT:
+		var calls: Dictionary = GameData.phone_settings.get("night", {}).get("calls", { "min": 3, "max": 5 })
+		GameState.night_calls_total = randi_range(int(calls["min"]), int(calls["max"]))
+		GameState.night_calls_used = 0
+		GameState.set_phase(GameState.NIGHT)
+	_light(GameState.phase_info(GameState.NIGHT).get("lighting", {}), light_seconds)
+	for node in get_tree().get_nodes_in_group(CustomerManager.SEAT_GROUP):
+		if node is Seat:
+			node.put_up(true, 0.0 if light_seconds == 0.0 else 0.6)
+	if light_seconds != 0.0:
+		GameEvents.announce("Night shift: chairs up, phone orders only.")
+	phase_started.emit(GameState.NIGHT)
+
+
+# The night's calls are done and delivered: say so, then end the day.
+func _end_night() -> void:
+	_night_ending = true
+	GameEvents.announce("The phone has gone quiet. Closed until tomorrow: opens at 5 AM, in %s." % GameClock.describe_duration(GameClock.seconds_until_next_day()))
+	await get_tree().create_timer(4.0, false).timeout
+	_end_day()
 
 
 func _end_day() -> void:
