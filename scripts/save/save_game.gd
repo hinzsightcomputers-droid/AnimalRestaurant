@@ -31,7 +31,7 @@ static func load_game() -> bool:
 		push_warning("Save file is damaged, starting a new game.")
 		return false
 	GameState.apply_save_data(parsed)
-	print("Loaded save: %s shift %d, $%d" % [GameState.date, GameState.shift, GameState.money])
+	print("Loaded save: %s day %d, %s, $%d" % [GameState.date, GameState.day_number, "closed" if GameState.phase == GameState.CLOSED else "meal %d" % GameState.phase, GameState.money])
 	return true
 
 

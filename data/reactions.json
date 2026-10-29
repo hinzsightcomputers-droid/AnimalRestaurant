@@ -1,8 +1,6 @@
 {
-	"quality_weight": 0.7,
-	"wait_weight": 0.3,
-	"patient_seconds": 40,
-	"max_wait_seconds": 100,
+	"fast_service_seconds": 40,
+	"fast_service_bonus": 0.05,
 	"reactions": [
 		{
 			"id": "delighted",

@@ -29,7 +29,7 @@ var _swing_time := -1.0        # Seconds since the bell was rung (-1 = still).
 func _ready() -> void:
 	_sign = _build_sign()
 	_bell = _build_bell()
-	_chime.stream = _chime_stream()
+	_chime.stream = chime_stream()
 	_chime.unit_size = 12.0
 	_bell_swing.add_child(_chime)
 	GameState.unlocks_changed.connect(_refresh)
@@ -148,7 +148,7 @@ func _build_bell() -> Node3D:
 
 # bell_sound from data/scenes.json, or a placeholder: a bright little chime
 # (a few bell-like partials that ring out).
-func _chime_stream() -> AudioStream:
+static func chime_stream() -> AudioStream:
 	var path: String = GameData.scene_settings.get("bell_sound", "")
 	if not path.is_empty() and ResourceLoader.exists(path):
 		return load(path)

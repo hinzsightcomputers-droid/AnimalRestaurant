@@ -4,7 +4,7 @@
 			"description": "Chopping takes 2 fewer chops.",
 			"bonus": { "chops": -2 } },
 		{ "id": "comfy_cushions", "name": "Comfy Cushions", "price": 45,
-			"description": "Customers wait 15 seconds longer before getting grumpy.",
+			"description": "Food still counts as quick service 15 seconds later.",
 			"bonus": { "patient_seconds": 15 } },
 		{ "id": "steady_stove", "name": "Steady Stove", "price": 60,
 			"description": "The stirring marker moves 15% slower.",

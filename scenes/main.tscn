@@ -213,11 +213,13 @@ sun = NodePath("../Sun")
 world_environment = NodePath("../WorldEnvironment")
 camera_zoom = SubResource("Zoom_order_chat")
 
-[node name="DayManager" type="Node" parent="." unique_id=297707749 node_paths=PackedStringArray("customer_manager", "delivery_manager", "scene_player")]
+[node name="DayManager" type="Node" parent="." unique_id=297707749 node_paths=PackedStringArray("customer_manager", "delivery_manager", "scene_player", "sun", "world_environment")]
 script = ExtResource("11_day")
 customer_manager = NodePath("../CustomerManager")
 delivery_manager = NodePath("../DeliveryManager")
 scene_player = NodePath("../ScenePlayer")
+sun = NodePath("../Sun")
+world_environment = NodePath("../WorldEnvironment")
 
 [node name="HUD" parent="." unique_id=1664110998 node_paths=PackedStringArray("order_board", "day_manager") instance=ExtResource("10_hud")]
 order_board = NodePath("../OrderBoard")

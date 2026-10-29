@@ -1,5 +1,7 @@
 # GameClock: the real-world date and time the game believes it is. The game runs
-# on the real calendar (shifts happen on dates, not "Day 1, Day 2"). Normally
+# on the real calendar: one restaurant day per real day, like Animal Crossing.
+# A day starts at DAY_STARTS_AT_HOUR (5 AM local), not midnight, so a late-night
+# session still counts as the day before (see today()). Normally
 # the system clock, but the debug panel can push it forward by whole days to
 # test "you've been gone" lines. The offset is kept in user://debug.json (not
 # the save), so it survives restarts until it's reset.
@@ -8,6 +10,7 @@ extends RefCounted
 
 const DEBUG_PATH := "user://debug.json"
 const SECONDS_PER_DAY := 86400
+const DAY_STARTS_AT_HOUR := 5
 const WEEKDAYS := ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 const MONTHS := ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
@@ -29,16 +32,34 @@ static func now_local() -> Dictionary:
 	return Time.get_datetime_dict_from_unix_time(_to_local(now_unix()))
 
 
-# Today's local date, e.g. "2026-10-27".
+# Today's restaurant day, e.g. "2026-10-27": the local date, except that
+# before 5 AM it's still yesterday.
 static func today() -> String:
+	return _day_of(now_unix())
+
+
+# The real local calendar date, e.g. "2026-10-28" at 2 AM (for showing the date).
+static func calendar_date() -> String:
 	return _date_string(now_local())
 
 
-# The local date of a saved UTC time like now_string() gives, or "" if empty.
+# The restaurant day of a saved UTC time like now_string() gives, or "" if empty.
 static func local_date_of(utc_string: String) -> String:
 	if utc_string.is_empty():
 		return ""
-	return _date_string(Time.get_datetime_dict_from_unix_time(_to_local(Time.get_unix_time_from_datetime_string(utc_string))))
+	return _day_of(Time.get_unix_time_from_datetime_string(utc_string))
+
+
+# Seconds until the next restaurant day starts (the next 5 AM, local).
+static func seconds_until_next_day() -> int:
+	var local := _to_local(now_unix()) - DAY_STARTS_AT_HOUR * 3600
+	return SECONDS_PER_DAY - posmod(local, SECONDS_PER_DAY)
+
+
+# e.g. "7h 12m" or "45m".
+static func describe_duration(seconds: int) -> String:
+	var minutes := ceili(seconds / 60.0)
+	return "%dh %02dm" % [minutes / 60, minutes % 60] if minutes >= 60 else "%dm" % minutes
 
 
 # e.g. "Tuesday, Oct 27" for "2026-10-27" (short: "Tue, Oct 27").
@@ -76,6 +97,10 @@ static func set_offset_days(days: int) -> void:
 # UTC seconds -> the same moment in local time (the system's time zone offset).
 static func _to_local(unix: int) -> int:
 	return unix + int(Time.get_time_zone_from_system().get("bias", 0)) * 60
+
+
+static func _day_of(unix: int) -> String:
+	return _date_string(Time.get_datetime_dict_from_unix_time(_to_local(unix) - DAY_STARTS_AT_HOUR * 3600))
 
 
 static func _date_string(parts: Dictionary) -> String:

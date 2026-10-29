@@ -4,6 +4,8 @@
 # start and the chef walks up, unlocks the door, goes in, closes it, flips the
 # sign to open and the lights come on; then a circle wipe opens on the
 # restaurant. Pressing again skips ahead. F4 previews the other times of day.
+# After closing on the same day it stays shut: the prompt says when it opens
+# again, and pressing start goes straight in (to the closed restaurant).
 # It fades in from black, coming after the LogoSplash. The main theme (started
 # on the splash) slowly fades out once the lights come on, reaching silence as
 # the circle wipe closes to black.
@@ -98,6 +100,10 @@ func _ready() -> void:
 	_load_walker_models()
 	if not GameState.restaurant_name.is_empty():
 		_paint_sign(GameState.restaurant_name, Color(GameState.restaurant_color))
+	if GameState.is_closed_today():
+		prompt_label.text = "Closed until tomorrow. Opens at 5 AM, in %s" % GameClock.describe_duration(GameClock.seconds_until_next_day())
+	elif GameState.date == GameClock.today():
+		prompt_label.text = "Press E, Enter, or (A) to carry on with %s" % GameState.phase_info(GameState.phase).get("name", "today").to_lower()
 	# A few people already out walking, so the street isn't empty at first.
 	for i in 3:
 		_spawn_walker(randf_range(-WALKER_EDGE + 2.0, WALKER_EDGE - 2.0))
@@ -137,7 +143,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _setup != null or not _is_start_press(event):
 		return
 	get_viewport().set_input_as_handled()
-	if not _started and GameState.restaurant_name.is_empty():
+	if not _started and GameState.is_closed_today():
+		_started = true
+		_leave()  # Nothing to open up: straight in to the closed restaurant.
+	elif not _started and GameState.restaurant_name.is_empty():
 		_name_restaurant()  # First time: name it before opening up.
 	elif not _started:
 		_started = true
@@ -328,7 +337,7 @@ func _apply_look(look_name: String) -> void:
 
 func _clock_text() -> String:
 	var now := GameClock.now_local()
-	var shown := "%s  %s" % [GameClock.describe_date(GameClock.today()), GameClock.describe_time(now)]
+	var shown := "%s  %s" % [GameClock.describe_date(GameClock.calendar_date()), GameClock.describe_time(now)]
 	if _look_name != look_for_hour(now["hour"]):
 		shown += "  (previewing %s, F4)" % _look_name
 	return shown

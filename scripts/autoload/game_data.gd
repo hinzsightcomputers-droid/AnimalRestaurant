@@ -17,6 +17,7 @@ const PHONE_PATH := "res://data/phone.json"
 const CALLERS_PATH := "res://data/callers.json"
 const GOSSIP_PATH := "res://data/gossip.json"
 const SCENES_PATH := "res://data/scenes.json"
+const DAY_PATH := "res://data/day.json"
 
 # Each dish, from the menu (design/menu/dishes.json): { id, name, origin,
 # description, ingredients, steps, base_price, cook_time, tags, unlock,
@@ -59,6 +60,9 @@ var callers: Array[Dictionary] = []
 # Big moment scenes: { id, name, regular, conditions, staging, done, steps } (see BigMoments).
 var scenes: Array[Dictionary] = []
 var scene_settings: Dictionary = {}
+# How a day runs: its phases (Breakfast, Lunch, Dinner), who comes in each,
+# their lighting, and the closing lighting (see DayManager, DayPlan).
+var day_settings: Dictionary = {}
 
 
 func _ready() -> void:
@@ -81,6 +85,7 @@ func _ready() -> void:
 		_add_dish_condition(line)
 	scenes = _load_list(SCENES_PATH, "scenes")
 	scene_settings = _load_dictionary(SCENES_PATH).get("settings", {})
+	day_settings = _load_dictionary(DAY_PATH)
 
 
 func get_species(species_id: String) -> Dictionary:

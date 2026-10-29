@@ -1,11 +1,9 @@
 {
 	"settings": {
 		"regulars_per_day": { "min": 2, "max": 3 },
-		"arrival_window": { "start": 0.05, "end": 0.75 },
 		"favorite_order_chance": 0.7,
 		"eating_seconds": { "min": 60, "max": 90 },
 		"pick_for_me_chance": 0.35,
-		"strangers_walk_in": false,
 		"relationship_min": -100,
 		"relationship_max": 100,
 		"rude_streak_to_go_negative": 3,

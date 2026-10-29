@@ -55,14 +55,15 @@ func _process(delta: float) -> void:
 		_refresh_messages()
 
 
-# e.g. "Shift 2  2:35 left   $18": this shift, how long it stays open
-# ("Closed" after closing time), and money.
+# e.g. "Day 4  Lunch  3 to come   $18": which day and meal it is, how many of
+# its customers haven't left yet ("Ring the bell!" once they all have,
+# "Closed" from closing on), and money.
 func _refresh_day_and_money() -> void:
-	var shift_clock := "Closed"
+	var where := "Closed"
 	if day_manager.is_open:
-		var seconds := ceili(day_manager.time_left)
-		shift_clock = "%d:%02d left" % [floori(seconds / 60.0), seconds % 60]
-	money_label.text = "Shift %d  %s   $%d" % [GameState.shift, shift_clock, GameState.money]
+		var left := day_manager.customer_manager.customers_left()
+		where = "%s  %s" % [GameState.phase_info(GameState.phase).get("name", "?"), "Ring the bell!" if day_manager.bell_ready() else "%d to go" % left]
+	money_label.text = "Day %d  %s   $%d" % [GameState.day_number, where, GameState.money]
 
 
 # "8:42 PM" over "Tuesday, October 27". Hides while anyone moves; comes back

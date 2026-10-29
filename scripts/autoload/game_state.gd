@@ -1,38 +1,47 @@
-# GameState (autoload): the restaurant's progress. Money, the real date and
-# which shift of it this is, the upgrades bought, what each regular remembers,
-# and a record of every customer served this shift (for the end-of-shift
-# summary). Loads the save file on startup and saves after each shift.
+# GameState (autoload): the restaurant's progress. Money, today's restaurant
+# day and how far through it we are (which meal, who's been in), the upgrades
+# bought, what each regular remembers, and a record of every customer served
+# today (for the end-of-day summary). Loads the save file on startup and saves
+# as the day goes, so quitting mid-day carries on where it left off.
 extends Node
 
 signal money_changed(money: int)
 signal unlocks_changed  # A big moment reward or a dish was unlocked (or the debug panel cleared them).
 
-const SAVE_VERSION := 3
+const SAVE_VERSION := 4
+# Where the day is: one of the meals in data/day.json (0 = the first), or CLOSED
+# once the last one is over.
+const CLOSED := 99
 
 var money := 0
 # What the players named their restaurant and the color it's written in (on the
 # sign, and when regulars say it). Empty until named on the start screen.
 var restaurant_name := ""
 var restaurant_color := "#d1453b"
-# The real local date of the current (or last) shift, e.g. "2026-10-27", and
-# which shift of that date it is (1 = the first). See begin_shift.
+# The restaurant day of the current (or last) day open, e.g. "2026-10-27" (see
+# GameClock.today), and how many days the restaurant has opened (1 = the first).
 var date := ""
-var shift := 1
+var day_number := 0
+# Which meal it is on `date` (an index into GameData.day_settings "phases"), or
+# CLOSED. See begin_day.
+var phase := 0
+# Today's customers, one list per meal: { regular: id } or { walk_in: true }
+# (see DayPlan), and which of this meal's are done (their indexes), so a day
+# picked up again doesn't send them twice.
+var day_plan := { "date": "", "phases": [] }
+var phase_done: Array = []
 # Ids of upgrades bought (see data/upgrades.json), in the order they were bought.
 var upgrades: Array[String] = []
-# One entry per customer served this shift:
+# One entry per customer served today:
 # { species, regular, dish, price, quality, wait_seconds, satisfaction, reaction, payment }
 var services_today: Array[Dictionary] = []
-# What each chef did this shift, for the summary: account id -> { chopped, cooked, served, cleaned }.
+# What each chef did today, for the summary: account id -> { chopped, cooked, served, cleaned }.
 var chef_actions_today: Dictionary = {}
 # Regular id -> that regular's current record (see GameData.regulars). Only the
 # memory fields (GameData.memory_fields) are saved; the profile (name, tastes...)
 # always comes from their character file, so editing it still takes effect.
 # known_players and served_by use account ids (see Accounts).
 var regulars: Dictionary = {}
-# Which regulars come in on `date` and when (see VisitSchedule): { date, visits: [{ id, at }] }.
-# Saved, so the same regulars are expected all date long.
-var schedule := { "date": "", "visits": [] }
 # Regular ids the debug panel asked to visit next, in order. Not saved.
 var forced_visitors: Array[String] = []
 # Debug panel: the next regular who can asks "What do you recommend?" / "Surprise me". Not saved.
@@ -46,7 +55,7 @@ var forced_caller := ""
 # data/scenes.json), and the ids of dishes bought in the shop or unlocked by a
 # scene (see GameData.is_unlocked). Just flags for now. Saved.
 var unlocks: Array[String] = []
-# Debug panel: a big moment scene to play at closing this shift, whatever its trigger. Not saved.
+# Debug panel: a big moment scene to play at closing today, whatever its trigger. Not saved.
 var forced_scene := ""
 # Debug panel: a dish id that's the only thing on the menu (e.g. to test its recipe). Not saved.
 var forced_dish := ""
@@ -57,10 +66,10 @@ func _ready() -> void:
 	SaveGame.load_game()
 
 
-# Closing the window mid-shift keeps everything since the last save: what
+# Closing the window mid-day keeps everything since the last save: what
 # regulars remember (a rude reply, a new friend, a letter on its way),
-# voicemails, money. The shift itself isn't counted until it ends. A brand-new
-# game that was never named doesn't get a save file.
+# voicemails, money, which meal it is and who's been in. A brand-new game that
+# was never named doesn't get a save file.
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST and (SaveGame.has_save() or not restaurant_name.is_empty()):
 		SaveGame.save_game()
@@ -81,21 +90,61 @@ func reset_regular(regular_id: String) -> void:
 			_whole_number_counters(regulars[regular_id])
 
 
-# A shift is starting: on a new real date it's shift 1, otherwise the next one.
-func begin_shift() -> void:
+# The restaurant is opening (or reopening): on a new restaurant day it starts
+# again at the first meal with a fresh plan; the same day carries on where it
+# was, including after closing (then is_closed_today()).
+func begin_day() -> void:
 	var today := GameClock.today()
-	if today != date:
-		date = today
-		shift = 1
+	if today == date:
+		return
+	date = today
+	day_number += 1
+	phase = 0
+	phase_done.clear()
+	services_today.clear()
+	chef_actions_today.clear()
+	replan_today()
 
 
-# The shift is over: count it and save, so quitting from the summary screen
-# keeps its progress.
-func finish_shift() -> void:
-	shift += 1
+# Closed until tomorrow: after the last meal (and its closing moment), or a
+# relaunch later the same day.
+func is_closed_today() -> bool:
+	return date == GameClock.today() and phase == CLOSED
+
+
+# On to the next meal (`to`), or CLOSED after the last. Saves.
+func set_phase(to: int) -> void:
+	phase = to
+	phase_done.clear()
+	SaveGame.save_game()
+
+
+# The day's over: closed until tomorrow. Saves (so quitting from the summary
+# keeps it); the summary was already built from today's services.
+func close_day() -> void:
+	phase = CLOSED
+	phase_done.clear()
 	services_today.clear()
 	chef_actions_today.clear()
 	SaveGame.save_game()
+
+
+# Customer `index` of this meal's list (see todays_plan) is done, and saved.
+func mark_done(index: int) -> void:
+	if index >= 0 and not index in phase_done:
+		phase_done.append(index)
+		SaveGame.save_game()
+
+
+# How many meals a day has (data/day.json).
+static func phase_count() -> int:
+	return GameData.day_settings.get("phases", []).size()
+
+
+# The meal's settings from data/day.json ({} for CLOSED).
+static func phase_info(index: int) -> Dictionary:
+	var phases: Array = GameData.day_settings.get("phases", [])
+	return phases[index] if index >= 0 and index < phases.size() else {}
 
 
 # Count one thing a player did this shift, e.g. record_chef_action(1, "cooked").
@@ -158,23 +207,19 @@ func upgrade_multiplier(key: String) -> float:
 	return factor
 
 
-# Today's planned regular visits, planning (and saving) them on the first ask.
-func todays_visits() -> Array:
-	if schedule["date"] != date:
+# Today's customers, one list per meal, planning (and saving) them on the first ask.
+func todays_plan() -> Array:
+	if day_plan["date"] != date:
 		replan_today()
-	return schedule["visits"]
+	return day_plan["phases"]
 
 
-# A fresh plan for today, e.g. from the debug panel. Regulars already sent in
-# today aren't sent again.
+# A fresh plan for today, e.g. from the debug panel. Regulars already in today
+# aren't sent again (CustomerManager skips them).
 func replan_today() -> void:
-	schedule = { "date": date, "visits": VisitSchedule.plan() }
+	day_plan = { "date": date, "phases": DayPlan.plan() }
+	phase_done.clear()
 	SaveGame.save_game()
-
-
-# The number the next shift will have (a new date starts again at 1).
-func next_shift_number() -> int:
-	return 1 if GameClock.today() != date else shift
 
 
 func record_service(service: Dictionary) -> void:
@@ -203,9 +248,13 @@ func to_save_data() -> Dictionary:
 		"restaurant_name": restaurant_name,
 		"restaurant_color": restaurant_color,
 		"date": date,
-		"shift": shift,
+		"day_number": day_number,
+		"phase": phase,
+		"phase_done": phase_done,
+		"day_plan": day_plan,
+		"services_today": services_today,
+		"chef_actions_today": chef_actions_today,
 		"upgrades": upgrades,
-		"schedule": schedule,
 		"voicemails": voicemails,
 		"unlocks": unlocks,
 		"regulars": regular_memory,
@@ -219,13 +268,19 @@ func apply_save_data(data: Dictionary) -> void:
 	restaurant_name = data.get("restaurant_name", restaurant_name)
 	restaurant_color = data.get("restaurant_color", restaurant_color)
 	date = data.get("date", date)  # Saves from before real dates had a "day" number instead; it's dropped.
-	shift = int(data.get("shift", shift))
+	# Saves from before one-day-a-day had shifts instead: that day starts over.
+	if not data.has("phase"):
+		date = ""
+	day_number = int(data.get("day_number", day_number))
+	phase = int(data.get("phase", phase))
+	phase_done.assign(data.get("phase_done", []).map(func(i): return int(i)))
+	var saved_plan = data.get("day_plan", {})
+	if saved_plan is Dictionary and saved_plan.get("phases") is Array:
+		day_plan = { "date": saved_plan.get("date", ""), "phases": saved_plan["phases"] }
+	services_today.assign(data.get("services_today", []))
+	chef_actions_today = data.get("chef_actions_today", {})
 	# Ignore upgrades that were removed from data/upgrades.json.
 	upgrades.assign(data.get("upgrades", []).filter(func(id): return GameData.upgrades.any(func(u): return u["id"] == id)))
-	var saved_schedule = data.get("schedule", {})
-	if saved_schedule is Dictionary and saved_schedule.has("visits"):
-		var visits: Array = saved_schedule["visits"].filter(func(v): return regulars.has(v.get("id", "")))
-		schedule = { "date": saved_schedule.get("date", ""), "visits": visits }
 	unlocks.assign(data.get("unlocks", []).map(func(id): return "walters_storm_soup" if id == "storm_soup" else id))  # Its old id.
 	voicemails = data.get("voicemails", []).filter(func(v): return v is Dictionary and v.has("kind") and v.has("id"))
 	var legacy_account_id := _account_from_old_save(data)

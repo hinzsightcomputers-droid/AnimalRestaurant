@@ -1,26 +1,20 @@
-# Satisfaction: turns cooking quality and wait time into a satisfaction score
-# (0..1) and picks a reaction tier. All the numbers come from data/reactions.json.
+# Satisfaction: turns cooking quality into a satisfaction score (0..1) and
+# picks a reaction tier. Waiting never counts against it: quick service just
+# earns a small bonus. All the numbers come from data/reactions.json.
 class_name Satisfaction
 extends RefCounted
 
 
-# 1.0 = perfect food served quickly, 0.0 = burnt food after a very long wait.
+# The dish's quality, plus fast_service_bonus if it came within
+# fast_service_seconds (Comfy Cushions add to that).
 static func calculate(quality: float, wait_seconds: float) -> float:
-	var config := GameData.reactions
-	var quality_weight: float = config.get("quality_weight", 0.7)
-	var wait_weight: float = config.get("wait_weight", 0.3)
-	return clampf(quality * quality_weight + wait_score(wait_seconds) * wait_weight, 0.0, 1.0)
+	return clampf(quality + fast_bonus(wait_seconds), 0.0, 1.0)
 
 
-# 1.0 up to patient_seconds, then drops to 0.0 at max_wait_seconds.
-static func wait_score(wait_seconds: float) -> float:
+static func fast_bonus(wait_seconds: float) -> float:
 	var config := GameData.reactions
-	var extra_patience := GameState.upgrade_bonus("patient_seconds")  # Comfy Cushions.
-	var patient: float = config.get("patient_seconds", 40.0) + extra_patience
-	var max_wait: float = config.get("max_wait_seconds", 100.0) + extra_patience
-	if wait_seconds <= patient:
-		return 1.0
-	return clampf(1.0 - (wait_seconds - patient) / (max_wait - patient), 0.0, 1.0)
+	var quick: float = config.get("fast_service_seconds", 40.0) + GameState.upgrade_bonus("patient_seconds")
+	return config.get("fast_service_bonus", 0.05) if wait_seconds <= quick else 0.0
 
 
 # The best reaction tier whose min_satisfaction is reached.

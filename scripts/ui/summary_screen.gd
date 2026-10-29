@@ -1,6 +1,8 @@
 # SummaryScreen: the end-of-day results panel. Hidden until the DayManager
-# reports the day has ended, then shows the totals, what each chef did, and a
-# button to start the next day. The Friends button flips to a page of which
+# reports the day has ended, then shows the totals, what each chef did, and
+# how long until the restaurant opens again (5 AM), with a button that starts
+# the next day once it's come. Opening the game after closing on the same day
+# shows it too, just saying it's closed until tomorrow. The Friends button flips to a page of which
 # chefs each regular knows, and the Shop button to the upgrades you can buy.
 # Runs while the game is paused.
 extends CanvasLayer
@@ -36,15 +38,19 @@ var _page := Page.SUMMARY
 func _ready() -> void:
 	visible = false
 	day_manager.day_ended.connect(_show_summary)
+	day_manager.closed_for_today.connect(_show_summary.bind({}))
 	next_button.pressed.connect(_on_next_pressed)
 	friends_button.pressed.connect(_toggle_page.bind(Page.FRIENDS))
 	shop_button.pressed.connect(_toggle_page.bind(Page.SHOP))
 
 
 func _process(delta: float) -> void:
-	if visible and _input_delay_left > 0.0:
-		_input_delay_left -= delta
-		next_button.disabled = _input_delay_left > 0.0
+	if not visible:
+		return
+	_input_delay_left = maxf(_input_delay_left - delta, 0.0)
+	var new_day := GameClock.today() != GameState.date
+	next_button.disabled = _input_delay_left > 0.0 or not new_day
+	next_button.text = "Open for a new day" if new_day else "Opens in %s" % GameClock.describe_duration(GameClock.seconds_until_next_day())
 
 
 # Any player's interact button presses the focused button (Start Day at first;
@@ -67,7 +73,6 @@ func _show_summary(summary: Dictionary) -> void:
 	_summary = summary
 	_page = Page.SUMMARY
 	_refresh_page()
-	next_button.text = "Start shift %d" % GameState.next_shift_number()
 	next_button.disabled = true
 	_input_delay_left = INPUT_DELAY
 	visible = true
@@ -116,8 +121,17 @@ func _refresh_page() -> void:
 			body_label.text = "You have $%d. Treat the restaurant to something nice!" % GameState.money
 			_build_upgrade_list()
 		_:
-			title_label.text = "%s - shift %d done!" % [GameClock.describe_date(_summary["date"]), _summary["shift"]]
-			body_label.text = _summary_text(_summary)
+			if _summary.is_empty():  # Opened again after closing.
+				title_label.text = "Closed until tomorrow"
+				body_label.text = "The chairs are up and the lights are off.
+We open again at 5 AM, in %s.
+
+Total money: $%d" % [GameClock.describe_duration(GameClock.seconds_until_next_day()), GameState.money]
+			else:
+				title_label.text = "%s - day %d done!" % [GameClock.describe_date(_summary["date"]), _summary["day_number"]]
+				body_label.text = _summary_text(_summary) + "
+
+Closed until tomorrow: we open again at 5 AM."
 			if not next_button.disabled:
 				next_button.grab_focus()  # Back on the summary, interact starts the day again.
 

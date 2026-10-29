@@ -1,0 +1,17 @@
+{
+	"_about": "How a restaurant day runs. One day per real day, starting at 5 AM local (GameClock.DAY_STARTS_AT_HOUR). Every day opens at the first phase, whatever the time. Each phase has a set list of customers, planned once a day: walk_ins townsfolk plus some of the day's regulars (regulars_per_day in regulars.json, spread across the phases). When everyone in a phase is done, a player rings the bell at the counter for the next one; after the last, the restaurant closes (big moment scenes play then) and stays closed until tomorrow. arrival_seconds: the gap between customers walking in. lighting: the sun's color and energy, the ambient light, and the sky color, faded in as the phase starts. 'closing' is the lighting after the last phase.",
+	"phases": [
+		{ "id": "breakfast", "name": "Breakfast", "walk_ins": { "min": 2, "max": 3 },
+			"lighting": { "sun_color": "#ffd2b0", "sun_energy": 0.85, "ambient_color": "#ffe4e0", "ambient_energy": 0.5, "sky_color": "#f2c9b8" } },
+		{ "id": "lunch", "name": "Lunch", "walk_ins": { "min": 3, "max": 4 },
+			"lighting": { "sun_color": "#fff6ea", "sun_energy": 1.15, "ambient_color": "#fff6ea", "ambient_energy": 0.65, "sky_color": "#8cc0e0" } },
+		{ "id": "dinner", "name": "Dinner", "walk_ins": { "min": 3, "max": 4 },
+			"lighting": { "sun_color": "#ff9a52", "sun_energy": 0.7, "ambient_color": "#e8a07a", "ambient_energy": 0.45, "sky_color": "#c8643e" } }
+	],
+	"closing": {
+		"lighting": { "sun_color": "#7f8fe0", "sun_energy": 0.35, "ambient_color": "#8c92c4", "ambient_energy": 0.4, "sky_color": "#1c2240" }
+	},
+	"first_arrival_seconds": 3.0,
+	"arrival_seconds": 9.0,
+	"lighting_fade_seconds": 2.5
+}

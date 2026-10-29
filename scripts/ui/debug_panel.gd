@@ -204,9 +204,24 @@ func _back_at_closing() -> void:
 
 
 func _close_now() -> void:
+	_skip_to_phase(GameState.CLOSED)
+
+
+# Straight to a meal (or closing), sending everyone in the restaurant home.
+func _skip_to_phase(phase: int) -> void:
 	for day in get_tree().root.find_children("*", "DayManager", true, false):
-		day.time_left = 0.0
+		day.skip_to(phase)
 	_refresh()
+
+
+# Today counts as over (even if it isn't), and the restaurant reopens for a new
+# day straight away: a fresh plan at the first meal.
+func _force_new_day() -> void:
+	GameState.date = ""
+	SaveGame.save_game()
+	_set_open(false)
+	get_tree().paused = false
+	get_tree().reload_current_scene()
 
 
 # The scene plays at closing this shift, once the last customer has left.
@@ -245,12 +260,23 @@ func _refresh() -> void:
 	_date_label.text = "Game date: %s%s" % [GameClock.now_string().left(10),
 		"  (real date + %d days)" % offset if offset > 0 else "  (real date)"]
 
-	var visits := PackedStringArray()
-	for visit in GameState.todays_visits():
-		var visitor: Dictionary = GameState.regulars[visit["id"]]
-		var when := "came already" if RegularMemory.visited_today(visitor) else "%d%% through a shift" % roundi(visit["at"] * 100)
-		visits.append("%s (%s)" % [visitor["name"], when])
-	_schedule_label.text = "%s: %s" % [GameClock.describe_date(GameState.date), ", ".join(visits) if not visits.is_empty() else "nobody"]
+	var meals := PackedStringArray()
+	var plan := GameState.todays_plan()
+	for i in plan.size():
+		var regulars := PackedStringArray()
+		var walk_ins := 0
+		for entry in plan[i]:
+			if entry.has("regular"):
+				var visitor: Dictionary = GameState.regulars.get(entry["regular"], {})
+				regulars.append("%s%s" % [visitor.get("name", entry["regular"]), " (came)" if RegularMemory.visited_today(visitor) else ""])
+			else:
+				walk_ins += 1
+		var now := " <- now" if i == GameState.phase else ""
+		meals.append("%s: %d townsfolk%s%s%s" % [GameState.phase_info(i).get("name", "?"), walk_ins, ", " if not regulars.is_empty() else "", ", ".join(regulars), now])
+	var state := "closed" if GameState.phase == GameState.CLOSED else "%d of this meal done" % GameState.phase_done.size()
+	_schedule_label.text = "Day %d, %s (%s)
+%s" % [GameState.day_number, GameClock.describe_date(GameState.date), state, "
+".join(meals)]
 
 	_phone_label.text = "Voicemails: %d%s" % [GameState.voicemails.size(),
 		"   Rings next: %s" % GameState.forced_caller if not GameState.forced_caller.is_empty() else ""]
@@ -358,9 +384,15 @@ func _build() -> void:
 		_add_button(date_row, "+%d day%s" % [days, "" if days == 1 else "s"], _skip_days.bind(days))
 	_add_button(date_row, "Real date", _real_date)
 
-	_add_label(box, "Today's regulars", 18, true)
+	_add_label(box, "Today", 18, true)
 	_schedule_label = _add_label(box, "")
-	_add_button(_add_row(box), "Re-roll today", _replan_today)
+	var phase_row := _add_row(box)
+	for i in GameState.phase_count():
+		_add_button(phase_row, GameState.phase_info(i).get("name", "?"), _skip_to_phase.bind(i))
+	_add_button(phase_row, "Closing", _skip_to_phase.bind(GameState.CLOSED))
+	var today_row := _add_row(box)
+	_add_button(today_row, "Re-roll today", _replan_today)
+	_add_button(today_row, "Force a new day", _force_new_day)
 
 	_add_label(box, "Regulars", 18, true)
 	_regular_picker = OptionButton.new()

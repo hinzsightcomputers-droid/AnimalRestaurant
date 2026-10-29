@@ -1,6 +1,9 @@
-# CustomerManager: runs each customer's visit. Spawns them (only if a seat at a
-# clean table is free), lines them up at the order counter, seats them once their
-# order is taken, handles serving, then has them pay, leave a dirty table, and walk out.
+# CustomerManager: runs each customer's visit. Sends in this meal's customers
+# from today's plan (DayPlan) one at a time, each once a seat at a clean table
+# is free, lines them up at the order counter, seats them once their order is
+# taken, handles serving, then has them pay, leave a dirty table, and walk out.
+# Once the meal's last customer has gone, the counter's bell (ServiceBell) is
+# rung for the next meal (see DayManager).
 # Customers walk along lanes so they don't cut through furniture: the front lane
 # (in line with the door), the back lane (in line with the counter), and straight
 # up and down the aisle behind each chair.
@@ -19,8 +22,6 @@ const SEAT_GROUP := "seats"
 @export var spawn_point: Marker3D   # Outside the front door.
 @export var door_point: Marker3D    # Just inside the front door.
 @export var view_manager: ViewManager  # To show dialogue boxes in the right player's view.
-@export var first_arrival_delay := 3.0
-@export var arrival_interval := 8.0
 @export var queue_spacing := 0.9    # Gap between customers waiting in line.
 @export_group("Order chat")
 @export var order_chat_seconds := 1.8         # How long the player and customer chat when ordering.
@@ -31,32 +32,74 @@ const SEAT_GROUP := "seats"
 @export_group("Eating chat")
 @export var eating_chat_zoom: CameraZoomSettings  # The chatting player's camera (falls back to order_chat_zoom).
 
+var day_manager: DayManager         # Set by the DayManager: rings the bell.
 var accepting_customers := true     # False after closing time.
 var _queue: Array[Customer] = []    # Customers waiting to order, front of the line first.
 var _seat_owners: Dictionary = {}   # seat (Station) -> Customer sitting there or walking to it.
-var _regulars_today: Array = []     # Ids of regulars who already came in today (one visit a day each).
-var _due_regulars: Array[String] = []  # Regulars whose arrival time came (see send_regular), waiting for a seat.
+var _pending: Array = []            # This meal's customers still to come: [plan index, entry].
 var _chatting := false              # True while someone is taking an order.
+var _arrival_timer := Timer.new()
+var bell := ServiceBell.new()     # On the counter: rung to start the next meal.
 
 
 func _ready() -> void:
 	order_counter.used.connect(_on_order_counter_used)
 	order_counter.interactable.prompt_for_player = _counter_prompt
+	order_counter.add_child(bell)
+	bell.position = Vector3(-0.85, 1.06, -0.1)  # On the counter top, at the end away from the register.
+	bell.scale = Vector3.ONE * 1.8  # Big enough to spot from the usual camera.
+	_arrival_timer.timeout.connect(_try_spawn_customer)
+	add_child(_arrival_timer)
 
-	await get_tree().create_timer(first_arrival_delay, false).timeout  # false: waits while paused (e.g. name entry).
+
+# A meal starts: its customers from today's plan come in one at a time, except
+# any already done (a day picked up again). `entries` is the meal's list.
+func start_phase(entries: Array, done: Array) -> void:
+	_pending.clear()
+	for i in entries.size():
+		if not i in done:
+			_pending.append([i, entries[i]])
+	accepting_customers = true
+	var settings := GameData.day_settings
+	_arrival_timer.wait_time = float(settings.get("arrival_seconds", 9.0)) * GameState.upgrade_multiplier("arrival_interval")  # Welcome Sign.
+	_arrival_timer.stop()
+	await get_tree().create_timer(float(settings.get("first_arrival_seconds", 3.0)), false).timeout  # false: waits while paused (e.g. name entry).
 	_try_spawn_customer()
+	_arrival_timer.start()
 
-	var timer := Timer.new()
-	timer.wait_time = arrival_interval * GameState.upgrade_multiplier("arrival_interval")  # Welcome Sign.
-	timer.timeout.connect(_try_spawn_customer)
-	add_child(timer)
-	timer.start()
+
+# Everyone this meal was expecting has been and gone.
+func phase_finished() -> bool:
+	return _pending.is_empty() and not has_customers()
+
+
+# How many of this meal's customers haven't left yet (still to come or inside).
+func customers_left() -> int:
+	var inside := 0
+	for child in get_children():
+		if child is Customer and not child.is_queued_for_deletion() and child.state != Customer.State.LEAVING:
+			inside += 1
+	return _pending.size() + inside
+
+
+# Debug: everyone heads straight home, and nobody else comes this meal.
+func send_everyone_home() -> void:
+	_pending.clear()
+	_arrival_timer.stop()
+	_queue.clear()
+	for child in get_children():
+		if child is Customer and not child.is_queued_for_deletion():
+			_seat_owners.erase(child.seat)
+			child.queue_free()
+	_seat_owners.clear()
 
 
 # Closing time: no new arrivals, and anyone who hasn't ordered yet heads home.
 # Customers who already ordered stay until they're served.
 func close() -> void:
 	accepting_customers = false
+	_pending.clear()
+	_arrival_timer.stop()
 	for customer in _queue:
 		_seat_owners.erase(customer.seat)
 		var path: Array[Vector3] = [_on_front_lane(customer.global_position), door_point.global_position, spawn_point.global_position]
@@ -89,12 +132,13 @@ func _try_spawn_customer() -> void:
 	var seat := _find_free_seat()
 	if seat == null:
 		return
-
-	var regular := _next_regular()
-	if regular.is_empty() and not GameData.regular_settings.get("strangers_walk_in", false):
-		return  # Only the regulars come in.
+	var next := _next_customer()
+	if next.is_empty():
+		return
+	var regular: Dictionary = next["regular"]
 
 	var customer: Customer = CUSTOMER_SCENE.instantiate()
+	customer.plan_index = next["index"]
 	if regular.is_empty():
 		customer.setup(GameData.random_species(), GameData.random_dish(), seat)
 	else:
@@ -117,25 +161,23 @@ func _try_spawn_customer() -> void:
 		GameEvents.announce("A %s walked in." % customer.display_name)
 
 
-# The DayManager says it's this regular's time to come in (from today's
-# schedule). They walk in at the next arrival with a free seat.
-func send_regular(regular_id: String) -> void:
-	var record: Dictionary = GameState.regulars.get(regular_id, {})
-	if record.is_empty() or RegularMemory.visited_today(record):
-		return  # Once per real date, even across shifts.
-	if accepting_customers and not regular_id in _regulars_today and not regular_id in _due_regulars:
-		_due_regulars.append(regular_id)
-
-
-# Who walks in next: anyone the debug panel queued, then regulars whose time has
-# come, or {} for an ordinary customer.
-func _next_regular() -> Dictionary:
+# Who walks in next: anyone the debug panel queued (an extra, not from the
+# plan), else the meal's next customer: { index, regular } (regular {} for
+# townsfolk), or {} when nobody's left to come. A planned regular who can't
+# come after all (they've stopped visiting, or already came today) counts as
+# done and the next one comes instead.
+func _next_customer() -> Dictionary:
 	if not GameState.forced_visitors.is_empty():
-		return GameState.regulars.get(GameState.forced_visitors.pop_front(), {})
-	while not _due_regulars.is_empty():
-		var record: Dictionary = GameState.regulars.get(_due_regulars.pop_front(), {})
-		if not record.is_empty() and RegularMemory.visits_in_person(record):
-			return record
+		return { "index": -1, "regular": GameState.regulars.get(GameState.forced_visitors.pop_front(), {}) }
+	while not _pending.is_empty():
+		var next: Array = _pending.pop_front()
+		var entry: Dictionary = next[1]
+		if not entry.has("regular"):
+			return { "index": next[0], "regular": {} }
+		var record: Dictionary = GameState.regulars.get(entry["regular"], {})
+		if not record.is_empty() and RegularMemory.visits_in_person(record) and not RegularMemory.visited_today(record):
+			return { "index": next[0], "regular": record }
+		GameState.mark_done(next[0])
 	return {}
 
 
@@ -143,7 +185,6 @@ func _next_regular() -> Dictionary:
 # a greeting picked from what they remember (before this visit changes anything),
 # aimed at the chef here they know best.
 func _setup_regular(customer: Customer, record: Dictionary, seat: Seat) -> void:
-	_regulars_today.append(record["id"])
 	RegularMemory.begin_visit(record)  # From here, this visit can drop them at most one stage.
 	var dish := RegularMemory.choose_dish(record)
 	var species := GameData.get_species(record["species"]).duplicate()
@@ -187,8 +228,11 @@ func _pick_served_line(customer: Customer, chef_id: String) -> Dictionary:
 
 
 # "Take order", or "Write a letter" when nobody's ready to order and someone Gone could get one.
-# "Ticket wheel full!" when there's no clip left for another order.
+# "Ticket wheel full!" when there's no clip left for another order. Once the
+# meal's over, ringing the bell for the next one.
 func _counter_prompt(_player_index: int) -> String:
+	if day_manager != null and day_manager.bell_ready():
+		return day_manager.bell_prompt()
 	if _someone_ready_to_order() and not _chatting and TicketWheel.is_full(get_tree()):
 		return "Ticket wheel full!"
 	if not _someone_ready_to_order() and not _chatting and not Redemption.letter_targets().is_empty():
@@ -202,6 +246,10 @@ func _someone_ready_to_order() -> bool:
 
 func _on_order_counter_used(_station: Station, player_index: int) -> void:
 	if _chatting:
+		return
+	if day_manager != null and day_manager.bell_ready():
+		bell.ring()
+		day_manager.ring_bell()
 		return
 	var player := Player.find(get_tree(), player_index)
 	if not _someone_ready_to_order() and player != null and not Redemption.letter_targets().is_empty():
@@ -731,6 +779,8 @@ func _who(customer: Customer) -> String:
 
 
 func _on_customer_state_changed(customer: Customer) -> void:
+	if customer.state == Customer.State.LEAVING:
+		GameState.mark_done(customer.plan_index)  # Their part of today's plan is done.
 	if customer.state == Customer.State.GONE:
 		customer.queue_free()
 
