@@ -412,18 +412,17 @@ func _build() -> void:
 	var kitchen_row := _add_row(box)
 	_add_button(kitchen_row, "Practice pancakes (P1)", _practice.bind("pancakes"))
 	_add_button(kitchen_row, "Practice soup (P1)", _practice.bind("soup"))
-	_add_button(kitchen_row, "Only serve pancakes", _only_serve.bind("berry_pancakes"))
+	_add_button(kitchen_row, "Only serve pancakes", _only_serve.bind("honey_pancakes"))
 	var chopping_row := _add_row(box)
 	_add_button(chopping_row, "Practice chopping (P1)", _practice_chopping)
-	_add_button(chopping_row, "Only serve carrot soup", _only_serve.bind("carrot_soup"))
+	_add_button(chopping_row, "Only serve vegetable soup", _only_serve.bind("vegetable_soup"))
 	_add_button(kitchen_row, "Whole menu", _only_serve.bind(""))
 	var fish_row := _add_row(box)
 	_add_button(fish_row, "Practice filleting (P1)", _practice_chopping.bind("filleting"))
 	_add_button(fish_row, "Practice fish stew (P1)", _practice.bind("fish_stew"))
-	_add_button(fish_row, "Only serve fish stew", _only_serve.bind("fish_stew"))
 	var cookie_row := _add_row(box)
 	_add_button(cookie_row, "Practice acorn cookies (P1)", _practice.bind("acorn_cookies", "oven"))
-	_add_button(cookie_row, "Only serve acorn cookies", _only_serve.bind("acorn_cookies"))
+	_add_button(cookie_row, "Unlock all dishes", _unlock_all_dishes)
 	var dishes_row := _add_row(box)
 	_add_button(dishes_row, "Make tables messy", _make_tables_messy)
 	_add_button(dishes_row, "Empty the plate rack", _empty_rack)
@@ -475,7 +474,7 @@ func _practice_chopping(recipe_id := "chopping") -> void:
 
 # Every table gets a dirty dish (a plate or a soup bowl) at each of its chairs.
 func _make_tables_messy() -> void:
-	var dishes := [{}, GameData.get_dish("carrot_soup")]
+	var dishes := [{}, GameData.get_dish("vegetable_soup")]
 	var i := 0
 	for seat in get_tree().root.find_children("*", "Seat", true, false):
 		if seat.table != null and seat.table.session == null:
@@ -490,6 +489,16 @@ func _empty_rack() -> void:
 		while sink.take_plate():
 			pass
 		_kitchen_label.text = "No clean plates left."
+
+
+# Every dish on the menu, as if they were all bought (and the scene ones played).
+func _unlock_all_dishes() -> void:
+	for dish in GameData.dishes:
+		if not GameData.is_unlocked(dish["id"]):
+			GameState.unlocks.append(dish["id"])
+	GameState.unlocks_changed.emit()
+	_changed = true
+	_kitchen_label.text = "All %d dishes are on the menu." % GameData.dishes.size()
 
 
 func _only_serve(dish_id: String) -> void:

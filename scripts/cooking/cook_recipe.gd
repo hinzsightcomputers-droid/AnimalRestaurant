@@ -1,6 +1,6 @@
 # CookRecipe: a close-up dish as data, a .tres in data/recipes/. Its steps are
 # CookActions with their settings, played in order by a CookSession. A dish in
-# data/dishes.json uses one with "recipe": "<file name>"; dishes without one
+# data/dish_kitchen.json uses one with "recipe": "<file name>"; dishes without one
 # keep the stirring minigame.
 class_name CookRecipe
 extends Resource

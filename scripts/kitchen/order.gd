@@ -10,7 +10,7 @@ enum State { WAITING, GATHERED, COOKING, READY }
 
 var customer: Customer        # Who's eating it here, or null for a delivery.
 var caller: Dictionary = {}   # For a delivery: who phoned it in, { kind, id, name, species, regular_id }.
-var dish: Dictionary  # From data/dishes.json
+var dish: Dictionary  # From GameData.dishes
 var state: State = State.WAITING
 var number := 0               # On its ticket, e.g. #3. Counts up through the shift.
 var on_wheel := false

@@ -5,7 +5,8 @@
 # content; what changes during play (like a regular's memory) lives in GameState.
 extends Node
 
-const DISHES_PATH := "res://data/dishes.json"
+const DISHES_PATH := "res://design/menu/dishes.json"
+const DISH_KITCHEN_PATH := "res://data/dish_kitchen.json"
 const SPECIES_PATH := "res://data/species.json"
 const REACTIONS_PATH := "res://data/reactions.json"
 const REGULARS_PATH := "res://data/regulars.json"
@@ -17,9 +18,14 @@ const CALLERS_PATH := "res://data/callers.json"
 const GOSSIP_PATH := "res://data/gossip.json"
 const SCENES_PATH := "res://data/scenes.json"
 
-# Each dish: { id, name, price, cook_speed, ingredient: { name, color, chop? }, unlock? }.
+# Each dish, from the menu (design/menu/dishes.json): { id, name, origin,
+# description, ingredients, steps, base_price, cook_time, tags, unlock,
+# unlock_cost }, plus how it looks and cooks from data/dish_kitchen.json: model,
+# dirty_model?, recipe?, station?, cook_speed?, ingredient: { name, color, model?, chop? }.
 # "chop" ({ name, chops }) means the ingredient goes to the chopping board first.
-# A dish with "unlock" is only on the menu once that reward is unlocked (see menu()).
+# "unlock": "start" dishes are on the menu from day 1, "upgrade" ones once
+# bought in the end-of-day shop, "scene" ones once a big moment unlocks them
+# (see is_unlocked()).
 var dishes: Array[Dictionary] = []
 # Each species: { id, name, color, models?, height? }. Those with "models" (and
 # a [min, max] "height") are the ones who walk in off the street; the rest are
@@ -57,6 +63,9 @@ var scene_settings: Dictionary = {}
 
 func _ready() -> void:
 	dishes = _load_list(DISHES_PATH, "dishes")
+	var kitchen: Dictionary = _load_dictionary(DISH_KITCHEN_PATH).get("dishes", {})
+	for dish in dishes:
+		dish.merge(kitchen.get(dish["id"], {}))
 	species = _load_list(SPECIES_PATH, "species")
 	reactions = _load_dictionary(REACTIONS_PATH)
 	var regulars_file := _load_dictionary(REGULARS_PATH)
@@ -68,6 +77,8 @@ func _ready() -> void:
 	phone_settings = _load_dictionary(PHONE_PATH).get("settings", {})
 	callers = _load_list(CALLERS_PATH, "callers")
 	_load_gossip()
+	for line in dialogue:
+		_add_dish_condition(line)
 	scenes = _load_list(SCENES_PATH, "scenes")
 	scene_settings = _load_dictionary(SCENES_PATH).get("settings", {})
 
@@ -110,12 +121,26 @@ func get_caller(caller_id: String) -> Dictionary:
 	return {}
 
 
-# The dishes on the menu right now: everything, except dishes still waiting for
-# their unlock (or just the debug panel's forced dish).
+# The dishes on the menu right now: the unlocked ones (or just the debug
+# panel's forced dish).
 func menu() -> Array[Dictionary]:
 	if not GameState.forced_dish.is_empty():
 		return dishes.filter(func(d): return d["id"] == GameState.forced_dish)
-	return dishes.filter(func(d): return not d.has("unlock") or d["unlock"] in GameState.unlocks)
+	return dishes.filter(func(d): return is_unlocked(d["id"]))
+
+
+# True for a "start" dish, or one bought in the shop or unlocked by a scene
+# (its id is in GameState.unlocks).
+func is_unlocked(dish_id: String) -> bool:
+	for dish in dishes:
+		if dish["id"] == dish_id:
+			return dish.get("unlock", "start") == "start" or dish_id in GameState.unlocks
+	return false
+
+
+# The dishes the end-of-day shop sells ("upgrade" ones), bought or not.
+func shop_dishes() -> Array[Dictionary]:
+	return dishes.filter(func(d): return d.get("unlock", "") == "upgrade")
 
 
 func random_dish() -> Dictionary:
@@ -215,3 +240,24 @@ func _with_token_conditions(line: Dictionary, regular_id: String) -> Dictionary:
 	if "[restaurant]" in text and not conditions.has("has_restaurant_name"):
 		conditions["has_restaurant_name"] = true
 	return result
+
+
+# A line that names or orders the regular's favorite or disliked dish, or a
+# dish token like [soup], is only said once that dish is unlocked: it gets a
+# "dishes_unlocked" condition listing them ("favorite", "disliked", tokens or
+# dish ids, see DialoguePicker.dish_id_of). Its choices count too.
+func _add_dish_condition(line: Dictionary) -> void:
+	var refs := []
+	var dish_words: Array = ["favorite", "disliked"] + regular_settings.get("dish_tokens", {}).keys()
+	var regex := RegEx.create_from_string("[\\[{]([a-z_ ]+)[\\]}]")
+	var entries: Array = [line] + line.get("choices", [])
+	for entry in entries:
+		if not String(entry.get("dish", "")).is_empty() and not entry["dish"] in refs:
+			refs.append(entry["dish"])
+		for key in ["text", "reply", "miss_reply"]:
+			for found in regex.search_all(String(entry.get(key, ""))):
+				var word := found.get_string(1)
+				if word in dish_words and not word in refs:
+					refs.append(word)
+	if not refs.is_empty():
+		line.get_or_add("conditions", {})["dishes_unlocked"] = refs

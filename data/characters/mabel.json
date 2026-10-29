@@ -7,8 +7,8 @@
 	"voice": { "blips": "res://design/sound/sound_effects/text moving sound", "pitch": 1.2 },
 	"rude_emotion": "angry",
 	"personality": ["blunt", "wise", "rambling"],
-	"favorite_dish": "carrot_soup",
-	"disliked_dish": "berry_pancakes",
+	"favorite_dish": "vegetable_soup",
+	"disliked_dish": "cloud_foam_salad",
 	"referral_only": false,
 	"wrong_names": ["Gerald", "Doris", "Bartholomew"],
 	"stage_names": {

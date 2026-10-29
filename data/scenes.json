@@ -7,7 +7,7 @@
 			"patchwork_apron": "Patchwork apron",
 			"best_chef_sign": "\"World's Best Chef (don't tell anyone I said that)\" sign",
 			"mabel_bell": "Mabel's bell",
-			"storm_soup": "Walter's Storm Soup"
+			"walters_storm_soup": "Walter's Storm Soup"
 		}
 	},
 	"scenes": [
@@ -86,7 +86,7 @@
 			"regular": "mabel",
 			"conditions": { "min_relationship": 85, "visits_at_stage": { "4": 3 }, "memory_min": { "story_part": 3 }, "memory": { "big_moment_done": false } },
 			"staging": { "dim": 0.5, "music": "res://design/sound/music/character_complete_songs/Storm Soup.wav", "rain": true, "flicker": true },
-			"done": { "set": { "big_moment_done": true }, "unlock": ["mabel_bell", "storm_soup"] },
+			"done": { "set": { "big_moment_done": true }, "unlock": ["mabel_bell", "walters_storm_soup"] },
 			"steps": [
 				{ "narrate": "(Mabel comes in with a small tin box under her arm and a wet umbrella.)" },
 				{ "say": "Don't close up yet, dear. I've come to cook." },

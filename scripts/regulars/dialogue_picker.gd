@@ -73,6 +73,17 @@ static func fill(text: String, context: Dictionary) -> String:
 	return RegEx.create_from_string("([.!?])\"\\.").sub(result, "$1\"", true)
 
 
+# The dish id a line means by `ref`: "favorite" or "disliked" (this regular's,
+# from their `record`), a dish token like "soup" (dish_tokens in
+# data/regulars.json), or a dish id as it is.
+static func dish_id_of(ref: String, record: Dictionary) -> String:
+	if ref == "favorite":
+		return record.get("favorite_dish", "")
+	if ref == "disliked":
+		return record.get("disliked_dish", "")
+	return GameData.regular_settings.get("dish_tokens", {}).get(ref, ref)
+
+
 static func conditions_met(conditions: Dictionary, context: Dictionary) -> bool:
 	for key in conditions:
 		if not _condition_met(key, conditions[key], context):
@@ -132,6 +143,12 @@ static func _condition_met(key: String, want: Variant, context: Dictionary) -> b
 			return true
 		"unlocked":  # A big moment reward the restaurant has, e.g. "mabel_bell".
 			return want in GameState.unlocks
+		"dishes_unlocked":  # ["favorite", "soup", ...]: each of those dishes is unlocked (added by GameData).
+			for ref in want:
+				var dish_id := dish_id_of(ref, context.get("memory", {}))
+				if not dish_id.is_empty() and not GameData.is_unlocked(dish_id):
+					return false
+			return true
 		"memory":  # { field: value } in the regular's memory, e.g. { "dislike_confessed": false }.
 			var memory: Dictionary = context.get("memory", {})
 			for field in want:

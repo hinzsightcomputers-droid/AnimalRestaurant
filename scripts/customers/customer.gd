@@ -19,7 +19,7 @@ signal emoted(customer: Customer, emotion: StringName)  # Showed a feeling (see 
 
 var state: State = State.ARRIVING
 var species: Dictionary = {}  # From data/species.json
-var dish: Dictionary = {}     # From data/dishes.json. Picked on arrival, revealed when ordering.
+var dish: Dictionary = {}     # From GameData.dishes. Picked on arrival, revealed when ordering.
 var seat: Seat = null         # The chair reserved for this customer.
 var display_name := ""        # "Mabel" for a regular, "Frog" for anyone else.
 var regular_id := ""          # Empty unless this is a regular (data/characters/).

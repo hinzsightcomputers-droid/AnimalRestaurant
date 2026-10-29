@@ -60,8 +60,15 @@ theme_override_colors/font_color = Color(0.3, 0.22, 0.15, 1)
 theme_override_font_sizes/font_size = 20
 text = "Customers served: 0"
 
-[node name="UpgradeList" type="VBoxContainer" parent="Panel/Content"]
+[node name="UpgradeScroll" type="ScrollContainer" parent="Panel/Content"]
 visible = false
+custom_minimum_size = Vector2(0, 250)
+size_flags_vertical = 3
+follow_focus = true
+horizontal_scroll_mode = 0
+
+[node name="UpgradeList" type="VBoxContainer" parent="Panel/Content/UpgradeScroll"]
+size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
 [node name="Buttons" type="HBoxContainer" parent="Panel/Content"]

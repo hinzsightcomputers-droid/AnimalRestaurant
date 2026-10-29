@@ -76,7 +76,8 @@ static func _build_townsfolk(caller: Dictionary, voicemail: bool) -> Dictionary:
 	if caller.is_empty():
 		return result
 	var settings := GameData.phone_settings
-	var dish := GameData.get_dish(caller["usual_order"]) if randf() < settings.get("townsfolk_usual_order_chance", 0.75) else GameData.random_dish()
+	var usual: Array = GameData.menu().filter(func(d): return d["id"] == caller["usual_order"])  # Only once it's on the menu.
+	var dish: Dictionary = usual[0] if not usual.is_empty() and randf() < settings.get("townsfolk_usual_order_chance", 0.75) else GameData.random_dish()
 	result["dish"] = dish
 	var context := {
 		"dish": dish.get("name", ""),

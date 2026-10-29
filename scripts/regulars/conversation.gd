@@ -110,10 +110,7 @@ static func dish_of(entry: Dictionary, record: Dictionary) -> Dictionary:
 	var value: String = entry.get("dish", "")
 	if value.is_empty():
 		return {}
-	if value == "favorite":
-		value = record["favorite_dish"]
-	value = GameData.regular_settings.get("dish_tokens", {}).get(value, value)
-	return GameData.get_dish(value)
+	return GameData.get_dish(DialoguePicker.dish_id_of(value, record))
 
 
 static func _change_of(record: Dictionary, choice: Dictionary, tone: String) -> int:

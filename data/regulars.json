@@ -37,7 +37,7 @@
 			}
 		},
 		"model_animations": { "walk": "walk", "idle": "idle", "talk": "talk", "sit": "sit", "sit_talk": "sit_talk" },
-		"dish_tokens": { "soup": "carrot_soup", "fancy dish": "berry_pancakes", "cheese dish": "acorn_cookies" }
+		"dish_tokens": { "soup": "vegetable_soup", "fancy dish": "cloud_foam_salad", "cheese dish": "four_cheese_mac" }
 	},
 	"memory_defaults": {
 		"relationship": 0,

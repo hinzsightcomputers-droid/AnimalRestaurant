@@ -8,7 +8,7 @@ class_name ChopAction
 extends CookAction
 
 @export var on_surface := "Board"
-@export var cuts := 0                      # Cuts in all; 0 = the ingredients' own count ("chops" in data/dishes.json).
+@export var cuts := 0                      # Cuts in all; 0 = the ingredients' own count ("chops" in data/dish_kitchen.json).
 @export var cuts_per_piece := 3            # One piece of food per this many cuts.
 @export_group("Pieces")
 @export var piece_length := 0.34

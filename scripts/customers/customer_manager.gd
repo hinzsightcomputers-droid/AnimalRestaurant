@@ -678,7 +678,7 @@ func _on_customer_finished_eating(customer: Customer) -> void:
 		"species": customer.species.get("id", ""),
 		"regular": customer.regular_id,
 		"dish": customer.dish.get("id", ""),
-		"price": customer.dish.get("price", 0),
+		"price": customer.dish.get("base_price", 0),
 		"quality": customer.served_quality,
 		"wait_seconds": customer.wait_seconds,
 		"satisfaction": satisfaction,

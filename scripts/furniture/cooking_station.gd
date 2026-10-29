@@ -1,12 +1,12 @@
 # CookingStation: the stove. Using it while carrying Ingredients cooks that
-# order. A dish with a close-up recipe ("recipe" in data/dishes.json, see
+# order. A dish with a close-up recipe ("recipe" in data/dish_kitchen.json, see
 # CookRecipe) opens the close-up scene on the stovetop for that player, who
 # cooks it step by step (CookSession reads their controls). Other dishes use the
 # timing minigame, where pressing interact again "stirs". Either way the cook is
 # handed the finished dish when it's done. A dine-in order needs a clean plate
 # from the Sink's rack to go on.
 # The oven is one of these too: each dish says where it's made ("station" in
-# data/dishes.json, the stove if it doesn't say), and a station only takes its own.
+# data/dish_kitchen.json, the stove if it doesn't say), and a station only takes its own.
 # A big moment scene can also cook together here (cook_together): a regular
 # stands beside the chef and coaches each stir, and it can't fail.
 class_name CookingStation

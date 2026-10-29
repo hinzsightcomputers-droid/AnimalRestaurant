@@ -1,7 +1,7 @@
 # CookedDish: a finished plate a player is carrying, with its cooking quality (0..1).
 # A dish cooked as a close-up recipe also keeps how it actually came out (its
 # look), so the plate you carry and the one you serve show that. Other dishes
-# show their model from data/dishes.json.
+# show their model from data/dish_kitchen.json.
 class_name CookedDish
 extends RefCounted
 

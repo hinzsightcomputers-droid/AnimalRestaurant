@@ -7,8 +7,8 @@
 	"model": { "path": "res://design/characters/Stitches/vfcn37vk.glb", "height": 1.1 },
 	"voice": { "blips": "res://design/sound/sound_effects/text moving sound", "pitch": 0.95 },
 	"personality": ["shy", "kind", "hopeful"],
-	"favorite_dish": "berry_pancakes",
-	"disliked_dish": "fish_stew",
+	"favorite_dish": "honey_pancakes",
+	"disliked_dish": "fire_noodles",
 	"referral_only": false,
 	"stage_names": {
 		"4": "Confident", "3": "Opening up", "2": "Warming", "1": "Nervous",

@@ -32,7 +32,7 @@ extends Node3D
 var _instance: Node3D = null
 
 
-# A ModelFit of the model at `path` (e.g. from data/dishes.json) added under
+# A ModelFit of the model at `path` (e.g. from data/dish_kitchen.json) added under
 # `parent` at `at`, or null if there's no such model.
 static func place(path: String, parent: Node3D, at: Vector3, fit_size: Vector3) -> ModelFit:
 	if path.is_empty() or not ResourceLoader.exists(path):

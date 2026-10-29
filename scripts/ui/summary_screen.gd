@@ -22,7 +22,8 @@ const ACTION_WORDS := [
 
 @onready var title_label: Label = $Panel/Content/Title
 @onready var body_label: Label = $Panel/Content/Body
-@onready var upgrade_list: VBoxContainer = $Panel/Content/UpgradeList
+@onready var upgrade_scroll: ScrollContainer = $Panel/Content/UpgradeScroll
+@onready var upgrade_list: VBoxContainer = $Panel/Content/UpgradeScroll/UpgradeList
 @onready var friends_button: Button = $Panel/Content/Buttons/FriendsButton
 @onready var shop_button: Button = $Panel/Content/Buttons/ShopButton
 @onready var next_button: Button = $Panel/Content/Buttons/NextDayButton
@@ -102,7 +103,7 @@ func _toggle_page(page: Page) -> void:
 
 
 func _refresh_page() -> void:
-	upgrade_list.visible = _page == Page.SHOP
+	upgrade_scroll.visible = _page == Page.SHOP
 	body_label.size_flags_vertical = Control.SIZE_FILL if _page == Page.SHOP else Control.SIZE_EXPAND_FILL
 	friends_button.text = "Back to summary" if _page == Page.FRIENDS else "Friends"
 	shop_button.text = "Back to summary" if _page == Page.SHOP else _shop_button_text()
@@ -121,45 +122,71 @@ func _refresh_page() -> void:
 				next_button.grab_focus()  # Back on the summary, interact starts the day again.
 
 
-# "Shop (2 new!)" when there are upgrades you can afford right now.
+# "Shop (2 new!)" when there are upgrades or dishes you can afford right now.
 func _shop_button_text() -> String:
 	var affordable := 0
 	for upgrade in GameData.upgrades:
 		if not GameState.has_upgrade(upgrade["id"]) and GameState.money >= upgrade["price"]:
 			affordable += 1
+	for dish in GameData.shop_dishes():
+		if not GameData.is_unlocked(dish["id"]) and GameState.money >= int(dish["unlock_cost"]):
+			affordable += 1
 	return "Shop (%d new!)" % affordable if affordable > 0 else "Shop"
 
 
-# One button per upgrade: buyable, too pricey, or already owned.
+# One button per upgrade, then per dish to add to the menu: buyable, too
+# pricey, or already owned.
 func _build_upgrade_list() -> void:
 	for child in upgrade_list.get_children():
 		upgrade_list.remove_child(child)
 		child.queue_free()
-	var first_buyable: Button = null
+	var buttons: Array[Button] = []
 	for upgrade in GameData.upgrades:
-		var button := Button.new()
-		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		button.custom_minimum_size = Vector2(0, 60)
-		button.add_theme_font_size_override("font_size", 18)
-		var status: String
-		if GameState.has_upgrade(upgrade["id"]):
-			status = "Owned"
-			button.disabled = true
-		elif GameState.money < upgrade["price"]:
-			status = "$%d (need $%d more)" % [upgrade["price"], upgrade["price"] - GameState.money]
-			button.disabled = true
-		else:
-			status = "Buy for $%d" % upgrade["price"]
-			if first_buyable == null:
-				first_buyable = button
-		button.text = "%s  -  %s\n%s" % [upgrade["name"], status, upgrade["description"]]
+		var button := _shop_button(upgrade["name"], upgrade["description"], int(upgrade["price"]), GameState.has_upgrade(upgrade["id"]), "Owned")
 		button.pressed.connect(_buy.bind(upgrade["id"]))
-		upgrade_list.add_child(button)
-	(first_buyable if first_buyable != null else shop_button).grab_focus()
+		buttons.append(button)
+	var heading := Label.new()
+	heading.text = "New dishes"
+	heading.add_theme_font_size_override("font_size", 20)
+	heading.add_theme_color_override("font_color", body_label.get_theme_color("font_color"))
+	upgrade_list.add_child(heading)
+	for dish in GameData.shop_dishes():
+		var button := _shop_button(dish["name"], dish["description"], int(dish["unlock_cost"]), GameData.is_unlocked(dish["id"]), "On the menu")
+		button.pressed.connect(_buy_dish.bind(dish["id"]))
+		buttons.append(button)
+	var buyable := buttons.filter(func(b): return not b.disabled)
+	(buyable[0] if not buyable.is_empty() else shop_button).grab_focus()
+
+
+# A shop entry, e.g. "Cherry Pie  -  Buy for $60" over its description, added
+# to the list. Disabled when owned or too pricey.
+func _shop_button(item_name: String, description: String, price: int, owned: bool, owned_text: String) -> Button:
+	var button := Button.new()
+	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	button.custom_minimum_size = Vector2(0, 60)
+	button.add_theme_font_size_override("font_size", 18)
+	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var status: String
+	if owned:
+		status = owned_text
+		button.disabled = true
+	elif GameState.money < price:
+		status = "$%d (need $%d more)" % [price, price - GameState.money]
+		button.disabled = true
+	else:
+		status = "Buy for $%d" % price
+	button.text = "%s  -  %s\n%s" % [item_name, status, description]
+	upgrade_list.add_child(button)
+	return button
 
 
 func _buy(upgrade_id: String) -> void:
 	if GameState.buy_upgrade(upgrade_id):
+		_refresh_page()
+
+
+func _buy_dish(dish_id: String) -> void:
+	if GameState.buy_dish(dish_id):
 		_refresh_page()
 
 

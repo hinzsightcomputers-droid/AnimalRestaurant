@@ -35,7 +35,7 @@ static func reaction_for(satisfaction: float) -> Dictionary:
 
 # What the customer pays for a dish, tip included.
 static func payment_for(dish: Dictionary, reaction: Dictionary) -> int:
-	var price: float = dish.get("price", 0)
+	var price: float = dish.get("base_price", 0)
 	var percent: float = reaction.get("payment_percent", 100)
 	if percent > 100.0:
 		percent += GameState.upgrade_bonus("tip_percent")  # Tip Jar: bigger tips only.

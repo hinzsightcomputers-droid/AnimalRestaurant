@@ -72,7 +72,7 @@ func _on_courier_interacted(player_index: int, courier: Courier) -> void:
 		"regular": caller.get("regular_id", ""),
 		"delivery": true,
 		"dish": plate.order.dish.get("id", ""),
-		"price": plate.order.dish.get("price", 0),
+		"price": plate.order.dish.get("base_price", 0),
 		"quality": plate.quality,
 		"wait_seconds": 0.0,
 		"satisfaction": satisfaction,

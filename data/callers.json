@@ -3,7 +3,7 @@
 		{
 			"id": "pip", "name": "Pip", "species": "frog", "name_color": "#4f9a3c",
 			"personality": "Bouncy, always in a hurry, talks before you finish saying hello.",
-			"usual_order": "carrot_soup",
+			"usual_order": "vegetable_soup",
 			"lines": [
 				{ "part": "greeting", "text": "Hi-hi! It's Pip! Are you open? You're open. Great!" },
 				{ "part": "greeting", "text": "Pip here! Quick call, I'm mid-hop." },
@@ -20,7 +20,7 @@
 		{
 			"id": "juniper", "name": "Juniper", "species": "cat", "name_color": "#c46a1e",
 			"personality": "Sleepy night owl who yawns through every call.",
-			"usual_order": "fish_stew",
+			"usual_order": "four_cheese_mac",
 			"lines": [
 				{ "part": "greeting", "text": "Mrrhello. It's Juniper. I just woke up. Is it dinner or breakfast?" },
 				{ "part": "greeting", "text": "Hi... sorry, I'm yawning. It's Juniper." },
@@ -36,7 +36,7 @@
 		{
 			"id": "barnaby", "name": "Barnaby", "species": "bear", "name_color": "#7a4a2a",
 			"personality": "Big, polite, and always ordering for his whole family.",
-			"usual_order": "berry_pancakes",
+			"usual_order": "honey_pancakes",
 			"lines": [
 				{ "part": "greeting", "text": "Good evening! Barnaby speaking. Sorry about the noise, the cubs are excited." },
 				{ "part": "greeting", "text": "Hello, hello! Barnaby here, from the big house up the hill." },
@@ -53,7 +53,7 @@
 		{
 			"id": "olive", "name": "Olive", "species": "tortoise", "name_color": "#5b7f3e",
 			"personality": "Slow talker who never forgets to say thank you.",
-			"usual_order": "carrot_soup",
+			"usual_order": "vegetable_soup",
 			"lines": [
 				{ "part": "greeting", "text": "Hello... dear. It's Olive. Take your time. I always do." },
 				{ "part": "order", "text": "I would like... the [dish]. Please. ...Thank you." },
@@ -69,7 +69,7 @@
 		{
 			"id": "nibs", "name": "Nibs", "species": "mouse", "name_color": "#6f6d78",
 			"personality": "Nervous first-timer who over-explains everything.",
-			"usual_order": "acorn_cookies",
+			"usual_order": "big_breakfast",
 			"lines": [
 				{ "part": "greeting", "text": "Oh! Someone answered. Hi. I'm Nibs. I've never ordered on the phone before." },
 				{ "part": "greeting", "text": "Hello, is this [restaurant]? It is? Okay. Good. I practiced this." },

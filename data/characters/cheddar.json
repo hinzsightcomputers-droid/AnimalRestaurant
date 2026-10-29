@@ -7,8 +7,8 @@
 	"model": { "path": "res://design/characters/Stitches/maple-the-cat.glb", "height": 0.95 },
 	"voice": { "blips": "res://design/sound/sound_effects/text moving sound", "pitch": 1.5 },
 	"personality": ["playful", "chatty", "showman"],
-	"favorite_dish": "fish_stew",
-	"disliked_dish": "acorn_cookies",
+	"favorite_dish": "fire_noodles",
+	"disliked_dish": "four_cheese_mac",
 	"referral_only": false,
 	"stage_names": {
 		"4": "Best friend", "3": "Real talk", "2": "Sidekick", "1": "Showman",

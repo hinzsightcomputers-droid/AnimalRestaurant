@@ -5,7 +5,7 @@
 extends Node
 
 signal money_changed(money: int)
-signal unlocks_changed  # A big moment reward was unlocked (or the debug panel cleared them).
+signal unlocks_changed  # A big moment reward or a dish was unlocked (or the debug panel cleared them).
 
 const SAVE_VERSION := 3
 
@@ -43,7 +43,8 @@ var voicemails: Array = []
 # Debug panel: who rings the phone next (a caller or regular id). Not saved.
 var forced_caller := ""
 # Rewards from big moment scenes, e.g. "patchwork_apron", "mabel_bell" (see
-# data/scenes.json). Just flags for now. Saved.
+# data/scenes.json), and the ids of dishes bought in the shop or unlocked by a
+# scene (see GameData.is_unlocked). Just flags for now. Saved.
 var unlocks: Array[String] = []
 # Debug panel: a big moment scene to play at closing this shift, whatever its trigger. Not saved.
 var forced_scene := ""
@@ -122,6 +123,19 @@ func buy_upgrade(upgrade_id: String) -> bool:
 		return false
 	upgrades.append(upgrade_id)
 	add_money(-int(upgrade["price"]))
+	SaveGame.save_game()
+	return true
+
+
+# Spend a shop dish's unlock_cost to put it on the menu, and save. Returns
+# false if it isn't sold, is already unlocked, or is too pricey.
+func buy_dish(dish_id: String) -> bool:
+	var dish := GameData.get_dish(dish_id)
+	if dish.get("unlock", "") != "upgrade" or GameData.is_unlocked(dish_id) or money < int(dish["unlock_cost"]):
+		return false
+	unlocks.append(dish_id)
+	unlocks_changed.emit()
+	add_money(-int(dish["unlock_cost"]))
 	SaveGame.save_game()
 	return true
 
@@ -212,7 +226,7 @@ func apply_save_data(data: Dictionary) -> void:
 	if saved_schedule is Dictionary and saved_schedule.has("visits"):
 		var visits: Array = saved_schedule["visits"].filter(func(v): return regulars.has(v.get("id", "")))
 		schedule = { "date": saved_schedule.get("date", ""), "visits": visits }
-	unlocks.assign(data.get("unlocks", []))
+	unlocks.assign(data.get("unlocks", []).map(func(id): return "walters_storm_soup" if id == "storm_soup" else id))  # Its old id.
 	voicemails = data.get("voicemails", []).filter(func(v): return v is Dictionary and v.has("kind") and v.has("id"))
 	var legacy_account_id := _account_from_old_save(data)
 	var saved_regulars: Dictionary = data.get("regulars", {})

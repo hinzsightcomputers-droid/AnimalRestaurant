@@ -19,11 +19,14 @@ static func visits_in_person(record: Dictionary) -> bool:
 	return stage_of(record) >= GameData.regular_settings.get("lowest_stage_that_visits", -2)
 
 
-# Usually their favorite; otherwise anything except the dish they dislike.
+# Usually their favorite (once it's on the menu); otherwise anything on the
+# menu except the dish they dislike.
 static func choose_dish(record: Dictionary) -> Dictionary:
-	if randf() < GameData.regular_settings.get("favorite_order_chance", 0.7):
-		return GameData.get_dish(record["favorite_dish"])
-	var options: Array = GameData.menu().filter(func(d): return d["id"] != record["disliked_dish"])
+	var menu := GameData.menu()
+	var favorite: Array = menu.filter(func(d): return d["id"] == record["favorite_dish"])
+	if not favorite.is_empty() and randf() < GameData.regular_settings.get("favorite_order_chance", 0.7):
+		return favorite[0]
+	var options: Array = menu.filter(func(d): return d["id"] != record["disliked_dish"])
 	return options.pick_random() if not options.is_empty() else GameData.random_dish()
 
 
