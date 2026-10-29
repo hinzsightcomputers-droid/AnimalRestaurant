@@ -234,7 +234,7 @@ func upgrade_bonus(key: String) -> float:
 
 
 # What owned upgrades scale a number by, e.g. upgrade_multiplier("stir_speed").
-# Keys: stir_speed, arrival_interval.
+# Keys: stir_window (the stirring close-up), stir_speed (the timing minigame), arrival_interval.
 func upgrade_multiplier(key: String) -> float:
 	var factor := 1.0
 	for upgrade_id in upgrades:

@@ -29,6 +29,9 @@ var _splash_timer := 0.0
 
 
 func _begin() -> void:
+	var leeway := GameState.upgrade_multiplier("stir_window")  # Steady Stove: a wider "just right".
+	slow_speed /= leeway
+	fast_speed *= leeway
 	var pot := session.surface(in_surface)
 	_whisk = _make_whisk()
 	_whisk.position = pot.position + Vector3(pot.radius() * reach, -0.02, 0.0)

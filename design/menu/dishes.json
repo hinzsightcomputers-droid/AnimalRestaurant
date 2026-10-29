@@ -1,5 +1,5 @@
 {
-  "_comment": "Dinner Time menu. 17 dishes. 'unlock' is 'start' (available on day 1), 'upgrade' (bought at end of day for unlock_cost), or 'scene' (unlocked by a story scene). Prices are in coins; cook_time is in seconds. Tags are used by character likes/dislikes and gossip.",
+  "_comment": "Dinner Time menu. 19 dishes. 'unlock' is 'start' (available on day 1), 'upgrade' (bought at end of day for unlock_cost), or 'scene' (unlocked by a story scene). Prices are in coins; cook_time is in seconds. Tags are used by character likes/dislikes and gossip.",
   "dishes": [
     {
       "id": "honey_pancakes",
@@ -208,6 +208,32 @@
       "tags": ["fancy", "light"],
       "unlock": "upgrade",
       "unlock_cost": 100
+    },
+    {
+      "id": "acorn_cookies",
+      "name": "Acorn Cookies",
+      "origin": "Diner",
+      "description": "Nutty little cookies cut into acorn shapes and baked golden.",
+      "ingredients": ["flour", "butter", "sugar", "ground acorns"],
+      "steps": ["roll dough", "cut shapes", "top", "bake"],
+      "base_price": 8,
+      "cook_time": 20,
+      "tags": ["sweet", "dessert", "cute"],
+      "unlock": "upgrade",
+      "unlock_cost": 60
+    },
+    {
+      "id": "fish_stew",
+      "name": "Fish Stew",
+      "origin": "Diner",
+      "description": "Flaky fish fillets whisked into a creamy stew with salt and herbs.",
+      "ingredients": ["fish", "broth", "cream", "herbs", "salt"],
+      "steps": ["fillet fish", "whisk", "season", "ladle"],
+      "base_price": 16,
+      "cook_time": 30,
+      "tags": ["soup", "comfort", "savory"],
+      "unlock": "upgrade",
+      "unlock_cost": 90
     },
     {
       "id": "walters_storm_soup",

@@ -34,6 +34,11 @@
 			"ingredient": { "name": "Churro Dough", "color": "#c78a4a", "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/crate_dough.gltf" } },
 		"cloud_foam_salad": { "recipe": "cloud_foam_salad", "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/food_ingredient_lettuce_chopped.gltf", "cook_speed": 1.5,
 			"ingredient": { "name": "Salad Greens", "color": "#7cc46a", "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/crate_lettuce.gltf" } },
+		"acorn_cookies": { "recipe": "acorn_cookies", "station": "oven", "model": "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/Donut1.fbx", "cook_speed": 0.8,
+			"ingredient": { "name": "Acorn Dough", "color": "#b07a45", "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/crate_dough.gltf" } },
+		"fish_stew": { "recipe": "fish_stew", "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/food_stew.gltf", "dirty_model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/bowl_dirty.gltf", "cook_speed": 1.4,
+			"ingredient": { "name": "Frozen Fish", "color": "#7fb6d9", "model": "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/Fish.fbx",
+				"chop": { "name": "Fish Fillets", "verb": "Fillet", "recipe": "filleting", "chops": 5, "color": "#ee9466", "model": "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/Sashimi_Salmon.fbx" } } },
 		"walters_storm_soup": { "model": "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/CookingPot_Soup.fbx", "dirty_model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/bowl_dirty.gltf", "recipe": "soup", "cook_speed": 0.9,
 			"ingredient": { "name": "Soup Vegetables", "color": "#c9a24a", "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/crate_potatoes.gltf",
 				"chop": { "name": "Chopped Vegetables", "chops": 6, "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/food_ingredient_potato_chopped.gltf" } } }
