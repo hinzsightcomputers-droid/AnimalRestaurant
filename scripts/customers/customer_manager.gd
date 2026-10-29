@@ -229,13 +229,19 @@ func _setup_regular(customer: Customer, record: Dictionary) -> void:
 		species["color"] = record["color"]  # Their own tint, e.g. Cheddar's bright orange.
 	customer.setup(species, dish, null)
 	customer.regular_id = record["id"]
-	customer.display_name = record["name"]
+	customer.display_name = _known_name(record)
 	var eating: Dictionary = GameData.regular_settings.get("eating_seconds", { "min": 60, "max": 90 })
 	customer.eat_duration = randf_range(eating["min"], eating["max"])  # Regulars linger over their meal.
-	var greeting := RegularMemory.say_feeling(record, "greeting",
-		RegularMemory.dialogue_context(record, RegularMemory.favorite_chef_here(record)))
-	customer.greeting_line = greeting["text"]
-	customer.greeting_emotion = greeting["emotion"]
+	var context := RegularMemory.dialogue_context(record, RegularMemory.favorite_chef_here(record))
+	var greeting := RegularMemory.pick_line(record, "greeting", context)
+	customer.greeting_line = DialoguePicker.fill(greeting["text"], context) if not greeting.is_empty() else ""
+	customer.greeting_emotion = Conversation.emotion_of(greeting)
+	customer.greeting_introduces = greeting.get("introduces", false)
+
+
+# What to call a regular: their name once they've told you it, else their animal.
+func _known_name(record: Dictionary) -> String:
+	return record["name"] if record["introduced"] else GameData.get_species(record["species"]).get("name", "Customer")
 
 
 # What a regular's lines can depend on, talking to chef `chef_id` about their order.
@@ -386,6 +392,10 @@ func _regular_greets(player: Player, customer: Customer, lock_target: Interactab
 		await box.tell("", arrival)
 	if not customer.greeting_line.is_empty():
 		await _say(box, customer, customer.greeting_line, customer.greeting_emotion)
+	if customer.greeting_introduces and not record["introduced"]:
+		record["introduced"] = true
+		customer.display_name = record["name"]
+		GameEvents.announce("You met %s!" % record["name"])
 
 	# The first time they're close enough, they learn this chef's name (Cheddar
 	# also picks a nickname). Plays once per chef.
@@ -1061,7 +1071,7 @@ func walk_in(record: Dictionary, state_on_arrival: Customer.State) -> Customer:
 		species["color"] = record["color"]
 	customer.setup(species, {}, null)
 	customer.regular_id = record["id"]
-	customer.display_name = record["name"]
+	customer.display_name = _known_name(record)
 	add_child(customer)
 	customer.global_position = spawn_point.global_position
 	customer.reset_physics_interpolation()
@@ -1237,7 +1247,8 @@ func _remember_visit(customer: Customer, reaction_id: String) -> Dictionary:
 
 # "Mabel" for a regular, "the Frog" for anyone else.
 func _who(customer: Customer) -> String:
-	return customer.display_name if customer.is_regular() else "the %s" % customer.display_name
+	var named: bool = customer.is_regular() and GameState.regulars[customer.regular_id]["introduced"]
+	return customer.display_name if named else "the %s" % customer.display_name
 
 
 func _on_customer_state_changed(customer: Customer) -> void:

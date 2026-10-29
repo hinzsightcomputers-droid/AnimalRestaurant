@@ -61,6 +61,7 @@
 		"returns_on": "",
 		"times_gone": 0,
 		"visits_by_stage": {},
-		"last_table": ""
+		"last_table": "",
+		"introduced": false
 	}
 }

@@ -6,7 +6,7 @@
 		{ "event": "greeting", "priority": 85, "conditions": { "personality": "picky", "last_quality_max": 0.4 }, "text": "Hmph. I'm giving you one more chance." },
 		{ "event": "greeting", "priority": 80, "conditions": { "last_quality_max": 0.4 }, "text": "Let's hope it's better than last time..." },
 		{ "event": "greeting", "priority": 70, "conditions": { "last_quality_min": 0.85 }, "text": "Last time was amazing. I've been dreaming about it!" },
-		{ "event": "greeting", "priority": 50, "conditions": { "first_visit": true }, "text": "Hello! I'm {name}. First time here!" },
+		{ "event": "greeting", "priority": 50, "conditions": { "first_visit": true }, "introduces": true, "text": "Hello! I'm {name}. First time here!" },
 		{ "event": "greeting", "priority": 45, "conditions": { "min_known_here": 2 }, "text": "{known_here}! The whole crew is here today!" },
 		{ "event": "greeting", "priority": 40, "conditions": { "knows_player_name": true, "min_relationship": 50 }, "text": "{player}, my favorite chef! Hello!" },
 		{ "event": "greeting", "priority": 30, "conditions": { "knows_player_name": true }, "text": "Hi, {player}!" },

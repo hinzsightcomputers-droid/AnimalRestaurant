@@ -125,7 +125,7 @@
 		{ "event": "drink_served", "id": "mabel_served_drink_wrong", "priority": 105, "conditions": {"min_stage": 1, "right_drink": false}, "text": "This isn't what I ordered, dear. ...I'll drink it anyway. I don't waste.", "emotion": "neutral" },
 		{ "event": "drink_served", "id": "mabel_served_drink_low", "priority": 120, "conditions": {"max_stage": -1}, "text": "Thank you.", "emotion": "neutral" },
 
-		{ "event": "greeting", "priority": 300, "conditions": { "first_visit": true }, "text": "Hm. Clean floors. Good start. Don't get excited, dear, I'm only on the floors." },
+		{ "event": "greeting", "priority": 300, "conditions": { "first_visit": true }, "introduces": true, "text": "Hm. Clean floors. Good start. Don't get excited, dear, I'm only on the floors. ...Mabel. That's my name. You'll want to remember it." },
 
 		{ "event": "greeting", "priority": 250, "conditions": { "stage": 1, "returned_after_away": true }, "text": "Closed for days without a sign on the door. In my day we'd have put up a sign. Were you ill, or just careless?", "emotion": "angry" },
 		{ "event": "greeting", "priority": 220, "conditions": { "stage": 1, "last_quality_max": 0.4 }, "text": "I won't pretend last time was good. It wasn't. Let's see what you do with a second chance." },

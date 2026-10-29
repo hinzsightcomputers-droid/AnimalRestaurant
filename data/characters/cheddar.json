@@ -105,7 +105,7 @@
 		{ "event": "drink_served", "id": "cheddar_served_drink_other", "priority": 100, "conditions": {"min_stage": 1}, "text": "Ooh, a mystery drink! I'll allow it.", "emotion": "happy" },
 		{ "event": "drink_served", "id": "cheddar_served_drink_low", "priority": 120, "conditions": {"max_stage": -1}, "text": "Fine.", "emotion": "neutral" },
 
-		{ "event": "greeting", "priority": 300, "conditions": { "first_visit": true }, "text": "Ladies and gentlemen, he has ARRIVED. ...It's me. I'm the 'he.' Hi. Nice place. Do you do takeout? Kidding, I'm staying.", "emotion": "excited" },
+		{ "event": "greeting", "priority": 300, "conditions": { "first_visit": true }, "introduces": true, "text": "Ladies and gentlemen, Cheddar has ARRIVED. ...It's me. I'm Cheddar. Hi. Nice place. Do you do takeout? Kidding, I'm staying.", "emotion": "excited" },
 
 		{ "event": "greeting", "priority": 250, "conditions": { "stage": 1, "returned_after_away": true }, "text": "Oh, NOW you're open? I came by and it was just me and a closed sign. We had a nice chat. It's a great listener." },
 		{ "event": "greeting", "priority": 220, "conditions": { "stage": 1, "last_quality_max": 0.4 }, "text": "Last time was extra crispy. Like, fossil crispy. I'm giving you a second chance because I'm generous." },

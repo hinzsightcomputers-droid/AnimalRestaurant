@@ -49,10 +49,11 @@ var surprise_meal := false    # A regular who asked to be surprised with the foo
 var seat_note := ""           # Something they do as they sit (e.g. Mabel inspecting the table), announced then.
 var seat: Seat = null         # Their chair, once a player seats them.
 var leader: Player = null     # The player leading them to a table.
-var display_name := ""        # "Mabel" for a regular, "Frog" for anyone else.
+var display_name := ""        # "Mabel" for a regular who's told you their name, "Frog" for anyone else.
 var regular_id := ""          # Empty unless this is a regular (data/characters/).
 var greeting_line := ""       # What a regular says at the host stand (empty = generic).
 var greeting_emotion := &""   # How they feel saying it.
+var greeting_introduces := false  # Their greeting tells you their name ("introduces" on the line).
 var order_line := ""          # What a regular says when ordering (empty = generic).
 var speech := ""              # The latest one-off line, e.g. when served or chatted with.
 var chatted := false          # A regular can be chatted with once while eating.

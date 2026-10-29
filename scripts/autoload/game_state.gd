@@ -336,6 +336,9 @@ func apply_save_data(data: Dictionary) -> void:
 		for field in GameData.memory_fields(id):
 			if saved_regulars[id].has(field):
 				regulars[id][field] = saved_regulars[id][field]
+		# Saves from before introductions: anyone who'd visited has told you their name.
+		if not saved_regulars[id].has("introduced"):
+			regulars[id]["introduced"] = int(regulars[id]["times_visited"]) > 0
 		# Old saves only knew one chef: "knows_player_name" meant that chef.
 		if saved_regulars[id].get("knows_player_name", false) and not legacy_account_id.is_empty():
 			if not legacy_account_id in regulars[id]["known_players"]:
