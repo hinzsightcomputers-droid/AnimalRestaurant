@@ -3,7 +3,8 @@
 #
 # With 3 or 4 players the screen is simply split four ways, a quarter each
 # (player 1 top left, 2 top right, 3 bottom left, 4 bottom right) that never
-# moves, whatever anyone is doing. With 2 players the views are dynamic:
+# moves, whatever anyone is doing. A quarter nobody has (3 players) shows the
+# whole restaurant from above. With 2 players the views are dynamic:
 #
 # Each frame players are sorted into groups:
 #   - A player whose camera wants to zoom in (cooking, cleaning, taking an order),
@@ -31,6 +32,8 @@ const LAYOUTS := {
 }
 const FOLLOW_ZOOM := { 1: 1.0, 2: 0.88, 4: 0.58 }  # Camera follow distance for each layout.
 const FOCUS_ZOOM := { 1: 1.0, 2: 0.9, 4: 0.78 }    # Close-up (minigame) distance for each layout.
+const OVERVIEW_LOOK_AT := Vector3(0.0, 0.0, -2.0)  # The overview's camera: the dining room and kitchen.
+const OVERVIEW_OFFSET := Vector3(0.0, 10.0, 6.0)
 
 @export var player_manager: PlayerManager
 @export var fixed_split_players := 3  # This many players or more: the fixed four-way split.
@@ -45,6 +48,7 @@ var _views: Dictionary = {}     # player_index -> PlayerView
 var _groups: Array = []         # Current groups, e.g. [[0, 2], [1]], each sorted, lowest first.
 var _layout_tween: Tween = null
 var _fixed := false             # Using the fixed four-way split.
+var _overview: SubViewportContainer = null  # The whole room, in a quarter of the split nobody has.
 var ui_scale := 1.0             # Size of the UI for the current layout (UiScale).
 
 
@@ -54,6 +58,8 @@ func _ready() -> void:
 	divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	divider.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(divider)
+	_overview = _make_overview()
+	add_child(_overview)
 
 	player_manager.player_joined.connect(_add_view)
 	# Players spawned before we were ready.
@@ -205,12 +211,48 @@ func _apply_groups(new_groups: Array) -> void:
 		view.rig.set_follow_targets(just_them)
 		if view.visible:
 			_layout_tween.chain().tween_callback(view.set_active.bind(false))
+	_show_overview(layout, owners)
 	_groups = new_groups
 	ui_scale = UiScale.for_view_count(slots)
 	for view in _views.values():
 		view.set_ui_scale(ui_scale)
 		view.rig.view_zoom = FOLLOW_ZOOM[slots]
 		view.rig.focus_zoom = FOCUS_ZOOM[slots]
+
+
+# A view of the whole restaurant from above, sharing the main 3D world like a PlayerView.
+func _make_overview() -> SubViewportContainer:
+	var container := SubViewportContainer.new()
+	container.name = "Overview"
+	container.stretch = true
+	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	container.visible = false
+	var viewport := SubViewport.new()
+	viewport.handle_input_locally = false
+	viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	container.add_child(viewport)
+	var camera := Camera3D.new()
+	camera.transform = Transform3D(Basis.looking_at(-OVERVIEW_OFFSET), OVERVIEW_LOOK_AT + OVERVIEW_OFFSET)
+	viewport.add_child(camera)
+	return container
+
+
+# In the four-way split, the overview fills the first quarter no player has.
+func _show_overview(layout: Array, owners: Array) -> void:
+	var free_corner := -1
+	if _fixed:
+		for corner in layout.size():
+			if not owners.any(func(index): return index % 4 == corner):
+				free_corner = corner
+				break
+	var viewport: SubViewport = _overview.get_child(0)
+	if free_corner == -1:
+		_overview.visible = false
+		viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+		return
+	_set_rect(_overview, layout[free_corner], layout.size())
+	_overview.visible = true
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 
 
 # Where on screen views are zoomed in on something (a minigame, a chat), in

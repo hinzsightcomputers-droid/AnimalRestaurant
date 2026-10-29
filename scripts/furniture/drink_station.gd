@@ -1,6 +1,7 @@
 # DrinkStation: the drinks counter, with a fridge and a brewer. Walk up with
 # free hands and pick one of the drinks customers are waiting on (only those:
-# nothing to make when nobody's ordered).
+# nothing to make when nobody's ordered). A regular who asked for "the usual"
+# didn't say which, so while one waits the whole menu is listed: remember it.
 # How it's made depends on its "prep" (design/menu/drinks.json):
 #   grab: straight from the fridge into your hands.
 #   pour: hold interact to fill the glass, and let go at the line. The closer
@@ -107,12 +108,18 @@ func _choose(player: Player) -> void:
 
 # The drinks seated customers are waiting for that nobody's making or carrying
 # yet, one entry per kind (two lemonades ordered and one poured: one left).
+# The whole menu while someone's "usual" is still to make (a drink in the works
+# that nobody named covers one usual).
 func _drinks_to_make() -> Array:
 	var wanted := []
+	var usuals := 0
 	for node in get_tree().get_nodes_in_group(Customer.GROUP):
 		var customer := node as Customer
 		if customer != null and customer.state == Customer.State.WAITING_FOR_DRINK:
-			wanted.append(customer.drink.get("id", ""))
+			if customer.drink_secret:
+				usuals += 1
+			else:
+				wanted.append(customer.drink.get("id", ""))
 	var made := []
 	if not _brewing.is_empty():
 		made.append(_brewing["id"])
@@ -123,7 +130,12 @@ func _drinks_to_make() -> Array:
 		if held is Drink:
 			made.append(held.id())
 	for id in made:
-		wanted.erase(id)
+		if id in wanted:
+			wanted.erase(id)
+		else:
+			usuals -= 1
+	if usuals > 0:
+		return GameData.drink_menu()
 	var drinks := []
 	for drink in GameData.drink_menu():
 		if drink["id"] in wanted:

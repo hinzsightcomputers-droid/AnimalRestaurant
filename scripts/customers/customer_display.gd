@@ -85,9 +85,7 @@ func _on_state_changed(_customer: Customer) -> void:
 		Customer.State.WANTS_BILL:
 			bubble.text = "Check, please!"
 		Customer.State.LEAVING:
-			# Their goodbye was in the dialogue box; walking out, just what they paid.
-			bubble.visible = customer.payment > 0
-			bubble.text = "+$%d" % customer.payment
+			bubble.visible = false  # Their goodbye was in the dialogue box; what they paid is announced.
 
 	_update_name_tag()
 

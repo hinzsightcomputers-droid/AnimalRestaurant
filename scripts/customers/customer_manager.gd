@@ -570,7 +570,6 @@ func _regular_orders_drink(player: Player, customer: Customer, rolled: Dictionar
 #   "" (none): `rolled`, what they'd usually have today.
 #   "favorite": their favorite_drink, or favorite_drink_fallback until it's unlocked.
 #   "other": anything else unlocked (not water).
-#   "last_served": the last drink any chef brought anyone ("what do you like?").
 #   "bold_soda": an unlocked soda tagged "bold", else any unlocked soda.
 #   a drink id: that drink, or their favorite if it isn't unlocked.
 func _line_drink(ref: String, record: Dictionary, rolled: Dictionary) -> Dictionary:
@@ -583,10 +582,6 @@ func _line_drink(ref: String, record: Dictionary, rolled: Dictionary) -> Diction
 		"other":
 			var others := GameData.drink_menu().filter(func(d): return d["id"] != _favorite_drink_of(record) and d["id"] != "water")
 			return others.pick_random() if not others.is_empty() else rolled
-		"last_served":
-			if GameData.is_unlocked(GameState.last_drink_served):
-				return GameData.get_drink(GameState.last_drink_served)
-			return _line_drink("favorite", record, rolled)
 		"bold_soda":
 			var sodas := GameData.drink_menu().filter(func(d): return d.get("type", "") == "soda")
 			var bold := sodas.filter(func(d): return "bold" in d.get("tags", []))
@@ -624,7 +619,6 @@ func _give_drink(player: Player, customer: Customer, item: Drink) -> void:
 	_busy.append(customer)
 	player.set_held_item(null)
 	customer.serve_drink(item.drink, item.quality)
-	GameState.last_drink_served = item.id()
 	var right := customer.got_the_drink_they_ordered()
 	GameEvents.announce("%s brought %s %s." % [Accounts.name_of(player.player_index), _who(customer), _a(item.display_name())])
 	if customer.is_regular():
@@ -901,7 +895,8 @@ func _on_customer_interacted(player_index: int, customer: Customer) -> void:
 			if held is Drink:
 				_give_drink(player, customer, held)
 			else:
-				GameEvents.announce("%s is waiting for %s. Make it at the drinks counter." % [_who(customer).capitalize(), _a(customer.drink.get("name", "a drink"))])
+				var wanted := "the usual" if customer.drink_secret else _a(customer.drink.get("name", "a drink"))
+				GameEvents.announce("%s is waiting for %s. Make it at the drinks counter." % [_who(customer).capitalize(), wanted])
 		Customer.State.WAITING_FOOD_ORDER:
 			if held == null:
 				_take_food_order(player, customer)
@@ -1175,12 +1170,17 @@ func _settle_bill(player: Player, customer: Customer) -> void:
 		return
 
 	GameState.add_money(amount)
+	var price := int(customer.dish.get("base_price", 0)) + int(customer.served_drink.get("base_price", 0))
+	if amount > price:
+		GameEvents.announce("%s paid $%d (+$%d tip)." % [_who(customer).capitalize(), amount, amount - price])
+	else:
+		GameEvents.announce("%s paid $%d." % [_who(customer).capitalize(), amount])
 	GameState.record_service({
 		"species": customer.species.get("id", ""),
 		"regular": customer.regular_id,
 		"dish": customer.dish.get("id", ""),
 		"drink": customer.served_drink.get("id", ""),
-		"price": int(customer.dish.get("base_price", 0)) + int(customer.served_drink.get("base_price", 0)),
+		"price": price,
 		"quality": customer.served_quality,
 		"wait_seconds": customer.wait_seconds,
 		"satisfaction": satisfaction,
