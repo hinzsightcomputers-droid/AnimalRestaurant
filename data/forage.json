@@ -1,10 +1,10 @@
 {
-	"_about": "Things to gather after hours (see Forage and ForageSpot). Every restaurant day (from 5 AM) each spot either has something or not (spawn_chance), picked from the items that grow where the spot is (where: oak, pine, meadow, pond) in this season (from the real date and the hemisphere; [] = any), weighted by rarity_weights. The same spot shows the same thing all day, and once someone picks it, it's gone until 5 AM. An item with hours (hour blocks from data/time.json) only shows then. Finds go to the Forage Log, and into the kitchen's pantry if pantry is true (kind: what dishes ask for in 'uses', the id if unset); they're never sold. The first of each item unlocks dishes with unlocked_by 'first_<id>' (first_acorn: Acorn Cookies). shape and color/accent are for its little model: acorn, nut, mushroom, cone, sprig, flower, bulb, berry, clover, leaf.",
+	"_about": "Things to gather after hours (see Forage and ForageSpot). Every restaurant day (from 5 AM) each spot either has something or not (spawn_chance), picked from the items that grow where the spot is (where: oak, pine, meadow, pond) in this season (from the real date and the hemisphere; [] = any), weighted by rarity_weights. The same spot shows the same thing all day, and once someone picks it, it's gone until 5 AM. An item with hours (hour blocks from data/time.json) only shows then. Finds go to the Forage Log, and into the kitchen's pantry if pantry is true (kind: what dishes ask for in 'uses', the id if unset); they're never sold. The first of each item unlocks dishes with unlocked_by 'first_<id>' (first_acorn: Acorn Cookies). shape and color/accent are for its little model: acorn, nut, mushroom, cone, sprig, flower, bulb, berry, clover, leaf, shell, spiral, disc, glass, seaweed. Shells and seaweed grow at the beach (where: beach), reached in Cheddar's car.",
 	"settings": {
 		"spawn_chance": 0.65,
 		"rarity_weights": { "common": 60, "uncommon": 22, "rare": 4 },
 		"pick_radius": 0.9,
-		"_spots": "Where things can turn up, as [x, z] in the world (the back garden is behind the restaurant: the pond is at -7, -11, the oaks are off to the east).",
+		"_spots": "Where things can turn up, as [x, z]: in the world for the back garden (behind the restaurant: the pond is at -7, -11, the oaks are off to the east), or from the beach's origin for area beach (see data/trips.json; the sea is toward -z, the waterline at z -9.5).",
 		"spots": [
 			{ "at": [10.0, -9.9], "where": "oak" },
 			{ "at": [12.2, -12.2], "where": "oak" },
@@ -27,7 +27,19 @@
 			{ "at": [-0.6, -8.4], "where": "meadow" },
 			{ "at": [-10.2, -12.2], "where": "pond" },
 			{ "at": [-4.3, -12.9], "where": "pond" },
-			{ "at": [-7.4, -14.1], "where": "pond" }
+			{ "at": [-7.4, -14.1], "where": "pond" },
+			{ "area": "beach", "at": [-11.0, -8.6], "where": "beach" },
+			{ "area": "beach", "at": [-8.0, -9.0], "where": "beach" },
+			{ "area": "beach", "at": [-6.0, -7.8], "where": "beach" },
+			{ "area": "beach", "at": [-2.6, -8.8], "where": "beach" },
+			{ "area": "beach", "at": [2.8, -8.6], "where": "beach" },
+			{ "area": "beach", "at": [5.5, -9.0], "where": "beach" },
+			{ "area": "beach", "at": [9.0, -8.2], "where": "beach" },
+			{ "area": "beach", "at": [11.5, -8.8], "where": "beach" },
+			{ "area": "beach", "at": [-10.0, -4.0], "where": "beach" },
+			{ "area": "beach", "at": [10.5, -5.0], "where": "beach" },
+			{ "area": "beach", "at": [-1.8, -5.6], "where": "beach" },
+			{ "area": "beach", "at": [3.0, -3.5], "where": "beach" }
 		]
 	},
 	"items": [
@@ -84,6 +96,27 @@
 			"description": "Peppery little leaves from the pond's edge." },
 		{ "id": "moonflower", "name": "Moonflower", "where": ["pond"], "seasons": ["summer"], "hours": ["evening", "late_night"], "rarity": "rare", "pantry": false,
 			"shape": "flower", "color": "#e6ecff", "accent": "#7aa0d6",
-			"description": "It only opens after dark, glowing a little in the moonlight." }
+			"description": "It only opens after dark, glowing a little in the moonlight." },
+		{ "id": "scallop_shell", "name": "Scallop Shell", "where": ["beach"], "seasons": [], "rarity": "common", "pantry": false,
+			"shape": "shell", "color": "#f1c9a8", "accent": "#d99a74",
+			"description": "A ridged fan of a shell, still warm from the sun." },
+		{ "id": "spiral_shell", "name": "Spiral Shell", "where": ["beach"], "seasons": [], "rarity": "uncommon", "pantry": false,
+			"shape": "spiral", "color": "#e8d9c2", "accent": "#b48a5e",
+			"description": "Hold it to your ear. Is that the sea, or Cheddar humming?" },
+		{ "id": "pearly_conch", "name": "Pearly Conch", "where": ["beach"], "seasons": [], "rarity": "rare", "pantry": false,
+			"shape": "spiral", "color": "#f6dfe6", "accent": "#e8a7b8",
+			"description": "Pink and shining inside, like the dawn. A real treasure." },
+		{ "id": "sand_dollar", "name": "Sand Dollar", "where": ["beach"], "seasons": [], "rarity": "uncommon", "pantry": false,
+			"shape": "disc", "color": "#ece3cf", "accent": "#c9b994",
+			"description": "A flat round shell with a flower on it. Not real money, sadly." },
+		{ "id": "sea_glass", "name": "Sea Glass", "where": ["beach"], "seasons": [], "rarity": "uncommon", "pantry": false,
+			"shape": "glass", "color": "#8fd1c0", "accent": "#bfe9de",
+			"description": "An old bottle, rolled smooth and frosty by the waves." },
+		{ "id": "kelp", "name": "Kelp", "where": ["beach"], "seasons": [], "rarity": "common", "pantry": true,
+			"shape": "seaweed", "color": "#5f6e2c", "accent": "#7b8a3a",
+			"description": "Long ribbons of seaweed. Makes a wonderful broth." },
+		{ "id": "sea_lettuce", "name": "Sea Lettuce", "where": ["beach"], "seasons": ["spring", "summer"], "rarity": "common", "pantry": true,
+			"shape": "seaweed", "color": "#4fae52", "accent": "#7cd06e",
+			"description": "Bright green and crinkly. Tastes like the seaside." }
 	]
 }

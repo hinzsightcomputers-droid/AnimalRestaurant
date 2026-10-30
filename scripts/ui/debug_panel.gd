@@ -31,6 +31,7 @@ var _was_paused := false
 var _players_label: Label
 var _fishing_label: Label
 var _forage_label: Label
+var _car_label: Label
 var _hour_picker: OptionButton
 var _fish_picker: OptionButton
 var _changed := false     # Something to save when the panel closes.
@@ -396,6 +397,15 @@ Fish Log: %d of %d. Pantry: %s" % [
 Forage Log: %d of %d." % [
 		Forage.spots().size(), GameState.forage_today.get("picked", []).size(), ", ".join(out) if not out.is_empty() else "nothing",
 		GameState.forage_log.size(), GameData.forage.size()]
+	var trip := _car_trip()
+	if trip != null:
+		var cheddar: Dictionary = trip.record()
+		_car_label.text = "Car %s%s; Cheddar at stage %d (%s), %s. Beach trips: %d (drive skippable after %d). At the beach: %s" % [
+			"unlocked" if trip.is_unlocked() else "locked (his invite scene plays at closing once he's at stage %d)" % int(GameData.trips.get("car", {}).get("min_stage", 2)),
+			" (he drove off after today's trip, back after 5 AM)" if trip.left_today() else "",
+			RegularMemory.stage_of(cheddar), RegularMemory.stage_name(cheddar), "up for trips" if trip.cheddar_ready() else "not up for trips",
+			GameState.car_trips, int(GameData.trips.get("drive", {}).get("skip_after_trips", 3)),
+			", ".join(get_tree().get_nodes_in_group(Player.GROUP).filter(func(p): return trip.at_beach(p)).map(func(p): return "P%d" % (p.player_index + 1))) ]
 	if GameState.forced_fish.is_empty() and _fish_picker.selected != 0:
 		_fish_picker.select(0)  # The forced fish was caught.
 	_phone_label.text = "Phone: %s.  Voicemails: %d%s" % [
@@ -557,6 +567,22 @@ func _build() -> void:
 	_add_button(forage_row, "Fill Forage Log", func(): Forage.debug_fill_log(); _refresh())
 	_add_button(forage_row, "Clear Forage Log", func(): Forage.debug_clear_log(); _refresh())
 	_add_button(forage_row, "Collections", func(): _set_open(false); CollectionsScreen.open(get_tree()))
+
+	_add_label(box, "Cheddar's car and the beach", 18, true)
+	_car_label = _add_label(box, "")
+	var car_row := _add_row(box)
+	_add_button(car_row, "Unlock car", _set_car_unlocked.bind(true))
+	_add_button(car_row, "Lock car", _set_car_unlocked.bind(false))
+	_add_button(car_row, "Invite scene tonight", func(): GameState.forced_scene = "cheddar_car_invite"; _refresh())
+	_add_button(car_row, "Cheddar back today", func(): GameState.cheddar_left_on = ""; _changed = true; _refresh())
+	var stage_row := _add_row(box)
+	for stage in [4, 3, 2, 1, -1, -2]:
+		_add_button(stage_row, "Cheddar %d" % stage, _set_cheddar_stage.bind(stage))
+	var beach_row := _add_row(box)
+	_add_button(beach_row, "Trips: 0", func(): GameState.car_trips = 0; _changed = true; _refresh())
+	_add_button(beach_row, "Trips: 3", func(): GameState.car_trips = 3; _changed = true; _refresh())
+	_add_button(beach_row, "Everyone to the beach", func(): _car_trip().debug_send_everyone(true); _refresh())
+	_add_button(beach_row, "Everyone home", func(): _car_trip().debug_send_everyone(false); _refresh())
 
 	_add_label(box, "Regulars", 18, true)
 	_regular_picker = OptionButton.new()
@@ -786,3 +812,29 @@ func _add_button(parent: Control, text: String, action: Callable) -> Button:
 	button.pressed.connect(action)
 	parent.add_child(button)
 	return button
+
+
+func _car_trip() -> CarTrip:
+	var found := get_tree().root.find_children("*", "CarTrip", true, false)
+	return found.front() as CarTrip if not found.is_empty() else null
+
+
+# Unlocked as if his invite scene had played (or locked again, so it can play again).
+func _set_car_unlocked(unlocked: bool) -> void:
+	var unlock := String(GameData.trips.get("car", {}).get("unlock", "cheddar_car"))
+	GameState.unlocks.erase(unlock)
+	if unlocked:
+		GameState.unlocks.append(unlock)
+	GameState.regulars.get("cheddar", {})["car_invited"] = unlocked
+	GameState.unlocks_changed.emit()
+	_changed = true
+	_refresh()
+
+
+# Cheddar's relationship at the bottom of a stage.
+func _set_cheddar_stage(stage: int) -> void:
+	for entry in GameData.regular_settings.get("stages", []):
+		if int(entry["stage"]) == stage:
+			RegularMemory.set_relationship(GameState.regulars["cheddar"], int(entry["min"]))
+	_changed = true
+	_refresh()

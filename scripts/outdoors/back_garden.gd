@@ -125,6 +125,8 @@ func _build_reeds_and_pads() -> void:
 func _build_forage_spots() -> void:
 	var spots := Forage.spots()
 	for i in spots.size():
+		if spots[i].get("area", "garden") != "garden":
+			continue  # E.g. the beach's (see Beach).
 		var at: Array = spots[i].get("at", [0.0, 0.0])
 		var spot := ForageSpot.new()
 		spot.name = "ForageSpot%d" % i

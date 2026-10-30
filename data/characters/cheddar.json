@@ -80,7 +80,8 @@
 	"memory": {
 		"friends": ["mabel"],
 		"nicknames": {},
-		"player_favorite": ""
+		"player_favorite": "",
+		"car_invited": false
 	},
 	"lines": [
 		{ "event": "seating", "id": "cheddar_seat_showman_1", "priority": 100, "conditions": {"stage": 1}, "text": "New table today. Gotta keep you guessing.", "emotion": "excited" },
@@ -260,6 +261,45 @@
 
 		{ "event": "eating_chat", "id": "cheddar_asks_favorite", "priority": 220, "conditions": { "min_stage": 4, "memory": { "player_favorite": "" }}, "asks_dish": "player_favorite", "text": "Wait. What's YOUR favorite food? You always ask me. Nobody asks you.", "emotion": "excited", "reply": "[player_favorite]. Got it. Locked in the vault. The vault is my brain. It's a small vault.", "reply_emotion": "happy", "invented_reply": true },
 		{ "event": "eating_chat", "id": "cheddar_notices_apron", "priority": 240, "once": true, "conditions": { "unlocked": "patchwork_apron" }, "text": "Stitches showed me the apron he made you. Okay, I'm jealous. I can't sew. I can make you a sign, though.", "emotion": "shy" },
-		{ "event": "eating_chat", "id": "cheddar_notices_bell", "priority": 240, "once": true, "conditions": { "unlocked": "mabel_bell" }, "text": "Wait, is that Grandma's bell? She gave you the BELL? ...She's never even let me TOUCH the bell.", "emotion": "surprised" }
+		{ "event": "eating_chat", "id": "cheddar_notices_bell", "priority": 240, "once": true, "conditions": { "unlocked": "mabel_bell" }, "text": "Wait, is that Grandma's bell? She gave you the BELL? ...She's never even let me TOUCH the bell.", "emotion": "surprised" },
+		{ "event": "car_greeting", "id": "cheddar_car_hi_1", "priority": 100, "conditions": { "stage": 2 }, "text": "Ta-da! The Cheddar-mobile. Beach run? I know a secret spot. Very secret. Don't tell the gulls.", "emotion": "excited" },
+		{ "event": "car_greeting", "id": "cheddar_car_hi_2", "priority": 100, "conditions": { "stage": 2 }, "text": "Hop in, [nickname]! Seatbelts on. Snacks optional. Snacks strongly encouraged.", "emotion": "happy" },
+		{ "event": "car_greeting", "id": "cheddar_car_hi_3", "priority": 100, "conditions": { "stage": 3 }, "text": "Beach? Beach. Come on, the waves are doing their thing and I'm not watching it alone.", "emotion": "happy" },
+		{ "event": "car_greeting", "id": "cheddar_car_hi_4", "priority": 100, "conditions": { "stage": 3 }, "text": "You look like someone who needs sand in their shoes. Trust me, I'm a professional.", "emotion": "excited" },
+		{ "event": "car_greeting", "id": "cheddar_car_hi_5", "priority": 100, "conditions": { "stage": 4 }, "text": "There's my favorite co-pilot. Same spot as always?", "emotion": "joyful" },
+		{ "event": "car_greeting", "id": "cheddar_car_hi_6", "priority": 100, "conditions": { "stage": 4 }, "text": "I kept the passenger seat warm. Okay, I sat in it. Same thing. Beach?", "emotion": "happy" },
+		{ "event": "car_ask", "id": "cheddar_car_ask_1", "priority": 100, "conditions": { "min_stage": 2 }, "text": "Road trip! [name], you coming or what?", "emotion": "excited" },
+		{ "event": "car_ask", "id": "cheddar_car_ask_2", "priority": 100, "conditions": { "min_stage": 3 }, "text": "[nickname]! Car's leaving. Beach. You, me, the gang. Yes?", "emotion": "happy" },
+		{ "event": "car_ask", "id": "cheddar_car_ask_3", "priority": 100, "conditions": { "stage": 4 }, "text": "Can't do the beach without you, [name]. Well, I could. But I won't. Coming?", "emotion": "happy" },
+		{ "event": "car_chatter", "id": "cheddar_drive_gull", "priority": 100, "conditions": { "min_stage": 2 }, "text": "So I said to the gull, 'That's MY fry.' And the gull said nothing, because it's a gull. I won that one.", "emotion": "excited" },
+		{ "event": "car_chatter", "id": "cheddar_drive_lost", "priority": 100, "conditions": { "min_stage": 2 }, "text": "Fun fact: I've never once gotten lost. I have taken many surprise routes.", "emotion": "happy" },
+		{ "event": "car_chatter", "id": "cheddar_drive_dent", "priority": 100, "conditions": { "min_stage": 2 }, "text": "If anyone asks, the dent was already there.", "emotion": "nervous" },
+		{ "event": "car_chatter", "id": "cheddar_drive_windows", "priority": 100, "conditions": { "min_stage": 2 }, "text": "Windows down! Smell that? That's adventure. Also, a little bit, cheese. That's me.", "emotion": "joyful" },
+		{ "event": "car_chatter", "id": "cheddar_drive_favorite", "priority": 100, "conditions": { "min_stage": 3 }, "text": "Can I tell you something? This drive's my favorite part of the week. Don't make it weird.", "emotion": "shy" },
+		{ "event": "car_chatter", "id": "cheddar_drive_mabel", "priority": 100, "conditions": { "min_stage": 3 }, "text": "Grandma Mabel says I drive like a squirrel with a deadline. I take that as a compliment.", "emotion": "happy" },
+		{ "event": "car_chatter", "id": "cheddar_drive_alone", "priority": 100, "conditions": { "stage": 4 }, "text": "You know what's funny? I used to do this drive alone. It was quieter. It was worse.", "emotion": "happy" },
+		{ "event": "car_chatter", "id": "cheddar_drive_highway", "priority": 100, "conditions": { "stage": 4 }, "text": "I'm naming this road after us. Cheddar-and-[nickname] Highway. Rolls right off the tongue.", "emotion": "excited" },
+		{ "event": "car_chatter", "id": "cheddar_drive_stars", "priority": 110, "conditions": { "min_stage": 2, "hour_block": "late_night" }, "text": "Look at those stars. Okay, I can't name any of them. That one's Gary.", "emotion": "happy" },
+		{ "event": "car_chatter", "id": "cheddar_drive_early", "priority": 110, "conditions": { "min_stage": 2, "hour_block": "early_morning" }, "text": "Who's up this early? Us. Legends. Sleepy, sleepy legends.", "emotion": "tired" },
+		{ "event": "car_chatter", "id": "cheddar_drive_sunset", "priority": 110, "conditions": { "min_stage": 2, "hour_block": "evening" }, "text": "Look at that sky. It's showing off. I respect that.", "emotion": "joyful" },
+		{ "event": "car_arrive", "id": "cheddar_arrive_1", "priority": 100, "conditions": { "min_stage": 2 }, "text": "And we're here! Rods on the pier, shells on the sand, and I'll be over here looking dashing.", "emotion": "excited" },
+		{ "event": "car_arrive", "id": "cheddar_arrive_2", "priority": 100, "conditions": { "min_stage": 3 }, "text": "Welcome back to Cheddar Cove. Population: us.", "emotion": "happy" },
+		{ "event": "car_home", "id": "cheddar_home_1", "priority": 100, "conditions": { "min_stage": 2 }, "text": "Home time? Aw. Okay. Everybody in! Count off. ...Close enough.", "emotion": "happy" },
+		{ "event": "car_home", "id": "cheddar_home_2", "priority": 100, "conditions": { "stage": 4 }, "text": "Already? ...Fine. But we're coming back. That's a promise, [nickname].", "emotion": "shy" },
+		{ "event": "beach_chat", "id": "cheddar_beach_boot", "priority": 100, "conditions": { "min_stage": 2 }, "text": "Catch anything? If it's a boot, I want it. I'm starting a collection.", "emotion": "excited" },
+		{ "event": "beach_chat", "id": "cheddar_beach_relaxed", "priority": 100, "conditions": { "min_stage": 2 }, "text": "The trick to the beach is to look relaxed. Watch. ...Am I doing it?", "emotion": "nervous" },
+		{ "event": "beach_chat", "id": "cheddar_beach_quiet", "priority": 100, "conditions": { "min_stage": 3 }, "text": "I come here when the restaurant's been loud. In a good way. It's nice to hear nothing for a bit.", "emotion": "happy" },
+		{ "event": "beach_chat", "id": "cheddar_beach_stones", "priority": 100, "conditions": { "min_stage": 3 }, "text": "Grandma taught me to skip stones out here. I'm terrible. Six skips. Don't check.", "emotion": "happy" },
+		{ "event": "beach_chat", "id": "cheddar_beach_thanks", "priority": 100, "conditions": { "stage": 4 }, "text": "Thanks for coming out here with me. I mean it. ...Okay, that's enough feelings, go fish.", "emotion": "shy" },
+		{ "event": "beach_chat", "id": "cheddar_beach_shack", "priority": 100, "conditions": { "stage": 4 }, "text": "Someday I'm opening a snack shack right here. You'd be head chef, obviously.", "emotion": "joyful" },
+		{ "event": "beach_chat", "id": "cheddar_beach_waves", "priority": 110, "conditions": { "min_stage": 2, "hour_block": "late_night" }, "text": "Shh. Listen. That's the waves. ...Okay, you can talk again.", "emotion": "happy" },
+		{ "event": "car_note", "id": "cheddar_note_showman", "priority": 100, "conditions": { "stage": 1 }, "text": "(A note on the windshield: 'Car's resting. So am I. Maybe some other time. —C')" },
+		{ "event": "car_note", "id": "cheddar_note_snarky", "priority": 100, "conditions": { "stage": -1 }, "text": "(A note on the windshield: 'Out of gas. And out of patience. —C')" },
+		{ "event": "car_note", "id": "cheddar_note_cold", "priority": 100, "conditions": { "stage": -2 }, "text": "(A note on the windshield: 'Not taking passengers.')" },
+		{ "event": "car_note", "id": "cheddar_note_gone", "priority": 100, "conditions": { "max_stage": -3 }, "text": "(The car is locked and dusty. There's no note this time.)" },
+		{ "event": "seating", "id": "cheddar_seat_no_car_1", "priority": 100, "conditions": { "stage": 1, "unlocked": "cheddar_car" }, "text": "The car? Yeah, it's... in the shop. Don't worry about it.", "emotion": "nervous" },
+		{ "event": "seating", "id": "cheddar_seat_no_car_2", "priority": 100, "conditions": { "stage": -1, "unlocked": "cheddar_car" }, "text": "Beach trips are canceled. Indefinitely. Weather. ...Emotional weather.", "emotion": "angry" },
+		{ "event": "seating", "id": "cheddar_seat_no_car_3", "priority": 100, "conditions": { "stage": -2, "unlocked": "cheddar_car" }, "text": "Don't ask about the car.", "emotion": "sad" },
+		{ "event": "eating_chat", "id": "cheddar_misses_beach", "priority": 100, "conditions": { "stage": 1, "unlocked": "cheddar_car" }, "text": "I drove past the beach the other day. Didn't stop. It's not as fun on your own.", "emotion": "sad" }
 	]
 }

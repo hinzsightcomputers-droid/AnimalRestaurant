@@ -88,6 +88,12 @@ var forage_log: Dictionary = {}
 # Today's foraging: { date (the restaurant day), picked: [spot indexes],
 # salt (the debug panel's re-roll) }. A new day starts it fresh. Saved.
 var forage_today: Dictionary = {}
+# How many times the chefs have gone to the beach in Cheddar's car (the drive
+# can be skipped after a few). Saved.
+var car_trips := 0
+# The restaurant day Cheddar last drove off after bringing everyone home: he
+# doesn't come back until the next day. Saved.
+var cheddar_left_on := ""
 # Debug panel: pretend it's this season ("" = the real one) or hour block
 # outdoors (for fishing), and the fish that bites on the next cast. Not saved.
 var debug_season := ""
@@ -305,6 +311,8 @@ func to_save_data() -> Dictionary:
 		"fish_log": fish_log,
 		"forage_log": forage_log,
 		"forage_today": forage_today,
+		"car_trips": car_trips,
+		"cheddar_left_on": cheddar_left_on,
 		"regulars": regular_memory,
 	}
 
@@ -350,6 +358,8 @@ func apply_save_data(data: Dictionary) -> void:
 		entry["biggest_cm"] = int(entry.get("biggest_cm", 0))
 		for account_id in entry.get("by", {}):
 			entry["by"][account_id] = int(entry["by"][account_id])
+	car_trips = int(data.get("car_trips", 0))
+	cheddar_left_on = String(data.get("cheddar_left_on", ""))
 	forage_log = data.get("forage_log", {}) if data.get("forage_log", {}) is Dictionary else {}
 	for entry in forage_log.values():
 		entry["found"] = int(entry.get("found", 0))

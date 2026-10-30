@@ -1,0 +1,39 @@
+{
+	"_about": "Trips in Cheddar's car (see CarTrip, Beach, DriveView). The car unlocks with his invite scene (data/scenes.json, cheddar_car_invite: when he first reaches min_stage), which adds 'unlock' to the restaurant's unlocks. After that it's parked out front after hours; while he's at min_stage or more he waits by it, and any chef can start a trip. The other chefs are asked if they're coming (each once they're out of any close-up or dialogue), and the trip waits for every answer. The drive is one shared view with Cheddar chatting (chatter_lines of his car_chatter lines); after skip_after_trips trips to the beach it can be skipped. What Cheddar says is in his character file: car_greeting, car_ask, car_chatter, car_arrive, car_home, beach_chat, and car_note (the note on the car while he's below min_stage). Positions are [x, z]: parked_at in the world, the beach ones from the beach's origin.",
+	"car": {
+		"regular": "cheddar",
+		"unlock": "cheddar_car",
+		"min_stage": 2,
+		"model": "res://design/assets/KayKit_Bits_Bundle1_1.1/City Builder Bits/Assets/gltf/car_stationwagon.gltf",
+		"length": 3.2,
+		"parked_at": [-7.5, 11.9],
+		"cheddar_at": [-5.4, 10.25],
+		"step_out_at": [-7.5, 10.0]
+	},
+	"choices": {
+		"go": ["Let's go!", "Maybe later"],
+		"coming": ["Coming!", "Not this time"],
+		"home": ["Let's head home", "Not yet"],
+		"home_others": ["Okay!"]
+	},
+	"drive": {
+		"seconds": 14.0,
+		"home_seconds": 9.0,
+		"chatter_lines": 2,
+		"skip_after_trips": 3,
+		"speed": 9.0,
+		"_sky": "The sky behind the drive for each hour block (data/time.json).",
+		"sky": {
+			"early_morning": "#f2b9a0", "morning": "#9fd3f2", "midday": "#8ccbf5",
+			"afternoon": "#a6cfe8", "evening": "#e98f5f", "late_night": "#1d2440"
+		}
+	},
+	"beach": {
+		"origin": [0.0, -400.0],
+		"car_at": [7.0, 1.6],
+		"cheddar_at": [4.6, 0.9],
+		"arrive_at": [[5.4, 2.6], [6.4, 3.0], [7.4, 3.0], [8.4, 2.6]],
+		"campfire_at": [-4.5, -1.5],
+		"campfire_hours": ["evening", "late_night", "early_morning"]
+	}
+}

@@ -1,5 +1,5 @@
 {
-	"_about": "Big moment scenes. Each plays once, at closing after the last customer leaves, when its regular meets 'conditions' (the same conditions dialogue lines use). Steps run in order: 'narrate' (stage directions, no speaker), 'say' (the regular, optionally with 'choices': each { text, reply }), 'cook' (the co-cooking minigame at the stove: it can't fail). 'staging': dim (light multiplier), music (the scene's song; without one, music_db is how far the usual music drops), rain, flicker. 'done' sets memory fields and unlocks rewards (flags in GameState.unlocks for now).",
+	"_about": "Big moment scenes. Each plays once (big moments, and smaller ones like Cheddar inviting you on beach trips), at closing after the last customer leaves, when its regular meets 'conditions' (the same conditions dialogue lines use). Steps run in order: 'narrate' (stage directions, no speaker), 'say' (the regular, optionally with 'choices': each { text, reply }), 'cook' (the co-cooking minigame at the stove: it can't fail). 'staging': dim (light multiplier), music (the scene's song; without one, music_db is how far the usual music drops), rain, flicker. 'done' sets memory fields and unlocks rewards (flags in GameState.unlocks for now).",
 	"settings": {
 		"staging_seconds": 1.5,
 		"bell_sound": "",
@@ -7,7 +7,8 @@
 			"patchwork_apron": "Patchwork apron",
 			"best_chef_sign": "\"World's Best Chef (don't tell anyone I said that)\" sign",
 			"mabel_bell": "Mabel's bell",
-			"walters_storm_soup": "Walter's Storm Soup"
+			"walters_storm_soup": "Walter's Storm Soup",
+			"cheddar_car": "Beach trips in Cheddar's car (after hours, out front)"
 		}
 	},
 	"scenes": [
@@ -116,6 +117,27 @@
 				},
 				{ "say": "Now. We eat. Two bowls. And then I'm going home, because I'm ninety-one and it's past my bedtime.", "emotion": "tired" },
 				{ "narrate": "(You eat together at her window table while the rain slows down.)" }
+			]
+		},
+		{
+			"id": "cheddar_car_invite",
+			"name": "Cheddar's car",
+			"regular": "cheddar",
+			"conditions": { "min_stage": 2, "memory": { "car_invited": false } },
+			"staging": { "dim": 0.85, "music_db": -6 },
+			"done": { "set": { "car_invited": true }, "unlock": ["cheddar_car"] },
+			"steps": [
+				{ "narrate": "(A horn honks outside. Twice. Then a little tune. Cheddar strolls in, twirling a set of keys on one finger.)" },
+				{ "say": "Guess who got his car back from the shop? This guy. Guess who knows a secret beach? Also this guy.", "emotion": "excited" },
+				{ "say": "So here's the deal. After closing: you, the whole crew, my car, the beach. Fishing off the pier, shells on the sand, and me, being delightful.", "emotion": "happy",
+					"choices": [
+						{ "text": "We'd love to!", "reply": "YES. I mean. Cool. Cool cool cool. That's cool.", "emotion": "joyful" },
+						{ "text": "Is it really a secret?", "reply": "It's so secret even the map doesn't know. Okay, it's on the map. But nobody reads maps!", "emotion": "excited" },
+						{ "text": "Can you even drive?", "reply": "Can I drive. CAN I DRIVE. ...Mostly forward. Very well, forward.", "emotion": "surprised" }
+					]
+				},
+				{ "say": "I'll park out front after hours. Just come find me. Don't be strangers, [nickname]!", "emotion": "happy" },
+				{ "narrate": "(He jingles the keys one more time on his way out. The horn honks again from the street: the same little tune.)" }
 			]
 		}
 	]

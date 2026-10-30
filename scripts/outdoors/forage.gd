@@ -199,6 +199,32 @@ static func make_model(item: Dictionary, size: float) -> Node3D:
 			for i in 4:
 				var angle := i * TAU / 4.0 + PI / 4.0
 				_ball(model, color, Vector3(sin(angle) * s * 0.13, s * 0.42, cos(angle) * s * 0.13), Vector3(s * 0.26, s * 0.05, s * 0.26))
+		"shell":  # A ridged fan.
+			for i in 7:
+				var angle := (i - 3) * 0.32
+				var rib := _ball(model, color if i % 2 == 0 else accent, Vector3(sin(angle) * s * 0.22, s * 0.06, -cos(angle) * s * 0.22 + s * 0.15), Vector3(s * 0.12, s * 0.1, s * 0.5))
+				rib.rotation.y = -angle
+			_ball(model, accent, Vector3(0.0, s * 0.05, s * 0.2), Vector3(s * 0.2, s * 0.08, s * 0.12))
+		"spiral":  # A cone of rings, lying on its side.
+			for i in 6:
+				var width := s * (0.5 - i * 0.07)
+				_ball(model, color if i % 2 == 0 else accent, Vector3(s * (i * 0.12 - 0.3), s * 0.22, 0.0), Vector3(s * 0.18, width, width))
+		"disc":  # Flat and round, with a flower on top.
+			_ball(model, color, Vector3(0.0, s * 0.04, 0.0), Vector3(s * 0.7, s * 0.08, s * 0.7))
+			for i in 5:
+				var angle := i * TAU / 5.0
+				_ball(model, accent, Vector3(sin(angle) * s * 0.12, s * 0.08, cos(angle) * s * 0.12), Vector3(s * 0.08, s * 0.03, s * 0.18)).rotation.y = angle
+		"glass":  # A frosty pebble.
+			var pebble := _ball(model, color, Vector3(0.0, s * 0.12, 0.0), Vector3(s * 0.5, s * 0.24, s * 0.38))
+			var frosted: StandardMaterial3D = pebble.mesh.material
+			frosted.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			frosted.albedo_color.a = 0.75
+			frosted.roughness = 0.2
+			_ball(model, accent, Vector3(s * 0.05, s * 0.2, 0.0), Vector3(s * 0.2, s * 0.08, s * 0.16))
+		"seaweed":  # Ribbons lying in a heap.
+			for i in 4:
+				var ribbon := _ball(model, color if i % 2 == 0 else accent, Vector3(0.0, s * (0.04 + i * 0.03), 0.0), Vector3(s * 0.16, s * 0.04, s * 0.8))
+				ribbon.rotation.y = i * 0.8
 		_:  # "leaf": a little bunch of leaves.
 			for i in 5:
 				var leaf := _ball(model, color if i % 2 == 0 else accent, Vector3.ZERO, Vector3(s * 0.18, s * 0.05, s * 0.5))

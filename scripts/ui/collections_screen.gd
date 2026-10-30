@@ -18,7 +18,7 @@ const PANEL_MAX := Vector2(1000, 680)
 const SCREEN_MARGIN := 24.0
 const BROWN := Color(0.45, 0.28, 0.16)
 const TEXT := Color(0.3, 0.22, 0.15)
-const WHERE_WORDS := { "oak": "under the oaks", "pine": "under the pines", "meadow": "in the grass", "pond": "by the pond" }
+const WHERE_WORDS := { "oak": "under the oaks", "pine": "under the pines", "meadow": "in the grass", "pond": "by the pond", "beach": "on the beach" }
 
 signal closed
 

@@ -1,5 +1,5 @@
 {
-	"_about": "Fish you can catch, and how fishing plays (see Fishing and the fishing close-up: CastAction, BiteAction, ReelAction). Each fish: habitat (pond or beach), seasons and hours (hour blocks from data/time.json) it bites in ([] = any), rarity (a key of rarity_weights: how often it's picked among the fish that are biting), size_cm [min, max], difficulty 0-1 (how hard it pulls, and how long it takes to reel in), color (and belly) for its model. Catches go to the kitchen's pantry (pantry_kind) and the Fish Log; they're never sold. The game doesn't track weather, so fish don't depend on it.",
+	"_about": "Fish you can catch at the pond (back garden) and the beach (trips in Cheddar's car), and how fishing plays (see Fishing and the fishing close-up: CastAction, BiteAction, ReelAction). Each fish: habitat (pond or beach), seasons and hours (hour blocks from data/time.json) it bites in ([] = any), rarity (a key of rarity_weights: how often it's picked among the fish that are biting), size_cm [min, max], difficulty 0-1 (how hard it pulls, and how long it takes to reel in), color (and belly) for its model. Catches go to the kitchen's pantry (pantry_kind) and the Fish Log; they're never sold. The game doesn't track weather, so fish don't depend on it.",
 	"settings": {
 		"rarity_weights": { "common": 60, "uncommon": 22, "rare": 3 },
 		"cast": {
@@ -46,6 +46,36 @@
 			"description": "Shimmering gold. Only seen on spring mornings, and not often." },
 		{ "id": "moonlit_pike", "name": "Moonlit Pike", "habitat": "pond", "seasons": ["winter"], "hours": ["late_night"], "rarity": "rare",
 			"size_cm": [50, 100], "difficulty": 0.9, "color": "#4a5f7a", "belly": "#d6e2f0",
-			"description": "Silver-blue and fierce. Hunts on winter nights." }
+			"description": "Silver-blue and fierce. Hunts on winter nights." },
+		{ "id": "sardine", "name": "Sardine", "habitat": "beach", "seasons": [], "hours": [], "rarity": "common",
+			"size_cm": [12, 22], "difficulty": 0.1, "color": "#6f8fa8", "belly": "#e6edf2",
+			"description": "Little and silver. Where there's one, there are hundreds." },
+		{ "id": "mackerel", "name": "Mackerel", "habitat": "beach", "seasons": ["spring", "summer", "autumn"], "hours": [], "rarity": "common",
+			"size_cm": [25, 40], "difficulty": 0.35, "color": "#3f7a76", "belly": "#e9eee8",
+			"description": "Wavy green stripes and lots of zip." },
+		{ "id": "sea_bream", "name": "Sea Bream", "habitat": "beach", "seasons": [], "hours": ["morning", "midday", "afternoon", "evening"], "rarity": "common",
+			"size_cm": [25, 45], "difficulty": 0.3, "color": "#c98a8f", "belly": "#f4e3df",
+			"description": "Pink and handsome. A favorite for a fancy dinner." },
+		{ "id": "flounder", "name": "Flounder", "habitat": "beach", "seasons": [], "hours": [], "rarity": "uncommon",
+			"size_cm": [25, 50], "difficulty": 0.45, "color": "#8c7a5c", "belly": "#efe7d6",
+			"description": "Flat as a pancake, with both eyes on one side." },
+		{ "id": "sea_bass", "name": "Sea Bass", "habitat": "beach", "seasons": ["summer", "autumn"], "hours": ["evening", "late_night", "early_morning"], "rarity": "uncommon",
+			"size_cm": [35, 70], "difficulty": 0.6, "color": "#6d7b86", "belly": "#e1e6ea",
+			"description": "Prowls the shallows when the light is low." },
+		{ "id": "pufferfish", "name": "Pufferfish", "habitat": "beach", "seasons": ["summer"], "hours": [], "rarity": "uncommon",
+			"size_cm": [15, 30], "difficulty": 0.4, "color": "#c7b15a", "belly": "#f6efcf",
+			"description": "Puffs up when it's cross. Admire it and let it go... into the pantry." },
+		{ "id": "squid", "name": "Squid", "habitat": "beach", "seasons": ["autumn", "winter"], "hours": ["late_night"], "rarity": "uncommon",
+			"size_cm": [20, 45], "difficulty": 0.5, "color": "#e3c7c0", "belly": "#f7ece8",
+			"description": "Comes up toward the light on dark nights. Not technically a fish!" },
+		{ "id": "bluefin_tuna", "name": "Bluefin Tuna", "habitat": "beach", "seasons": ["summer"], "hours": ["early_morning", "morning"], "rarity": "rare",
+			"size_cm": [90, 180], "difficulty": 0.95, "color": "#2b4a78", "belly": "#d8e2ec",
+			"description": "Enormous and unstoppable. Only on summer mornings, if you're lucky and strong." },
+		{ "id": "rainbow_opah", "name": "Rainbow Opah", "habitat": "beach", "seasons": ["autumn", "winter"], "hours": ["evening", "late_night"], "rarity": "rare",
+			"size_cm": [60, 110], "difficulty": 0.8, "color": "#c2565c", "belly": "#f2c86a",
+			"description": "Round, red and spotted with silver, like a sunset. Seen on cold evenings." },
+		{ "id": "coelacanth", "name": "Coelacanth", "habitat": "beach", "seasons": [], "hours": ["late_night"], "rarity": "rare",
+			"size_cm": [100, 160], "difficulty": 0.85, "color": "#3e4d6b", "belly": "#9ba9bf",
+			"description": "A fish from the age of dinosaurs. Nobody will believe you." }
 	]
 }
