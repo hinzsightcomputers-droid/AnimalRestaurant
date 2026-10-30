@@ -157,6 +157,7 @@ func begin_day() -> void:
 	forage_today = {}
 	house_day = {}
 	cheddar_left_on = ""
+	ServiceStreak.reset()
 	replan_today()
 
 

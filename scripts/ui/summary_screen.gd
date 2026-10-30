@@ -105,6 +105,8 @@ func _summary_text(summary: Dictionary) -> String:
 		var quality: float = summary["average_quality"]
 		lines.append("Average cooking: %s (%d%%)" % [CookingMinigame.quality_label(quality), roundi(quality * 100)])
 		lines.append("Average wait: %ds" % roundi(summary["average_wait"]))
+		if int(summary.get("best_streak", 0)) >= 2:
+			lines.append("Best streak: x%d" % summary["best_streak"])
 		lines.append("Reactions: %s" % _reaction_text(summary["reaction_counts"]))
 		lines.append("Most ordered: %s" % GameData.get_dish(summary["top_dish"]).get("name", "?"))
 	else:

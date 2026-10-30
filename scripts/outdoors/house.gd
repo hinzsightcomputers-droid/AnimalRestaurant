@@ -313,19 +313,9 @@ func _hand_over(player: Player, bag: TakeoutBag) -> Dictionary:
 
 # Words floating up over the regular (how much a gift meant).
 func _pop(text: String, color: Color) -> void:
-	var label := Label3D.new()
-	label.text = text
-	label.font_size = 44
-	label.outline_size = 12
-	label.modulate = color
-	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	label.no_depth_test = true
-	add_child(label)
-	label.global_position = _figure().global_position + Vector3(0.9, 1.3, 0.3)  # Beside them, clear of the nameplate.
-	var tween := label.create_tween().set_parallel()
-	tween.tween_property(label, "global_position:y", label.global_position.y + 0.6, 1.8).set_ease(Tween.EASE_OUT)
-	tween.tween_property(label, "modulate:a", 0.0, 1.8).set_delay(0.8)
-	tween.chain().tween_callback(label.queue_free)
+	FloatText.pop(self, _figure().global_position + Vector3(0.9, 1.3, 0.3), text, color)  # Beside them, clear of the nameplate.
+
+
 # Looking at one of their things: they tell you about it.
 func _item_prompt(player_index: int, item: Dictionary) -> String:
 	var player := Player.find(get_tree(), player_index)

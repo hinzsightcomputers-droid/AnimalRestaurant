@@ -13,6 +13,9 @@ const MOVING_SPEED := 0.2  # A player going faster than this (m/s) counts as mov
 const MESSAGE_TIME := 4.0
 const MAX_MESSAGES := 3
 const MAX_ORDERS_SHOWN := 3  # Then "+2 more", so the list doesn't fill the screen.
+const ORDER_INDENT := "  "
+const ORDER_WRAP_INDENT := "      "  # A wrapped order's later lines.
+const ORDER_MARGIN := 12.0  # Pixels kept spare for the text outline.
 const STATE_NAMES := {
 	Order.State.WAITING: "waiting",
 	Order.State.GATHERED: "ingredients out",
@@ -25,6 +28,7 @@ const STATE_NAMES := {
 
 @onready var orders_label: Label = $OrdersLabel
 @onready var money_label: Label = $MoneyLabel
+@onready var streak_label: Label = $StreakLabel
 @onready var message_label: Label = $MessageLabel
 @onready var join_label: Label = $JoinLabel
 @onready var clock: Control = $Clock
@@ -37,6 +41,8 @@ var _clock_shown := true    # Shown at the start of the shift.
 var _clock_tween: Tween
 var _view_manager: ViewManager
 var _ui_scale := 1.0
+var _orders_width := 0.0
+var _orders_font_size := 0
 
 
 func _ready() -> void:
@@ -51,6 +57,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	_refresh_scale()
 	_refresh_day_and_money()
+	_refresh_streak()
 	_refresh_clock(delta)
 	_refresh_join_hint()
 	_fit_orders()
@@ -80,6 +87,15 @@ func _refresh_day_and_money() -> void:
 		var left := day_manager.customer_manager.customers_left()
 		where = "%s  %s" % [DayCycle.phase_name(), "Ring the bell!" if day_manager.bell_ready() else "%d to go" % left]
 	money_label.text = "Day %d  %s   $%d" % [GameState.day_number, where, GameState.money]
+
+
+# The serving streak under the money, once it's paying something (ServiceStreak).
+func _refresh_streak() -> void:
+	var run := ServiceStreak.count
+	streak_label.visible = run >= 2
+	if run >= 2:
+		streak_label.text = String(ServiceStreak.settings().get("hud", "Streak x{count}")).format({
+			"count": run, "percent": roundi(ServiceStreak.tip_percent(run)) })
 
 
 # "8:42 PM" over "Tuesday, October 27". Hides while anyone moves; comes back
@@ -130,14 +146,19 @@ func _keep_clear_of_close_ups() -> void:
 	var close_ups := _view_manager.close_up_rects() if _view_manager != null else ([] as Array[Rect2])
 	for control: Control in [orders_label, money_label, message_label, clock]:
 		control.visible = not close_ups.any(func(r: Rect2): return r.intersects(control.get_global_rect()))
+	streak_label.visible = streak_label.visible and not close_ups.any(func(r: Rect2): return r.intersects(streak_label.get_global_rect()))
 	join_label.visible = join_label.visible and not close_ups.any(func(r: Rect2): return r.intersects(join_label.get_global_rect()))
 
 
-# Long order lines wrap before they reach the clock.
+# Long order lines wrap before they reach the clock (see _wrap).
 func _fit_orders() -> void:
 	var width := clock.get_global_rect().position.x - orders_label.global_position.x - 16.0
-	if absf(orders_label.size.x - width) > 0.5:
+	var font_size := orders_label.get_theme_font_size("font_size")
+	if absf(_orders_width - width) > 0.5 or font_size != _orders_font_size:
+		_orders_width = width
+		_orders_font_size = font_size
 		orders_label.size.x = width
+		_refresh_orders()
 
 
 # The first MAX_ORDERS_SHOWN orders, then "+2 more".
@@ -147,10 +168,29 @@ func _refresh_orders() -> void:
 		lines.append("  (none)")
 	for order in order_board.orders.slice(0, MAX_ORDERS_SHOWN):
 		var state: String = STATE_NAMES[order.state] if order.on_wheel or order.state != Order.State.WAITING else "ticket not on the wheel"
-		lines.append("  #%d %s for %s - %s" % [order.number, order.dish.get("name", "?"), order.for_name(), state])
+		lines.append_array(_wrap("#%d %s for %s - %s" % [order.number, order.dish.get("name", "?"), order.for_name(), state]))
 	if order_board.orders.size() > MAX_ORDERS_SHOWN:
 		lines.append("  +%d more" % (order_board.orders.size() - MAX_ORDERS_SHOWN))
 	orders_label.text = "\n".join(lines)
+
+
+# One order, broken between words to fit the list's width, its later lines
+# tucked in under the first.
+func _wrap(text: String) -> PackedStringArray:
+	var font := orders_label.get_theme_font("font")
+	var room := _orders_width - ORDER_MARGIN
+	var lines := PackedStringArray()
+	var line := ""
+	for word in text.split(" "):
+		var indent := ORDER_INDENT if lines.is_empty() else ORDER_WRAP_INDENT
+		var longer := word if line.is_empty() else line + " " + word
+		if not line.is_empty() and room > 0.0 and font.get_string_size(indent + longer, HORIZONTAL_ALIGNMENT_LEFT, -1, _orders_font_size).x > room:
+			lines.append(indent + line)
+			line = word
+		else:
+			line = longer
+	lines.append((ORDER_INDENT if lines.is_empty() else ORDER_WRAP_INDENT) + line)
+	return lines
 
 
 # Smaller text in split screen, like the views' (see UiScale).

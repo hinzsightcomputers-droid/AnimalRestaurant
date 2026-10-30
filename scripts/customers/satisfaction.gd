@@ -46,10 +46,11 @@ static func drink_mood(ordered: Dictionary, served: Dictionary) -> float:
 	return float(GameData.drink_settings.get("right_drink_mood" if right else "wrong_drink_mood", 0.0))
 
 
-# What a seated customer pays: the dish and the drink, tip included.
-static func bill_for(dish: Dictionary, drink: Dictionary, reaction: Dictionary) -> int:
+# What a seated customer pays: the dish and the drink, tip included (and any
+# extra for a serving streak, ServiceStreak).
+static func bill_for(dish: Dictionary, drink: Dictionary, reaction: Dictionary, streak_percent := 0.0) -> int:
 	var price := float(dish.get("base_price", 0)) + float(drink.get("base_price", 0))
 	var percent: float = reaction.get("payment_percent", 100)
 	if percent > 100.0:
 		percent += GameState.upgrade_bonus("tip_percent")  # Tip Jar: bigger tips only.
-	return roundi(price * percent / 100.0)
+	return roundi(price * (percent + streak_percent) / 100.0)

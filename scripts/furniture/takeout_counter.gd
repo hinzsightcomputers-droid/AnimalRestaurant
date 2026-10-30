@@ -25,6 +25,51 @@ func _ready() -> void:
 		var bag := TakeoutBag.make_model(0.8)
 		bag.position = Vector3(i * -0.25, 0.0, 0.0)
 		stack.add_child(bag)
+	_add_sign()
+
+
+# A little signboard on a post at the end of the counter, turned to face the
+# camera whichever way the counter's placed.
+func _add_sign() -> void:
+	var sign := Node3D.new()
+	sign.position = Vector3(-0.3, 0.92, 0.15)
+	visual.add_child(sign)
+	sign.global_rotation = Vector3.ZERO
+	var wood := StandardMaterial3D.new()
+	wood.albedo_color = Color(0.55, 0.36, 0.22)
+	var post := MeshInstance3D.new()
+	var post_mesh := CylinderMesh.new()
+	post_mesh.top_radius = 0.02
+	post_mesh.bottom_radius = 0.025
+	post_mesh.height = 0.45
+	post_mesh.material = wood
+	post.mesh = post_mesh
+	post.position.y = 0.225
+	sign.add_child(post)
+	var board := MeshInstance3D.new()
+	var board_mesh := BoxMesh.new()
+	board_mesh.size = Vector3(0.86, 0.26, 0.04)
+	var cream := StandardMaterial3D.new()
+	cream.albedo_color = Color(0.98, 0.93, 0.8)
+	board_mesh.material = cream
+	board.mesh = board_mesh
+	board.position.y = 0.58
+	sign.add_child(board)
+	var trim := MeshInstance3D.new()
+	var trim_mesh := BoxMesh.new()
+	trim_mesh.size = Vector3(0.92, 0.32, 0.03)
+	trim_mesh.material = wood
+	trim.mesh = trim_mesh
+	trim.position = Vector3(0.0, 0.58, -0.01)
+	sign.add_child(trim)
+	var words := Label3D.new()
+	words.text = settings().get("sign", "TAKEOUT")
+	words.font_size = 64
+	words.pixel_size = 0.0028
+	words.outline_size = 0
+	words.modulate = Color(0.8, 0.22, 0.16)
+	words.position = Vector3(0.0, 0.58, 0.025)
+	sign.add_child(words)
 
 
 static func settings() -> Dictionary:

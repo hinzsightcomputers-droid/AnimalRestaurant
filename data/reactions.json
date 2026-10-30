@@ -1,6 +1,20 @@
 {
 	"fast_service_seconds": 40,
 	"fast_service_bonus": 0.05,
+	"_streak": "A run of good serves in a row, shared by the whole kitchen: the dish at min_quality or better (0.7 is Great) and brought within max_wait_seconds of ordering. From the second serve in a run, that customer tips tip_percent_per_step more for each serve before it, up to max_tip_percent. A poor or slow serve ends the run; it starts again each day. Serving pops the dish's quality over the customer, with the run (from x2) or why it ended; paying pops the money, the tip and the streak's share of it.",
+	"streak": {
+		"min_quality": 0.7,
+		"max_wait_seconds": 75,
+		"tip_percent_per_step": 10,
+		"max_tip_percent": 50,
+		"serve_good": "Streak x{count}!",
+		"lost_slow": "Streak lost: too slow",
+		"lost_poor": "Streak lost: needs Great",
+		"paid": "+${amount}",
+		"tip": "{reaction}: +${tip} tip",
+		"streak_tip": "Streak x{count}: +${bonus}",
+		"hud": "Streak x{count}  (+{percent}% tips)"
+	},
 	"reactions": [
 		{
 			"id": "delighted",

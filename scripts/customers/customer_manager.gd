@@ -30,6 +30,9 @@ extends Node3D
 
 const CUSTOMER_SCENE := preload("res://scenes/customers/customer.tscn")
 const SEAT_GROUP := "seats"
+const POP_OFFSET := Vector3(0.8, 1.5, 0.3)  # Where serving and paying pops float, beside a customer.
+const POP_FONT_SIZE := 56
+const QUALITY_COLORS: Array[Color] = [Color(1.0, 0.85, 0.3), Color(0.55, 0.95, 0.45), Color(1.0, 0.98, 0.92), Color(0.7, 0.72, 0.78)]  # Perfect, Great, Okay, Burnt.
 
 @export var order_counter: Station  # The host stand.
 @export var order_board: OrderBoard
@@ -950,6 +953,7 @@ func _serve(player: Player, customer: Customer) -> void:
 	GameState.record_chef_action(player.player_index, "served")
 	customer.serve(plate.quality, plate)
 	GameEvents.announce("Served %s to %s." % [plate.dish_name(), customer_name])
+	_pop_serve(customer)
 	if not customer.is_regular():
 		var quality := customer.served_quality
 		await _talk(player, customer, _townsfolk_line("served", { "dish": plate.dish_name() }),
@@ -1159,7 +1163,7 @@ func _settle_bill(player: Player, customer: Customer) -> void:
 	var satisfaction := Satisfaction.calculate(customer.served_quality, customer.wait_seconds)
 	satisfaction = clampf(satisfaction + Satisfaction.drink_mood(customer.drink, customer.served_drink), 0.0, 1.0)
 	var reaction := Satisfaction.reaction_for(satisfaction)
-	var amount := Satisfaction.bill_for(customer.dish, customer.served_drink, reaction)
+	var amount := Satisfaction.bill_for(customer.dish, customer.served_drink, reaction, ServiceStreak.tip_percent(customer.streak))
 	var lines: Array = reaction.get("lines", ["Thank you!"])
 	var line: String = lines.pick_random()
 	var feeling := &"happy" if satisfaction >= 0.75 else (&"sad" if satisfaction < 0.4 else &"")
@@ -1189,6 +1193,8 @@ func _settle_bill(player: Player, customer: Customer) -> void:
 
 	GameState.add_money(amount)
 	var price := int(customer.dish.get("base_price", 0)) + int(customer.served_drink.get("base_price", 0))
+	var streak_bonus := amount - Satisfaction.bill_for(customer.dish, customer.served_drink, reaction)
+	_pop_payment(customer, amount, amount - price - streak_bonus, streak_bonus, reaction)
 	if amount > price:
 		GameEvents.announce("%s paid $%d (+$%d tip)." % [_who(customer).capitalize(), amount, amount - price])
 	else:
@@ -1204,6 +1210,7 @@ func _settle_bill(player: Player, customer: Customer) -> void:
 		"satisfaction": satisfaction,
 		"reaction": reaction.get("id", ""),
 		"payment": amount,
+		"streak": customer.streak,
 	})
 
 	# They leave their dirty dish behind; the seat isn't reused until the table is cleared and wiped.
@@ -1223,6 +1230,38 @@ func _settle_bill(player: Player, customer: Customer) -> void:
 	customer.emote(feeling)
 	GameEvents.announce("%s paid $%d (%s, waited %ds)." % [
 		_who(customer).capitalize(), amount, reaction.get("id", "?"), roundi(customer.wait_seconds)])
+
+
+# The dish just reached the table: the serving streak grows or ends
+# (ServiceStreak), and how it went pops up beside them.
+func _pop_serve(customer: Customer) -> void:
+	var before := ServiceStreak.count
+	customer.streak = ServiceStreak.record(customer.served_quality, customer.wait_seconds)
+	var settings := ServiceStreak.settings()
+	var text := "%s!" % CookingMinigame.quality_label(customer.served_quality)
+	if customer.streak >= 2:
+		text += "\n" + String(settings.get("serve_good", "Streak x{count}!")).format({ "count": customer.streak })
+	elif customer.streak == 0 and before >= 2:
+		var poor := customer.served_quality < float(settings.get("min_quality", 0.7))
+		text += "\n" + String(settings.get("lost_poor" if poor else "lost_slow", "Streak lost"))
+	FloatText.pop(self, customer.global_position + POP_OFFSET, text, _quality_color(customer.served_quality), POP_FONT_SIZE)
+
+
+# Paying: the money, the tip and the streak's share pop up beside them, coloured by how happy they were.
+func _pop_payment(customer: Customer, amount: int, tip: int, streak_bonus: int, reaction: Dictionary) -> void:
+	var settings := ServiceStreak.settings()
+	var text := String(settings.get("paid", "+${amount}")).format({ "amount": amount })
+	if tip > 0:
+		text += "\n" + String(settings.get("tip", "{reaction}: +${tip} tip")).format({
+			"reaction": String(reaction.get("id", "")).capitalize(), "tip": tip })
+	if streak_bonus > 0:
+		text += "\n" + String(settings.get("streak_tip", "Streak x{count}: +${bonus}")).format({ "count": customer.streak, "bonus": streak_bonus })
+	var colors := { "delighted": QUALITY_COLORS[0], "happy": QUALITY_COLORS[1], "okay": QUALITY_COLORS[2] }
+	FloatText.pop(self, customer.global_position + POP_OFFSET, text, colors.get(reaction.get("id", ""), QUALITY_COLORS[3]), POP_FONT_SIZE)
+
+
+static func _quality_color(quality: float) -> Color:
+	return QUALITY_COLORS[0 if quality >= 0.9 else (1 if quality >= 0.7 else (2 if quality >= 0.4 else 3))]
 
 
 # Whether a townsfolk paying now asks "Do you deliver?": once, from

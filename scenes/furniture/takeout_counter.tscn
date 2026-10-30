@@ -20,14 +20,6 @@ model = ExtResource("m1_counter")
 size = Vector3(1.2, 0.92, 0.65)
 stretch = true
 
-[node name="Sign" type="Label3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.12, 0)
-text = "TAKEOUT"
-font_size = 32
-outline_size = 10
-modulate = Color(0.95, 0.4, 0.3, 1)
-billboard = 1
-
 [node name="Collision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.475, 0)
 shape = SubResource("Shape_counter")

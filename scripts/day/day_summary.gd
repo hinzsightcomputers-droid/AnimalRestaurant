@@ -16,6 +16,7 @@ static func build(services: Array[Dictionary], chef_actions: Dictionary = {}) ->
 		"average_wait": 0.0,
 		"reaction_counts": {},  # reaction id -> count
 		"top_dish": "",         # dish id ordered most often
+		"best_streak": 0,       # the longest run of good serves (ServiceStreak)
 	}
 	if services.is_empty():
 		return summary
@@ -29,6 +30,7 @@ static func build(services: Array[Dictionary], chef_actions: Dictionary = {}) ->
 		var reaction: String = service["reaction"]
 		summary["reaction_counts"][reaction] = summary["reaction_counts"].get(reaction, 0) + 1
 		dish_counts[service["dish"]] = dish_counts.get(service["dish"], 0) + 1
+		summary["best_streak"] = maxi(summary["best_streak"], int(service.get("streak", 0)))  # Older saves have none.
 
 	summary["average_quality"] /= services.size()
 	summary["average_wait"] /= services.size()
