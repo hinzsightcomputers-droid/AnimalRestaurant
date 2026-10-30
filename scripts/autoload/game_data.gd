@@ -23,6 +23,7 @@ const SCENES_PATH := "res://data/scenes.json"
 const DAY_PATH := "res://data/day.json"
 const TIME_PATH := "res://data/time.json"
 const FISH_PATH := "res://data/fish.json"
+const FORAGE_PATH := "res://data/forage.json"
 
 # Each dish, from the menu (design/menu/dishes.json): { id, name, origin,
 # description, ingredients, steps, base_price, cook_time, tags, unlock,
@@ -84,6 +85,11 @@ var time_settings: Dictionary = {}
 # difficulty, color, belly, description }) and how fishing plays (data/fish.json).
 var fish: Array[Dictionary] = []
 var fishing_settings: Dictionary = {}
+# Things to gather after hours, from data/forage.json: { id, name, seasons,
+# hours, where, rarity, kind, pantry, shape, color, accent, description }, and
+# how foraging works (forage_settings: spots, spawn chance, rarity weights).
+var forage: Array[Dictionary] = []
+var forage_settings: Dictionary = {}
 
 
 func _ready() -> void:
@@ -116,6 +122,16 @@ func _ready() -> void:
 	time_settings = _load_dictionary(TIME_PATH)
 	fish = _load_list(FISH_PATH, "fish")
 	fishing_settings = _load_dictionary(FISH_PATH).get("settings", {})
+	forage = _load_list(FORAGE_PATH, "items")
+	forage_settings = _load_dictionary(FORAGE_PATH).get("settings", {})
+
+
+# A forage item from data/forage.json, or {}.
+func get_forage(item_id: String) -> Dictionary:
+	for entry in forage:
+		if entry["id"] == item_id:
+			return entry
+	return {}
 
 
 # A fish from data/fish.json, or {}.

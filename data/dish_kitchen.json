@@ -34,7 +34,7 @@
 			"ingredient": { "name": "Churro Dough", "color": "#c78a4a", "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/crate_dough.gltf" } },
 		"cloud_foam_salad": { "recipe": "cloud_foam_salad", "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/food_ingredient_lettuce_chopped.gltf", "cook_speed": 1.5,
 			"ingredient": { "name": "Salad Greens", "color": "#7cc46a", "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/crate_lettuce.gltf" } },
-		"acorn_cookies": { "recipe": "acorn_cookies", "station": "oven", "model": "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/Donut1.fbx", "cook_speed": 0.8,
+		"acorn_cookies": { "recipe": "acorn_cookies", "station": "oven", "model": "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/Donut1.fbx", "cook_speed": 0.8, "uses": { "acorn": 1 },
 			"ingredient": { "name": "Acorn Dough", "color": "#b07a45", "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/crate_dough.gltf" } },
 		"fish_stew": { "recipe": "fish_stew", "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/food_stew.gltf", "dirty_model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/bowl_dirty.gltf", "cook_speed": 1.4,
 			"uses": { "fish": 1 },

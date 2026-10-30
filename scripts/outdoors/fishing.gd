@@ -86,18 +86,9 @@ static func record_catch(fish_id: String, size_cm: int, player_index: int) -> Di
 	else:
 		GameEvents.announce("%s caught a %s (%d cm). It's in the pantry." % [who, name, size_cm])
 	if first_ever:
-		_unlock_found("first_fish")
+		Pantry.unlock_found("first_fish", "made with what you catch!")
 	SaveGame.save_game()
 	return { "new": is_new, "biggest": is_biggest and not is_new }
-
-
-# Dishes unlocked by finding something (e.g. "first_fish") go on the menu.
-static func _unlock_found(trigger: String) -> void:
-	for dish in GameData.dishes:
-		if dish.get("unlock", "") == "found" and dish.get("unlocked_by", "") == trigger and not dish["id"] in GameState.unlocks:
-			GameState.unlocks.append(dish["id"])
-			GameEvents.announce("%s is on the menu now, made with what you catch!" % dish.get("name", "A new dish"))
-	GameState.unlocks_changed.emit()
 
 
 # Debug: every fish in the log once (at its biggest), or none (also emptying the
@@ -113,10 +104,7 @@ static func debug_clear_log() -> void:
 	for item_id in GameState.pantry.keys():
 		if not GameData.get_fish(item_id).is_empty():
 			GameState.pantry.erase(item_id)
-	for dish in GameData.dishes:
-		if dish.get("unlocked_by", "") == "first_fish":
-			GameState.unlocks.erase(dish["id"])
-	GameState.unlocks_changed.emit()
+	Pantry.relock_found("first_fish")
 	SaveGame.save_game()
 
 

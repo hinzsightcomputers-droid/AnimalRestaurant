@@ -4,7 +4,8 @@
 # After Hours. After hours the host stand opens it again (the same summary,
 # kept by DayCycle), and then its button closes it, or opens up for the new
 # day once 5 AM has been. The Friends button flips to a page of which chefs
-# each regular knows, and the Shop button to the upgrades you can buy.
+# each regular knows, the Shop button to the upgrades you can buy, and
+# Collections opens the Fish and Forage Logs (CollectionsScreen) on top.
 # Runs while the game is paused.
 extends CanvasLayer
 
@@ -41,6 +42,7 @@ var _input_delay_left := 0.0
 var _summary: Dictionary = {}
 var _page := Page.SUMMARY
 var _from_host_stand := false  # Reopened after hours, rather than the day just ending.
+var _collections_button: Button
 
 
 func _ready() -> void:
@@ -51,6 +53,11 @@ func _ready() -> void:
 	get_viewport().size_changed.connect(func(): if visible: _fit_to_screen())
 	friends_button.pressed.connect(_toggle_page.bind(Page.FRIENDS))
 	shop_button.pressed.connect(_toggle_page.bind(Page.SHOP))
+	_collections_button = friends_button.duplicate(0) as Button  # Its look, not its signals.
+	_collections_button.name = "CollectionsButton"
+	_collections_button.text = "Collections"
+	friends_button.add_sibling(_collections_button)
+	_collections_button.pressed.connect(_open_collections)
 
 
 func _process(delta: float) -> void:
@@ -108,6 +115,12 @@ func _summary_text(summary: Dictionary) -> String:
 	lines.append("")
 	lines.append("Total money: $%d" % GameState.money)
 	return "\n".join(lines)
+
+
+func _open_collections() -> void:
+	var screen := CollectionsScreen.open(get_tree())
+	if not screen.closed.is_connected(_collections_button.grab_focus):
+		screen.closed.connect(_collections_button.grab_focus)
 
 
 # Friends and Shop open their page, or go back to the summary if already open.

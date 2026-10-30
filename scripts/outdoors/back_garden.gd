@@ -1,6 +1,7 @@
 # BackGarden: the bit of outdoors behind the restaurant, out the back door:
 # a pond with three little docks to fish from (FishingSpot), stepping stones
-# from the door, reeds and lily pads, a few more trees, and a lantern that
+# from the door, reeds and lily pads, a few more trees (pines by the pond,
+# oaks to the east), places to forage (ForageSpot), and a lantern that
 # comes on from evening to early morning (the real hour). Built in code; the
 # lighting overall follows the real hour after hours (DayManager).
 class_name BackGarden
@@ -22,6 +23,10 @@ const PLANTS := [
 	["Bush_2_B_Color1.gltf", Vector3(-4.1, 0.0, -13.9), 0.8],
 	["Bush_4_C_Color1.gltf", Vector3(-1.2, 0.0, -7.6), 0.7],
 	["Rock_1_C_Color1.gltf", Vector3(-9.6, 0.0, -13.4), 0.5],
+	["Tree_1_C_Color1.gltf", Vector3(6.8, 0.0, -17.4), 4.4],   # The oaks, off to the east.
+	["Tree_2_A_Color1.gltf", Vector3(13.2, 0.0, -13.6), 4.0],
+	["Bush_2_A_Color1.gltf", Vector3(5.2, 0.0, -9.4), 0.8],
+	["Bush_1_C_Color1.gltf", Vector3(2.6, 0.0, -16.4), 0.7],
 ]
 
 var _lantern_light: OmniLight3D
@@ -38,6 +43,7 @@ func _ready() -> void:
 	_build_path()
 	_build_reeds_and_pads()
 	_build_lantern()
+	_build_forage_spots()
 	for plant in PLANTS:
 		ModelFit.place(NATURE + plant[0], self, plant[1], Vector3(0.0, plant[2], 0.0))
 
@@ -113,6 +119,18 @@ func _build_reeds_and_pads() -> void:
 		var radius := _rng.randf_range(0.6, POND_RADIUS - 0.4)
 		var pad := _cylinder(_rng.randf_range(0.14, 0.22), 0.012, Color(0.3, 0.58, 0.28))
 		pad.position = POND_CENTER + Vector3(sin(angle) * radius, 0.0, cos(angle) * radius)
+
+
+# Where things to forage might turn up (data/forage.json; see ForageSpot).
+func _build_forage_spots() -> void:
+	var spots := Forage.spots()
+	for i in spots.size():
+		var at: Array = spots[i].get("at", [0.0, 0.0])
+		var spot := ForageSpot.new()
+		spot.name = "ForageSpot%d" % i
+		spot.spot_index = i
+		spot.position = Vector3(float(at[0]), 0.0, float(at[1]))
+		add_child(spot)
 
 
 func _build_lantern() -> void:

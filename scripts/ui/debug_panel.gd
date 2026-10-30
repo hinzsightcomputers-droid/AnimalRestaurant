@@ -30,6 +30,7 @@ var _dish_picker: OptionButton
 var _was_paused := false
 var _players_label: Label
 var _fishing_label: Label
+var _forage_label: Label
 var _hour_picker: OptionButton
 var _fish_picker: OptionButton
 var _changed := false     # Something to save when the panel closes.
@@ -386,6 +387,15 @@ Fish Log: %d of %d. Pantry: %s" % [
 		Fishing.hour_block(), " (pretend)" if not GameState.debug_hour_block.is_empty() else "",
 		", ".join(Fishing.biting("pond").map(func(f): return f["name"])),
 		GameState.fish_log.size(), GameData.fish.size(), Pantry.describe()]
+	var out := PackedStringArray()
+	for i in Forage.spots().size():
+		var item := Forage.item_at(i)
+		if not item.is_empty():
+			out.append(item["name"])
+	_forage_label.text = "Out today (%d spots, %d picked): %s
+Forage Log: %d of %d." % [
+		Forage.spots().size(), GameState.forage_today.get("picked", []).size(), ", ".join(out) if not out.is_empty() else "nothing",
+		GameState.forage_log.size(), GameData.forage.size()]
 	if GameState.forced_fish.is_empty() and _fish_picker.selected != 0:
 		_fish_picker.select(0)  # The forced fish was caught.
 	_phone_label.text = "Phone: %s.  Voicemails: %d%s" % [
@@ -511,6 +521,9 @@ func _build() -> void:
 	_add_button(after_row, "After Hours", _skip_to_phase.bind(DayCycle.Phase.AFTER_HOURS))
 	_add_button(after_row, "5 AM now", _five_am)
 	_add_button(after_row, "Reopen summary", _reopen_summary)
+	var today_row := _add_row(box)
+	_add_button(today_row, "Re-roll today", _replan_today)
+	_add_button(today_row, "Force a new day", _force_new_day)
 
 	_add_label(box, "Outdoors and fishing", 18, true)
 	_fishing_label = _add_label(box, "")
@@ -536,9 +549,14 @@ func _build() -> void:
 	var log_row := _add_row(box)
 	_add_button(log_row, "Fill Fish Log", func(): Fishing.debug_fill_log(); _refresh())
 	_add_button(log_row, "Clear Fish Log", func(): Fishing.debug_clear_log(); _refresh())
-	var today_row := _add_row(box)
-	_add_button(today_row, "Re-roll today", _replan_today)
-	_add_button(today_row, "Force a new day", _force_new_day)
+
+	_add_label(box, "Foraging and collections", 18, true)
+	_forage_label = _add_label(box, "")
+	var forage_row := _add_row(box)
+	_add_button(forage_row, "Regrow forage", func(): Forage.debug_respawn(); _refresh())
+	_add_button(forage_row, "Fill Forage Log", func(): Forage.debug_fill_log(); _refresh())
+	_add_button(forage_row, "Clear Forage Log", func(): Forage.debug_clear_log(); _refresh())
+	_add_button(forage_row, "Collections", func(): _set_open(false); CollectionsScreen.open(get_tree()))
 
 	_add_label(box, "Regulars", 18, true)
 	_regular_picker = OptionButton.new()

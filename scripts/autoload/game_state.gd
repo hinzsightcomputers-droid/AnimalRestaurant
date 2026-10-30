@@ -82,6 +82,12 @@ var pantry: Dictionary = {}
 # first_by, by: { account id: count } } (account ids; dates are restaurant
 # days). Saved.
 var fish_log: Dictionary = {}
+# The Forage Log, by item id: { found, first_date, first_by, by: { account id:
+# count } }. Saved.
+var forage_log: Dictionary = {}
+# Today's foraging: { date (the restaurant day), picked: [spot indexes],
+# salt (the debug panel's re-roll) }. A new day starts it fresh. Saved.
+var forage_today: Dictionary = {}
 # Debug panel: pretend it's this season ("" = the real one) or hour block
 # outdoors (for fishing), and the fish that bites on the next cast. Not saved.
 var debug_season := ""
@@ -297,6 +303,8 @@ func to_save_data() -> Dictionary:
 		"hemisphere": hemisphere,
 		"pantry": pantry,
 		"fish_log": fish_log,
+		"forage_log": forage_log,
+		"forage_today": forage_today,
 		"regulars": regular_memory,
 	}
 
@@ -342,6 +350,14 @@ func apply_save_data(data: Dictionary) -> void:
 		entry["biggest_cm"] = int(entry.get("biggest_cm", 0))
 		for account_id in entry.get("by", {}):
 			entry["by"][account_id] = int(entry["by"][account_id])
+	forage_log = data.get("forage_log", {}) if data.get("forage_log", {}) is Dictionary else {}
+	for entry in forage_log.values():
+		entry["found"] = int(entry.get("found", 0))
+		for account_id in entry.get("by", {}):
+			entry["by"][account_id] = int(entry["by"][account_id])
+	forage_today = data.get("forage_today", {}) if data.get("forage_today", {}) is Dictionary else {}
+	forage_today["picked"] = forage_today.get("picked", []).map(func(i): return int(i))
+	forage_today["salt"] = int(forage_today.get("salt", 0))
 	voicemails = data.get("voicemails", []).filter(func(v): return v is Dictionary and v.has("kind") and v.has("id"))
 	var legacy_account_id := _account_from_old_save(data)
 	var saved_regulars: Dictionary = data.get("regulars", {})
