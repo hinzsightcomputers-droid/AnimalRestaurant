@@ -71,6 +71,61 @@ static func describe_date(date: String, short := false) -> String:
 	return "%s, %s %d" % [weekday.left(3) if short else weekday, MONTHS[parts["month"] - 1], parts["day"]]
 
 
+# Which block of the day an hour (0-23) is in, from data/time.json: e.g.
+# "early_morning" for 6, "late_night" for 2. Now's, if no hour is given.
+static func hour_block(hour := -1) -> String:
+	if hour < 0:
+		hour = now_local()["hour"]
+	for block in GameData.time_settings.get("hour_blocks", []):
+		var from := int(block["from"])
+		var to := int(block["to"])
+		if (hour >= from and hour < to) if from < to else (hour >= from or hour < to):
+			return block["id"]
+	return ""
+
+
+# The restaurant day's weekday as data/time.json names it, e.g. "tue" (before
+# 5 AM it's still the day before). Today's, if no date is given.
+static func weekday_id(date := "") -> String:
+	if date.is_empty():
+		date = today()
+	var weekday: int = Time.get_datetime_dict_from_unix_time(Time.get_unix_time_from_datetime_string(date))["weekday"]
+	var names: Array = GameData.time_settings.get("weekdays", ["sun", "mon", "tue", "wed", "thu", "fri", "sat"])
+	return names[weekday]
+
+
+# The season of a restaurant day ("spring", "summer", "autumn" or "winter";
+# today's if no date is given), from data/time.json and the hemisphere setting.
+# The debug panel can pretend it's another (GameState.debug_season).
+static func season(date := "") -> String:
+	if not GameState.debug_season.is_empty():
+		return GameState.debug_season
+	if date.is_empty():
+		date = today()
+	var month_day := date.right(5)  # "MM-DD"
+	var seasons: Array = GameData.time_settings.get("seasons", [])
+	if seasons.is_empty():
+		return ""
+	var found: String = seasons[-1]["id"]  # Before the first "from", it's still the last one (winter into the new year).
+	for entry in seasons:
+		if month_day >= String(entry["from"]):
+			found = entry["id"]
+	if GameState.hemisphere == "south":
+		found = GameData.time_settings.get("southern_season", {}).get(found, found)
+	return found
+
+
+static func is_weekend(date := "") -> bool:
+	return weekday_id(date) in GameData.time_settings.get("weekend", ["sat", "sun"])
+
+
+# Whole restaurant days from `from` to `to` (both like "2026-10-27"); 0 if either is empty.
+static func days_between(from: String, to: String) -> int:
+	if from.is_empty() or to.is_empty():
+		return 0
+	return roundi((Time.get_unix_time_from_datetime_string(to) - Time.get_unix_time_from_datetime_string(from)) / float(SECONDS_PER_DAY))
+
+
 # e.g. "8:42 PM" for now_local().
 static func describe_time(local: Dictionary) -> String:
 	var hour: int = local["hour"]

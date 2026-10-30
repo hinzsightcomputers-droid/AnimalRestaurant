@@ -14,11 +14,14 @@ func _init(for_order: Order) -> void:
 	order = for_order
 
 
-# e.g. "Frozen Fish", or "Chopped Carrots" once chopped. From the dish's
+# e.g. "Soup Vegetables" (or "Bluegill", when it came from the pantry), or
+# "Chopped Vegetables" once chopped. From the dish's
 # "ingredient" in data/dish_kitchen.json.
 func display_name() -> String:
 	if chopped:
 		return _chop().get("name", "Chopped " + _ingredient().get("name", "Ingredients"))
+	if not order.pantry_items.is_empty():  # What was caught for it, e.g. "Bluegill".
+		return ", ".join(order.pantry_items.map(Pantry.item_name))
 	return _ingredient().get("name", "Ingredients")
 
 

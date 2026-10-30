@@ -95,6 +95,9 @@ func _next_step() -> void:
 		var action := steps[_next]
 		_next += 1
 		action.begin(self)
+		if action.done:  # Over before it started (e.g. nothing to reel in): no updates.
+			action.end()
+			continue
 		if action.background:
 			_background.append(action)
 			continue
@@ -111,7 +114,9 @@ func _finish() -> void:
 	quality = CookRecipe.combine(steps)
 	is_finished = true
 	_cursor.visible = false
-	if recipe.finish_text.is_empty():
+	if context.has("finish_text"):  # A step said how it went (e.g. "Caught a Bluegill!").
+		_hint.text = context["finish_text"]
+	elif recipe.finish_text.is_empty():
 		_hint.text = "%s! %d%%" % [CookingMinigame.quality_label(quality), roundi(quality * 100)]
 	else:
 		_hint.text = recipe.finish_text
@@ -144,6 +149,12 @@ func snapshot(surface_name: String) -> Array:
 			continue
 		parts.append({ "mesh": mesh_instance.mesh, "material": mesh_instance.material_override, "transform": placed })
 	return parts
+
+
+# The cook's own view, full-size, for a step's on-screen bits (e.g. a tension
+# meter). Freed with the session.
+func overlay() -> Control:
+	return _screen
 
 
 # A live line under the step's hint, e.g. "Syrup left: 40%".

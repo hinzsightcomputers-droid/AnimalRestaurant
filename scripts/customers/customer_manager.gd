@@ -165,7 +165,7 @@ func regular_arriving() -> bool:
 # Someone comes in if there's a seat at a clean table for them (counting
 # everyone already waiting to be seated).
 func _try_spawn_customer() -> void:
-	if not accepting_customers:
+	if not accepting_customers or not DayCycle.is_open():
 		return
 	if _free_seats().size() <= _queue.size() + _leading.size():
 		return
@@ -280,11 +280,15 @@ func _townsfolk_line(step: String, context: Dictionary = {}) -> String:
 
 # --- The host stand ------------------------------------------------------------
 
-# Once the meal's over, ringing the bell for the next one. Otherwise, for free
+# After hours: the catalogue (the summary screen's shop, friends and summary),
+# or opening up once it's a new day. Once the meal's over, ringing the bell for
+# the next one. Otherwise, for free
 # hands: "Print the bill" when someone's asked for one that nobody's carrying
 # yet, "Seat Mabel" for whoever's first in line, or "Write a letter" when
 # nobody's waiting and someone Gone could get one.
 func _counter_prompt(player_index: int) -> String:
+	if DayCycle.is_after_hours():
+		return "Open up for a new day" if DayCycle.is_new_day_waiting() else "Host stand: shop, summary"
 	if day_manager != null and day_manager.bell_ready():
 		return day_manager.bell_prompt()
 	var player := Player.find(get_tree(), player_index)
@@ -322,6 +326,10 @@ func _bills_to_print() -> int:
 
 func _on_order_counter_used(_station: Station, player_index: int) -> void:
 	if _writing_letter:
+		return
+	if DayCycle.is_after_hours() and day_manager != null:
+		if not day_manager.start_next_day():
+			day_manager.open_summary()
 		return
 	if day_manager != null and day_manager.bell_ready():
 		bell.ring()

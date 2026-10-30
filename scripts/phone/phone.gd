@@ -107,9 +107,9 @@ func _process(delta: float) -> void:
 		return
 	_time += delta
 	_update_look()
-	if day_manager.is_night and not _was_night:
+	if DayCycle.is_night() and not _was_night:
 		_until_next_ring = _random_seconds("first_ring_delay")  # The night's first call comes soon.
-	_was_night = day_manager.is_night
+	_was_night = DayCycle.is_night()
 	if _in_call:
 		return
 	if is_ringing():
@@ -120,21 +120,21 @@ func _process(delta: float) -> void:
 	if not GameState.forced_caller.is_empty():  # Debug panel.
 		_ring_forced(GameState.forced_caller)
 		return
-	if day_manager.is_night:
+	if DayCycle.is_night():
 		if GameState.night_calls_used >= GameState.night_calls_total or _someone_talking():
 			return
-	elif not day_manager.is_open or _someone_talking() or _regular_arriving() or not BigMoments.due().is_empty():
+	elif not DayCycle.is_open() or _someone_talking() or _regular_arriving() or not BigMoments.due().is_empty():
 		return  # (No calls at all on the evening of a big moment.)
 	_until_next_ring -= delta
 	if _until_next_ring > 0.0:
 		return
 	_until_next_ring = _random_seconds("seconds_between_calls")
-	if day_manager.is_night:
+	if DayCycle.is_night():
 		GameState.night_calls_used += 1  # Counts even if it doesn't ring, so the night always ends.
 		SaveGame.save_game()
 	if GameState.voicemails.size() >= _max_voicemails():
 		return  # Plenty waiting already: this call just doesn't happen.
-	var call := PhoneCalls.next_call(_last_caller, day_manager.is_night)
+	var call := PhoneCalls.next_call(_last_caller, DayCycle.is_night())
 	if not call.is_empty():
 		_ring(call)
 
@@ -268,7 +268,7 @@ func _max_voicemails() -> int:
 # A random time from data/phone.json (the night's own timings at night).
 func _random_seconds(key: String) -> float:
 	var settings := GameData.phone_settings
-	if day_manager != null and day_manager.is_night:
+	if day_manager != null and DayCycle.is_night():
 		settings = settings.get("night", settings)
 	var range_: Dictionary = settings.get(key, GameData.phone_settings.get(key, { "min": 20, "max": 40 }))
 	return randf_range(range_["min"], range_["max"])

@@ -1,4 +1,6 @@
-# Accounts (autoload): the chefs who play here, each { id, name, playtime_seconds }.
+# Accounts (autoload): the chefs who play here, each { id, name,
+# playtime_seconds, last_played_day, played_before } (the restaurant days they
+# last played and played before that, for days_since_played).
 # Saved in their own file (user://accounts.json), separate from the restaurant
 # save, so playtime is kept even if you quit mid-day. Also remembers which
 # account each joined player is using; like InputSetup, that lasts across days.
@@ -67,11 +69,28 @@ func find_by_name(account_name: String) -> Dictionary:
 
 func assign(player_index: int, id: String) -> void:
 	_by_player[player_index] = id
+	_mark_played(get_account(id))
 	player_account_changed.emit(player_index)
 
 
 func has_account(player_index: int) -> bool:
 	return _by_player.has(player_index)
+
+
+# Restaurant days between this chef's last day playing before today and today:
+# 1 if they played yesterday, 0 if this is their first day.
+func days_since_played(id: String) -> int:
+	return GameClock.days_between(String(get_account(id).get("played_before", "")), GameClock.today())
+
+
+# They're playing today: what was their last day becomes the one before.
+func _mark_played(account: Dictionary) -> void:
+	var today := GameClock.today()
+	if account.is_empty() or account.get("last_played_day", "") == today:
+		return
+	account["played_before"] = account.get("last_played_day", "")
+	account["last_played_day"] = today
+	save()
 
 
 # The account player `player_index` is using, or {}.

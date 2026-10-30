@@ -197,6 +197,11 @@ static func dialogue_context(record: Dictionary, chef_id: String, extra: Diction
 		"wrong_name": wrong_names[int(record.get("wrong_name_index", 0)) % wrong_names.size()] if not wrong_names.is_empty() else chef_name,
 		"player_favorite": _dish_name(record.get("player_favorite", "")),  # Yours, if Cheddar asked.
 		"days": days,
+		"days_since_last_visit": days,
+		"days_since_player_played": Accounts.days_since_played(chef_id),
+		"hour_block": GameClock.hour_block(),
+		"weekday": GameClock.weekday_id(),
+		"day_phase": DayCycle.phase_id(),
 		"returned_after_away": days >= GameData.regular_settings.get("away_days", 3),
 		"favorite": GameData.get_dish(record["favorite_dish"]).get("name", ""),
 		"disliked": GameData.get_dish(record["disliked_dish"]).get("name", ""),

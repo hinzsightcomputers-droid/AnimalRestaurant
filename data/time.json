@@ -1,0 +1,21 @@
+{
+	"_about": "The real local clock in words, for dialogue conditions and After Hours lighting. hour_blocks: each from its 'from' hour up to (not including) its 'to' hour, local time; late_night wraps past midnight. weekdays: the restaurant day's weekday (before 5 AM it's still the day before), as dialogue's 'weekday' condition names them; 'weekend' lists which count as the weekend (the rest are 'weekday').",
+	"hour_blocks": [
+		{ "id": "early_morning", "from": 5, "to": 8 },
+		{ "id": "morning", "from": 8, "to": 11 },
+		{ "id": "midday", "from": 11, "to": 14 },
+		{ "id": "afternoon", "from": 14, "to": 17 },
+		{ "id": "evening", "from": 17, "to": 21 },
+		{ "id": "late_night", "from": 21, "to": 5 }
+	],
+	"weekdays": ["sun", "mon", "tue", "wed", "thu", "fri", "sat"],
+	"weekend": ["sat", "sun"],
+	"_seasons": "Seasons by the restaurant day's month and day ('from' is MM-DD, each lasts until the next one's), as in the northern hemisphere. With the hemisphere set to south (GameState.hemisphere, the debug panel), each season is swapped for its opposite (southern_season).",
+	"seasons": [
+		{ "id": "spring", "from": "03-01" },
+		{ "id": "summer", "from": "06-01" },
+		{ "id": "autumn", "from": "09-01" },
+		{ "id": "winter", "from": "12-01" }
+	],
+	"southern_season": { "spring": "autumn", "summer": "winter", "autumn": "spring", "winter": "summer" }
+}

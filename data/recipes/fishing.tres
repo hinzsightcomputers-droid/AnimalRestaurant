@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="CookRecipe" format=3]
+
+[ext_resource type="Script" path="res://scripts/cooking/cook_recipe.gd" id="1_recipe"]
+[ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/cast_action.gd" id="3_cast"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/bite_action.gd" id="4_bite"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/reel_action.gd" id="5_reel"]
+
+[sub_resource type="Resource" id="Resource_cast"]
+script = ExtResource("3_cast")
+title = "Cast"
+hint = "Hold [button] to wind up, let go to cast. Aim with [stick]. Try for the ripples!"
+
+[sub_resource type="Resource" id="Resource_bite"]
+script = ExtResource("4_bite")
+title = "Wait for a bite"
+hint = "When the bobber goes right under, press [button]! Not on a nibble..."
+
+[sub_resource type="Resource" id="Resource_reel"]
+script = ExtResource("5_reel")
+title = "Reel it in"
+hint = "Hold [button] (or pull [stick] back) to reel. Keep the tension in the green!"
+
+[resource]
+script = ExtResource("1_recipe")
+display_name = "Fishing"
+pieces = 1
+serve_on = ""
+steps = Array[ExtResource("2_action")]([SubResource("Resource_cast"), SubResource("Resource_bite"), SubResource("Resource_reel")])

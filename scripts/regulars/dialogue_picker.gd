@@ -179,5 +179,25 @@ static func _condition_met(key: String, want: Variant, context: Dictionary) -> b
 			return context.get("known_here_count", 0) >= want
 		"reaction":
 			return context.get("reaction", "") == want
+		"hour_block":  # "evening" or ["evening", "late_night"]: the real local hour (data/time.json).
+			return context.get("hour_block", GameClock.hour_block()) in _as_list(want)
+		"weekday":  # "fri", ["sat", "sun"], "weekday" or "weekend": the restaurant day's.
+			var today: String = context.get("weekday", GameClock.weekday_id())
+			var weekend: bool = today in GameData.time_settings.get("weekend", ["sat", "sun"])
+			for day in _as_list(want):
+				if day == today or day == "weekend" and weekend or day == "weekday" and not weekend:
+					return true
+			return false
+		"day_phase":  # "after_hours", "night", a meal's id like "lunch"... (see DayCycle.phase_id).
+			return context.get("day_phase", DayCycle.phase_id()) in _as_list(want)
+		"days_since_last_visit", "days_since_player_played":  # 3 (at least 3) or { "min": 3, "max": 7 }.
+			var days: int = context.get(key, 0)
+			if want is Dictionary:
+				return days >= float(want.get("min", -INF)) and days <= float(want.get("max", INF))
+			return days >= int(want)
 	push_warning("Unknown dialogue condition: %s" % key)
 	return false
+
+
+static func _as_list(value: Variant) -> Array:
+	return value if value is Array else [value]

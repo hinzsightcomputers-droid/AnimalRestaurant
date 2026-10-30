@@ -1,5 +1,5 @@
 {
-  "_comment": "Dinner Time menu. 19 dishes. 'unlock' is 'start' (available on day 1), 'upgrade' (bought at end of day for unlock_cost), or 'scene' (unlocked by a story scene). Prices are in coins; cook_time is in seconds. Tags are used by character likes/dislikes and gossip.",
+  "_comment": "Dinner Time menu. 19 dishes. 'unlock' is 'start' (available on day 1), 'upgrade' (bought in the shop for unlock_cost), 'scene' (unlocked by a story scene), or 'found' (unlocked by something found after hours: unlocked_by 'first_fish' is the first fish caught). Prices are in coins; cook_time is in seconds. Tags are used by character likes/dislikes and gossip.",
   "dishes": [
     {
       "id": "honey_pancakes",
@@ -232,8 +232,9 @@
       "base_price": 16,
       "cook_time": 30,
       "tags": ["soup", "comfort", "savory"],
-      "unlock": "upgrade",
-      "unlock_cost": 90
+      "unlock": "found",
+      "unlock_cost": 0,
+      "unlocked_by": "first_fish"
     },
     {
       "id": "walters_storm_soup",

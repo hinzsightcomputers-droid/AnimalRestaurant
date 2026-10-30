@@ -18,7 +18,7 @@ var _wait := FIRST_ASK_DELAY
 
 func _process(delta: float) -> void:
 	_wait -= delta
-	if _wait > 0.0 or _asking or day_manager == null or not day_manager.is_open:
+	if _wait > 0.0 or _asking or day_manager == null or not DayCycle.is_open():
 		return
 	_wait = CHECK_SECONDS
 	for node in get_tree().get_nodes_in_group(Player.GROUP):

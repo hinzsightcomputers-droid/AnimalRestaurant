@@ -29,6 +29,9 @@ var _kitchen_label: Label
 var _dish_picker: OptionButton
 var _was_paused := false
 var _players_label: Label
+var _fishing_label: Label
+var _hour_picker: OptionButton
+var _fish_picker: OptionButton
 var _changed := false     # Something to save when the panel closes.
 var _updating := false    # True while _refresh moves the slider, so it isn't treated as an edit.
 
@@ -268,14 +271,32 @@ func _back_at_closing() -> void:
 
 
 func _close_now() -> void:
-	_skip_to_phase(GameState.CLOSED)
+	_skip_to_phase(DayCycle.Phase.CLOSING)
 
 
-# Straight to a meal (or closing), sending everyone in the restaurant home.
-func _skip_to_phase(phase: int) -> void:
+# Straight to a meal (`meal`), closing, the night shift or After Hours,
+# sending everyone in the restaurant home (see DayManager.skip_to).
+func _skip_to_phase(phase: DayCycle.Phase, meal := 0) -> void:
+	var reloads := DayCycle.is_after_hours() or phase == DayCycle.Phase.MEAL and not DayCycle.is_open()
+	if reloads:
+		_set_open(false)
 	for day in get_tree().root.find_children("*", "DayManager", true, false):
-		day.skip_to(phase)
-	_refresh()
+		day.skip_to(phase, meal)
+	if not reloads:
+		_refresh()
+
+
+# 5 AM comes: the clock jumps a day ahead, as if the night had gone by.
+func _five_am() -> void:
+	_skip_days(1)
+	DayCycle.check_clock()
+
+
+# After hours: today's summary again, as the host stand shows it.
+func _reopen_summary() -> void:
+	_set_open(false)
+	for day in get_tree().root.find_children("*", "DayManager", true, false):
+		day.open_summary()
 
 
 # Today counts as over (even if it isn't), and the restaurant reopens for a new
@@ -346,15 +367,27 @@ Chef birthdays: %s" % [GameClock.now_string().left(10),
 				regulars.append("%s%s" % [visitor.get("name", entry["regular"]), " (came)" if RegularMemory.visited_today(visitor) else ""])
 			else:
 				walk_ins += 1
-		var now := " <- now" if i == GameState.phase else ""
+		var now := " <- now" if DayCycle.is_open() and i == DayCycle.meal else ""
 		meals.append("%s: %d townsfolk%s%s%s" % [GameState.phase_info(i).get("name", "?"), walk_ins, ", " if not regulars.is_empty() else "", ", ".join(regulars), now])
-	var state := "closed" if GameState.phase == GameState.CLOSED else (
-		"night, %d of %d calls" % [GameState.night_calls_used, GameState.night_calls_total] if GameState.phase == GameState.NIGHT
-		else "%d of this meal done" % GameState.phase_done.size())
+	var state := DayCycle.phase_name().to_lower()
+	if DayCycle.is_night():
+		state = "night, %d of %d calls" % [GameState.night_calls_used, GameState.night_calls_total]
+	elif DayCycle.is_open():
+		state = "%d of this meal done" % GameState.phase_done.size()
+	elif DayCycle.is_new_day_waiting():
+		state += ", new day waiting"
 	_schedule_label.text = "Day %d, %s (%s)
 %s" % [GameState.day_number, GameClock.describe_date(GameState.date), state, "
 ".join(meals)]
 
+	_fishing_label.text = "%s (%s hemisphere%s), %s%s. Biting at the pond: %s
+Fish Log: %d of %d. Pantry: %s" % [
+		GameClock.season().capitalize(), GameState.hemisphere, ", pretend" if not GameState.debug_season.is_empty() else "",
+		Fishing.hour_block(), " (pretend)" if not GameState.debug_hour_block.is_empty() else "",
+		", ".join(Fishing.biting("pond").map(func(f): return f["name"])),
+		GameState.fish_log.size(), GameData.fish.size(), Pantry.describe()]
+	if GameState.forced_fish.is_empty() and _fish_picker.selected != 0:
+		_fish_picker.select(0)  # The forced fish was caught.
 	_phone_label.text = "Phone: %s.  Voicemails: %d%s" % [
 		"on the wall" if GameState.phone_unlocked else ("goes up tomorrow" if GameState.delivery_asked else "not yet (a townsfolk asks at the bill on day 3+)"),
 		GameState.voicemails.size(),
@@ -471,9 +504,38 @@ func _build() -> void:
 	_schedule_label = _add_label(box, "")
 	var phase_row := _add_row(box)
 	for i in GameState.phase_count():
-		_add_button(phase_row, GameState.phase_info(i).get("name", "?"), _skip_to_phase.bind(i))
-	_add_button(phase_row, "Closing", _skip_to_phase.bind(GameState.CLOSED))
-	_add_button(phase_row, "Night", _skip_to_phase.bind(GameState.NIGHT))
+		_add_button(phase_row, GameState.phase_info(i).get("name", "?"), _skip_to_phase.bind(DayCycle.Phase.MEAL, i))
+	_add_button(phase_row, "Closing", _skip_to_phase.bind(DayCycle.Phase.CLOSING))
+	_add_button(phase_row, "Night", _skip_to_phase.bind(DayCycle.Phase.NIGHT))
+	var after_row := _add_row(box)
+	_add_button(after_row, "After Hours", _skip_to_phase.bind(DayCycle.Phase.AFTER_HOURS))
+	_add_button(after_row, "5 AM now", _five_am)
+	_add_button(after_row, "Reopen summary", _reopen_summary)
+
+	_add_label(box, "Outdoors and fishing", 18, true)
+	_fishing_label = _add_label(box, "")
+	var season_row := _add_row(box)
+	for season in ["", "spring", "summer", "autumn", "winter"]:
+		_add_button(season_row, season.capitalize() if not season.is_empty() else "Real season", func(): GameState.debug_season = season; _refresh())
+	var hour_row := _add_row(box)
+	_hour_picker = OptionButton.new()
+	_hour_picker.add_item("Real hour")
+	for block in GameData.time_settings.get("hour_blocks", []):
+		_hour_picker.add_item(block["id"])
+	_hour_picker.item_selected.connect(func(index): GameState.debug_hour_block = "" if index == 0 else _hour_picker.get_item_text(index); _refresh())
+	hour_row.add_child(_hour_picker)
+	_add_button(hour_row, "Hemisphere", func(): GameState.hemisphere = "south" if GameState.hemisphere == "north" else "north"; _changed = true; _refresh())
+	var next_fish_row := _add_row(box)
+	_fish_picker = OptionButton.new()
+	_fish_picker.add_item("Next cast: any fish")
+	for fish in GameData.fish:
+		_fish_picker.add_item("Next cast: %s" % fish["name"])
+		_fish_picker.set_item_metadata(_fish_picker.item_count - 1, fish["id"])
+	_fish_picker.item_selected.connect(func(index): GameState.forced_fish = "" if index == 0 else String(_fish_picker.get_item_metadata(index)); _refresh())
+	next_fish_row.add_child(_fish_picker)
+	var log_row := _add_row(box)
+	_add_button(log_row, "Fill Fish Log", func(): Fishing.debug_fill_log(); _refresh())
+	_add_button(log_row, "Clear Fish Log", func(): Fishing.debug_clear_log(); _refresh())
 	var today_row := _add_row(box)
 	_add_button(today_row, "Re-roll today", _replan_today)
 	_add_button(today_row, "Force a new day", _force_new_day)

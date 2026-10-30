@@ -8,10 +8,9 @@ extends Node
 signal money_changed(money: int)
 signal unlocks_changed  # A big moment reward or a dish was unlocked (or the debug panel cleared them).
 
-const SAVE_VERSION := 5
-# Where the day is: one of the meals in data/day.json (0 = the first), NIGHT
-# (the phone-only night shift after closing, once the phone is on the wall), or
-# CLOSED once the day is over.
+const SAVE_VERSION := 6
+# phase_info(NIGHT) is the night shift's settings. Saves before version 6 kept
+# the day's phase here as a meal index, NIGHT or CLOSED (see DayCycle).
 const NIGHT := 98
 const CLOSED := 99
 
@@ -24,9 +23,6 @@ var restaurant_color := "#d1453b"
 # GameClock.today), and how many days the restaurant has opened (1 = the first).
 var date := ""
 var day_number := 0
-# Which meal it is on `date` (an index into GameData.day_settings "phases"), or
-# CLOSED. See begin_day.
-var phase := 0
 # Today's customers, one list per meal: { regular: id } or { walk_in: true }
 # (see DayPlan), and which of this meal's are done (their indexes), so a day
 # picked up again doesn't send them twice.
@@ -75,6 +71,22 @@ var night_calls_used := 0
 var birthdays: Dictionary = {}
 # Debug panel: a dish id that's the only thing on the menu (e.g. to test its recipe). Not saved.
 var forced_dish := ""
+# Which half of the world the players are in, for the seasons (see
+# GameClock.season): "north" or "south". Saved.
+var hemisphere := "north"
+# The kitchen's pantry: what the chefs caught or gathered after hours, by item
+# id (a fish id...) -> how many. Dishes that need them take from it (see
+# Pantry). Never sold for money. Saved.
+var pantry: Dictionary = {}
+# The Fish Log, by fish id: { caught, biggest_cm, biggest_by, first_date,
+# first_by, by: { account id: count } } (account ids; dates are restaurant
+# days). Saved.
+var fish_log: Dictionary = {}
+# Debug panel: pretend it's this season ("" = the real one) or hour block
+# outdoors (for fishing), and the fish that bites on the next cast. Not saved.
+var debug_season := ""
+var debug_hour_block := ""
+var forced_fish := ""
 
 
 func _ready() -> void:
@@ -108,14 +120,14 @@ func reset_regular(regular_id: String) -> void:
 
 # The restaurant is opening (or reopening): on a new restaurant day it starts
 # again at the first meal with a fresh plan; the same day carries on where it
-# was, including after closing (then is_closed_today()).
+# was, including after closing (then it's After Hours, see DayCycle).
 func begin_day() -> void:
 	var today := GameClock.today()
 	if today == date:
 		return
 	date = today
 	day_number += 1
-	phase = 0
+	DayCycle.start_day()
 	phase_done.clear()
 	night_calls_total = 0
 	night_calls_used = 0
@@ -127,27 +139,12 @@ func begin_day() -> void:
 	replan_today()
 
 
-# Closed until tomorrow: after the last meal (and its closing moment), or a
-# relaunch later the same day.
-func is_closed_today() -> bool:
-	return date == GameClock.today() and phase == CLOSED
-
-
-# On to the next meal (`to`), or CLOSED after the last. Saves.
-func set_phase(to: int) -> void:
-	phase = to
-	phase_done.clear()
-	SaveGame.save_game()
-
-
-# The day's over: closed until tomorrow. Saves (so quitting from the summary
-# keeps it); the summary was already built from today's services.
-func close_day() -> void:
-	phase = CLOSED
-	phase_done.clear()
+# The day's over: on to the summary (built from today's services, and kept by
+# DayCycle to reopen after hours). Saves, so quitting from the summary keeps it.
+func close_day(summary: Dictionary) -> void:
 	services_today.clear()
 	chef_actions_today.clear()
-	SaveGame.save_game()
+	DayCycle.to_summary(summary)
 
 
 # Customer `index` of this meal's list (see todays_plan) is done, and saved.
@@ -284,7 +281,7 @@ func to_save_data() -> Dictionary:
 		"restaurant_color": restaurant_color,
 		"date": date,
 		"day_number": day_number,
-		"phase": phase,
+		"day_cycle": DayCycle.to_save_data(),
 		"phase_done": phase_done,
 		"day_plan": day_plan,
 		"services_today": services_today,
@@ -297,6 +294,9 @@ func to_save_data() -> Dictionary:
 		"night_calls_total": night_calls_total,
 		"night_calls_used": night_calls_used,
 		"birthdays": birthdays,
+		"hemisphere": hemisphere,
+		"pantry": pantry,
+		"fish_log": fish_log,
 		"regulars": regular_memory,
 	}
 
@@ -308,11 +308,13 @@ func apply_save_data(data: Dictionary) -> void:
 	restaurant_name = data.get("restaurant_name", restaurant_name)
 	restaurant_color = data.get("restaurant_color", restaurant_color)
 	date = data.get("date", date)  # Saves from before real dates had a "day" number instead; it's dropped.
-	# Saves from before one-day-a-day had shifts instead: that day starts over.
-	if not data.has("phase"):
-		date = ""
 	day_number = int(data.get("day_number", day_number))
-	phase = int(data.get("phase", phase))
+	if data.get("day_cycle") is Dictionary:
+		DayCycle.apply_save_data(data["day_cycle"])
+	elif data.has("phase"):  # Saves from before version 6: one number for the phase.
+		DayCycle.apply_old_phase(int(data["phase"]))
+	else:  # Saves from before one-day-a-day had shifts instead: that day starts over.
+		date = ""
 	phase_done.assign(data.get("phase_done", []).map(func(i): return int(i)))
 	var saved_plan = data.get("day_plan", {})
 	if saved_plan is Dictionary and saved_plan.get("phases") is Array:
@@ -327,6 +329,19 @@ func apply_save_data(data: Dictionary) -> void:
 	night_calls_total = int(data.get("night_calls_total", 0))
 	night_calls_used = int(data.get("night_calls_used", 0))
 	birthdays = data.get("birthdays", {}) if data.get("birthdays", {}) is Dictionary else {}
+	hemisphere = "south" if data.get("hemisphere", "north") == "south" else "north"
+	pantry = {}
+	var saved_pantry = data.get("pantry", {})
+	if saved_pantry is Dictionary:
+		for item in saved_pantry:
+			if int(saved_pantry[item]) > 0:
+				pantry[item] = int(saved_pantry[item])
+	fish_log = data.get("fish_log", {}) if data.get("fish_log", {}) is Dictionary else {}
+	for entry in fish_log.values():
+		entry["caught"] = int(entry.get("caught", 0))
+		entry["biggest_cm"] = int(entry.get("biggest_cm", 0))
+		for account_id in entry.get("by", {}):
+			entry["by"][account_id] = int(entry["by"][account_id])
 	voicemails = data.get("voicemails", []).filter(func(v): return v is Dictionary and v.has("kind") and v.has("id"))
 	var legacy_account_id := _account_from_old_save(data)
 	var saved_regulars: Dictionary = data.get("regulars", {})

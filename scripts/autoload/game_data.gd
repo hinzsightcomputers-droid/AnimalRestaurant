@@ -21,6 +21,8 @@ const CALLERS_PATH := "res://data/callers.json"
 const GOSSIP_PATH := "res://data/gossip.json"
 const SCENES_PATH := "res://data/scenes.json"
 const DAY_PATH := "res://data/day.json"
+const TIME_PATH := "res://data/time.json"
+const FISH_PATH := "res://data/fish.json"
 
 # Each dish, from the menu (design/menu/dishes.json): { id, name, origin,
 # description, ingredients, steps, base_price, cook_time, tags, unlock,
@@ -28,8 +30,9 @@ const DAY_PATH := "res://data/day.json"
 # dirty_model?, recipe?, station?, cook_speed?, ingredient: { name, color, model?, chop? }.
 # "chop" ({ name, chops }) means the ingredient goes to the chopping board first.
 # "unlock": "start" dishes are on the menu from day 1, "upgrade" ones once
-# bought in the end-of-day shop, "scene" ones once a big moment unlocks them
-# (see is_unlocked()).
+# bought in the end-of-day shop, "scene" ones once a big moment unlocks them,
+# "found" ones once something is found after hours (the first fish: see
+# Fishing) (see is_unlocked()). "uses" is what it takes from the Pantry.
 var dishes: Array[Dictionary] = []
 # Each drink, from design/menu/drinks.json: { id, name, type, description,
 # prep (grab | pour | brew), temperature, base_price, tags, unlock, unlock_cost },
@@ -74,6 +77,13 @@ var scene_settings: Dictionary = {}
 # How a day runs: its phases (Breakfast, Lunch, Dinner), who comes in each,
 # their lighting, and the closing lighting (see DayManager, DayPlan).
 var day_settings: Dictionary = {}
+# The real clock in words: hour blocks (early_morning... late_night) and which
+# weekdays are the weekend (see GameClock.hour_block, GameClock.weekday_id).
+var time_settings: Dictionary = {}
+# Fish you can catch ({ id, name, habitat, seasons, hours, rarity, size_cm,
+# difficulty, color, belly, description }) and how fishing plays (data/fish.json).
+var fish: Array[Dictionary] = []
+var fishing_settings: Dictionary = {}
 
 
 func _ready() -> void:
@@ -103,6 +113,17 @@ func _ready() -> void:
 	scenes = _load_list(SCENES_PATH, "scenes")
 	scene_settings = _load_dictionary(SCENES_PATH).get("settings", {})
 	day_settings = _load_dictionary(DAY_PATH)
+	time_settings = _load_dictionary(TIME_PATH)
+	fish = _load_list(FISH_PATH, "fish")
+	fishing_settings = _load_dictionary(FISH_PATH).get("settings", {})
+
+
+# A fish from data/fish.json, or {}.
+func get_fish(fish_id: String) -> Dictionary:
+	for entry in fish:
+		if entry["id"] == fish_id:
+			return entry
+	return {}
 
 
 func get_species(species_id: String) -> Dictionary:
@@ -150,12 +171,12 @@ func get_caller(caller_id: String) -> Dictionary:
 	return {}
 
 
-# The dishes on the menu right now: the unlocked ones (or just the debug
-# panel's forced dish).
+# The dishes on the menu right now: the unlocked ones the pantry has enough
+# for (see Pantry), or just the debug panel's forced dish.
 func menu() -> Array[Dictionary]:
 	if not GameState.forced_dish.is_empty():
 		return dishes.filter(func(d): return d["id"] == GameState.forced_dish)
-	return dishes.filter(func(d): return is_unlocked(d["id"]))
+	return dishes.filter(func(d): return is_unlocked(d["id"]) and Pantry.can_make(d))
 
 
 # The drinks customers can order right now: the unlocked ones.

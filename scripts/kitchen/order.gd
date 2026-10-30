@@ -14,6 +14,7 @@ var dish: Dictionary  # From GameData.dishes
 var state: State = State.WAITING
 var number := 0               # On its ticket, e.g. #3. Counts up through the shift.
 var on_wheel := false
+var pantry_items: Array[String] = []  # What it took from the pantry when it was ordered (see Pantry), e.g. ["bluegill"].
 
 
 func _init(for_customer: Customer, ordered_dish: Dictionary, delivery_caller: Dictionary = {}) -> void:

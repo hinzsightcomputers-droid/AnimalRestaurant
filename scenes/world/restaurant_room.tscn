@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/world/model_grid.gd" id="m0_model_gridgd"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/wall.gltf" id="m1_wallgltf"]
+[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/wall_doorway.gltf" id="m1_wall_doorway"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/kitchencounter_straight_A.gltf" id="m2_kitchencounter_s"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/wall_window_closed_curtains_red.gltf" id="m3_wall_window_clos"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/floor_kitchen.gltf" id="m4_floor_kitchenglt"]
@@ -92,9 +93,6 @@ roughness = 1.0
 material = SubResource("Mat_doormat")
 size = Vector3(1.2, 0.02, 0.7)
 
-[sub_resource type="BoxShape3D" id="Shape_front_wall"]
-size = Vector3(14.6, 3, 0.3)
-
 [sub_resource type="BoxMesh" id="Mesh_rug"]
 material = SubResource("Mat_rug")
 size = Vector3(7, 0.02, 4.8)
@@ -114,8 +112,14 @@ size = Vector3(6, 0.2, 4)
 material = SubResource("Mat_wall")
 size = Vector3(8, 3, 0.3)
 
-[sub_resource type="BoxShape3D" id="Shape_back_wall_left"]
-size = Vector3(8, 3, 0.3)
+[sub_resource type="BoxShape3D" id="Shape_back_wall_side"]
+size = Vector3(3.4, 3, 0.3)
+
+[sub_resource type="BoxShape3D" id="Shape_front_wall_left"]
+size = Vector3(11.6, 3, 0.3)
+
+[sub_resource type="BoxShape3D" id="Shape_front_wall_right"]
+size = Vector3(1.6, 3, 0.3)
 
 [sub_resource type="BoxMesh" id="Mesh_divider_left"]
 material = SubResource("Mat_wall")
@@ -188,14 +192,33 @@ mesh = SubResource("Mesh_doormat")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.3, 1.5, -5.15)
 
 [node name="Pieces" type="Node3D" parent="Walls/BackWall"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.667, -1.5, 0)
 script = ExtResource("m0_model_gridgd")
 model = ExtResource("m1_wallgltf")
-cells = Vector2i(3, 1)
+cells = Vector2i(1, 1)
+cell_size = Vector3(2.667, 3, 0.3)
+
+[node name="PiecesRight" type="Node3D" parent="Walls/BackWall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.667, -1.5, 0)
+script = ExtResource("m0_model_gridgd")
+model = ExtResource("m1_wallgltf")
+cells = Vector2i(1, 1)
+cell_size = Vector3(2.667, 3, 0.3)
+
+[node name="BackDoorway" type="Node3D" parent="Walls/BackWall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.5, 0)
+script = ExtResource("m0_model_gridgd")
+model = ExtResource("m1_wall_doorway")
+cells = Vector2i(1, 1)
 cell_size = Vector3(2.667, 3, 0.3)
 
 [node name="Collision" type="CollisionShape3D" parent="Walls/BackWall"]
-shape = SubResource("Shape_back_wall_left")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.3, 0, 0)
+shape = SubResource("Shape_back_wall_side")
+
+[node name="CollisionRight" type="CollisionShape3D" parent="Walls/BackWall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3, 0, 0)
+shape = SubResource("Shape_back_wall_side")
 
 [node name="KitchenDividerLeft" type="StaticBody3D" parent="Walls"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1, 0.55, -5.15)
@@ -331,8 +354,12 @@ cells = Vector2i(1, 1)
 cell_size = Vector3(1.6, 0.6, 0.3)
 
 [node name="Collision" type="CollisionShape3D" parent="Walls/FrontWall"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
-shape = SubResource("Shape_front_wall")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 1.5, 0)
+shape = SubResource("Shape_front_wall_left")
+
+[node name="CollisionRight" type="CollisionShape3D" parent="Walls/FrontWall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 1.5, 0)
+shape = SubResource("Shape_front_wall_right")
 
 [node name="Decor" type="Node3D" parent="."]
 

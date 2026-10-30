@@ -4,8 +4,9 @@
 # start and the chef walks up, unlocks the door, goes in, closes it, flips the
 # sign to open and the lights come on; then a circle wipe opens on the
 # restaurant. Pressing again skips ahead. F4 previews the other times of day.
-# After closing on the same day it stays shut: the prompt says when it opens
-# again, and pressing start goes straight in (to the closed restaurant).
+# After closing on the same day it's After Hours (see DayCycle): the prompt
+# says so, and the chef unlocks the door and goes in but leaves the sign on
+# closed.
 # It fades in from black, coming after the LogoSplash. The main theme (started
 # on the splash) slowly fades out once the lights come on, reaching silence as
 # the circle wipe closes to black.
@@ -100,13 +101,18 @@ func _ready() -> void:
 	_load_walker_models()
 	if not GameState.restaurant_name.is_empty():
 		_paint_sign(GameState.restaurant_name, Color(GameState.restaurant_color))
-	if GameState.is_closed_today():
-		prompt_label.text = "Closed until tomorrow. Opens at 5 AM, in %s" % GameClock.describe_duration(GameClock.seconds_until_next_day())
+	if _after_hours():
+		prompt_label.text = "Closed for today. Press E, Enter, or (A) to head in after hours"
 	elif GameState.date == GameClock.today():
-		prompt_label.text = "Press E, Enter, or (A) to carry on with %s" % GameState.phase_info(GameState.phase).get("name", "today").to_lower()
+		prompt_label.text = "Press E, Enter, or (A) to carry on with %s" % DayCycle.phase_name().to_lower()
 	# A few people already out walking, so the street isn't empty at first.
 	for i in 3:
 		_spawn_walker(randf_range(-WALKER_EDGE + 2.0, WALKER_EDGE - 2.0))
+
+
+# Today's already been and closed: going in for After Hours, not to open up.
+func _after_hours() -> bool:
+	return GameState.date == GameClock.today() and DayCycle.is_after_hours()
 
 
 # Comes in from black after the logo.
@@ -143,10 +149,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _setup != null or not _is_start_press(event):
 		return
 	get_viewport().set_input_as_handled()
-	if not _started and GameState.is_closed_today():
-		_started = true
-		_leave()  # Nothing to open up: straight in to the closed restaurant.
-	elif not _started and GameState.restaurant_name.is_empty():
+	if not _started and GameState.restaurant_name.is_empty():
 		_name_restaurant()  # First time: name it before opening up.
 	elif not _started:
 		_started = true
@@ -208,9 +211,10 @@ func _play_opening() -> void:
 	await _walk_to(BESIDE_DOOR)
 	await _turn_to(0.0)
 	await _swing_door(false)
-	await _walk_to(AT_SIGN)
-	await _turn_to(0.0)  # Face the window (and us).
-	await _flip_sign()
+	if not _after_hours():  # After hours the sign stays on closed.
+		await _walk_to(AT_SIGN)
+		await _turn_to(0.0)  # Face the window (and us).
+		await _flip_sign()
 	await _lights_on()
 	Music.fade_out(LIGHTS_HOLD_SECONDS + WIPE_CLOSE_SECONDS)
 	await get_tree().create_timer(LIGHTS_HOLD_SECONDS).timeout

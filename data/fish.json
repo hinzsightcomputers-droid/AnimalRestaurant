@@ -1,0 +1,51 @@
+{
+	"_about": "Fish you can catch, and how fishing plays (see Fishing and the fishing close-up: CastAction, BiteAction, ReelAction). Each fish: habitat (pond or beach), seasons and hours (hour blocks from data/time.json) it bites in ([] = any), rarity (a key of rarity_weights: how often it's picked among the fish that are biting), size_cm [min, max], difficulty 0-1 (how hard it pulls, and how long it takes to reel in), color (and belly) for its model. Catches go to the kitchen's pantry (pantry_kind) and the Fish Log; they're never sold. The game doesn't track weather, so fish don't depend on it.",
+	"settings": {
+		"rarity_weights": { "common": 60, "uncommon": 22, "rare": 3 },
+		"cast": {
+			"_about": "Hold to charge (the bar goes up and back down every charge_seconds), let go to cast. Distances in meters from the bank. A hot spot (ripples) is somewhere in range: landing within hot_spot_radius of it gets a bite sooner.",
+			"min_distance": 0.8, "max_distance": 3.0, "charge_seconds": 1.2, "hot_spot_radius": 0.45
+		},
+		"bite": {
+			"_about": "Seconds before the bite (times hot_spot_wait_factor in the ripples), how many fake nibbles come first, and how long the bobber stays under for you to strike.",
+			"wait_seconds": { "min": 3.0, "max": 8.0 }, "hot_spot_wait_factor": 0.45,
+			"nibbles": { "min": 0, "max": 2 }, "bite_window_seconds": 1.0
+		},
+		"reel": {
+			"_about": "Tension 0-1. Reeling raises it (reel_rise a second at full), slack lets it fall (slack_fall). The fish pulls in bursts (pull_seconds long, pull_every apart), adding pull_strength a second (easy fish at the low end, hard fish at the high end) while you reel, but only slack_pull_share of it while you let go (the line runs out): so reeling through a hard pull snaps it. Above safe_high for snap_seconds (or at 1) the line snaps; below safe_low for escape_seconds the fish gets away. reel_speed: share of the way in per second of reeling in the safe band (hard fish times hard_fish_reel); outside it, reeling counts for off_band_reel of that.",
+			"start_tension": 0.45, "safe_low": 0.25, "safe_high": 0.78,
+			"reel_rise": 0.75, "slack_fall": 0.55, "slack_pull_share": 0.35,
+			"pull_strength": { "min": 0.35, "max": 1.15 }, "pull_seconds": { "min": 0.5, "max": 1.1 },
+			"pull_every": { "easy": 2.4, "hard": 0.9 },
+			"snap_seconds": 0.7, "escape_seconds": 1.6,
+			"reel_speed": 0.32, "hard_fish_reel": 0.6, "off_band_reel": 0.25
+		},
+		"pantry_kind": "fish"
+	},
+	"fish": [
+		{ "id": "bluegill", "name": "Bluegill", "habitat": "pond", "seasons": [], "hours": [], "rarity": "common",
+			"size_cm": [10, 24], "difficulty": 0.15, "color": "#5b7fa6", "belly": "#e8b45a",
+			"description": "A round little sunfish with a dark spot by its gills." },
+		{ "id": "yellow_perch", "name": "Yellow Perch", "habitat": "pond", "seasons": ["spring", "summer", "autumn"], "hours": ["morning", "midday", "afternoon", "evening"], "rarity": "common",
+			"size_cm": [15, 30], "difficulty": 0.3, "color": "#c9b03c", "belly": "#f1e3a2",
+			"description": "Striped and golden. Bites best in daylight." },
+		{ "id": "pond_loach", "name": "Pond Loach", "habitat": "pond", "seasons": [], "hours": ["early_morning", "late_night"], "rarity": "common",
+			"size_cm": [10, 20], "difficulty": 0.2, "color": "#8a7052", "belly": "#d9c7a6",
+			"description": "A wriggly bottom-dweller that comes up in the dark and the dawn." },
+		{ "id": "common_carp", "name": "Common Carp", "habitat": "pond", "seasons": [], "hours": [], "rarity": "uncommon",
+			"size_cm": [30, 70], "difficulty": 0.55, "color": "#a0773c", "belly": "#e3c98c",
+			"description": "Big, patient and strong. Takes a while to bring in." },
+		{ "id": "catfish", "name": "Catfish", "habitat": "pond", "seasons": ["summer", "autumn"], "hours": ["evening", "late_night"], "rarity": "uncommon",
+			"size_cm": [35, 80], "difficulty": 0.6, "color": "#5e5a52", "belly": "#cfc6b4",
+			"description": "Whiskery and heavy. Wakes up when the sun goes down." },
+		{ "id": "rainbow_trout", "name": "Rainbow Trout", "habitat": "pond", "seasons": ["spring", "autumn", "winter"], "hours": ["early_morning", "morning"], "rarity": "uncommon",
+			"size_cm": [25, 50], "difficulty": 0.5, "color": "#7c9a8a", "belly": "#e79aa0",
+			"description": "A pink stripe down its side. Likes cold mornings." },
+		{ "id": "golden_koi", "name": "Golden Koi", "habitat": "pond", "seasons": ["spring"], "hours": ["early_morning", "morning"], "rarity": "rare",
+			"size_cm": [40, 75], "difficulty": 0.75, "color": "#f0a020", "belly": "#fff1c8",
+			"description": "Shimmering gold. Only seen on spring mornings, and not often." },
+		{ "id": "moonlit_pike", "name": "Moonlit Pike", "habitat": "pond", "seasons": ["winter"], "hours": ["late_night"], "rarity": "rare",
+			"size_cm": [50, 100], "difficulty": 0.9, "color": "#4a5f7a", "belly": "#d6e2f0",
+			"description": "Silver-blue and fierce. Hunts on winter nights." }
+	]
+}

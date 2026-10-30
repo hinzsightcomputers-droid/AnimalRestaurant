@@ -13,6 +13,7 @@ var _next_number := 1
 
 func add_order(customer: Customer) -> Order:
 	var order := Order.new(customer, customer.dish)
+	order.pantry_items = Pantry.take_for(order.dish)
 	_number(order)
 	orders.append(order)
 	changed.emit()
@@ -22,6 +23,7 @@ func add_order(customer: Customer) -> Order:
 # A phoned-in order, cooked like any other and picked up by the courier.
 func add_delivery(dish: Dictionary, caller: Dictionary) -> Order:
 	var order := Order.new(null, dish, caller)
+	order.pantry_items = Pantry.take_for(order.dish)
 	_number(order)
 	orders.append(order)
 	changed.emit()

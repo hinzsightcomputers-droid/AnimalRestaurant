@@ -26,6 +26,8 @@
 [ext_resource type="PackedScene" path="res://scenes/furniture/sink.tscn" id="24_sink"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/oven.tscn" id="25_oven"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/drink_station.tscn" id="26_drinks"]
+[ext_resource type="Script" path="res://scripts/world/restaurant_grounds.gd" id="27_grounds"]
+[ext_resource type="Script" path="res://scripts/outdoors/back_garden.gd" id="28_garden"]
 
 [sub_resource type="Environment" id="Env"]
 background_mode = 1
@@ -230,6 +232,13 @@ delivery_manager = NodePath("../DeliveryManager")
 scene_player = NodePath("../ScenePlayer")
 sun = NodePath("../Sun")
 world_environment = NodePath("../WorldEnvironment")
+
+[node name="RestaurantGrounds" type="Node3D" parent="." node_paths=PackedStringArray("day_manager")]
+script = ExtResource("27_grounds")
+day_manager = NodePath("../DayManager")
+
+[node name="BackGarden" type="Node3D" parent="."]
+script = ExtResource("28_garden")
 
 [node name="HUD" parent="." unique_id=1664110998 node_paths=PackedStringArray("order_board", "day_manager") instance=ExtResource("10_hud")]
 order_board = NodePath("../OrderBoard")

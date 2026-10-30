@@ -56,11 +56,14 @@ func release_camera_focus() -> void:
 # During a close-up (the oven, pouring a drink) the chef would stand in the way
 # of their own camera: hide them from it while it's zoomed in. Everyone else's
 # view still shows them. Their meshes get a render layer of their own
-# (OWN_VIEW_LAYER + player_index) that their CameraRig leaves out.
+# (OWN_VIEW_LAYER + player_index) instead of the usual one, which their
+# CameraRig leaves out while zoomed in (every other camera draws all layers).
 func hide_from_own_view(hidden: bool) -> void:
 	if hidden:
 		for node in visual.find_children("*", "VisualInstance3D", true, false):
-			(node as VisualInstance3D).set_layer_mask_value(own_view_layer(), true)
+			var mesh := node as VisualInstance3D
+			mesh.set_layer_mask_value(1, false)
+			mesh.set_layer_mask_value(own_view_layer(), true)
 	hidden_from_own_view = hidden
 
 

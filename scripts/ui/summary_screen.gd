@@ -1,15 +1,21 @@
 # SummaryScreen: the end-of-day results panel. Hidden until the DayManager
 # reports the day has ended, then shows the totals, what each chef did, and
-# how long until the restaurant opens again (5 AM), with a button that starts
-# the next day once it's come. Opening the game after closing on the same day
-# shows it too, just saying it's closed until tomorrow. The Friends button flips to a page of which
-# chefs each regular knows, and the Shop button to the upgrades you can buy.
+# how long until the restaurant opens again (5 AM); its button heads out into
+# After Hours. After hours the host stand opens it again (the same summary,
+# kept by DayCycle), and then its button closes it, or opens up for the new
+# day once 5 AM has been. The Friends button flips to a page of which chefs
+# each regular knows, and the Shop button to the upgrades you can buy.
 # Runs while the game is paused.
 extends CanvasLayer
 
 enum Page { SUMMARY, FRIENDS, SHOP }
 
 const INPUT_DELAY := 1.0  # Ignore input briefly so a held E doesn't skip the screen.
+# The panel keeps this far inside the window: on a small window (or a long day)
+# the text shrinks, down to BODY_FONT_MIN, and the shop list gets shorter.
+const SCREEN_MARGIN := 24.0
+const BODY_FONT_MIN := 12
+const PANEL_SIZE := Vector2(720, 460)  # At least this big.
 # Chef actions in the order they're listed, with how to say each count.
 const ACTION_WORDS := [
 	["chopped", "chopped"],
@@ -23,6 +29,7 @@ const ACTION_WORDS := [
 @export var day_manager: DayManager
 
 @onready var title_label: Label = $Panel/Content/Title
+@onready var panel: PanelContainer = $Panel
 @onready var body_label: Label = $Panel/Content/Body
 @onready var upgrade_scroll: ScrollContainer = $Panel/Content/UpgradeScroll
 @onready var upgrade_list: VBoxContainer = $Panel/Content/UpgradeScroll/UpgradeList
@@ -33,13 +40,15 @@ const ACTION_WORDS := [
 var _input_delay_left := 0.0
 var _summary: Dictionary = {}
 var _page := Page.SUMMARY
+var _from_host_stand := false  # Reopened after hours, rather than the day just ending.
 
 
 func _ready() -> void:
 	visible = false
 	day_manager.day_ended.connect(_show_summary)
-	day_manager.closed_for_today.connect(_show_summary.bind({}))
+	day_manager.summary_requested.connect(func(): _show_summary(DayCycle.summary, true))
 	next_button.pressed.connect(_on_next_pressed)
+	get_viewport().size_changed.connect(func(): if visible: _fit_to_screen())
 	friends_button.pressed.connect(_toggle_page.bind(Page.FRIENDS))
 	shop_button.pressed.connect(_toggle_page.bind(Page.SHOP))
 
@@ -48,9 +57,8 @@ func _process(delta: float) -> void:
 	if not visible:
 		return
 	_input_delay_left = maxf(_input_delay_left - delta, 0.0)
-	var new_day := GameClock.today() != GameState.date
-	next_button.disabled = _input_delay_left > 0.0 or not new_day
-	next_button.text = "Open for a new day" if new_day else "Opens in %s" % GameClock.describe_duration(GameClock.seconds_until_next_day())
+	next_button.disabled = _input_delay_left > 0.0
+	next_button.text = _next_button_text()
 
 
 # Any player's interact button presses the focused button (Start Day at first;
@@ -69,8 +77,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 
 
-func _show_summary(summary: Dictionary) -> void:
+func _show_summary(summary: Dictionary, from_host_stand := false) -> void:
 	_summary = summary
+	_from_host_stand = from_host_stand
 	_page = Page.SUMMARY
 	_refresh_page()
 	next_button.disabled = true
@@ -121,19 +130,47 @@ func _refresh_page() -> void:
 			body_label.text = "You have $%d. Treat the restaurant to something nice!" % GameState.money
 			_build_upgrade_list()
 		_:
-			if _summary.is_empty():  # Opened again after closing.
-				title_label.text = "Closed until tomorrow"
-				body_label.text = "The chairs are up and the lights are off.
-We open again at 5 AM, in %s.
+			if _summary.is_empty():  # A day that ended before summaries were kept.
+				title_label.text = "After hours"
+				body_label.text = "Today's summary wasn't kept, sorry!
 
-Total money: $%d" % [GameClock.describe_duration(GameClock.seconds_until_next_day()), GameState.money]
+%s
+
+Total money: $%d" % [_opens_text(), GameState.money]
 			else:
 				title_label.text = "%s - day %d done!" % [GameClock.describe_date(_summary["date"]), _summary["day_number"]]
 				body_label.text = _summary_text(_summary) + "
 
-Closed until tomorrow: we open again at 5 AM."
+" + _opens_text()
 			if not next_button.disabled:
 				next_button.grab_focus()  # Back on the summary, interact starts the day again.
+	_fit_to_screen()
+
+
+# Smaller body text, then a shorter shop list, until the panel fits the window.
+func _fit_to_screen() -> void:
+	if not body_label.has_meta(&"base_font_size"):
+		body_label.set_meta(&"base_font_size", body_label.get_theme_font_size("font_size"))
+		upgrade_scroll.set_meta(&"base_height", upgrade_scroll.custom_minimum_size.y)
+	var room := get_viewport().get_visible_rect().size - Vector2.ONE * SCREEN_MARGIN * 2.0
+	var font_size: int = body_label.get_meta(&"base_font_size")
+	upgrade_scroll.custom_minimum_size.y = upgrade_scroll.get_meta(&"base_height")
+	body_label.add_theme_font_size_override("font_size", font_size)
+	while font_size > BODY_FONT_MIN and _too_big(room):
+		font_size -= 1
+		body_label.add_theme_font_size_override("font_size", font_size)
+	var over := panel.get_combined_minimum_size().y - room.y
+	if over > 0.0 and upgrade_scroll.visible:
+		upgrade_scroll.custom_minimum_size.y = maxf(80.0, upgrade_scroll.custom_minimum_size.y - over)
+	var needed := panel.get_combined_minimum_size()
+	var least := PANEL_SIZE.min(room)
+	panel.size = Vector2(maxf(least.x, needed.x), maxf(least.y, needed.y))  # Back down when the text got shorter.
+	panel.position = (get_viewport().get_visible_rect().size - panel.size) / 2.0
+
+
+func _too_big(room: Vector2) -> bool:
+	var needed := panel.get_combined_minimum_size()
+	return needed.x > room.x or needed.y > room.y
 
 
 # "Shop (2 new!)" when there are upgrades, dishes or drinks you can afford right now.
@@ -287,8 +324,26 @@ func _reaction_text(counts: Dictionary) -> String:
 	return ", ".join(parts)
 
 
+# When the restaurant opens again, or that it can now.
+func _opens_text() -> String:
+	if DayCycle.is_new_day_waiting():
+		return "It's a new day! Open up from the sign or the host stand."
+	return "After hours until 5 AM (in %s), then we open again." % GameClock.describe_duration(GameClock.seconds_until_next_day())
+
+
+func _next_button_text() -> String:
+	if not _from_host_stand:
+		return "Head out for the evening"
+	return "Open for a new day" if DayCycle.is_new_day_waiting() else "Close"
+
+
+# The day just ended: on into After Hours. Reopened at the host stand: close
+# it, or open up if it's a new day.
 func _on_next_pressed() -> void:
 	if next_button.disabled:
 		return
 	visible = false
-	day_manager.start_next_day()
+	if not _from_host_stand:
+		day_manager.enter_after_hours()
+	elif not day_manager.start_next_day():
+		get_tree().paused = false
