@@ -187,3 +187,4 @@ func _seating_prompt(player_index: int) -> String:
 func _update_interactable() -> void:
 	interactable.enabled = true
 	interactable.prompt = "Clear dishes" if not dishes.is_empty() else "Wipe table"
+	interactable.priority = 0 if is_clean() else 1  # A mess to clean beats its own chairs, close by.

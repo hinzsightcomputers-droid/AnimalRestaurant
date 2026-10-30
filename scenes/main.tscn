@@ -31,6 +31,7 @@
 [ext_resource type="Script" path="res://scripts/outdoors/car_trip.gd" id="29_trip"]
 [ext_resource type="Script" path="res://scripts/outdoors/town.gd" id="30_town"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/takeout_counter.tscn" id="31_takeout"]
+[ext_resource type="Script" path="res://scripts/guide/guide.gd" id="32_guide"]
 
 [sub_resource type="Environment" id="Env"]
 background_mode = 1
@@ -265,3 +266,11 @@ day_manager = NodePath("../DayManager")
 player_manager = NodePath("../PlayerManager")
 
 [node name="DebugPanel" parent="." instance=ExtResource("18_debug")]
+
+[node name="Guide" type="Node3D" parent="." node_paths=PackedStringArray("customer_manager", "delivery_manager", "day_manager", "order_board", "view_manager")]
+script = ExtResource("32_guide")
+customer_manager = NodePath("../CustomerManager")
+delivery_manager = NodePath("../DeliveryManager")
+day_manager = NodePath("../DayManager")
+order_board = NodePath("../OrderBoard")
+view_manager = NodePath("../Views")

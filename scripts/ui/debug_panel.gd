@@ -5,13 +5,16 @@
 # come in today, ring the phone for any caller or fill its voicemail, send a
 # regular to Gone and skip through winning them back, and play each big moment
 # scene at closing (or set up its trigger), and practice close-up recipes or
-# put only one dish on the menu. The game pauses while it's open, and changes are
-# saved when it closes. Built in code, since it's only a tool.
+# put only one dish on the menu, or wipe the save and every chef to start over.
+# The game pauses while it's open, and changes are saved when it closes. Built
+# in code, since it's only a tool.
 extends CanvasLayer
 
 const TOGGLE_KEY := KEY_F3
 const PANEL_WIDTH := 460
 const DAY_STEPS := [1, 3, 7]
+const WIPE_TEXT := "Wipe save and chefs"
+const WIPE_CONFIRM_SECONDS := 4.0
 
 var _regular_picker: OptionButton
 var _info: Label
@@ -37,6 +40,8 @@ var _hour_picker: OptionButton
 var _fish_picker: OptionButton
 var _changed := false     # Something to save when the panel closes.
 var _updating := false    # True while _refresh moves the slider, so it isn't treated as an edit.
+var _wipe_button: Button
+var _wipe_armed := false
 
 
 func _ready() -> void:
@@ -727,6 +732,34 @@ func _build() -> void:
 
 	_add_label(box, "Restaurant", 18, true)
 	_add_button(_add_row(box), "Rename restaurant", _rename_restaurant)
+
+	_add_label(box, "Start over", 18, true)
+	_add_label(box, "Deletes the restaurant save, every chef account and the debug date, then restarts as a brand-new game. Settings are kept.")
+	_wipe_button = _add_button(_add_row(box), WIPE_TEXT, _wipe_pressed)
+
+
+# --- Start over ------------------------------------------------------------
+
+# Asks first: the first press arms it for WIPE_CONFIRM_SECONDS, the second wipes.
+func _wipe_pressed() -> void:
+	if not _wipe_armed:
+		_wipe_armed = true
+		_wipe_button.text = "Really wipe everything? Press again"
+		await get_tree().create_timer(WIPE_CONFIRM_SECONDS).timeout
+		_wipe_armed = false
+		if is_instance_valid(_wipe_button):
+			_wipe_button.text = WIPE_TEXT
+		return
+	wipe_files()
+	OS.set_restart_on_exit(true)
+	get_tree().quit()  # Not a window close, so nothing saves on the way out.
+
+
+# The save, the chefs and the debug date are gone; settings stay.
+static func wipe_files() -> void:
+	for path in [SaveGame.SAVE_PATH, Accounts.SAVE_PATH, GameClock.DEBUG_PATH]:
+		if FileAccess.file_exists(path):
+			DirAccess.remove_absolute(path)
 
 
 # --- Kitchen ---------------------------------------------------------------

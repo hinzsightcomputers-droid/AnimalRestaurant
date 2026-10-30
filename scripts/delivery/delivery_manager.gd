@@ -40,6 +40,14 @@ func _send_in(courier: Courier) -> void:
 
 
 # Deliveries still waiting to be picked up (the day doesn't end until they are).
+# The courier waiting for (or walking in for) this order, or null.
+func courier_for(order: Order) -> Courier:
+	for courier in _couriers:
+		if courier.order == order and not courier.leaving:
+			return courier
+	return null
+
+
 func has_deliveries() -> bool:
 	return not _couriers.is_empty()
 

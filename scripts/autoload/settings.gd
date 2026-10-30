@@ -23,6 +23,7 @@ var sfx_volume := 1.0
 var pad_cursor_speed := 1.0   # Times CookSession.pad_cursor_speed.
 var key_cursor_speed := 1.0   # Times CookSession.cursor_speed.
 var hybrid_camera := true
+var guide_always := false  # Show the Guide's arrow every day, not just to new chefs.
 var cursor_speed_range := Vector2(0.4, 2.0)
 
 
@@ -80,6 +81,7 @@ func save() -> void:
 		"master_volume": master_volume, "music_volume": music_volume, "sfx_volume": sfx_volume,
 		"pad_cursor_speed": pad_cursor_speed, "key_cursor_speed": key_cursor_speed,
 		"hybrid_camera": hybrid_camera,
+		"guide_always": guide_always,
 	}, "\t"))
 
 
@@ -90,6 +92,7 @@ func _apply_values(values: Dictionary) -> void:
 	pad_cursor_speed = clampf(float(values.get("pad_cursor_speed", pad_cursor_speed)), cursor_speed_range.x, cursor_speed_range.y)
 	key_cursor_speed = clampf(float(values.get("key_cursor_speed", key_cursor_speed)), cursor_speed_range.x, cursor_speed_range.y)
 	hybrid_camera = bool(values.get("hybrid_camera", hybrid_camera))
+	guide_always = bool(values.get("guide_always", guide_always))
 
 
 func _apply_volumes() -> void:

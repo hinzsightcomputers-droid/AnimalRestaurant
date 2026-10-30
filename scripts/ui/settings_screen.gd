@@ -128,6 +128,15 @@ func _build() -> void:
 	_mark(hybrid, _row_label(grid, "Split screen"))
 	grid.add_child(hybrid)
 	_label(grid, "", 18, TEXT)
+	var guide := CheckButton.new()
+	guide.text = "Always show the way"
+	guide.tooltip_text = "On: an arrow points each chef to their next step every day. Off: only on the first day and for new chefs."
+	guide.button_pressed = Settings.guide_always
+	guide.add_theme_font_size_override("font_size", 20)
+	guide.toggled.connect(func(on: bool): Settings.set_value("guide_always", on))
+	_mark(guide, _row_label(grid, "Guide arrow"))
+	grid.add_child(guide)
+	_label(grid, "", 18, TEXT)
 	var hemisphere := Button.new()
 	hemisphere.add_theme_font_size_override("font_size", 20)
 	hemisphere.text = _hemisphere_text()

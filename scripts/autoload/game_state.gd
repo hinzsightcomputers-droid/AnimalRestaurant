@@ -98,6 +98,8 @@ var cheddar_left_on := ""
 # gift_points: { regular id: friendship from gifts today } }. A new day starts
 # it fresh (see Town.today). Saved.
 var house_day: Dictionary = {}
+var guided: Array = []  # Account ids done with the Guide's arrow (after their first customer, or a whole shift); it's only shown to new chefs.
+var guide_old_save := false  # Loaded from before the guide: the Guide counts everyone already here as shown.
 # Debug panel: pretend it's this season ("" = the real one) or hour block
 # outdoors (for fishing), and the fish that bites on the next cast. Not saved.
 var debug_season := ""
@@ -161,9 +163,16 @@ func begin_day() -> void:
 	replan_today()
 
 
+func mark_guided(account_id: String) -> void:
+	if not account_id.is_empty() and not account_id in guided:
+		guided.append(account_id)
+
+
 # The day's over: on to the summary (built from today's services, and kept by
 # DayCycle to reopen after hours). Saves, so quitting from the summary keeps it.
 func close_day(summary: Dictionary) -> void:
+	for account_id in chef_actions_today:
+		mark_guided(account_id)
 	services_today.clear()
 	chef_actions_today.clear()
 	DayCycle.to_summary(summary)
@@ -314,6 +323,7 @@ func to_save_data() -> Dictionary:
 		"delivery_asked": delivery_asked,
 		"phone_unlocked": phone_unlocked,
 		"night_calls_total": night_calls_total,
+		"guided": guided,
 		"night_calls_used": night_calls_used,
 		"birthdays": birthdays,
 		"hemisphere": hemisphere,
@@ -354,6 +364,8 @@ func apply_save_data(data: Dictionary) -> void:
 	delivery_asked = bool(data.get("delivery_asked", false))
 	phone_unlocked = bool(data.get("phone_unlocked", false))  # Saves from before the phone had to be unlocked start without it.
 	night_calls_total = int(data.get("night_calls_total", 0))
+	guided = data.get("guided", [])
+	guide_old_save = not data.has("guided") and day_number > 1
 	night_calls_used = int(data.get("night_calls_used", 0))
 	birthdays = data.get("birthdays", {}) if data.get("birthdays", {}) is Dictionary else {}
 	hemisphere = "south" if data.get("hemisphere", "north") == "south" else "north"

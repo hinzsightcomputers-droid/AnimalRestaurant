@@ -297,9 +297,9 @@ func _counter_prompt(player_index: int) -> String:
 	var player := Player.find(get_tree(), player_index)
 	if player == null or player.held_item != null or _writing_letter:
 		return ""
-	if _bills_to_print() > 0:
+	if bills_to_print() > 0:
 		return "Print the bill"
-	var next := _next_to_seat()
+	var next := next_to_seat()
 	if next != null:
 		return "Seat %s" % next.display_name if not _leading.has(player_index) and not _greeting.has(player_index) else ""
 	if not Redemption.letter_targets().is_empty():
@@ -307,8 +307,18 @@ func _counter_prompt(player_index: int) -> String:
 	return ""
 
 
+# The customer following this player to a table, or null.
+func leading(player_index: int) -> Customer:
+	return _leading.get(player_index)
+
+
+# The customer this player is welcoming at the host stand, or null.
+func greeting(player_index: int) -> Customer:
+	return _greeting.get(player_index)
+
+
 # First in line, standing at the host stand (not still walking up), or null.
-func _next_to_seat() -> Customer:
+func next_to_seat() -> Customer:
 	for customer in _queue:
 		if customer.state == Customer.State.WAITING_TO_BE_SEATED and not customer.is_walking() and not customer in _busy:
 			return customer
@@ -316,7 +326,7 @@ func _next_to_seat() -> Customer:
 
 
 # Customers waiting for a bill that nobody has printed for them yet.
-func _bills_to_print() -> int:
+func bills_to_print() -> int:
 	var wanted := 0
 	for child in get_children():
 		if child is Customer and child.state == Customer.State.WANTS_BILL:
@@ -341,11 +351,11 @@ func _on_order_counter_used(_station: Station, player_index: int) -> void:
 	var player := Player.find(get_tree(), player_index)
 	if player == null or player.held_item != null:
 		return
-	if _bills_to_print() > 0:
+	if bills_to_print() > 0:
 		player.set_held_item(Receipt.new())
 		GameEvents.announce("%s printed the bill." % Accounts.name_of(player_index))
 		return
-	var next := _next_to_seat()
+	var next := next_to_seat()
 	if next != null:
 		_greet(player, next, order_counter.interactable)
 		return
