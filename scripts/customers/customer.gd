@@ -244,6 +244,11 @@ func serve(quality: float, plate: CookedDish = null) -> void:
 	_set_state(State.EATING)
 
 
+# How much of their meal is left: 1 when it arrives, 0 once it's eaten.
+func meal_left() -> float:
+	return clampf(_eat_time_left / eat_duration, 0.0, 1.0) if eat_duration > 0.0 else 0.0
+
+
 # Done eating: waiting for the bill.
 func want_bill() -> void:
 	_set_state(State.WANTS_BILL)

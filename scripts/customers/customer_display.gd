@@ -6,7 +6,10 @@
 # walking, sitting and talking with its animations (named in model_animations
 # in data/regulars.json).
 # A model without animations bobs along as it walks. A regular's feelings
-# (Customer.emote) pop up over their head with a sound and a bounce. Display only.
+# (Customer.emote) pop up over their head with a sound and a bounce. How
+# their meal came out shows while they eat: their bubble, sparkles rising off a
+# perfect plate or smoke off a burnt one, and a happy or sad moment halfway
+# through. Display only.
 extends Node3D
 
 @onready var customer: Customer = get_parent()
@@ -20,6 +23,8 @@ const PLATE_TOP := 0.046     # The meal's plate model: its top above its bottom,
 const PLATE_RADIUS := 0.22
 
 const RING_HEIGHT := 2.6  # The WaitRing, above the order bubble (two lines for a long dish name).
+const AURA_HEIGHT := 0.12      # Sparkles or smoke start just over the food.
+const MID_MEAL := 0.5           # How far through the meal (of eat_duration) they react to it again.
 
 var _food_material := StandardMaterial3D.new()
 var _speech_timer := Timer.new()
@@ -32,6 +37,7 @@ var _body := Node3D.new()          # Holds the model: hops and droops with their
 var _emotions := EmotionPlayer.new()  # On top of their head (the placeholder's, unless a model moves it).
 var _menu_card: MeshInstance3D = null  # On the table until they've ordered their food.
 var _drink: DrinkModel = null          # The drink they were brought, beside their plate.
+var _aura: CPUParticles3D = null       # Sparkles or smoke over their plate while they eat.
 
 
 func _ready() -> void:
@@ -62,6 +68,9 @@ func _on_state_changed(_customer: Customer) -> void:
 	if _look != null and not meal.visible:
 		_look.queue_free()
 		_look = null
+	if _aura != null and not meal.visible:
+		_aura.queue_free()
+		_aura = null
 
 	_update_table_things()
 	match customer.state:
@@ -82,7 +91,11 @@ func _on_state_changed(_customer: Customer) -> void:
 			bubble.visible = not customer.is_regular()
 			bubble.text = "%s, please!" % dish_name
 		Customer.State.EATING:
-			bubble.text = "Nom nom..."
+			var tier := CookingMinigame.quality_label(customer.served_quality).to_lower()
+			bubble.text = String(GameData.service.get("townsfolk", {}).get("eating", {}).get(tier, "Nom nom..."))
+			if _aura == null:
+				_start_aura(tier)
+				_react_mid_meal(tier)
 			# Same look as the plate the player carried: golden = good, dark = burnt.
 			_food_material.albedo_color = Color(0.3, 0.2, 0.15).lerp(Color(0.95, 0.7, 0.3), customer.served_quality)
 			if _look == null and customer.served_dish != null:  # The real thing, the way it was cooked.
@@ -94,6 +107,58 @@ func _on_state_changed(_customer: Customer) -> void:
 			bubble.visible = false  # Their goodbye was in the dialogue box; what they paid is announced.
 
 	_update_name_tag()
+
+
+# Sparkles rising off a perfect plate, grey smoke off a burnt one; nothing
+# in between.
+func _start_aura(tier: String) -> void:
+	if tier != "perfect" and tier != "burnt":
+		return
+	var perfect := tier == "perfect"
+	_aura = CPUParticles3D.new()
+	_aura.amount = 14 if perfect else 12
+	_aura.lifetime = 1.8 if perfect else 2.0
+	_aura.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
+	_aura.emission_sphere_radius = PLATE_RADIUS * 0.6
+	_aura.direction = Vector3.UP
+	_aura.spread = 20.0
+	_aura.initial_velocity_min = 0.1 if perfect else 0.06
+	_aura.initial_velocity_max = 0.35 if perfect else 0.18
+	_aura.gravity = Vector3.ZERO
+	_aura.scale_amount_min = 0.6
+	_aura.scale_amount_max = 1.4 if perfect else 2.6
+	var fade := Gradient.new()  # In, then out.
+	fade.set_color(0, Color(1.0, 1.0, 1.0, 0.0))
+	fade.add_point(0.25, Color.WHITE)
+	fade.set_color(fade.get_point_count() - 1, Color(1.0, 1.0, 1.0, 0.0))
+	_aura.color_ramp = fade
+	var dot := SphereMesh.new()
+	dot.radius = 0.055 if perfect else 0.06
+	dot.height = dot.radius * 2.0
+	dot.radial_segments = 6
+	dot.rings = 3
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.albedo_color = Color(1.0, 0.9, 0.35) if perfect else Color(0.25, 0.23, 0.22, 0.7)
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.vertex_color_use_as_albedo = true  # So the fade works.
+	dot.material = material
+	_aura.mesh = dot
+	_aura.position.y = AURA_HEIGHT
+	meal.add_child(_aura)
+	_aura.emitting = true
+
+
+# Halfway through, how it tastes shows again: a happy bounce for a perfect
+# dish, a sad droop for a burnt one.
+func _react_mid_meal(tier: String) -> void:
+	var feeling: StringName = {"perfect": &"joyful", "burnt": &"sad"}.get(tier, &"")
+	if feeling == &"":
+		return
+	while is_instance_valid(customer) and customer.state == Customer.State.EATING and customer.meal_left() > 1.0 - MID_MEAL:
+		await get_tree().process_frame
+	if is_instance_valid(customer) and customer.state == Customer.State.EATING:
+		customer.emote(feeling)
 
 
 # The menu card lies on the table from sitting down until they've ordered food;

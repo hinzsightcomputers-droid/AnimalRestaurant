@@ -966,7 +966,9 @@ func _serve(player: Player, customer: Customer) -> void:
 	_pop_serve(customer)
 	if not customer.is_regular():
 		var quality := customer.served_quality
-		await _talk(player, customer, _townsfolk_line("served", { "dish": plate.dish_name() }),
+		var tier := "served_" + CookingMinigame.quality_label(quality).to_lower()  # How it looks to them.
+		var said := _townsfolk_line(tier if GameData.service.get("townsfolk", {}).has(tier) else "served", { "dish": plate.dish_name() })
+		await _talk(player, customer, said,
 			&"joyful" if quality >= 0.85 else (&"happy" if quality >= 0.5 else &"sad"), serve_zoom)
 		return
 
