@@ -149,6 +149,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _setup != null or not _is_start_press(event):
 		return
 	get_viewport().set_input_as_handled()
+	_take_over_player_one(InputSetup.device_of_interact_press(event))
 	if not _started and GameState.restaurant_name.is_empty():
 		_name_restaurant()  # First time: name it before opening up.
 	elif not _started:
@@ -156,6 +157,14 @@ func _unhandled_input(event: InputEvent) -> void:
 		_play_opening()
 	else:
 		_leave()  # Skip the rest.
+
+
+# Starting on a gamepad makes it Player 1's, so whoever pressed start with
+# one plays with it (the keyboard stays WASD).
+func _take_over_player_one(device: String) -> void:
+	if not device.begins_with("pad_") or InputSetup.is_device_used(device) or InputSetup.active_players() != [0]:
+		return
+	InputSetup.assign_device(0, device)
 
 
 # The naming panel, with the sign on the building changing as they type.
@@ -178,7 +187,7 @@ func _paint_sign(restaurant_name: String, color: Color) -> void:
 
 
 func _is_start_press(event: InputEvent) -> bool:
-	if event.is_action_pressed("ui_accept"):
+	if event.is_action_pressed("ui_accept") or not InputSetup.device_of_interact_press(event).is_empty():
 		return true
 	for player_index in InputSetup.MAX_PLAYERS:
 		if event.is_action_pressed(InputSetup.action_name(player_index, "interact")):

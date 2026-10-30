@@ -163,6 +163,7 @@ func _open_closeup(player: Player, recipe: CookRecipe, ingredients: Ingredients 
 	var zoom: CameraZoomSettings = closeup_zoom.duplicate()
 	zoom.yaw_degrees += rad_to_deg(global_rotation.y)  # From in front, however the station turns.
 	player.request_camera_focus(global_transform * closeup_look_offset, zoom)
+	session.home_view = [global_transform * closeup_look_offset, zoom]
 	player.hide_from_own_view(true)
 	session.finished.connect(_on_minigame_finished)
 	session.start(recipe, player, view_manager if view_manager != null else get_tree().root.find_children("*", "ViewManager", true, false).front(), ingredients)

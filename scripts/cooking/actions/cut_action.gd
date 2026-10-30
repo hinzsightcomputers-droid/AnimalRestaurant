@@ -23,6 +23,22 @@ var _top_y := 0.0                          # The sheet's top (it's gone once the
 var _material: StandardMaterial3D
 
 
+func _init() -> void:
+	view_distance = 0.5  # Close in on the sheet.
+	view_pitch = 62.0
+
+
+func view_point() -> Vector3:
+	var center: Vector3 = session.context.get("dough", {}).get("center", super.view_point())
+	return Vector3(center.x, _top(), center.z)
+
+
+func cursor_area() -> Rect2:
+	var size: Vector2 = _sheet.get("size", Vector2.ZERO)
+	var center: Vector3 = _sheet.get("center", Vector3.ZERO)
+	return Rect2(center.x - size.x * 0.5, center.z - size.y * 0.5, size.x, size.y).grow(cookie_radius * 1.5)
+
+
 func _begin() -> void:
 	_sheet = session.context.get("dough", {})
 	var dough: MeshInstance3D = _sheet.get("node")
@@ -73,6 +89,7 @@ func _press(at: Vector3) -> void:
 	session.pop_text("Clean!" if score >= 0.9 else ("Bit squashed" if score >= 0.5 else "Messy!"), at, CookSession.mood_of(score))
 	if _cut.size() >= cookies:
 		_moving = true
+		session.frame(session.surface(onto).position, view_distance, view_pitch, 0.6)  # Along with them.
 		await _to_tray()
 		session.context["cookies"] = _cut
 		finish(average(_scores))

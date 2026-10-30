@@ -1,8 +1,10 @@
-# BakeAction: bake the tray in the oven. It slides in, the oven glows, and a
-# meter on top fills as the cookies bake: pale, then golden (the green band),
-# then burnt. Press the button to take the tray out. The cookies come out
-# looking as done as they are; leave them too long and they come out burnt on
-# their own.
+# BakeAction: bake the tray in the oven. The camera comes down to look straight
+# in through the oven door as the tray slides in; the oven glows, the cookies
+# brown through the window, and a meter under it fills: pale, then golden (the
+# marked band), then burnt. Press the button to take the tray out: it comes out
+# of the door and up onto the top of the oven, the camera rising with it to
+# look down on how they came out. Leave them too long and they come out burnt
+# on their own.
 class_name BakeAction
 extends CookAction
 
@@ -13,6 +15,9 @@ extends CookAction
 @export var golden := Color(0.86, 0.6, 0.3)
 @export var burnt := Color(0.25, 0.15, 0.1)
 @export var meter_length := 0.36
+@export var inside := Vector3(0.0, -0.08, -0.1)  # Where the tray bakes, from the door's middle: just behind the glass, so it shows.
+@export var meter_offset := Vector3(0.0, -0.33, 0.03)  # Where the meter stands, from the oven door's middle (under the window).
+@export var out_view := Vector2(0.62, 58.0)  # Camera distance and pitch on the tray once it's out, on top of the oven.
 
 var _done := 0.0
 var _phase := 0                            # 0 sliding in, 1 baking, 2 coming out.
@@ -23,6 +28,16 @@ var _glow := OmniLight3D.new()
 var _meter := Node3D.new()
 var _fill: MeshInstance3D
 var _hum: AudioStreamPlayer3D
+
+
+func _init() -> void:
+	view_distance = 0.95  # Straight on at the oven door.
+	view_pitch = 6.0
+	view_seconds = 0.8
+
+
+func view_point() -> Vector3:
+	return oven_front
 
 
 func _begin() -> void:
@@ -42,10 +57,9 @@ func _begin() -> void:
 	_hum.position = oven_front
 	_hum.play()
 	var slide := _tray.create_tween()
-	slide.tween_property(_tray, "position", oven_front + Vector3(0.0, 0.05, 0.25), 0.35).set_trans(Tween.TRANS_QUAD)
-	slide.tween_property(_tray, "position", oven_front + Vector3(0.0, 0.05, -0.25), 0.3)
+	slide.tween_property(_tray, "position", oven_front + Vector3(0.0, 0.05, 0.25), 0.45).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	slide.tween_property(_tray, "position", oven_front + inside, 0.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	slide.tween_callback(func():
-		_tray.visible = false
 		session.play_sound("clack", oven_front, -2.0, 0.7)
 		_phase = 1)
 
@@ -68,6 +82,8 @@ func update(delta: float, input: CookInput) -> void:
 	_hum.volume_db = lerpf(_hum.volume_db, -22.0, 1.0 - exp(-2.0 * delta))
 	_fill.scale.x = maxf(_done, 0.001)
 	_fill.position.x = (_done - 1.0) * meter_length * 0.5
+	for material: StandardMaterial3D in _raw:  # Browning, through the oven window.
+		material.albedo_color = _color_for(_raw[material])
 	var words := "Still pale..." if _done < band.x else ("Golden!" if _done <= band.y else "Burning!")
 	session.set_status(words)
 	if input.just_pressed or _done >= 1.0:
@@ -79,13 +95,20 @@ func _take_out() -> void:
 	var score := _score()
 	for material: StandardMaterial3D in _raw:
 		material.albedo_color = _color_for(_raw[material])
-	_tray.visible = true
 	session.play_sound("clack", oven_front, -2.0, 0.8)
+	# Out of the door towards the camera, then up and over onto the top of the
+	# oven, the camera rising with it to look down on how they came out.
+	var out := oven_front + Vector3(0.0, inside.y, 0.22)  # Clear of the door.
+	session.frame(out, view_distance * 1.1, 28.0, 0.5)  # Back a little as it comes at you...
 	var slide := _tray.create_tween()
-	slide.tween_property(_tray, "position", oven_front + Vector3(0.0, 0.05, 0.25), 0.3)
-	slide.tween_property(_tray, "position", _home, 0.35).set_trans(Tween.TRANS_QUAD)
+	slide.tween_property(_tray, "position", out, 0.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	slide.tween_callback(func(): session.frame(_home, out_view.x, out_view.y, 1.0))  # ...then up with it.
+	slide.tween_property(_tray, "position", Vector3(out.x, _home.y + 0.1, out.z), 0.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	slide.tween_property(_tray, "position", _home, 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+	var cool := _glow.create_tween()
+	cool.tween_property(_glow, "light_energy", 0.0, 1.0)
 	await slide.finished
-	_glow.light_energy = 0.0
+	session.play_sound("clack", _home, -6.0, 1.1)
 	for cookie in session.context.get("cookies", []):
 		cookie.reparent(session)  # Off the tray, so they're part of how the dish looks.
 	var steam := session.make_steam(0.15)
@@ -117,7 +140,8 @@ func _color_for(raw: Color) -> Color:
 
 # A flat bar on the oven top: how done they are, the golden part marked.
 func _build_meter() -> void:
-	_meter.position = Vector3(_home.x, 0.01, _home.z + 0.2)
+	_meter.position = oven_front + meter_offset
+	_meter.rotation.x = PI * 0.5  # Standing up, facing the camera at the door.
 	session.add_child(_meter)
 	_bar(Vector3(meter_length, 0.002, 0.04), 0.0, Color(0.2, 0.15, 0.1, 0.75), 0.0)
 	var length := (band.y - band.x) * meter_length

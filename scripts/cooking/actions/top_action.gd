@@ -21,6 +21,29 @@ var _scores: Array[float] = []
 var _hand: Node3D                          # The acorn waiting to go on, under the cursor.
 
 
+func _init() -> void:
+	view_distance = 0.45  # Close in on the cookies.
+	view_pitch = 66.0
+
+
+# The middle of the cookies.
+func view_point() -> Vector3:
+	var middle := Vector3.ZERO
+	for cookie: Node3D in _cookies:
+		middle += cookie.position
+	return middle / maxf(_cookies.size(), 1) if not _cookies.is_empty() else super.view_point()
+
+
+# Around the cookies.
+func cursor_area() -> Rect2:
+	if _cookies.is_empty():
+		return Rect2()
+	var area := Rect2(_cookies[0].position.x, _cookies[0].position.z, 0.0, 0.0)
+	for cookie: MeshInstance3D in _cookies:
+		area = area.expand(Vector2(cookie.position.x, cookie.position.z))
+	return area.grow((_cookies[0].mesh as CylinderMesh).top_radius + 0.04)
+
+
 func _begin() -> void:
 	_cookies = session.context.get("cookies", [])
 	_hand = _make_acorn()

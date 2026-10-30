@@ -16,6 +16,13 @@ extends Resource
 # Runs alongside the steps after it instead of before them (e.g. the griddle's
 # heat, which keeps cooking while you pour and flip). It finishes on its own.
 @export var background := false
+@export_group("Camera")
+# How close the cook's camera comes in on this step (view_point) while it's going;
+# 0 keeps the station's usual close-up view.
+@export var view_distance := 0.0
+@export_range(5.0, 89.0) var view_pitch := 60.0  # How steeply it looks down (5: straight on).
+@export var view_seconds := 0.5         # How long the camera takes to get there.
+@export_group("")
 
 var session: CookSession
 var done := false
@@ -35,6 +42,17 @@ func update(_delta: float, _input: CookInput) -> void:
 # Clean up anything only this step needed (its tool, sounds).
 func end() -> void:
 	pass
+
+
+# What the camera looks at while view_distance is set (session coordinates).
+func view_point() -> Vector3:
+	return Vector3(session.bounds.get_center().x, session.work_height, session.bounds.get_center().y)
+
+
+# Where the cursor can go during this step (x, z in the session), within its
+# bounds; empty: anywhere in them. A step with a close view keeps it on screen.
+func cursor_area() -> Rect2:
+	return Rect2()
 
 
 # Whether to show the aiming cursor during this step.

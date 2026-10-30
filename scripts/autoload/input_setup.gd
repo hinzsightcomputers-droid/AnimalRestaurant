@@ -55,6 +55,20 @@ func _ready() -> void:
 			if not InputMap.has_action(action_id):
 				InputMap.add_action(action_id, DEADZONE)
 	assign_device(0, "keys_left")
+	_add_pad_button("ui_accept", JOY_BUTTON_A)
+	_add_pad_button("ui_cancel", JOY_BUTTON_B)
+
+
+# Godot's own accept and back actions have no gamepad buttons, so menus (the
+# title, the chef picker, settings) couldn't be used with one: A presses, B backs out.
+func _add_pad_button(action: String, button_index: JoyButton) -> void:
+	for event in InputMap.action_get_events(action):
+		if event is InputEventJoypadButton and event.button_index == button_index:
+			return
+	var button := InputEventJoypadButton.new()
+	button.button_index = button_index
+	button.device = -1  # Any gamepad.
+	InputMap.action_add_event(action, button)
 
 
 # Players who have a device, in order, e.g. [0, 1].

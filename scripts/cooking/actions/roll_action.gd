@@ -29,6 +29,19 @@ var _center := Vector3.ZERO
 var _dashes: Array[Node3D] = []
 
 
+func _init() -> void:
+	view_distance = 0.5  # Close in on the dough.
+	view_pitch = 62.0
+
+
+func view_point() -> Vector3:
+	return session.surface(on_surface).position
+
+
+func cursor_area() -> Rect2:
+	return Rect2(_center.x, _center.z, 0.0, 0.0).grow(target * 0.5 + 0.07)
+
+
 func _begin() -> void:
 	_center = session.surface(on_surface).position
 	_size = Vector2(start_size, start_size)

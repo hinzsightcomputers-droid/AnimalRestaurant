@@ -27,11 +27,13 @@ signal finished(quality: float)
 @export var hint_top := 110.0              # Pixels from the top of the cook's view to the instructions.
 @export var split_hint_top := 14.0         # The same in split screen: right at the top, off the close-up.
 @export var hint_font_size := 22
+@export var view_lift := 0.2                # A step's view looks this much (of its distance) above what it frames, so that sits under the instructions.
 
 var recipe: CookRecipe
 var player: Player
 var ingredients: Ingredients = null        # What the cook brought, if anything (e.g. what to chop).
 var context := {}                          # Anything else the steps need, set before start() (e.g. the dishes on a table).
+var home_view: Array = []                  # [point, CameraZoomSettings]: the station's usual close-up view, set before start().
 var input: CookInput
 var steps: Array[CookAction] = []          # This session's own copies of the recipe's steps.
 var current: CookAction = null
@@ -46,6 +48,8 @@ var _status := ""
 var _cursor := MeshInstance3D.new()
 var _screen: Control                       # The instructions' holder, on the cook's own view.
 var _hint := Label.new()
+var _framed := false                       # The camera is on a step's own view, not home_view.
+var _text_scale := 1.0                      # Pop-up text shrinks when the camera comes in closer than the station's view.
 
 
 func start(cook_recipe: CookRecipe, cook: Player, view_manager: ViewManager, brought: Ingredients = null) -> void:
@@ -104,6 +108,11 @@ func _next_step() -> void:
 			continue
 		current = action
 		input.height = action.cursor_height()
+		var area := action.cursor_area()
+		if area.has_area() and not area.has_point(Vector2(input.cursor.x, input.cursor.z)):  # Start it where the step is (and the camera will be).
+			var middle := area.get_center()
+			input.cursor = Vector3(middle.x, input.height, middle.y)
+		_frame_step(action)
 		return
 	_finish()
 
@@ -123,6 +132,32 @@ func _finish() -> void:
 		_hint.text = recipe.finish_text
 	play_sound("ding", Vector3(0.0, 0.1, 0.0))
 	finished.emit(quality)
+
+
+# Move the cook's camera to look at `at` (session coordinates) from in front,
+# `distance` away, `pitch` degrees down, over `seconds`.
+func frame(at: Vector3, distance: float, pitch: float, seconds := 0.5) -> void:
+	var zoom := CameraZoomSettings.new()
+	zoom.distance = distance
+	zoom.pitch_degrees = pitch
+	zoom.yaw_degrees = rad_to_deg(global_rotation.y)  # From the front, however the station turns.
+	zoom.duration = seconds
+	var tilt := deg_to_rad(pitch)
+	at += Vector3(0.0, cos(tilt), -sin(tilt)) * distance * view_lift  # Up the screen.
+	player.request_camera_focus(global_transform * at, zoom)
+	_framed = true
+	if home_view.size() == 2:
+		_text_scale = minf(distance / (home_view[1] as CameraZoomSettings).distance, 1.0)
+
+
+# A step with a view of its own gets it; one without goes back to the station's.
+func _frame_step(action: CookAction) -> void:
+	if action.view_distance > 0.0:
+		frame(action.view_point(), action.view_distance, action.view_pitch, action.view_seconds)
+	elif _framed and home_view.size() == 2:
+		player.request_camera_focus(home_view[0], home_view[1])
+		_framed = false
+		_text_scale = 1.0
 
 
 # The first step of a kind, e.g. step_of(HeatAction), or null.
@@ -195,6 +230,10 @@ func surface(surface_name: String) -> CookSurface:
 func clamp_to_bounds(point: Vector3) -> Vector3:
 	point.x = clampf(point.x, bounds.position.x, bounds.end.x)
 	point.z = clampf(point.z, bounds.position.y, bounds.end.y)
+	var area := current.cursor_area() if current != null else Rect2()  # The step's own, if it has one.
+	if area.has_area():
+		point.x = clampf(point.x, area.position.x, area.end.x)
+		point.z = clampf(point.z, area.position.y, area.end.y)
 	return point
 
 
@@ -251,7 +290,7 @@ func pop_text(text: String, at: Vector3, mood := 0) -> void:
 	label.no_depth_test = true
 	label.font_size = 48
 	label.outline_size = 14
-	label.pixel_size = text_size
+	label.pixel_size = text_size * _text_scale
 	label.modulate = [Color(1.0, 0.55, 0.45), Color.WHITE, Color(0.6, 1.0, 0.55)][clampi(mood + 1, 0, 2)]
 	label.outline_modulate = Color(0.2, 0.12, 0.08)
 	label.position = at + Vector3(0.0, 0.08, 0.0)
