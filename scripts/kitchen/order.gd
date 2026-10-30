@@ -28,8 +28,10 @@ func is_delivery() -> bool:
 
 
 # "Mabel" for a regular eating here, "Mouse" for anyone else, "Pip (delivery)"
-# for a phone order.
+# for a phone order, "To go" for one the chefs ordered themselves (TakeoutCounter).
 func for_name() -> String:
+	if caller.get("kind", "") == "takeout":
+		return caller.get("name", "To go")
 	if is_delivery():
 		return "%s (delivery)" % caller.get("name", "?")
 	return customer.display_name if not customer.display_name.is_empty() else customer.species.get("name", "?")

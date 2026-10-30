@@ -53,6 +53,7 @@ func _process(delta: float) -> void:
 	_refresh_day_and_money()
 	_refresh_clock(delta)
 	_refresh_join_hint()
+	_fit_orders()
 	_keep_clear_of_close_ups()
 	if _messages.is_empty():
 		return
@@ -130,6 +131,13 @@ func _keep_clear_of_close_ups() -> void:
 	for control: Control in [orders_label, money_label, message_label, clock]:
 		control.visible = not close_ups.any(func(r: Rect2): return r.intersects(control.get_global_rect()))
 	join_label.visible = join_label.visible and not close_ups.any(func(r: Rect2): return r.intersects(join_label.get_global_rect()))
+
+
+# Long order lines wrap before they reach the clock.
+func _fit_orders() -> void:
+	var width := clock.get_global_rect().position.x - orders_label.global_position.x - 16.0
+	if absf(orders_label.size.x - width) > 0.5:
+		orders_label.size.x = width
 
 
 # The first MAX_ORDERS_SHOWN orders, then "+2 more".

@@ -1,6 +1,6 @@
 # DeliveryManager: phoned-in orders. Puts each on the order board (it's cooked
 # the normal way) and sends a courier in to wait by the counter. Handing the
-# courier the finished dish pays for it and the courier leaves. Couriers wait
+# courier the finished dish (bagged at the takeout counter first) pays for it and the courier leaves. Couriers wait
 # as long as it takes: nothing about a delivery is ever rushed.
 # A Gone regular's last order is different: its courier hands over their
 # goodbye note instead of a payment slip. And when a sincere letter's answer is
@@ -51,7 +51,12 @@ func _on_courier_interacted(player_index: int, courier: Courier) -> void:
 	if courier.order == null:
 		_read_letter(player, courier)
 		return
-	var plate := player.held_item as CookedDish
+	var held_dish := player.held_item as CookedDish
+	if held_dish != null and held_dish.order == courier.order:
+		GameEvents.announce("Bag it at the takeout counter first!")
+		return
+	var bag := player.held_item as TakeoutBag
+	var plate := bag.dish if bag != null else null
 	if plate == null or plate.order != courier.order:
 		GameEvents.announce("The courier is waiting for %s's %s." % [courier.order.caller.get("name", "?"), courier.order.dish.get("name", "order")])
 		return

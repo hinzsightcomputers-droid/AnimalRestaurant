@@ -9,6 +9,8 @@ extends Node3D
 
 signal arrived_outside(courier: Courier)  # Walked back out the door after the pickup.
 
+const BUBBLE_ROOM := 1.8  # Meters: a player carrying something this close hides the bubble.
+
 var order: Order               # null for a letter.
 var letter_from: Dictionary = {}  # The regular whose letter this courier brings.
 var walk_speed := 2.2
@@ -34,13 +36,15 @@ func setup_letter(from_record: Dictionary, settings: Dictionary) -> void:
 func _ready() -> void:
 	interactable.prompt = "Hand over"
 	interactable.radius = 1.3
+	interactable.prompt_height = 2.2  # Over its bubble.
 	interactable.priority = 1  # Over anything it's standing near.
 	interactable.prompt_for_player = _prompt_for
 	add_child(interactable)
 	_show_waiting()
 
 
-# "Hand over" for whoever carries this order's plate, nothing for anyone else
+# "Hand over" for whoever carries this order bagged (TakeoutCounter), a
+# reminder to bag it for whoever has the bare plate, nothing for anyone else
 # (pressing with free hands would only say what it's waiting for). A letter:
 # "Read letter" for anyone with free hands.
 func _prompt_for(player_index: int) -> String:
@@ -52,7 +56,10 @@ func _prompt_for(player_index: int) -> String:
 	if order == null:
 		return "Read letter" if player.held_item == null else ""
 	var plate := player.held_item as CookedDish
-	return interactable.prompt if plate != null and plate.order == order else ""
+	if plate != null and plate.order == order:
+		return "Bag it first (takeout counter)"
+	var bag := player.held_item as TakeoutBag
+	return interactable.prompt if bag != null and bag.dish != null and bag.dish.order == order else ""
 
 
 func walk_to(points: Array[Vector3]) -> void:
@@ -77,6 +84,19 @@ func _show_waiting() -> void:
 from %s" % letter_from.get("name", "?")
 		return
 	_bubble.text = "Pickup:\n%s for %s" % [order.dish.get("name", "?"), order.caller.get("name", "?")]
+
+
+# The bubble steps aside while someone has a prompt on us ("Hand over" says it),
+# or stands close by carrying something, so it isn't under their labels.
+func _process(_delta: float) -> void:
+	_bubble.visible = not get_tree().get_nodes_in_group(Player.GROUP).any(_crowds_bubble)
+
+
+func _crowds_bubble(player: Player) -> bool:
+	if player.interactor.focused == interactable and not _prompt_for(player.player_index).is_empty():
+		return true
+	var across := player.global_position - global_position
+	return player.held_item != null and Vector2(across.x, across.z).length() < BUBBLE_ROOM
 
 
 func _physics_process(delta: float) -> void:

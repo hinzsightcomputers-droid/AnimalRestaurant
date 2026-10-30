@@ -56,8 +56,10 @@ static func _make(sound: String) -> AudioStreamWAV:
 				value = (sin(TAU * 420.0 * t) * 0.6 + noise * 0.3) * exp(-t * 70.0)
 			"knock":  # Three raps on a wooden door.
 				var since := fmod(t, 0.17)
-				low += (noise - low) * 0.3
-				value = (sin(TAU * 120.0 * since) * 0.8 + low * 0.6) * exp(-since * 50.0) if t < 0.51 else 0.0
+				low += (noise - low) * 0.25
+				var body := sin(TAU * 95.0 * since) + 0.5 * sin(TAU * 230.0 * since) + 0.25 * sin(TAU * 410.0 * since)  # Hollow wood.
+				var click := noise * exp(-since * 400.0) * 0.6  # Knuckle on the door.
+				value = (body * 0.55 * exp(-since * 38.0) + low * 0.5 * exp(-since * 60.0) + click) if t < 0.51 else 0.0
 			"ding":
 				value = (sin(TAU * 1046.0 * t) + 0.4 * sin(TAU * 2093.0 * t)) * exp(-t * 5.0) * 0.35
 		data.encode_s16(i * 2, int(clampf(value, -1.0, 1.0) * 32767.0))

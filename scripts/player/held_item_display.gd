@@ -1,5 +1,5 @@
 # HeldItemDisplay: shows what something is holding (a plate, an ingredient
-# crate, a dish bin, a drink or the bill, and a label above it). Works for a Player or a PassCounter: anything
+# crate, a dish bin, a drink or the bill, a takeout bag, and a label above it). Works for a Player or a PassCounter: anything
 # with `held_item` and a `held_item_changed` signal. Display only.
 extends Node3D
 
@@ -74,6 +74,11 @@ func _on_held_item_changed(item: RefCounted) -> void:
 		_extra = _receipt_model()
 		crate.get_parent().add_child(_extra)
 		_extra.position = crate.position
+	elif item is TakeoutBag:
+		label.text = item.display_name()
+		_extra = TakeoutBag.make_model()
+		crate.get_parent().add_child(_extra)
+		_extra.position = crate.position - Vector3(0.0, CRATE_SIZE.y * 0.5, 0.0)
 	elif bin != null:
 		label.text = bin.display_name()
 		_bin_model = DishBinModel.new()

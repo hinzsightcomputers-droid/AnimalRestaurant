@@ -16,5 +16,19 @@
 		"bill": ["Could I get the check?", "I'm all done. The bill, please!", "Check, please!"],
 		"get_going": ["I should get going soon..."]
 	},
-	"regular_get_going": "I should get going soon. Just finishing up."
+	"regular_get_going": "I should get going soon. Just finishing up.",
+	"_takeout": "The takeout counter (TakeoutCounter): a cooked dish has to be bagged here before the courier takes it, or before it can be given as a gift. After hours, free hands can also pack something from the pantry, or order a dish to go (its ticket goes in your pocket, and it's cooked the usual way). A bag can be unpacked again. per_page: choices shown at once.",
+	"takeout": {
+		"per_page": 4,
+		"bag_prompt": "Bag it to go",
+		"unpack_prompt": "Unpack the bag",
+		"pack_prompt": "Pack a takeout bag",
+		"ask": "What goes in the bag?",
+		"cook": "Cook something to go",
+		"cook_ask": "Which dish?",
+		"more": "More...",
+		"never_mind": "Never mind",
+		"nothing": "(The pantry's empty, and the kitchen's closed for orders. Try cooking something to go.)",
+		"to_go_name": "To go"
+	}
 }

@@ -14,8 +14,8 @@
 #   and up they ask everyone in: the chefs near the porch fade into the room
 #   (built far away at inside_at, like the beach) and the regular settles in
 #   (house_greeting again, with "inside"). Each chef can then Chat
-#   (house_chat), Give a gift (house_gift: a dish they're carrying or
-#   something from the pantry, see gift_kind) or Say goodbye
+#   (house_chat), Give a gift (house_gift: whatever's in the takeout bag
+#   they're carrying, a dish or something from the pantry, see gift_kind) or Say goodbye
 #   (house_farewell), which ends the visit for everyone once they've all
 #   finished talking. At items_stage their things inside can be looked at
 #   (house_item). Other chefs join in with "Talk to ...". A porch visit also
@@ -280,66 +280,52 @@ func _talk(player: Player, first: Dictionary) -> void:
 	_end_visit()
 
 
-# Picks something to give (a page of choices at a time), hands it over and
-# returns their reaction, or `line` again if they changed their mind.
+# Gifts come in a takeout bag (packed at the restaurant's takeout counter):
+# offers what's in theirs, hands it over and returns the reaction, or `line`
+# again if they changed their mind.
 func _give(player: Player, box: ConversationBox, line: Dictionary) -> Dictionary:
-	var choices := _gift_choices(player)
-	if choices.is_empty():
-		return { "speaker": "", "text": _text("no_gifts", "(You've nothing to give.)"), "emotion": &"" }
-	var settings: Dictionary = Town.settings()
-	var menu: Dictionary = settings.get("menu", {})
-	var per_page := maxi(int(settings.get("gifts", {}).get("max_choices", 4)), 1)
-	var pages := ceili(choices.size() / float(per_page))
-	var page := 0
-	while true:
-		var shown := choices.slice(page * per_page, (page + 1) * per_page)
-		var options: Array = shown.map(func(choice): return choice["label"])
-		if pages > 1:
-			options.append(menu.get("more", "More..."))
-		options.append(menu.get("never_mind", "Never mind"))
-		var picked := await box.ask("", _text("gift_ask", "What will you give?"), options)
-		if picked < shown.size():
-			return _hand_over(player, shown[picked])
-		if pages > 1 and picked == shown.size():
-			page = (page + 1) % pages
-			continue
-		return line
-	return line
+	var bag := player.held_item as TakeoutBag
+	if bag == null or bag.is_delivery():
+		var why := "delivery_bag" if bag != null else "no_gifts"
+		return { "speaker": "", "text": _text(why, "(Bring something in a takeout bag.)"), "emotion": &"" }
+	var menu: Dictionary = Town.settings().get("menu", {})
+	var options: Array = [_text("give", "Give the {gift}").format({ "gift": bag.contents_name() }), menu.get("never_mind", "Never mind")]
+	var picked := await box.ask("", _text("gift_ask", "What will you give?"), options)
+	return _hand_over(player, bag) if picked == 0 else line
 
 
-# What this chef could give: the dish in their hands, then the pantry by name.
-func _gift_choices(player: Player) -> Array:
-	var choices: Array = []
-	var dish := player.held_item as CookedDish
-	if dish != null and dish.order != null:
-		choices.append({ "id": String(dish.order.dish.get("id", "")), "name": dish.dish_name(), "label": dish.dish_name(), "held": true })
-	var ids: Array = GameState.pantry.keys().filter(func(item_id): return int(GameState.pantry[item_id]) > 0)
-	ids.sort_custom(func(a, b): return Pantry.item_name(a) < Pantry.item_name(b))
-	for item_id in ids:
-		var item_name := Pantry.item_name(item_id)
-		choices.append({ "id": item_id, "name": item_name, "label": "%s (%d)" % [item_name, int(GameState.pantry[item_id])] })
-	return choices
-
-
-func _hand_over(player: Player, choice: Dictionary) -> Dictionary:
-	var item_id: String = choice["id"]
-	if choice.get("held", false):
-		player.set_held_item(null)
-	else:
-		GameState.pantry[item_id] = int(GameState.pantry[item_id]) - 1
-		if GameState.pantry[item_id] <= 0:
-			GameState.pantry.erase(item_id)
-	var kind := gift_kind(item_id)
+func _hand_over(player: Player, bag: TakeoutBag) -> Dictionary:
+	player.set_held_item(null)  # Pantry things left the pantry when they were packed.
+	var kind := gift_kind(bag.contents_id())
 	var gifts: Dictionary = Town.settings().get("gifts", {})
-	var points := mini(int(gifts.get(kind + "_points", 0)), Town.gift_points_left(regular_id))
+	var worth := int(gifts.get(kind + "_points", 0))
+	var points := mini(worth, Town.gift_points_left(regular_id))
 	if points > 0:
 		RegularMemory.change_relationship(record(), points)
 		Town.add_gift_points(regular_id, points)
+		_pop(_text("points", "+{points} friendship").format({ "points": points }), Color(1.0, 0.55, 0.65))
+	elif worth > 0:
+		_pop(_text("capped", "That's plenty of presents for {name} today").format({ "name": regular_name() }), Color(0.9, 0.9, 0.9))
 	_gifts[player.player_index] = int(_gifts.get(player.player_index, 0)) + 1
 	SaveGame.save_game()
-	return _say("house_gift", player.player_index, { "gift_kind": kind, "gift": choice["name"] })
+	return _say("house_gift", player.player_index, { "gift_kind": kind, "gift": bag.contents_name() })
 
 
+# Words floating up over the regular (how much a gift meant).
+func _pop(text: String, color: Color) -> void:
+	var label := Label3D.new()
+	label.text = text
+	label.font_size = 44
+	label.outline_size = 12
+	label.modulate = color
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.no_depth_test = true
+	add_child(label)
+	label.global_position = _figure().global_position + Vector3(0.9, 1.3, 0.3)  # Beside them, clear of the nameplate.
+	var tween := label.create_tween().set_parallel()
+	tween.tween_property(label, "global_position:y", label.global_position.y + 0.6, 1.8).set_ease(Tween.EASE_OUT)
+	tween.tween_property(label, "modulate:a", 0.0, 1.8).set_delay(0.8)
+	tween.chain().tween_callback(label.queue_free)
 # Looking at one of their things: they tell you about it.
 func _item_prompt(player_index: int, item: Dictionary) -> String:
 	var player := Player.find(get_tree(), player_index)

@@ -1,5 +1,5 @@
 {
-	"_about": "The regulars' houses, on the restaurant's side of the street either side of it (see Town and House). Each stands 'at' [x, z] with its front door toward the street (+z, the camera's side); street scenery (trees, bushes) in the way is hidden. A house unlocks ('unlock', a flag in GameState.unlocks) when its regular invites the chefs over (a closing scene in scenes.json, once they first reach Stage 2); before that it's there but locked, with no name on it. After hours the chefs can knock once a restaurant day per house. Visits grow with the regular's stage: porch_stage and up, a chat on the porch; inside_stage and up, they ask everyone in (chefs within porch_radius of the door come along; the room is built far away at 'inside_at', like the beach); items_stage and up, their personal things inside can be looked at ('items'). Below porch_stage the door stays shut with a polite line (house_not_tonight); at dark_stage and lower (or once they're gone) the lights are off and nobody answers. Gifts: something a chef is carrying (a cooked dish) or anything from the pantry (caught or gathered). A favourite adds favourite_points friendship, something they like liked_points, anything else other_points; gifts add at most daily_cap a day per regular, and each chef can give gifts_per_visit per visit. 'favourites' and 'likes' list dish, fish or forage ids, or 'kind:<kind>' (e.g. kind:fish). 'text' is what the chefs see that isn't a regular's line ({name} is the regular's name, {names} the same with 's or ' on the end, {item} a thing's). Models are '<dir>/<name>' with dir from model_dirs. Outside, decor and patches are [x, z] (or [x, y] on the front wall) from the middle of the house; inside, [x, z] from the middle of the room (the door is at +z, toward the camera), with 'height' off the floor; 'size' is a model's width, 'turn' degrees.",
+	"_about": "The regulars' houses, on the restaurant's side of the street either side of it (see Town and House). Each stands 'at' [x, z] with its front door toward the street (+z, the camera's side); street scenery (trees, bushes) in the way is hidden. A house unlocks ('unlock', a flag in GameState.unlocks) when its regular invites the chefs over (a closing scene in scenes.json, once they first reach Stage 2); before that it's there but locked, with no name on it. After hours the chefs can knock once a restaurant day per house. Visits grow with the regular's stage: porch_stage and up, a chat on the porch; inside_stage and up, they ask everyone in (chefs within porch_radius of the door come along; the room is built far away at 'inside_at', like the beach); items_stage and up, their personal things inside can be looked at ('items'). Below porch_stage the door stays shut with a polite line (house_not_tonight); at dark_stage and lower (or once they're gone) the lights are off and nobody answers. Gifts come in a takeout bag, packed at the restaurant's takeout counter: a cooked dish, or one thing from the pantry (caught or gathered). Giving one floats up how much friendship it added (points), or that the day's cap is reached (capped). A favourite adds favourite_points friendship, something they like liked_points, anything else other_points; gifts add at most daily_cap a day per regular, and each chef can give gifts_per_visit per visit. 'favourites' and 'likes' list dish, fish or forage ids, or 'kind:<kind>' (e.g. kind:fish). 'text' is what the chefs see that isn't a regular's line ({name} is the regular's name, {names} the same with 's or ' on the end, {item} a thing's). Models are '<dir>/<name>' with dir from model_dirs. Outside, decor and patches are [x, z] (or [x, y] on the front wall) from the middle of the house; inside, [x, z] from the middle of the room (the door is at +z, toward the camera), with 'height' off the floor; 'size' is a model's width, 'turn' degrees.",
 	"settings": {
 		"porch_stage": 2,
 		"inside_stage": 3,
@@ -13,8 +13,7 @@
 			"liked_points": 1,
 			"other_points": 0,
 			"daily_cap": 3,
-			"gifts_per_visit": 1,
-			"max_choices": 4
+			"gifts_per_visit": 1
 		},
 		"menu": {
 			"chat": "Chat",
@@ -30,8 +29,12 @@
 			"talk": "Talk to {name}",
 			"look": "Look at {item}",
 			"leave": "Say goodbye",
-			"no_gifts": "(You've nothing to give. Try cooking something, or bring something you caught or gathered.)",
+			"no_gifts": "(You've nothing to give. Pack something at the takeout counter first: a dish you cooked, or something from the pantry.)",
+			"delivery_bag": "(That bag's someone's delivery. The courier's waiting for it.)",
 			"gift_ask": "What will you give?",
+			"give": "Give the {gift}",
+			"points": "+{points} friendship",
+			"capped": "That's plenty of presents for {name} today",
 			"waiting": "Waiting for everyone to finish talking..."
 		},
 		"size": [4.4, 4.0],

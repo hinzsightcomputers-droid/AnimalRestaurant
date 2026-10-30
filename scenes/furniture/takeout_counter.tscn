@@ -1,0 +1,40 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/furniture/takeout_counter.gd" id="1_takeout"]
+[ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
+[ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m0_model_fitgd"]
+[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/kitchencounter_straight_A.gltf" id="m1_counter"]
+
+[sub_resource type="BoxShape3D" id="Shape_counter"]
+size = Vector3(1.2, 0.95, 0.65)
+
+[node name="TakeoutCounter" type="StaticBody3D"]
+script = ExtResource("1_takeout")
+display_name = "Takeout counter"
+
+[node name="Visual" type="Node3D" parent="."]
+
+[node name="Model" type="Node3D" parent="Visual"]
+script = ExtResource("m0_model_fitgd")
+model = ExtResource("m1_counter")
+size = Vector3(1.2, 0.92, 0.65)
+stretch = true
+
+[node name="Sign" type="Label3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.12, 0)
+text = "TAKEOUT"
+font_size = 32
+outline_size = 10
+modulate = Color(0.95, 0.4, 0.3, 1)
+billboard = 1
+
+[node name="Collision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.475, 0)
+shape = SubResource("Shape_counter")
+
+[node name="Interactable" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.85)
+script = ExtResource("2_interactable")
+prompt = "Pack a takeout bag"
+radius = 1.0
+prompt_height = 1.9

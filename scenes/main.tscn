@@ -30,6 +30,7 @@
 [ext_resource type="Script" path="res://scripts/outdoors/back_garden.gd" id="28_garden"]
 [ext_resource type="Script" path="res://scripts/outdoors/car_trip.gd" id="29_trip"]
 [ext_resource type="Script" path="res://scripts/outdoors/town.gd" id="30_town"]
+[ext_resource type="PackedScene" path="res://scenes/furniture/takeout_counter.tscn" id="31_takeout"]
 
 [sub_resource type="Environment" id="Env"]
 background_mode = 1
@@ -139,6 +140,11 @@ view_manager = NodePath("../../Views")
 
 [node name="Sink" parent="Furniture" node_paths=PackedStringArray("view_manager") instance=ExtResource("24_sink")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 6.6, 0, -6.4)
+view_manager = NodePath("../../Views")
+
+[node name="TakeoutCounter" parent="Furniture" node_paths=PackedStringArray("order_board", "view_manager") instance=ExtResource("31_takeout")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -6.55, 0, -2.2)
+order_board = NodePath("../../OrderBoard")
 view_manager = NodePath("../../Views")
 
 [node name="DrinkStation" parent="Furniture" node_paths=PackedStringArray("view_manager") instance=ExtResource("26_drinks")]
