@@ -25,6 +25,7 @@ var _hour_mode := false  # In the restaurant: follow the clock.
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS  # Keeps playing (and fading) while the game is paused.
+	_player.bus = Settings.MUSIC_BUS  # Its own volume on the settings screen.
 	add_child(_player)
 	_hour_themes = _find_hour_themes()
 

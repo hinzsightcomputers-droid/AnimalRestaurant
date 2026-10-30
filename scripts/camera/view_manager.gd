@@ -110,7 +110,8 @@ func _find_groups() -> Array:
 
 	var result: Array = []
 	_fixed = indices.size() >= fixed_split_players
-	if _fixed:
+	# The fixed split, or two players with the hybrid camera turned off (Settings): a view each.
+	if _fixed or (indices.size() == 2 and not Settings.hybrid_camera):
 		for index in indices:
 			result.append([index])
 		return result

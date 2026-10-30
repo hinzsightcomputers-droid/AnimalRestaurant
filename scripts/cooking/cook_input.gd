@@ -9,7 +9,7 @@
 #   - flick: a quick push of the stick (or tap of a key), or a quick swipe of
 #     the mouse, as a direction on the surface. Set for one frame.
 # The mouse only drives the player whose view it's over. Tuning is on the
-# CookSession (cursor_speed, flick_*).
+# CookSession (cursor_speed, pad_cursor_speed, flick_*).
 class_name CookInput
 extends RefCounted
 
@@ -51,7 +51,7 @@ func update(delta: float) -> void:
 		using_mouse = true
 	elif raw.length() > InputSetup.DEADZONE:
 		using_mouse = false
-		var move := _on_surface(raw) * _session.cursor_speed * delta
+		var move := _on_surface(raw) * _cursor_speed(raw) * delta
 		cursor += Vector3(move.x, 0.0, move.y)
 	cursor = _session.clamp_to_bounds(cursor)
 	cursor.y = height
@@ -70,6 +70,15 @@ func update(delta: float) -> void:
 	if flick == Vector2.ZERO:
 		flick = swipe
 
+
+# Meters a second for this push: on a gamepad, from nothing at the edge of the
+# deadzone up to pad_cursor_speed at full tilt (so a light touch can still aim);
+# the keys, always cursor_speed. Both times the player's setting (Settings).
+func _cursor_speed(raw: Vector2) -> float:
+	if InputSetup.pad_of(_player_index) < 0:
+		return _session.cursor_speed * Settings.key_cursor_speed
+	var tilt := clampf((raw.length() - InputSetup.DEADZONE) / (1.0 - InputSetup.DEADZONE), 0.0, 1.0)
+	return _session.pad_cursor_speed * Settings.pad_cursor_speed * tilt / maxf(raw.length(), 0.001)  # / length: _on_surface(raw) is already that long.
 
 # Whichever stick is pushed further (only the left one, or the keys, on a keyboard).
 func _raw_stick() -> Vector2:

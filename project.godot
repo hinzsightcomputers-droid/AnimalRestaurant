@@ -20,6 +20,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 InputSetup="*res://scripts/autoload/input_setup.gd"
+Settings="*res://scripts/autoload/settings.gd"
 GameData="*res://scripts/autoload/game_data.gd"
 GameEvents="*res://scripts/autoload/game_events.gd"
 Accounts="*res://scripts/autoload/accounts.gd"

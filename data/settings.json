@@ -1,0 +1,12 @@
+{
+	"_about": "Player settings (see Settings and the settings screen, opened with Escape or Start). These are the defaults for a new install; what players pick is kept in user://settings.json, apart from the save. Volumes are 0-1 (0 is silent) and go through the Master, Music and SFX audio buses. Cursor speeds multiply how fast the close-up cursor moves: on a gamepad (CookSession.pad_cursor_speed) and on the keys (cursor_speed). hybrid_camera: with two players, views join into one when the chefs are close (off: always side by side).",
+	"defaults": {
+		"master_volume": 1.0,
+		"music_volume": 0.8,
+		"sfx_volume": 1.0,
+		"pad_cursor_speed": 1.0,
+		"key_cursor_speed": 1.0,
+		"hybrid_camera": true
+	},
+	"cursor_speed_range": [0.4, 2.0]
+}

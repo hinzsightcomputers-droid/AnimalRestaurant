@@ -15,7 +15,8 @@ extends Node3D
 signal finished(quality: float)
 
 @export_group("Controls")
-@export var cursor_speed := 0.7            # Meters a second the stick moves the cursor.
+@export var cursor_speed := 0.7            # Meters a second the keys move the cursor.
+@export var pad_cursor_speed := 1.6        # Meters a second a gamepad stick, pushed all the way, moves it.
 @export var flick_strength := 0.8          # How far the stick has to go to count as a flick...
 @export var flick_window := 0.2            # ...within this many seconds of leaving the center.
 @export var flick_mouse_speed := 1.2       # Meters a second across the surface for a mouse swipe.
