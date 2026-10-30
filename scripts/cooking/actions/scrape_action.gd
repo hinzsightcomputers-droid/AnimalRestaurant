@@ -10,7 +10,7 @@ enum Phase { CARRY, PLACING, SCRAPE, DONE }
 
 @export var from_surface := "Board"
 @export var into := "Pot"
-@export var pieces := 0                     # Bits of food; 0 = from the ingredients (their chops + 3).
+@export var pieces := 0                     # Bits of food; 0 = from the ingredients (their chops + 1: the pieces they were cut into).
 @export var piece_radius := 0.017
 @export var piece_thickness := 0.009
 @export var piece_color := Color(0.95, 0.55, 0.15)  # When there are no ingredients to take it from.
@@ -42,7 +42,7 @@ func _begin() -> void:
 	_home = _board.position
 	var count := pieces
 	if count <= 0:
-		count = session.ingredients.chops_needed() + 3 if session.ingredients != null else 8
+		count = session.ingredients.chops_needed() + 1 if session.ingredients != null else 9
 	var color := session.ingredients.color() if session.ingredients != null else piece_color
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color

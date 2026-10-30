@@ -78,6 +78,7 @@ func _open_closeup(player: Player, ingredients: Ingredients, with_recipe: CookRe
 	player.movement_locked = true
 	player.interactor.lock_to(interactable)
 	player.request_camera_focus(global_position + closeup_look_offset, closeup_zoom)
+	session.home_view = [global_position + closeup_look_offset, closeup_zoom]
 	session.finished.connect(_on_chopped)
 	session.start(with_recipe, player, view_manager if view_manager != null else get_tree().root.find_children("*", "ViewManager", true, false).front(), ingredients)
 	_play_bounce()

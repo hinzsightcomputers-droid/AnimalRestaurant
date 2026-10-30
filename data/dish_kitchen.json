@@ -5,7 +5,7 @@
 			"ingredient": { "name": "Pancake Batter", "color": "#e8c46a", "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/crate_dough.gltf" } },
 		"vegetable_soup": { "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/stew_bowl.gltf", "dirty_model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/bowl_dirty.gltf", "recipe": "soup",
 			"ingredient": { "name": "Soup Vegetables", "color": "#f08a2c", "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/crate_carrots.gltf",
-				"chop": { "name": "Chopped Vegetables", "chops": 5, "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/food_ingredient_carrot_chopped.gltf" } } },
+				"chop": { "name": "Chopped Vegetables", "chops": 8, "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/food_ingredient_carrot_chopped.gltf" } } },
 		"big_breakfast": { "recipe": "big_breakfast", "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/food_dinner.gltf", "cook_speed": 1.1,
 			"ingredient": { "name": "Bacon & Eggs", "color": "#d9785b", "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/crate_ham.gltf" } },
 		"four_cheese_mac": { "recipe": "four_cheese_mac", "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/food_ingredient_cheese_grated.gltf", "dirty_model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/bowl_dirty.gltf",
@@ -42,6 +42,6 @@
 				"chop": { "name": "Fish Fillets", "verb": "Fillet", "recipe": "filleting", "chops": 5, "color": "#ee9466", "model": "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/Sashimi_Salmon.fbx" } } },
 		"walters_storm_soup": { "model": "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/CookingPot_Soup.fbx", "dirty_model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/bowl_dirty.gltf", "recipe": "soup", "cook_speed": 0.9,
 			"ingredient": { "name": "Soup Vegetables", "color": "#c9a24a", "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/crate_potatoes.gltf",
-				"chop": { "name": "Chopped Vegetables", "chops": 6, "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/food_ingredient_potato_chopped.gltf" } } }
+				"chop": { "name": "Chopped Vegetables", "chops": 8, "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/food_ingredient_potato_chopped.gltf" } } }
 	}
 }
