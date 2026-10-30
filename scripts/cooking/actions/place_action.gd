@@ -1,6 +1,8 @@
 # PlaceAction: put things down on a target, stacking them. Two ways:
 #   - from_surface set: move the pieces sitting there one at a time. Hold the
-#     button on one to pick it up, carry it over, let go to drop it.
+#     button on one to pick it up, carry it over, let go to drop it. Or, with
+#     auto_plate, just press on one: it hops onto the middle of the stack by
+#     itself (no aiming, so no score of its own: give the step weight 0).
 #   - from_surface empty: place a new item (e.g. a pat of butter), already in
 #     hand. Press the button to drop it.
 # Each drop scores how well centered it landed on what's below (the target
@@ -10,6 +12,7 @@ extends CookAction
 
 @export var from_surface := "Griddle"
 @export var target := "Plate"
+@export var auto_plate := false         # Press on a piece and it goes to the target by itself.
 @export_group("New item")
 @export var item_size := Vector3(0.055, 0.025, 0.04)
 @export var item_color := Color(1.0, 0.92, 0.55)
@@ -20,6 +23,8 @@ extends CookAction
 @export var worst_offset := 0.09          # ...and the offset that gets none.
 @export var drop_seconds := 0.18
 @export var grab_margin := 0.03           # How far outside a piece you can still grab it.
+@export var hop_seconds := 0.45          # An auto_plate piece's trip to the plate...
+@export var hop_height := 0.14           # ...and how high it arcs.
 
 var _carrying: Node3D = null
 var _carry_home := Vector3.ZERO
@@ -32,9 +37,21 @@ func _begin() -> void:
 	if _new_item():
 		_needed = 1
 		_carrying = _make_item()
-		_carrying.position = Vector3(0.0, session.stack_top(target).y + carry_height, 0.0)
+		_carrying.position = session.stack_top(target) + Vector3(0.0, carry_height, 0.0)
 	else:
 		_needed = session.pieces_on(from_surface).size()
+
+
+# Picking pieces up: looking at where they are. A new item: at the stack it goes on.
+func view_point() -> Vector3:
+	return session.stack_top(target) if _new_item() else session.surface(from_surface).position
+
+
+# With a view of its own, the cursor stays where the step is (and on screen).
+func cursor_area() -> Rect2:
+	if view_distance <= 0.0:
+		return Rect2()
+	return session.area_of(target if _new_item() else from_surface, 0.03)
 
 
 func cursor_height() -> float:
@@ -51,7 +68,9 @@ func update(delta: float, input: CookInput) -> void:
 			_drop(spot)
 	elif input.just_pressed and not _new_item():
 		var piece := _piece_at(spot)
-		if piece != null:
+		if piece != null and auto_plate:
+			_hop(piece)
+		elif piece != null:
 			_carrying = piece
 			_carry_home = piece.position
 			piece.surface = ""
@@ -95,6 +114,30 @@ func _drop(spot: Vector3) -> void:
 	_land(item, at, target)
 	var words := "Centered!" if score >= 0.9 else ("Nice" if score >= 0.6 else ("A bit off" if score > 0.25 else ("Missed!" if score == 0.0 else "Lopsided!")))
 	session.pop_text(words, at, CookSession.mood_of(score))
+
+
+# An auto_plate piece arcs over to the middle of the stack and lands there.
+func _hop(piece: CookPiece) -> void:
+	var top := session.stack_top(target)
+	var at := Vector3(top.x, top.y, top.z)
+	piece.surface = ""  # Off the heat: it's scored when it lands.
+	piece.busy = true
+	session.stack_push(target, piece, at, piece.thickness)
+	piece.scores["place"] = 1.0
+	_scores.append(1.0)
+	_landing += 1
+	session.play_sound("whoosh", piece.position, -6.0, 1.2)
+	var from := piece.position
+	var tween := piece.create_tween()
+	tween.tween_method(func(t: float):
+		piece.position = from.lerp(at, t) + Vector3(0.0, sin(t * PI) * hop_height, 0.0), 0.0, 1.0, hop_seconds).set_trans(Tween.TRANS_SINE)
+	tween.tween_callback(func():
+		_landing -= 1
+		piece.busy = false
+		piece.surface = target
+		session.wobble(piece, 0.18)
+		session.play_sound("plop", at)
+		session.burst(at + Vector3(0.0, 0.01, 0.0), Color(1.0, 0.95, 0.8), 8, 0.2))
 
 
 func _land(item: Node3D, at: Vector3, on_surface: String) -> void:

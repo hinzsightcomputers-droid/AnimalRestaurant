@@ -18,6 +18,15 @@ var _scores: Array[float] = []
 var _held: CookPiece = null
 
 
+func view_point() -> Vector3:
+	return session.surface(surface).position
+
+
+# With a view of its own, the cursor stays on the surface (and on screen).
+func cursor_area() -> Rect2:
+	return session.area_of(surface, 0.03) if view_distance > 0.0 else Rect2()
+
+
 func update(_delta: float, input: CookInput) -> void:
 	if _held == null:
 		if input.just_pressed:
@@ -25,11 +34,11 @@ func update(_delta: float, input: CookInput) -> void:
 	elif input.flick.y <= -up_needed:  # Away from the camera: up the screen.
 		var piece := _held
 		_let_go()
-		_flip(piece, Vector2(0.0, -1.0))
+		_turn(piece)
 	elif not input.held:
 		_let_go()
-		session.pop_text("Flick up to flip!", input.cursor, 0)
-	var left := session.pieces_on(surface).filter(func(p): return not p.flipped or p.busy)
+		session.pop_text(_flick_words(), input.cursor, 0)
+	var left := session.pieces_on(surface).filter(func(p): return _needs(p) or p.busy)
 	if left.is_empty() and not session.pieces_on(surface).is_empty():
 		finish(average(_scores))
 
@@ -37,6 +46,21 @@ func update(_delta: float, input: CookInput) -> void:
 func end() -> void:
 	if _held != null:
 		_let_go()
+
+
+# Whether a piece still needs this step (a FoldAction overrides these three).
+func _needs(piece: CookPiece) -> bool:
+	return not piece.flipped
+
+
+func _flick_words() -> String:
+	return "Flick up to flip!"
+
+
+# Over it goes: toward the flick, or sideways for a folded one (a half-moon
+# turned the other way would jump back when it lands).
+func _turn(piece: CookPiece) -> void:
+	_flip(piece, Vector2(1.0, 0.0) if piece.folded else Vector2(0.0, -1.0))
 
 
 func _grab(piece: CookPiece) -> void:
@@ -58,7 +82,7 @@ func _piece_at(spot: Vector3) -> CookPiece:
 	var best: CookPiece = null
 	var best_gap := INF
 	for piece in session.pieces_on(surface):
-		if piece.flipped or piece.busy:
+		if not _needs(piece) or piece.busy:
 			continue
 		var gap := Vector2(piece.position.x - spot.x, piece.position.z - spot.z).length()
 		if gap <= piece.radius + grab_margin and gap < best_gap:

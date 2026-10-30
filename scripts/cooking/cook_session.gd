@@ -247,6 +247,13 @@ func add_piece(color: Color, thickness: float, at: Vector3, on_surface: String) 
 	return piece
 
 
+# A surface's rectangle (x, z), `margin` bigger all round, e.g. for a step's cursor_area.
+func area_of(surface_name: String, margin := 0.0) -> Rect2:
+	var found := surface(surface_name)
+	var size := Vector2(found.size.x, found.size.x if found.round else found.size.y)
+	return Rect2(Vector2(found.position.x, found.position.z) - size * 0.5, size).grow(margin)
+
+
 func pieces_on(surface_name: String) -> Array[CookPiece]:
 	var found: Array[CookPiece] = []
 	found.assign(pieces.filter(func(p): return p.surface == surface_name))

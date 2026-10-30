@@ -1,8 +1,10 @@
 # DrizzleAction: hold the button and move to drizzle a line of syrup over the
 # top of a stack, with only so much in the bottle. The line is drawn where it
-# lands; near the edge it drips a little way down the side. The step ends when
-# the bottle's empty. It scores how much of the top got covered (full marks at
-# target_coverage), minus what was spilled off it.
+# lands, on whichever piece is highest there (so a wider one underneath gets
+# some too); near a piece's round edge it drips a little way down the side. The
+# step ends when the bottle's empty. It scores how much of the food showing
+# from above got covered (full marks at target_coverage), minus what was
+# spilled off it.
 class_name DrizzleAction
 extends CookAction
 
@@ -21,11 +23,11 @@ var _left := 0.0
 var _last_point = null       # Where the line got to (Vector2), or null between drizzles.
 var _on_top: Array[Vector2] = []
 var _spilled := 0
-var _drip_angles: Array[float] = []
+var _drip_angles: Array = []  # [piece, angle] for each drip, so they don't bunch up.
 var _bottle: Node3D
 var _flow: AudioStreamPlayer3D
 var _blob_mesh := SphereMesh.new()
-var _top: CookPiece
+var _foods: Array[CookPiece] = []  # The pieces in the stack, highest first.
 var _top_y := 0.0
 
 
@@ -33,8 +35,10 @@ func _begin() -> void:
 	_left = syrup_seconds
 	_bottle = session.make_bottle(syrup_color)
 	_flow = session.loop_sound("drizzle", -10.0)
-	_top = session.top_piece(target)
-	_top_y = (_top.position.y + _top.thickness) if _top != null else session.stack_top(target).y
+	for entry in session.stack_of(target):
+		if entry["node"] is CookPiece:
+			_foods.push_front(entry["node"])
+	_top_y = _surface_of(_foods[0]) if not _foods.is_empty() else session.stack_top(target).y
 	var material := StandardMaterial3D.new()
 	material.albedo_color = syrup_color
 	material.roughness = 0.12
@@ -44,6 +48,14 @@ func _begin() -> void:
 	_blob_mesh.radial_segments = 10
 	_blob_mesh.rings = 4
 	_blob_mesh.material = material
+
+
+func view_point() -> Vector3:
+	return Vector3(session.stack_top(target).x, _top_y, session.stack_top(target).z)
+
+
+func cursor_area() -> Rect2:
+	return session.area_of(target, 0.03) if view_distance > 0.0 else Rect2()
 
 
 func cursor_height() -> float:
@@ -76,7 +88,7 @@ func update(delta: float, input: CookInput) -> void:
 	session.set_status("Syrup left: %d%%" % ceili(_left / syrup_seconds * 100.0))
 	if _left <= 0.0:
 		var score := _score()
-		session.pop_text("Delicious!" if score >= 0.8 else ("Bit messy" if _spilled > _on_top.size() * 0.3 else "Needs more syrup"), Vector3(_top.position.x, _top_y, _top.position.z) if _top != null else spot, CookSession.mood_of(score))
+		session.pop_text("Delicious!" if score >= 0.8 else ("Bit messy" if _spilled > _on_top.size() * 0.3 else "Needs more syrup"), Vector3(_foods[0].position.x, _top_y, _foods[0].position.z) if not _foods.is_empty() else spot, CookSession.mood_of(score))
 		finish(score)
 
 
@@ -90,12 +102,15 @@ func _add_blob(point: Vector2) -> void:
 	blob.mesh = _blob_mesh
 	var spread := randf_range(0.85, 1.15)
 	blob.scale = Vector3(spread, 1.0, spread)
-	var y := _top_y + 0.001
-	if _top != null and point.distance_to(_center()) <= _top.radius:
+	var y := 0.0
+	var food := _food_at(point)
+	if food != null:
 		_on_top.append(point)
-		var from_center := point - _center()
-		if from_center.length() > _top.radius * 0.8 and randf() < drip_chance:
-			_drip(from_center.angle())
+		y = _surface_of(food) + 0.001
+		var from_middle := point - food.middle()
+		var round_edge := not food.folded or from_middle.y < -food.radius * 0.3  # A folded one's straight edge is its fold: no drips.
+		if round_edge and from_middle.length() > food.radius * 0.8 and randf() < drip_chance:
+			_drip(food, from_middle.angle())
 	else:
 		_spilled += 1
 		var plate := session.surface(target)
@@ -104,19 +119,27 @@ func _add_blob(point: Vector2) -> void:
 	session.add_child(blob)
 
 
-func _center() -> Vector2:
-	return Vector2(_top.position.x, _top.position.z)
+# The highest piece over a point, or null.
+func _food_at(point: Vector2) -> CookPiece:
+	for food in _foods:
+		if food.covers(point):
+			return food
+	return null
 
 
-# A thin run of syrup down the side of the stack, growing for a moment.
-func _drip(angle: float) -> void:
+func _surface_of(food: CookPiece) -> float:
+	return food.position.y + food.thickness
+
+
+# A thin run of syrup down the side of a piece, growing for a moment.
+func _drip(food: CookPiece, angle: float) -> void:
 	for other in _drip_angles:
-		if absf(angle_difference(angle, other)) < 0.3:
+		if other[0] == food and absf(angle_difference(angle, other[1])) < 0.3:
 			return
-	_drip_angles.append(angle)
-	var rim := _center() + Vector2.from_angle(angle) * (_top.radius * 1.04 + 0.002)
+	_drip_angles.append([food, angle])
+	var rim := food.middle() + Vector2.from_angle(angle) * (food.radius * 1.04 + 0.002)
 	var drip := Node3D.new()  # Hangs from the rim: scaling it down makes it longer.
-	drip.position = Vector3(rim.x, _top_y, rim.y)
+	drip.position = Vector3(rim.x, _surface_of(food), rim.y)
 	var strand := MeshInstance3D.new()
 	var mesh := CapsuleMesh.new()
 	mesh.radius = line_radius * 0.55
@@ -131,21 +154,28 @@ func _drip(angle: float) -> void:
 	drip.create_tween().tween_property(drip, "scale:y", length, 1.4).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 
 
-# Coverage of the top (sampled on a grid), less a penalty for spilling.
+# Coverage of the food showing from above (sampled on a grid over all of it),
+# less a penalty for spilling.
 func _score() -> float:
-	if _top == null or _on_top.is_empty():
+	if _foods.is_empty() or _on_top.is_empty():
 		return 0.0
+	var reach_out := 0.0
+	var middle := Vector2(_foods[0].position.x, _foods[0].position.z)
+	for food in _foods:
+		reach_out = maxf(reach_out, middle.distance_to(food.middle()) + food.radius)
+	const STEPS := 7
+	var step := reach_out / STEPS
+	var reach := line_radius * 1.2
 	var samples := 0
 	var covered := 0
-	var step := _top.radius / 7.0
-	var reach := line_radius * 1.2
-	for gx in range(-7, 8):
-		for gz in range(-7, 8):
-			var offset := Vector2(gx, gz) * step
-			if offset.length() > _top.radius * 0.92:
+	for gx in range(-STEPS, STEPS + 1):
+		for gz in range(-STEPS, STEPS + 1):
+			var sample := middle + Vector2(gx, gz) * step
+			var food := _food_at(sample)
+			# Not right at an edge, where a line can't quite reach.
+			if food == null or sample.distance_to(food.middle()) > food.radius * 0.92:
 				continue
 			samples += 1
-			var sample := _center() + offset
 			for blob in _on_top:
 				if blob.distance_to(sample) <= reach:
 					covered += 1

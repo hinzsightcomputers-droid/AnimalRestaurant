@@ -26,6 +26,15 @@ var _area := 0.0
 var _scores: Array[float] = []
 
 
+func view_point() -> Vector3:
+	return session.surface(surface).position
+
+
+# With a view of its own, the cursor stays on the surface (and on screen).
+func cursor_area() -> Rect2:
+	return session.area_of(surface, 0.03) if view_distance > 0.0 else Rect2()
+
+
 func _begin() -> void:
 	_bottle = session.make_bottle(batter_color)
 	_guide = session.make_ring(target_radius)
