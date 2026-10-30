@@ -15,22 +15,28 @@ background = true
 [sub_resource type="Resource" id="Resource_1"]
 script = ExtResource("pour")
 title = "Pipe the dough"
+view_distance = 0.7
 hint = "Aim with [stick] and hold [button] to pour. Let go when it fills the ring."
 batter_color = Color(0.85, 0.62, 0.36, 1)
 
 [sub_resource type="Resource" id="Resource_2"]
 script = ExtResource("flip")
 title = "Fry: turn them"
+view_distance = 0.7
 hint = "When the edge turns golden, hold [grip] on it and [flick_up] to flip it."
 
 [sub_resource type="Resource" id="Resource_3"]
 script = ExtResource("place")
 title = "Plate them"
-hint = "Hold [button] on it, move it onto the plate and let go. Neatly!"
+hint = "When the second side's golden, press [button] on one to put it on the plate."
+weight = 0.0
+auto_plate = true
+view_distance = 0.7
 
 [sub_resource type="Resource" id="Resource_4"]
 script = ExtResource("drizzle")
 title = "Chocolate"
+view_distance = 0.45
 hint = "Hold [button] and move to drizzle chocolate over the top."
 syrup_color = Color(0.24, 0.12, 0.06, 1)
 

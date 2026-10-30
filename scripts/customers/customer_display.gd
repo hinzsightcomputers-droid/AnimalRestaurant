@@ -19,6 +19,8 @@ const SPEECH_SECONDS := 6.0  # How long a one-off line stays up before the bubbl
 const PLATE_TOP := 0.046     # The meal's plate model: its top above its bottom, and its size.
 const PLATE_RADIUS := 0.22
 
+const RING_HEIGHT := 2.6  # The WaitRing, above the order bubble (two lines for a long dish name).
+
 var _food_material := StandardMaterial3D.new()
 var _speech_timer := Timer.new()
 var _speech_state: Customer.State  # What they were doing when they said it.
@@ -37,6 +39,10 @@ func _ready() -> void:
 	_emotions.position.y = 1.5
 	_load_model()
 	add_child(_emotions)
+	var ring := WaitRing.new()  # Over the order bubble while they wait for their food.
+	ring.customer = customer
+	ring.position.y = RING_HEIGHT
+	add_child(ring)
 	food.material_override = _food_material
 	customer.state_changed.connect(_on_state_changed)
 	customer.spoke.connect(_on_spoke)

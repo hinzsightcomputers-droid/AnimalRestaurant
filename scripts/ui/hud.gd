@@ -13,6 +13,7 @@ const MOVING_SPEED := 0.2  # A player going faster than this (m/s) counts as mov
 const MESSAGE_TIME := 4.0
 const MAX_MESSAGES := 3
 const MAX_ORDERS_SHOWN := 3  # Then "+2 more", so the list doesn't fill the screen.
+const ORDER_TIMES_EVERY := 1.0  # Seconds between updates of the orders' time left.
 const ORDER_INDENT := "  "
 const ORDER_WRAP_INDENT := "      "  # A wrapped order's later lines.
 const ORDER_MARGIN := 12.0  # Pixels kept spare for the text outline.
@@ -43,6 +44,7 @@ var _view_manager: ViewManager
 var _ui_scale := 1.0
 var _orders_width := 0.0
 var _orders_font_size := 0
+var _order_times_left := 0.0
 
 
 func _ready() -> void:
@@ -62,6 +64,10 @@ func _process(delta: float) -> void:
 	_refresh_join_hint()
 	_fit_orders()
 	_keep_clear_of_close_ups()
+	_order_times_left -= delta
+	if _order_times_left <= 0.0:
+		_order_times_left = ORDER_TIMES_EVERY
+		_refresh_orders()
 	if _messages.is_empty():
 		return
 	for message in _messages:
@@ -161,17 +167,39 @@ func _fit_orders() -> void:
 		_refresh_orders()
 
 
-# The first MAX_ORDERS_SHOWN orders, then "+2 more".
+# The first MAX_ORDERS_SHOWN orders, then "+2 more": the most urgent first. A
+# seated customer's order starts with how long is left to keep the serving
+# streak going (as their WaitRing shows).
 func _refresh_orders() -> void:
 	var lines := PackedStringArray(["Orders"])
 	if order_board.orders.is_empty():
 		lines.append("  (none)")
-	for order in order_board.orders.slice(0, MAX_ORDERS_SHOWN):
+	var orders := order_board.orders.duplicate()
+	orders.sort_custom(func(a, b): return _urgency(a) < _urgency(b) or (_urgency(a) == _urgency(b) and a.number < b.number))
+	for order in orders.slice(0, MAX_ORDERS_SHOWN):
 		var state: String = STATE_NAMES[order.state] if order.on_wheel or order.state != Order.State.WAITING else "ticket not on the wheel"
-		lines.append_array(_wrap("#%d %s for %s - %s" % [order.number, order.dish.get("name", "?"), order.for_name(), state]))
+		lines.append_array(_wrap("#%d %s%s for %s - %s" % [order.number, _time_left(order), order.dish.get("name", "?"), order.for_name(), state]))
 	if order_board.orders.size() > MAX_ORDERS_SHOWN:
 		lines.append("  +%d more" % (order_board.orders.size() - MAX_ORDERS_SHOWN))
 	orders_label.text = "\n".join(lines)
+
+
+# Seconds left for a customer at a table waiting on this order, or INF for
+# others (deliveries, gifts) and once it's late (nothing left to save).
+func _urgency(order: Order) -> float:
+	if not is_instance_valid(order.customer) or order.customer.state != Customer.State.WAITING_FOR_FOOD:
+		return INF
+	var left := ServiceStreak.seconds_left(order.customer)
+	return left if left > 0.0 else INF
+
+
+# "(42s) " for a customer at a table waiting on this order, "(late) " once it
+# can't keep the streak going; nothing for others.
+func _time_left(order: Order) -> String:
+	if not is_instance_valid(order.customer) or order.customer.state != Customer.State.WAITING_FOR_FOOD:
+		return ""
+	var left := ServiceStreak.seconds_left(order.customer)
+	return "(%ds) " % ceili(left) if left > 0.0 else "(late) "
 
 
 # One order, broken between words to fit the list's width, its later lines

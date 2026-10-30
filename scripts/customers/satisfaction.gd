@@ -12,9 +12,12 @@ static func calculate(quality: float, wait_seconds: float) -> float:
 
 
 static func fast_bonus(wait_seconds: float) -> float:
-	var config := GameData.reactions
-	var quick: float = config.get("fast_service_seconds", 40.0) + GameState.upgrade_bonus("patient_seconds")
-	return config.get("fast_service_bonus", 0.05) if wait_seconds <= quick else 0.0
+	return GameData.reactions.get("fast_service_bonus", 0.05) if wait_seconds <= fast_seconds() else 0.0
+
+
+# How quick a serve has to be for fast_bonus.
+static func fast_seconds() -> float:
+	return float(GameData.reactions.get("fast_service_seconds", 40.0)) + GameState.upgrade_bonus("patient_seconds")
 
 
 # The best reaction tier whose min_satisfaction is reached.

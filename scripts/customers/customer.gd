@@ -68,6 +68,7 @@ var wait_seconds := 0.0       # From ordering food until it arrives.
 var plan_index := -1          # Which of the meal's planned customers this is (-1: not from the plan).
 var served_quality := 0.0     # Quality of the dish they were served (0..1).
 var streak := 0                # The run of good serves (ServiceStreak) that their dish made.
+var just_in_time := false     # Their dish came in the last few seconds before it would have been too slow (ServiceStreak).
 var served_dish: CookedDish = null  # The plate itself (its look shows on the table), if there was one.
 var served_by_account := ""   # Account id of the chef who brought the food.
 var reaction_line := ""       # What they say when leaving.

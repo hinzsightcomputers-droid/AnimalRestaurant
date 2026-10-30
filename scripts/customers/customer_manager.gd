@@ -1173,7 +1173,9 @@ func _settle_bill(player: Player, customer: Customer) -> void:
 	var satisfaction := Satisfaction.calculate(customer.served_quality, customer.wait_seconds)
 	satisfaction = clampf(satisfaction + Satisfaction.drink_mood(customer.drink, customer.served_drink), 0.0, 1.0)
 	var reaction := Satisfaction.reaction_for(satisfaction)
-	var amount := Satisfaction.bill_for(customer.dish, customer.served_drink, reaction, ServiceStreak.tip_percent(customer.streak))
+	var streak_percent := ServiceStreak.tip_percent(customer.streak)
+	var save_percent := float(ServiceStreak.settings().get("just_in_time_tip_percent", 10)) if customer.just_in_time else 0.0
+	var amount := Satisfaction.bill_for(customer.dish, customer.served_drink, reaction, streak_percent + save_percent)
 	var lines: Array = reaction.get("lines", ["Thank you!"])
 	var line: String = lines.pick_random()
 	var feeling := &"happy" if satisfaction >= 0.75 else (&"sad" if satisfaction < 0.4 else &"")
@@ -1203,8 +1205,10 @@ func _settle_bill(player: Player, customer: Customer) -> void:
 
 	GameState.add_money(amount)
 	var price := int(customer.dish.get("base_price", 0)) + int(customer.served_drink.get("base_price", 0))
-	var streak_bonus := amount - Satisfaction.bill_for(customer.dish, customer.served_drink, reaction)
-	_pop_payment(customer, amount, amount - price - streak_bonus, streak_bonus, reaction)
+	var without_save := Satisfaction.bill_for(customer.dish, customer.served_drink, reaction, streak_percent)
+	var save_bonus := amount - without_save
+	var streak_bonus := without_save - Satisfaction.bill_for(customer.dish, customer.served_drink, reaction)
+	_pop_payment(customer, amount, amount - price - streak_bonus - save_bonus, streak_bonus, save_bonus, reaction)
 	if amount > price:
 		GameEvents.announce("%s paid $%d (+$%d tip)." % [_who(customer).capitalize(), amount, amount - price])
 	else:
@@ -1243,10 +1247,12 @@ func _settle_bill(player: Player, customer: Customer) -> void:
 
 
 # The dish just reached the table: the serving streak grows or ends
-# (ServiceStreak), and how it went pops up beside them.
+# (ServiceStreak), and how it went pops up beside them (with a save, if it came
+# in the last few seconds).
 func _pop_serve(customer: Customer) -> void:
 	var before := ServiceStreak.count
 	customer.streak = ServiceStreak.record(customer.served_quality, customer.wait_seconds)
+	customer.just_in_time = ServiceStreak.in_the_nick_of_time(customer.wait_seconds)
 	var settings := ServiceStreak.settings()
 	var text := "%s!" % CookingMinigame.quality_label(customer.served_quality)
 	if customer.streak >= 2:
@@ -1254,11 +1260,14 @@ func _pop_serve(customer: Customer) -> void:
 	elif customer.streak == 0 and before >= 2:
 		var poor := customer.served_quality < float(settings.get("min_quality", 0.7))
 		text += "\n" + String(settings.get("lost_poor" if poor else "lost_slow", "Streak lost"))
+	if customer.just_in_time:
+		text += "\n" + String(settings.get("just_in_time", "Just in time!"))
 	FloatText.pop(self, customer.global_position + POP_OFFSET, text, _quality_color(customer.served_quality), POP_FONT_SIZE)
 
 
-# Paying: the money, the tip and the streak's share pop up beside them, coloured by how happy they were.
-func _pop_payment(customer: Customer, amount: int, tip: int, streak_bonus: int, reaction: Dictionary) -> void:
+# Paying: the money, the tip, the streak's share and a just-in-time save's pop
+# up beside them, coloured by how happy they were.
+func _pop_payment(customer: Customer, amount: int, tip: int, streak_bonus: int, save_bonus: int, reaction: Dictionary) -> void:
 	var settings := ServiceStreak.settings()
 	var text := String(settings.get("paid", "+${amount}")).format({ "amount": amount })
 	if tip > 0:
@@ -1266,6 +1275,8 @@ func _pop_payment(customer: Customer, amount: int, tip: int, streak_bonus: int, 
 			"reaction": String(reaction.get("id", "")).capitalize(), "tip": tip })
 	if streak_bonus > 0:
 		text += "\n" + String(settings.get("streak_tip", "Streak x{count}: +${bonus}")).format({ "count": customer.streak, "bonus": streak_bonus })
+	if save_bonus > 0:
+		text += "\n%s +$%d" % [String(settings.get("just_in_time", "Just in time!")), save_bonus]
 	var colors := { "delighted": QUALITY_COLORS[0], "happy": QUALITY_COLORS[1], "okay": QUALITY_COLORS[2] }
 	FloatText.pop(self, customer.global_position + POP_OFFSET, text, colors.get(reaction.get("id", ""), QUALITY_COLORS[3]), POP_FONT_SIZE)
 

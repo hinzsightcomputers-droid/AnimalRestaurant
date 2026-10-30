@@ -1,12 +1,15 @@
 {
 	"fast_service_seconds": 40,
 	"fast_service_bonus": 0.05,
-	"_streak": "A run of good serves in a row, shared by the whole kitchen: the dish at min_quality or better (0.7 is Great) and brought within max_wait_seconds of ordering. From the second serve in a run, that customer tips tip_percent_per_step more for each serve before it, up to max_tip_percent. A poor or slow serve ends the run; it starts again each day. Serving pops the dish's quality over the customer, with the run (from x2) or why it ended; paying pops the money, the tip and the streak's share of it.",
+	"_streak": "A run of good serves in a row, shared by the whole kitchen: the dish at min_quality or better (0.7 is Great) and brought within max_wait_seconds of ordering. From the second serve in a run, that customer tips tip_percent_per_step more for each serve before it, up to max_tip_percent. A poor or slow serve ends the run; it starts again each day. A food order waits under a ring over the customer (WaitRing) that empties at max_wait_seconds: green within fast_service_seconds, amber after, red in the last just_in_time_seconds. Serving in those last seconds is a save: just_in_time pops and they tip just_in_time_tip_percent more. Serving pops the dish's quality over the customer, with the run (from x2) or why it ended; paying pops the money, the tip and the streak's share of it.",
 	"streak": {
 		"min_quality": 0.7,
 		"max_wait_seconds": 75,
 		"tip_percent_per_step": 10,
 		"max_tip_percent": 50,
+		"just_in_time_seconds": 12,
+		"just_in_time_tip_percent": 10,
+		"just_in_time": "Just in time!",
 		"serve_good": "Streak x{count}!",
 		"lost_slow": "Streak lost: too slow",
 		"lost_poor": "Streak lost: needs Great",
