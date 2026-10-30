@@ -29,6 +29,7 @@
 [ext_resource type="Script" path="res://scripts/world/restaurant_grounds.gd" id="27_grounds"]
 [ext_resource type="Script" path="res://scripts/outdoors/back_garden.gd" id="28_garden"]
 [ext_resource type="Script" path="res://scripts/outdoors/car_trip.gd" id="29_trip"]
+[ext_resource type="Script" path="res://scripts/outdoors/town.gd" id="30_town"]
 
 [sub_resource type="Environment" id="Env"]
 background_mode = 1
@@ -243,6 +244,9 @@ script = ExtResource("28_garden")
 
 [node name="CarTrip" type="Node3D" parent="."]
 script = ExtResource("29_trip")
+
+[node name="Town" type="Node3D" parent="."]
+script = ExtResource("30_town")
 
 [node name="HUD" parent="." unique_id=1664110998 node_paths=PackedStringArray("order_board", "day_manager") instance=ExtResource("10_hud")]
 order_board = NodePath("../OrderBoard")

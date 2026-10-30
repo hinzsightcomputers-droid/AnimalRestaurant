@@ -94,6 +94,10 @@ var car_trips := 0
 # The restaurant day Cheddar last drove off after bringing everyone home: he
 # doesn't come back until the next day. Saved.
 var cheddar_left_on := ""
+# Today's house visits: { date (the restaurant day), visited: [regular ids],
+# gift_points: { regular id: friendship from gifts today } }. A new day starts
+# it fresh (see Town.today). Saved.
+var house_day: Dictionary = {}
 # Debug panel: pretend it's this season ("" = the real one) or hour block
 # outdoors (for fishing), and the fish that bites on the next cast. Not saved.
 var debug_season := ""
@@ -148,6 +152,11 @@ func begin_day() -> void:
 		phone_news = true
 	services_today.clear()
 	chef_actions_today.clear()
+	# After Hours goes by the real date too, but a new day forced on the same
+	# date (debug) should still regrow the forage, reopen the houses and bring Cheddar back.
+	forage_today = {}
+	house_day = {}
+	cheddar_left_on = ""
 	replan_today()
 
 
@@ -313,6 +322,7 @@ func to_save_data() -> Dictionary:
 		"forage_today": forage_today,
 		"car_trips": car_trips,
 		"cheddar_left_on": cheddar_left_on,
+		"house_day": house_day,
 		"regulars": regular_memory,
 	}
 
@@ -360,6 +370,11 @@ func apply_save_data(data: Dictionary) -> void:
 			entry["by"][account_id] = int(entry["by"][account_id])
 	car_trips = int(data.get("car_trips", 0))
 	cheddar_left_on = String(data.get("cheddar_left_on", ""))
+	house_day = data.get("house_day", {}) if data.get("house_day", {}) is Dictionary else {}
+	var gift_points: Dictionary = house_day.get("gift_points", {}) if house_day.get("gift_points", {}) is Dictionary else {}
+	for regular_id in gift_points:
+		gift_points[regular_id] = int(gift_points[regular_id])
+	house_day["gift_points"] = gift_points
 	forage_log = data.get("forage_log", {}) if data.get("forage_log", {}) is Dictionary else {}
 	for entry in forage_log.values():
 		entry["found"] = int(entry.get("found", 0))

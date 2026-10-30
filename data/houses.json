@@ -1,0 +1,149 @@
+{
+	"_about": "The regulars' houses, on the restaurant's side of the street either side of it (see Town and House). Each stands 'at' [x, z] with its front door toward the street (+z, the camera's side); street scenery (trees, bushes) in the way is hidden. A house unlocks ('unlock', a flag in GameState.unlocks) when its regular invites the chefs over (a closing scene in scenes.json, once they first reach Stage 2); before that it's there but locked, with no name on it. After hours the chefs can knock once a restaurant day per house. Visits grow with the regular's stage: porch_stage and up, a chat on the porch; inside_stage and up, they ask everyone in (chefs within porch_radius of the door come along; the room is built far away at 'inside_at', like the beach); items_stage and up, their personal things inside can be looked at ('items'). Below porch_stage the door stays shut with a polite line (house_not_tonight); at dark_stage and lower (or once they're gone) the lights are off and nobody answers. Gifts: something a chef is carrying (a cooked dish) or anything from the pantry (caught or gathered). A favourite adds favourite_points friendship, something they like liked_points, anything else other_points; gifts add at most daily_cap a day per regular, and each chef can give gifts_per_visit per visit. 'favourites' and 'likes' list dish, fish or forage ids, or 'kind:<kind>' (e.g. kind:fish). 'text' is what the chefs see that isn't a regular's line ({name} is the regular's name, {names} the same with 's or ' on the end, {item} a thing's). Models are '<dir>/<name>' with dir from model_dirs. Outside, decor and patches are [x, z] (or [x, y] on the front wall) from the middle of the house; inside, [x, z] from the middle of the room (the door is at +z, toward the camera), with 'height' off the floor; 'size' is a model's width, 'turn' degrees.",
+	"settings": {
+		"porch_stage": 2,
+		"inside_stage": 3,
+		"items_stage": 4,
+		"dark_stage": -3,
+		"porch_radius": 4.5,
+		"fade_seconds": 0.35,
+		"knock_wait_seconds": 0.8,
+		"gifts": {
+			"favourite_points": 2,
+			"liked_points": 1,
+			"other_points": 0,
+			"daily_cap": 3,
+			"gifts_per_visit": 1,
+			"max_choices": 4
+		},
+		"menu": {
+			"chat": "Chat",
+			"gift": "Give a gift",
+			"goodbye": "Say goodbye",
+			"never_mind": "Never mind"
+		},
+		"text": {
+			"knock": "Knock",
+			"knock_named": "Knock on {names} door",
+			"locked": "(The door's locked, and there's no name on it. Whoever lives here isn't expecting you.)",
+			"dark": "(The windows are dark. You knock and wait, but nobody comes.)",
+			"talk": "Talk to {name}",
+			"look": "Look at {item}",
+			"leave": "Say goodbye",
+			"no_gifts": "(You've nothing to give. Try cooking something, or bring something you caught or gathered.)",
+			"gift_ask": "What will you give?",
+			"waiting": "Waiting for everyone to finish talking..."
+		},
+		"size": [4.4, 4.0],
+		"wall_height": 2.4,
+		"roof_height": 1.3,
+		"room": { "size": [6.0, 5.0], "wall_height": 2.6, "front_wall_height": 0.5, "door_width": 1.3 },
+		"model_dirs": {
+			"furniture": "res://design/assets/KayKit_Bits_Bundle1_1.1/Furniture Bits/Assets/gltf/",
+			"city": "res://design/assets/KayKit_Bits_Bundle1_1.1/City Builder Bits/Assets/gltf/",
+			"halloween": "res://design/assets/KayKit_Bits_Bundle1_1.1/Halloween Bits/Assets/gltf/",
+			"restaurant": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/",
+			"forest": "res://design/assets/KayKit_Forest_Nature_Pack_1.0_FREE/Assets/gltf/"
+		}
+	},
+	"houses": [
+		{
+			"regular": "mabel",
+			"unlock": "mabel_house",
+			"at": [11.5, 5.6],
+			"inside_at": [200.0, 0.0],
+			"look": { "walls": "#b9a6d6", "roof": "#6b4f7a", "trim": "#f4efe6", "door": "#5c7a4a", "window_boxes": "#e07a8f" },
+			"decor": [
+				{ "model": "city/bush_A", "at": [-1.8, 2.4], "size": 0.9 },
+				{ "model": "city/bush_B", "at": [1.8, 2.4], "size": 0.9 }
+			],
+			"room": {
+				"floor": "#a8794f", "walls": "#e9dcc4", "light": "#ffd9a0",
+				"furniture": [
+					{ "model": "furniture/rug_oval_A", "at": [0.0, -0.3], "size": 2.6 },
+					{ "model": "furniture/armchair", "at": [-1.7, -1.4], "size": 1.0, "turn": 30 },
+					{ "model": "furniture/table_low", "at": [-0.5, -1.1], "size": 1.0 },
+						{ "model": "furniture/mug_A", "at": [-0.75, -1.0], "size": 0.1, "height": 0.42 },
+					{ "model": "furniture/shelf_B_large_decorated", "at": [1.9, -2.15], "size": 1.4 },
+					{ "model": "furniture/lamp_standing", "at": [-2.6, -2.1], "size": 0.5 },
+					{ "model": "furniture/cactus_medium_A", "at": [2.7, -0.4], "size": 0.4 },
+					{ "model": "furniture/pictureframe_large_A", "at": [-0.6, -2.42], "size": 0.9, "height": 1.3 }
+				],
+				"regular_at": [0.9, -0.9],
+				"items": [
+					{ "id": "walters_photo", "name": "Walter's photo", "model": "furniture/pictureframe_standing_A", "at": [-0.35, -1.15], "size": 0.25, "height": 0.42, "turn": -15 },
+					{ "id": "diner_sign", "name": "the old diner sign", "shape": "sign", "text": "MABEL & WALTER'S", "color": "#c44d3c", "at": [1.9, -2.42], "size": 1.3, "height": 1.85 }
+				]
+			},
+			"favourites": ["vegetable_soup", "snowdrop", "wild_strawberry"],
+			"likes": ["dandelion", "watercress", "wild_garlic", "four_leaf_clover", "rainbow_trout", "button_mushroom", "golden_chanterelle", "morel"]
+		},
+		{
+			"regular": "stitches",
+			"unlock": "stitches_house",
+			"at": [18.0, 5.6],
+			"inside_at": [240.0, 0.0],
+			"look": { "walls": "#8fb3d9", "roof": "#56688a", "trim": "#f2ead8", "door": "#c98a5a",
+				"patches": [
+					{ "at": [-1.85, 0.55], "size": [0.45, 0.4], "color": "#e6b0a0" },
+					{ "at": [0.85, 2.05], "size": [0.5, 0.38], "color": "#d9cf8f" },
+					{ "at": [1.9, 0.75], "size": [0.38, 0.5], "color": "#a3c9a0" },
+					{ "at": [-0.9, 2.1], "size": [0.4, 0.32], "color": "#c7a6d9" }
+				]
+			},
+			"decor": [
+				{ "model": "city/bush_C", "at": [1.9, 2.4], "size": 0.8 },
+				{ "model": "halloween/pumpkin_orange_small", "at": [-1.2, 2.4], "size": 0.35 }
+			],
+			"room": {
+				"floor": "#9c7a5c", "walls": "#d8e4ec", "light": "#ffe2b8",
+				"furniture": [
+					{ "model": "furniture/rug_rectangle_stripes_A", "at": [0.0, -0.2], "size": 2.4 },
+					{ "model": "furniture/couch_pillows", "at": [-1.4, -1.9], "size": 2.0 },
+					{ "model": "furniture/desk", "at": [1.8, -2.0], "size": 1.3 },
+					{ "model": "furniture/lamp_desk", "at": [2.2, -2.05], "size": 0.3, "height": 0.75 },
+					{ "model": "furniture/chair_A_wood", "at": [1.8, -1.3], "size": 0.55, "turn": 180 },
+					{ "model": "furniture/bed_single_A", "at": [-2.5, 0.4], "size": 1.0, "turn": 90 },
+					{ "model": "furniture/shelf_A_small", "at": [0.2, -2.35], "size": 0.9 }
+				],
+				"regular_at": [0.4, -0.7],
+				"items": [
+					{ "id": "sewing_kit", "name": "the sewing kit", "shape": "sewing_kit", "at": [1.55, -2.05], "size": 0.3, "height": 0.75 },
+					{ "id": "patched_bear", "name": "the patched teddy", "shape": "teddy", "at": [-1.0, -1.85], "size": 0.35, "height": 0.45 }
+				]
+			},
+			"favourites": ["honey_pancakes", "blackberry", "sea_glass"],
+			"likes": ["wild_cherry", "wild_strawberry", "acorn", "spiral_shell", "pinecone", "moonflower"]
+		},
+		{
+			"regular": "cheddar",
+			"unlock": "cheddar_house",
+			"at": [-12.5, 5.6],
+			"inside_at": [280.0, 0.0],
+			"look": { "walls": "#f2c94c", "roof": "#d9534f", "trim": "#ffffff", "door": "#3d7fd1", "string_lights": true, "star": "#ffd23f" },
+			"decor": [
+				{ "model": "city/bush", "at": [-1.9, 2.4], "size": 0.8 },
+				{ "model": "city/firehydrant", "at": [2.0, 2.4], "size": 0.45 }
+			],
+			"room": {
+				"floor": "#7c5a3c", "walls": "#f6e7c8", "light": "#ffe6a8",
+				"furniture": [
+					{ "model": "furniture/rug_rectangle_B", "at": [0.0, -0.4], "size": 2.6 },
+					{ "model": "furniture/couch", "at": [-0.3, -2.0], "size": 2.0 },
+					{ "model": "furniture/table_low", "at": [-0.3, -1.0], "size": 1.0 },
+					{ "model": "furniture/gameconsole_handheld", "at": [-0.4, -1.0], "size": 0.18, "height": 0.33 },
+					{ "model": "furniture/armchair_pillows", "at": [-2.3, -0.8], "size": 1.0, "turn": 60 },
+					{ "model": "furniture/lamp_standing", "at": [-2.6, -2.1], "size": 0.5 },
+					{ "model": "furniture/shelf_A_big", "at": [2.4, -2.2], "size": 1.1 }
+				],
+				"regular_at": [1.0, -0.6],
+				"items": [
+					{ "id": "cheddarini_poster", "name": "the poster", "shape": "poster", "text": "THE GREAT\nCHEDDARINI\nOne Night Only!", "color": "#5b2a86", "at": [-0.3, -2.42], "size": 1.1, "height": 1.2 },
+					{ "id": "talent_trophy", "name": "the trophy", "shape": "trophy", "at": [2.4, -2.15], "size": 0.3, "height": 1.15 }
+				]
+			},
+			"favourites": ["fire_noodles", "pearly_conch", "golden_koi"],
+			"likes": ["scallop_shell", "spiral_shell", "sand_dollar", "kind:fish", "four_leaf_clover"]
+		}
+	]
+}

@@ -105,6 +105,18 @@ func focus_on(point: Vector3, settings: CameraZoomSettings = null) -> void:
 		_change_mode(Mode.FOCUS, zoom.duration)
 
 
+# Jump straight to what the current mode wants, with no glide: for when its
+# player was just moved somewhere far away (behind a fade).
+func snap() -> void:
+	if _tween != null:
+		_tween.kill()
+	_blend = 1.0
+	var goal := _goal()
+	global_position = goal[0]
+	_offset = goal[1]
+	_place_camera()
+
+
 # Back to following, taking as long as the zoom-in did.
 func release_focus() -> void:
 	focus_requested = false

@@ -1,7 +1,7 @@
 # CookSounds: placeholder sounds for close-up cooking, made in code until there
 # are real ones. Each is made once and shared.
 #   sizzle, pour, drizzle - loops
-#   plop, whoosh, tick, ding, chop, clack - one-shots
+#   plop, whoosh, tick, ding, chop, clack, knock - one-shots
 class_name CookSounds
 extends RefCounted
 
@@ -18,7 +18,7 @@ static func get_sound(sound: String) -> AudioStreamWAV:
 
 
 static func _make(sound: String) -> AudioStreamWAV:
-	var seconds := {"sizzle": 1.5, "pour": 1.0, "drizzle": 1.0, "plop": 0.18, "whoosh": 0.3, "tick": 0.05, "ding": 0.7, "chop": 0.12, "clack": 0.08}.get(sound, 0.2) as float
+	var seconds := {"sizzle": 1.5, "pour": 1.0, "drizzle": 1.0, "plop": 0.18, "whoosh": 0.3, "tick": 0.05, "ding": 0.7, "chop": 0.12, "clack": 0.08, "knock": 0.6}.get(sound, 0.2) as float
 	var total := int(RATE * seconds)
 	var data := PackedByteArray()
 	data.resize(total * 2)
@@ -54,6 +54,10 @@ static func _make(sound: String) -> AudioStreamWAV:
 				value = low * exp(-t * 45.0) * 1.2 + sin(TAU * 150.0 * t) * exp(-t * 40.0) * 0.6
 			"clack":  # Just the knife on the board.
 				value = (sin(TAU * 420.0 * t) * 0.6 + noise * 0.3) * exp(-t * 70.0)
+			"knock":  # Three raps on a wooden door.
+				var since := fmod(t, 0.17)
+				low += (noise - low) * 0.3
+				value = (sin(TAU * 120.0 * since) * 0.8 + low * 0.6) * exp(-since * 50.0) if t < 0.51 else 0.0
 			"ding":
 				value = (sin(TAU * 1046.0 * t) + 0.4 * sin(TAU * 2093.0 * t)) * exp(-t * 5.0) * 0.35
 		data.encode_s16(i * 2, int(clampf(value, -1.0, 1.0) * 32767.0))

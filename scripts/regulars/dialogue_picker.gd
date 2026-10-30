@@ -190,6 +190,10 @@ static func _condition_met(key: String, want: Variant, context: Dictionary) -> b
 			return false
 		"day_phase":  # "after_hours", "night", a meal's id like "lunch"... (see DayCycle.phase_id).
 			return context.get("day_phase", DayCycle.phase_id()) in _as_list(want)
+		"house_item", "gift_kind":  # At a regular's house: the thing looked at ("walters_photo"), or how a gift went ("favourite", "liked", "other").
+			return context.get(key, "") in _as_list(want)
+		"inside":  # At a regular's house: true once they've asked the chefs in.
+			return bool(context.get("inside", false)) == bool(want)
 		"days_since_last_visit", "days_since_player_played":  # 3 (at least 3) or { "min": 3, "max": 7 }.
 			var days: int = context.get(key, 0)
 			if want is Dictionary:

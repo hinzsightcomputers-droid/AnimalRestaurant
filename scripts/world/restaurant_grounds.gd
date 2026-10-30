@@ -17,8 +17,8 @@ const DOOR_MODEL := "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits
 const DOOR_SIZE := Vector3(1.1, 0.0, 0.0)  # Fit by width; it keeps its proportions.
 const DOOR_OPEN_DEGREES := 95.0  # Swings out, away from the room.
 # The grounds: walkable ground and the fence around them (x and z, meters).
-const GROUNDS_MIN := Vector2(-16.0, -20.0)
-const GROUNDS_MAX := Vector2(16.0, 10.6)   # Up to the curb.
+const GROUNDS_MIN := Vector2(-22.0, -20.0)
+const GROUNDS_MAX := Vector2(22.0, 10.6)   # Up to the curb; wide enough for the regulars' houses either side.
 const SIGN_SPOT := Vector3(3.9, 0.0, 5.75)  # Outside, just left of the front door.
 
 @export var day_manager: DayManager

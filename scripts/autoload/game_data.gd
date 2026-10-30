@@ -25,6 +25,7 @@ const TIME_PATH := "res://data/time.json"
 const FISH_PATH := "res://data/fish.json"
 const FORAGE_PATH := "res://data/forage.json"
 const TRIPS_PATH := "res://data/trips.json"
+const HOUSES_PATH := "res://data/houses.json"
 
 # Each dish, from the menu (design/menu/dishes.json): { id, name, origin,
 # description, ingredients, steps, base_price, cook_time, tags, unlock,
@@ -93,6 +94,8 @@ var forage: Array[Dictionary] = []
 var forage_settings: Dictionary = {}
 # Trips in Cheddar's car to the beach (data/trips.json): the car, the drive, the beach.
 var trips: Dictionary = {}
+# The regulars' houses across the street (data/houses.json): where, how they look, visits and gifts.
+var houses: Dictionary = {}
 
 
 func _ready() -> void:
@@ -128,6 +131,7 @@ func _ready() -> void:
 	forage = _load_list(FORAGE_PATH, "items")
 	forage_settings = _load_dictionary(FORAGE_PATH).get("settings", {})
 	trips = _load_dictionary(TRIPS_PATH)
+	houses = _load_dictionary(HOUSES_PATH)
 
 
 # A forage item from data/forage.json, or {}.

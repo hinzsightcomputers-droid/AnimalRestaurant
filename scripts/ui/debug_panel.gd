@@ -32,6 +32,7 @@ var _players_label: Label
 var _fishing_label: Label
 var _forage_label: Label
 var _car_label: Label
+var _houses_label: Label
 var _hour_picker: OptionButton
 var _fish_picker: OptionButton
 var _changed := false     # Something to save when the panel closes.
@@ -158,11 +159,16 @@ func _on_slider_changed(value: float) -> void:
 # Jump to where a stage starts: its lowest value when friendly, its highest when
 # not (so -1 is "just slipped below 0").
 func _jump_to_stage(stage: int) -> void:
+	_set_stage_of(_selected_id(), stage)
+
+
+# The same for any regular (the houses section).
+func _set_stage_of(regular_id: String, stage: int) -> void:
 	var stages: Array = GameData.regular_settings.get("stages", [])
 	for i in stages.size():
 		if int(stages[i]["stage"]) == stage:
 			var value: int = stages[i]["min"] if stage > 0 else stages[i - 1]["min"] - 1
-			RegularMemory.set_relationship(_selected_record(), value)
+			RegularMemory.set_relationship(GameState.regulars[regular_id], value)
 	_changed = true
 	_refresh()
 
@@ -406,6 +412,18 @@ Forage Log: %d of %d." % [
 			RegularMemory.stage_of(cheddar), RegularMemory.stage_name(cheddar), "up for trips" if trip.cheddar_ready() else "not up for trips",
 			GameState.car_trips, int(GameData.trips.get("drive", {}).get("skip_after_trips", 3)),
 			", ".join(get_tree().get_nodes_in_group(Player.GROUP).filter(func(p): return trip.at_beach(p)).map(func(p): return "P%d" % (p.player_index + 1))) ]
+	var town := _town()
+	if town != null:
+		var lines: Array[String] = []
+		for house in town.houses:
+			var regular := house.record()
+			if regular.is_empty():
+				continue
+			lines.append("%s's house: %s, stage %d (%s), door: %s%s. Gifts today +%d (cap %d)." % [
+				house.regular_name(), "unlocked" if house.is_unlocked() else "locked", RegularMemory.stage_of(regular), RegularMemory.stage_name(regular),
+				House.Door.keys()[house.door_state()].to_lower().replace("_", " "), ", visit going on" if house.is_visiting() else "",
+				int(Town.today().get("gift_points", {}).get(house.regular_id, 0)), int(Town.settings().get("gifts", {}).get("daily_cap", 3))])
+		_houses_label.text = "\n".join(lines)
 	if GameState.forced_fish.is_empty() and _fish_picker.selected != 0:
 		_fish_picker.select(0)  # The forced fish was caught.
 	_phone_label.text = "Phone: %s.  Voicemails: %d%s" % [
@@ -583,6 +601,23 @@ func _build() -> void:
 	_add_button(beach_row, "Trips: 3", func(): GameState.car_trips = 3; _changed = true; _refresh())
 	_add_button(beach_row, "Everyone to the beach", func(): _car_trip().debug_send_everyone(true); _refresh())
 	_add_button(beach_row, "Everyone home", func(): _car_trip().debug_send_everyone(false); _refresh())
+
+	_add_label(box, "Regulars' houses", 18, true)
+	_houses_label = _add_label(box, "")
+	for entry: Dictionary in GameData.houses.get("houses", []):
+		var regular_id := String(entry.get("regular", ""))
+		var regular_name := String(GameState.regulars.get(regular_id, {}).get("name", regular_id))
+		var house_row := _add_row(box)
+		_add_label(house_row, regular_name).custom_minimum_size.x = 80
+		_add_button(house_row, "Unlock house", _set_house_unlocked.bind(entry, true))
+		_add_button(house_row, "Lock house", _set_house_unlocked.bind(entry, false))
+		_add_button(house_row, "Invite scene tonight", func(): GameState.forced_scene = regular_id + "_house_invite"; _refresh())
+		_add_button(house_row, "Everyone to the door", _go_to_house.bind(regular_id))
+		var house_stage_row := _add_row(box)
+		for stage in [4, 3, 2, 1, -1, -2, -3]:
+			_add_button(house_stage_row, "%s %d" % [regular_name, stage], _set_stage_of.bind(regular_id, stage))
+	var visits_row := _add_row(box)
+	_add_button(visits_row, "Reset today's visits", func(): Town.reset_today(); _changed = true; _refresh())
 
 	_add_label(box, "Regulars", 18, true)
 	_regular_picker = OptionButton.new()
@@ -830,6 +865,30 @@ func _set_car_unlocked(unlocked: bool) -> void:
 	_changed = true
 	_refresh()
 
+
+
+func _town() -> Town:
+	var found := get_tree().root.find_children("*", "Town", true, false)
+	return found.front() as Town if not found.is_empty() else null
+
+
+# Unlocked as if their invite scene had played (or locked again, so it can play again).
+func _set_house_unlocked(entry: Dictionary, unlocked: bool) -> void:
+	var unlock := String(entry.get("unlock", ""))
+	GameState.unlocks.erase(unlock)
+	if unlocked:
+		GameState.unlocks.append(unlock)
+	GameState.regulars.get(entry.get("regular", ""), {})["house_invited"] = unlocked
+	GameState.unlocks_changed.emit()
+	_changed = true
+	_refresh()
+
+
+func _go_to_house(regular_id: String) -> void:
+	var town := _town()
+	if town != null and town.house_of(regular_id) != null:
+		town.house_of(regular_id).debug_send_everyone()
+	_refresh()
 
 # Cheddar's relationship at the bottom of a stage.
 func _set_cheddar_stage(stage: int) -> void:

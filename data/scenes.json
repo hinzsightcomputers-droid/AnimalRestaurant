@@ -8,7 +8,10 @@
 			"best_chef_sign": "\"World's Best Chef (don't tell anyone I said that)\" sign",
 			"mabel_bell": "Mabel's bell",
 			"walters_storm_soup": "Walter's Storm Soup",
-			"cheddar_car": "Beach trips in Cheddar's car (after hours, out front)"
+			"cheddar_car": "Beach trips in Cheddar's car (after hours, out front)",
+			"mabel_house": "Visits to Mabel's house (after hours, knock)",
+			"stitches_house": "Visits to Stitches' house (after hours, knock)",
+			"cheddar_house": "Visits to Cheddar's house (after hours, knock)"
 		}
 	},
 	"scenes": [
@@ -138,6 +141,75 @@
 				},
 				{ "say": "I'll park out front after hours. Just come find me. Don't be strangers, [nickname]!", "emotion": "happy" },
 				{ "narrate": "(He jingles the keys one more time on his way out. The horn honks again from the street: the same little tune.)" }
+			]
+		},
+		{
+			"id": "mabel_house_invite",
+			"name": "Mabel's house",
+			"regular": "mabel",
+			"conditions": { "min_stage": 2, "memory": { "house_invited": false } },
+			"staging": { "dim": 0.9, "music_db": -6 },
+			"done": { "set": { "house_invited": true }, "unlock": ["mabel_house"] },
+			"steps": [
+				{ "narrate": "(Mabel stays in her seat after everyone else has gone, buttoning and unbuttoning her coat.)" },
+				{ "say": "I've been thinking, dear. Which at my age is a whole afternoon's work.", "emotion": "neutral" },
+				{
+					"say": "You lot ought to come round to mine. For tea. The house with the window boxes, just along from here. Tuesday.",
+					"emotion": "happy",
+					"choices": [
+						{ "text": "We'd love to!", "reply": "Good. After closing. Don't be late. I can't abide late. Walter was late to our wedding. Twenty minutes. I've never let him forget it.", "emotion": "happy" },
+						{ "text": "Tuesday?", "reply": "Tuesday. Or whichever day it is when you come. I lose track. Walter kept the calendar.", "emotion": "neutral" },
+						{ "text": "Which house is yours?", "reply": "The one with flowers that aren't dead. You'd be surprised how few of those there are.", "emotion": "happy" }
+					]
+				},
+				{ "say": "Knock properly, mind. None of that tapping. And don't be late.", "emotion": "neutral" },
+				{ "narrate": "(At the door she turns back.) Wednesday! ...No. Whenever. Don't be late! (And she's gone.)" }
+			]
+		},
+		{
+			"id": "stitches_house_invite",
+			"name": "Stitches' house",
+			"regular": "stitches",
+			"conditions": { "min_stage": 2, "memory": { "house_invited": false } },
+			"staging": { "dim": 0.9, "music_db": -6 },
+			"done": { "set": { "house_invited": true }, "unlock": ["stitches_house"] },
+			"steps": [
+				{ "narrate": "(Stitches lingers by the door after closing, turning his hat around and around in his paws.)" },
+				{ "say": "Um. [name]? Can I ask something? You can say no. You'll probably say no. That's okay.", "emotion": "nervous" },
+				{
+					"say": "I have a house. Well, everyone has a house. Not everyone. Sorry. I mean, I live in one. Near here. And maybe, if you wanted, you could... visit? It. Me. The house with me in it.",
+					"emotion": "shy",
+					"choices": [
+						{ "text": "We'd love to visit.", "reply": "You would? Really? Oh. Okay. Okay! I'll tidy. I'll tidy so much.", "emotion": "joyful" },
+						{ "text": "Which one is it?", "reply": "The blue one. With the patches. I patched the house too. Is that weird? It had holes.", "emotion": "shy" },
+						{ "text": "Only if there's hot chocolate.", "reply": "There's always hot chocolate. I mean. I'll buy some. There will be hot chocolate.", "emotion": "happy" }
+					]
+				},
+				{ "say": "So. After closing. Any night. If you want. No pressure. Some pressure. Nice pressure. ...I'm going to go now.", "emotion": "shy" },
+				{ "narrate": "(He walks into the door frame on his way out, apologizes to it, and leaves.)" }
+			]
+		},
+		{
+			"id": "cheddar_house_invite",
+			"name": "Cheddar's house",
+			"regular": "cheddar",
+			"conditions": { "min_stage": 2, "memory": { "house_invited": false, "car_invited": true } },
+			"staging": { "dim": 0.9, "music_db": -6 },
+			"done": { "set": { "house_invited": true }, "unlock": ["cheddar_house"] },
+			"steps": [
+				{ "narrate": "(A drumroll from the dining room. It's Cheddar, drumming on a table with two spoons.)" },
+				{ "say": "Ladies and gentlemen! Chefs of all ages! Gather round, gather round, for an announcement of TREMENDOUS importance!", "emotion": "excited" },
+				{
+					"say": "The Cheddar residence, home of the one and only Cheddar, is hereby OPEN to visitors! Specifically you! After hours! Free admission!",
+					"emotion": "excited",
+					"choices": [
+						{ "text": "We'll be there!", "reply": "Ha! I knew it. I already told the house. It's very excited. Houses can't be excited. Mine is.", "emotion": "joyful" },
+						{ "text": "Where do you live?", "reply": "The yellow one with the lights and the star. You can't miss it. People have tried. They can't.", "emotion": "happy" },
+						{ "text": "Is this a trick?", "reply": "The only trick is how charming the place is. And a small hole in the porch. Mind the hole.", "emotion": "happy" }
+					]
+				},
+				{ "say": "Knock any night after closing. Knock loud. Knock with flair. I'll know it's you, [nickname].", "emotion": "happy" },
+				{ "narrate": "(He takes a deep bow, knocks a spoon off the table, and bows to that too on his way out.)" }
 			]
 		}
 	]

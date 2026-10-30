@@ -50,6 +50,7 @@
 		"pending_gossip": [],
 		"referred_by": "",
 		"big_moment_done": false,
+		"house_invited": false,
 		"seen_lines": [],
 		"restaurant_name_heard": "",
 		"last_called": "",
