@@ -59,6 +59,9 @@ var _seat_owners: Dictionary = {}   # seat (Station) -> Customer sitting there o
 var _pending: Array = []            # This meal's customers still to come: [plan index, entry].
 var _writing_letter := false
 var _arrival_timer := Timer.new()
+var _meal_size := 0       # How many this meal expects (for its pacing).
+var _arrived := 0         # How many of them have walked in so far.
+var _rush_called := false
 var bell := ServiceBell.new()     # On the host stand: rung to start the next meal.
 
 
@@ -89,19 +92,50 @@ func _process(_delta: float) -> void:
 
 
 # A meal starts: its customers from today's plan come in one at a time, except
-# any already done (a day picked up again). `entries` is the meal's list.
+# any already done (a day picked up again). `entries` is the meal's list. They
+# come at a pace that gives the meal a shape (see _next_gap).
 func start_phase(entries: Array, done: Array) -> void:
 	_pending.clear()
 	for i in entries.size():
 		if not i in done:
 			_pending.append([i, entries[i]])
+	_meal_size = _pending.size()
+	_arrived = 0
+	_rush_called = false
 	accepting_customers = true
-	var settings := GameData.day_settings
-	_arrival_timer.wait_time = float(settings.get("arrival_seconds", 9.0)) * GameState.upgrade_multiplier("arrival_interval")  # Welcome Sign.
+	_arrival_timer.one_shot = true
 	_arrival_timer.stop()
-	await get_tree().create_timer(float(settings.get("first_arrival_seconds", 3.0)), false).timeout  # false: waits while paused (e.g. name entry).
+	await get_tree().create_timer(float(GameData.day_settings.get("first_arrival_seconds", 3.0)), false).timeout  # false: waits while paused (e.g. name entry).
 	_try_spawn_customer()
-	_arrival_timer.start()
+
+
+# The time until the next customer walks in, after `_arrived` of the meal's
+# `_meal_size` have: a calm start (a gap after the first), then the rush (the
+# middle ones close together, called out once), and for a big meal a slower
+# last one. The gaps are multiples of arrival_seconds (data/day.json "pacing").
+func _next_gap() -> float:
+	var settings := GameData.day_settings
+	var pacing: Dictionary = settings.get("pacing", {})
+	var base := float(settings.get("arrival_seconds", 9.0)) * GameState.upgrade_multiplier("arrival_interval")  # Welcome Sign.
+	var still_to_come := _meal_size - _arrived
+	if _arrived == 1 and still_to_come >= 2:
+		return base * float(pacing.get("calm_start", 1.6))
+	if still_to_come == 1 and _meal_size >= int(pacing.get("wind_down_from", 5)):
+		return base * float(pacing.get("wind_down", 1.4))
+	if still_to_come >= 1 and not _rush_called and _meal_size >= int(pacing.get("rush_from", 3)):
+		_rush_called = true
+		_call_rush(String(pacing.get("rush_text", "Here comes the {meal} rush!")))
+	return base * float(pacing.get("rush", 0.45)) if still_to_come >= 1 else base
+
+
+# The rush starts: everyone hears about it.
+func _call_rush(text: String) -> void:
+	GameEvents.announce(text.format({ "meal": DayCycle.phase_name().to_lower() }))
+	var ding := AudioStreamPlayer.new()
+	ding.stream = CookSounds.get_sound("ding")
+	add_child(ding)
+	ding.play()
+	ding.finished.connect(ding.queue_free)
 
 
 # Everyone this meal was expecting has been and gone.
@@ -168,13 +202,19 @@ func regular_arriving() -> bool:
 # Someone comes in if there's a seat at a clean table for them (counting
 # everyone already waiting to be seated).
 func _try_spawn_customer() -> void:
-	if not accepting_customers or not DayCycle.is_open():
+	if not accepting_customers:
 		return
-	if _free_seats().size() <= _queue.size() + _leading.size():
+	var retry := float(GameData.day_settings.get("pacing", {}).get("retry_seconds", 2.0))
+	if not DayCycle.is_open() or _free_seats().size() <= _queue.size() + _leading.size():
+		_arrival_timer.start(retry)  # Nowhere to sit them yet: they wait outside a moment.
 		return
 	var next := _next_customer()
 	if next.is_empty():
+		_arrival_timer.start(retry)  # Anyone the debug panel sends still comes.
 		return
+	if next["index"] >= 0:
+		_arrived += 1
+	_arrival_timer.start(_next_gap())
 	var regular: Dictionary = next["regular"]
 
 	var customer: Customer = CUSTOMER_SCENE.instantiate()
