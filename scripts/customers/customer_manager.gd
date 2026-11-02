@@ -385,8 +385,8 @@ func _on_order_counter_used(_station: Station, player_index: int) -> void:
 			day_manager.open_summary()
 		return
 	if day_manager != null and day_manager.bell_ready():
-		bell.ring()
-		day_manager.ring_bell()
+		if day_manager.ring_bell():
+			bell.ring()
 		return
 	var player := Player.find(get_tree(), player_index)
 	if player == null or player.held_item != null:

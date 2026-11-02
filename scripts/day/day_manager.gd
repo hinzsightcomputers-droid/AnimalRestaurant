@@ -76,7 +76,7 @@ func _process(delta: float) -> void:
 			if bell_ready() and not _announced_bell:
 				_announced_bell = true
 				GameEvents.announce("Everyone's been served! Ring the bell at the counter %s." % (
-					"for %s" % GameState.phase_info(DayCycle.meal + 1).get("name", "the next meal") if not DayCycle.is_last_meal() else "to close up"))
+					"for %s" % GameState.phase_info(DayCycle.meal + 1).get("name", "the next meal") if not DayCycle.is_last_meal() else "to close up, once every table and dish is clean"))
 		DayCycle.Phase.CLOSING:
 			if not customer_manager.has_customers() and not _deliveries_waiting():
 				if scene_player != null and scene_player.play_due():
@@ -104,19 +104,57 @@ func bell_ready() -> bool:
 # The counter's prompt while the bell's ready, e.g. "Ring the bell: Lunch".
 func bell_prompt() -> String:
 	if DayCycle.is_last_meal():
-		return "Ring the bell: close up"
+		return "Ring the bell: close up" if cleanup_left().is_empty() else "Clean up first!"
 	return "Ring the bell: %s" % GameState.phase_info(DayCycle.meal + 1).get("name", "next meal")
 
 
-# The bell was rung: the next meal, or closing after the last.
-func ring_bell() -> void:
+# The bell was rung: the next meal, or closing after the last (once everything's
+# clean). Whether it worked.
+func ring_bell() -> bool:
 	if not bell_ready():
-		return
+		return false
 	if DayCycle.is_last_meal():
+		var left := cleanup_left()
+		if not left.is_empty():
+			GameEvents.announce("Clean up before closing: %s." % left)
+			return false
 		_close()
 	else:
 		DayCycle.to_meal(DayCycle.meal + 1)
 		_start_phase(DayCycle.meal)
+	return true
+
+
+# What still needs cleaning before closing, e.g. "2 tables to clear, 1 to wipe,
+# 5 dishes to wash", or "" when it's all done.
+func cleanup_left() -> String:
+	var to_clear := 0
+	var to_wipe := 0
+	var tables := {}
+	for node in get_tree().get_nodes_in_group(CustomerManager.SEAT_GROUP):
+		if node is Seat and node.table != null:
+			tables[node.table] = true
+	for table: DiningTable in tables:
+		if not table.dishes.is_empty():
+			to_clear += 1
+		elif not table.spills.is_empty():
+			to_wipe += 1
+	var to_wash := 0
+	for node in get_tree().get_nodes_in_group(Player.GROUP):
+		if node is Player and node.held_item is DishBin:
+			to_wash += (node.held_item as DishBin).dishes.size()
+	var sink := get_tree().get_first_node_in_group(Sink.GROUP) as Sink
+	var washing := sink != null and sink.session != null
+	var parts: Array[String] = []
+	if to_clear > 0:
+		parts.append("%d %s to clear" % [to_clear, "table" if to_clear == 1 else "tables"])
+	if to_wipe > 0:
+		parts.append("%d %s to wipe" % [to_wipe, "table" if to_wipe == 1 else "tables"])
+	if to_wash > 0:
+		parts.append("%d dirty %s to wash" % [to_wash, "dish" if to_wash == 1 else "dishes"])
+	elif washing:
+		parts.append("the washing-up to finish")
+	return ", ".join(parts)
 
 
 # Debug: straight to meal `meal` (DayCycle.Phase.MEAL), closing, the night
