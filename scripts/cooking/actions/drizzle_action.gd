@@ -20,6 +20,8 @@ extends CookAction
 @export_range(0.0, 1.0) var drip_chance := 0.35      # Chance a blob near the edge drips.
 @export var drip_length := Vector2(0.015, 0.04)      # Shortest and longest drip.
 @export var bottle_height := 0.14
+@export var one_stroke := false               # Done as soon as one line on the food is let go (a squiggle of ketchup).
+@export var least_blobs := 6                  # How much of that line has to be on the food to count.
 
 var _left := 0.0
 var _last_point = null       # Where the line got to (Vector2), or null between drizzles.
@@ -87,10 +89,13 @@ func update(delta: float, input: CookInput) -> void:
 		if not _flow.playing:
 			_flow.play()
 	else:
+		if one_stroke and _last_point != null and _on_top.size() >= least_blobs:
+			_left = 0.0  # One line's enough: letting go finishes it.
 		_last_point = null
 		if _flow.playing:
 			_flow.stop()
-	session.set_status("Syrup left: %d%%" % ceili(_left / syrup_seconds * 100.0))
+	if not one_stroke:
+		session.set_status("Syrup left: %d%%" % ceili(_left / syrup_seconds * 100.0))
 	if _left <= 0.0:
 		var score := _score()
 		session.pop_text("Delicious!" if score >= 0.8 else ("Bit messy" if _spilled > _on_top.size() * 0.3 else "Needs more syrup"), Vector3(_foods[0].position.x, _top_y, _foods[0].position.z) if not _foods.is_empty() else spot, CookSession.mood_of(score))

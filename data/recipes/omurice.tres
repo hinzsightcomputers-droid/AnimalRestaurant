@@ -43,10 +43,11 @@ view_distance = 0.7
 [sub_resource type="Resource" id="Resource_5"]
 script = ExtResource("drizzle")
 title = "Draw with ketchup"
-hint = "Hold [button] and move to draw on it with ketchup. A little goes a long way!"
+hint = "Hold [button] and draw one squiggly line of ketchup over it, then let go."
 view_distance = 0.45
 syrup_color = Color(0.8, 0.1, 0.06, 1)
-target_coverage = 0.3
+target_coverage = 0.12
+one_stroke = true
 
 [resource]
 script = ExtResource("1_recipe")
