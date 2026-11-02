@@ -13,7 +13,8 @@
 # the end. Blips overlap a little rather than cutting each other off. Instead,
 # "sound": "res://..." plays that one sound every "every" letters. Both go a
 # little higher when sped up, and a line's emotion (see tell) lifts or lowers
-# the voice, e.g. higher when excited.
+# the voice, e.g. higher when excited. Narration ("(He waves.)") and lines with
+# no speaker type out silently.
 #
 # Names stand out in color: the chef's own name (and Cheddar's nickname for
 # them) in PLAYER_NAME_COLOR, each regular's name in their "name_color" from
@@ -72,6 +73,7 @@ var _voice_pitch := 1.0
 var _voice_every := 2
 var _blips := {}  # Vowel sound ("a", "oh"...) -> its blip, from the voice's "blips" folder.
 var _mood_pitch := 1.0
+var _silent := false  # This line is narration or a message, not someone talking.
 var _letters_since_voice := 0
 
 
@@ -273,6 +275,7 @@ func _process(delta: float) -> void:
 
 func _start_typing(speaker: String, text: String, then_choose: bool, emotion: StringName) -> void:
 	_mood_pitch = EMOTION_PITCH.get(emotion, 1.0)
+	_silent = speaker.is_empty() or text.begins_with("(")  # Narration and messages type out without a voice.
 	_speaker.text = speaker
 	# In their name color ("Pip (voicemail)" is colored as Pip).
 	_speaker.add_theme_color_override("font_color", _highlights.get(speaker.get_slice(" (", 0), PICKED_COLOR))
@@ -331,6 +334,8 @@ func _on_letter(at: int, speed_scale: float) -> void:
 	var letter := _plain[at]
 	letter_typed.emit(letter, speed_scale)
 	var sped := 1.15 if speed_scale > 1.0 else 1.0
+	if _silent:
+		return
 	if not _blips.is_empty():
 		if _starts_syllable(at):
 			_babble(at, sped)
