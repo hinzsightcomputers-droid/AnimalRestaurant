@@ -4,7 +4,7 @@
 # looks like that model instead (scaled to its height), and so does anyone
 # whose species has "models" (one picked at random, at a height in its range),
 # walking, sitting and talking with its animations (named in model_animations
-# in data/regulars.json).
+# in data/regulars.json). Their head turns to look at a chef nearby (HeadTurn).
 # A model without animations bobs along as it walks. A regular's feelings
 # (Customer.emote) pop up over their head with a sound and a bounce. How
 # their meal came out shows while they eat: their bubble, sparkles rising off a
@@ -251,6 +251,7 @@ func _load_model() -> void:
 			child.visible = false
 	var players := _model.find_children("*", "AnimationPlayer", true, false)
 	_animations = players[0] if not players.is_empty() else null
+	HeadTurn.attach(_model)  # Looks at a chef nearby.
 
 
 # { path, height }: the regular's own model, or one of their species'.

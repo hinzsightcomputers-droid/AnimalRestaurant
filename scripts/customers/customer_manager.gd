@@ -48,6 +48,11 @@ const QUALITY_COLORS: Array[Color] = [Color(1.0, 0.85, 0.3), Color(0.55, 0.95, 0
 @export var serve_zoom: CameraZoomSettings    # The serving player's camera during that moment.
 @export_group("Eating chat")
 @export var eating_chat_zoom: CameraZoomSettings  # The chatting player's camera (falls back to order_chat_zoom).
+@export_group("Talking view")  # Any chat with a customer: side on to the pair (_talk_view).
+@export var talk_distance := 2.2              # Meters back from the pair (more when they're far apart).
+@export var talk_pitch_degrees := 18.0        # How far it looks down: low, to see faces.
+@export_range(0.0, 2.0) var talk_face_turn := 0.35  # How far it swings from side on toward the customer's face.
+@export var talk_look_height := 0.55          # Looks this high: below their heads, so they sit over the dialogue box.
 
 var day_manager: DayManager         # Set by the DayManager: rings the bell.
 var accepting_customers := true     # False after closing time.
@@ -422,7 +427,7 @@ func _greet(player: Player, customer: Customer, lock_target: Interactable) -> vo
 		seating = await _regular_greets(player, customer, lock_target)
 	else:
 		customer.say(_townsfolk_line("host_stand"))
-		await _hold_with_zoom(player, _at_counter(player, customer), order_chat_zoom, order_chat_seconds, lock_target)
+		await _hold_with_zoom(player, _at_counter(player, customer), order_chat_zoom, order_chat_seconds, lock_target, customer)
 	_busy.erase(customer)
 	_greeting.erase(player.player_index)
 	if not is_instance_valid(customer) or customer.state != Customer.State.WAITING_TO_BE_SEATED:
@@ -445,7 +450,7 @@ func _greet(player: Player, customer: Customer, lock_target: Interactable) -> vo
 func _regular_greets(player: Player, customer: Customer, lock_target: Interactable) -> Dictionary:
 	var record: Dictionary = GameState.regulars[customer.regular_id]
 	var chef_id := Accounts.id_of(player.player_index)
-	_lock_player(player, _at_counter(player, customer), order_chat_zoom, lock_target)
+	_lock_player(player, _at_counter(player, customer), order_chat_zoom, lock_target, customer)
 	customer.talking = true
 	var box := _open_box(player, customer)
 	var arrival := RegularMemory.say(record, "arrival", _visit_context(customer, chef_id))  # e.g. Mabel rings her bell.
@@ -927,16 +932,54 @@ func _view_of(player: Player) -> Control:
 
 # Keep `player` in place for `seconds` with their camera zoomed in on `point`,
 # their presses stuck to `lock_target` so they can't drift to something nearby.
-func _hold_with_zoom(player: Player, point: Vector3, settings: CameraZoomSettings, seconds: float, lock_target: Interactable) -> void:
-	_lock_player(player, point, settings, lock_target)
+func _hold_with_zoom(player: Player, point: Vector3, settings: CameraZoomSettings, seconds: float, lock_target: Interactable, talking_to: Customer = null) -> void:
+	_lock_player(player, point, settings, lock_target, talking_to)
 	await get_tree().create_timer(seconds, false).timeout
 	_unlock_player(player)
 
 
-func _lock_player(player: Player, point: Vector3, settings: CameraZoomSettings, lock_target: Interactable) -> void:
+# Talking with a customer (`talking_to`, or the one locked onto): the camera
+# goes side on to the two of them instead (_talk_view).
+func _lock_player(player: Player, point: Vector3, settings: CameraZoomSettings, lock_target: Interactable, talking_to: Customer = null) -> void:
 	player.movement_locked = true
 	player.interactor.lock_to(lock_target)
+	var customer := talking_to
+	if customer == null and lock_target != null:
+		customer = lock_target.get_parent() as Customer
+	if customer != null:  # Talking with someone: side on to the two of them.
+		var view := _talk_view(player, customer, settings)
+		point = view[0]
+		settings = view[1]
 	player.request_camera_focus(point, settings)
+
+
+# [point, zoom] for a chef and a customer talking: the camera low and side on
+# to the pair, swung round toward the way the customer faces so their face is
+# clear, and looking a little below their heads so they sit in the top of the
+# view, over the dialogue box along the bottom.
+func _talk_view(player: Player, customer: Customer, settings: CameraZoomSettings) -> Array:
+	var between := customer.global_position - player.global_position
+	between.y = 0.0
+	if between.length() < 0.05:
+		between = -customer.global_basis.z
+	var side := Vector3(between.z, 0.0, -between.x).normalized()
+	var face := customer.global_basis.z
+	face.y = 0.0
+	face = face.normalized() if face.length() > 0.01 else side
+	var facing_side := side.dot(face)
+	if facing_side < -0.1 or (facing_side <= 0.1 and side.z < 0.0):
+		side = -side  # The side the customer's facing (or, face to face, the usual camera side).
+	var toward := (side + face * talk_face_turn).normalized()
+	var middle := (player.global_position + customer.global_position) * 0.5
+	var back := between.length() * 1.2 + talk_distance
+	if not RestaurantGrounds.outdoors(middle) and RestaurantGrounds.outdoors(middle + toward * back * cos(deg_to_rad(talk_pitch_degrees))):
+		toward = (-side + face * talk_face_turn).normalized()  # That side's through a wall: the other one.
+	var zoom := CameraZoomSettings.new()
+	zoom.duration = settings.duration if settings != null else 0.4
+	zoom.pitch_degrees = talk_pitch_degrees
+	zoom.yaw_degrees = rad_to_deg(atan2(toward.x, toward.z))
+	zoom.distance = clampf(back, talk_distance, talk_distance * 1.8)
+	return [middle + Vector3.UP * talk_look_height, zoom]
 
 
 func _unlock_player(player: Player) -> void:

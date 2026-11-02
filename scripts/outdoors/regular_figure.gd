@@ -24,6 +24,7 @@ static func make(regular_id: String) -> RegularFigure:
 		figure._model.scale = Vector3.ONE * (float(settings.get("height", 1.0)) / height)
 	var players := figure._model.find_children("*", "AnimationPlayer", true, false)
 	figure._animations = players[0] if not players.is_empty() else null
+	HeadTurn.attach(figure._model)  # Looks at a chef nearby.
 	return figure
 
 
