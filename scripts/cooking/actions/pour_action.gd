@@ -37,6 +37,12 @@ func cursor_area() -> Rect2:
 	return session.area_of(surface, 0.03) if view_distance > 0.0 else Rect2()
 
 
+# No cursor ring over the batter: the guide ring (or, without it, the cursor
+# until pouring starts) shows where it'll go.
+func uses_cursor() -> bool:
+	return not show_guide and _pouring == null
+
+
 func _begin() -> void:
 	_bottle = session.make_bottle(batter_color)
 	_guide = session.make_ring(target_radius)
