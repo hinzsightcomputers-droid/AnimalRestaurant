@@ -4,7 +4,7 @@
 #     auto_plate, just press on one: it hops onto the middle of the stack by
 #     itself (no aiming, so no score of its own: give the step weight 0).
 #   - from_surface empty: place a new item (e.g. a pat of butter), already in
-#     hand. Press the button to drop it.
+#     hand, kept over the target. Press the button to drop it.
 # Each drop scores how well centered it landed on what's below (the target
 # itself for the first one). A new item that misses the stack scores 0.
 class_name PlaceAction
@@ -59,6 +59,8 @@ func cursor_height() -> float:
 
 
 func update(delta: float, input: CookInput) -> void:
+	if _new_item():  # It can only go down on the plate.
+		input.cursor = session.surface(target).keep_inside(input.cursor, maxf(item_size.x, item_size.z) * 0.5)
 	var spot := input.cursor
 	if _carrying != null:
 		var lift := maxf(session.stack_top(target).y, session.work_height) + carry_height

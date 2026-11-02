@@ -48,6 +48,18 @@ func radius() -> float:
 	return size.x * 0.5
 
 
+# The point moved onto this surface if it's off it, at least `inset` in from
+# the edge (so something that big stays on it).
+func keep_inside(point: Vector3, inset := 0.0) -> Vector3:
+	var flat := Vector2(point.x - position.x, point.z - position.z)
+	if round:
+		flat = flat.limit_length(maxf(radius() - inset, 0.0))
+	else:
+		var half := (size * 0.5 - Vector2.ONE * inset).max(Vector2.ZERO)
+		flat = flat.clamp(-half, half)
+	return Vector3(position.x + flat.x, point.y, position.z + flat.y)
+
+
 # Whether a point (in the session's coordinates) is over this surface. A
 # negative margin asks whether something that big fits inside it.
 func contains(point: Vector3, margin := 0.0) -> bool:
