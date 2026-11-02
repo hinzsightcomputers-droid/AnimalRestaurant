@@ -9,16 +9,16 @@
 		"bite": {
 			"_about": "Seconds before the bite (times hot_spot_wait_factor in the ripples), how many fake nibbles come first, and how long the bobber stays under for you to strike.",
 			"wait_seconds": { "min": 3.0, "max": 8.0 }, "hot_spot_wait_factor": 0.45,
-			"nibbles": { "min": 0, "max": 2 }, "bite_window_seconds": 1.0
+			"nibbles": { "min": 0, "max": 1 }, "bite_window_seconds": 1.8
 		},
 		"reel": {
 			"_about": "Tension 0-1. Reeling raises it (reel_rise a second at full), slack lets it fall (slack_fall). The fish pulls in bursts (pull_seconds long, pull_every apart), adding pull_strength a second (easy fish at the low end, hard fish at the high end) while you reel, but only slack_pull_share of it while you let go (the line runs out): so reeling through a hard pull snaps it. Above safe_high for snap_seconds (or at 1) the line snaps; below safe_low for escape_seconds the fish gets away. reel_speed: share of the way in per second of reeling in the safe band (hard fish times hard_fish_reel); outside it, reeling counts for off_band_reel of that.",
-			"start_tension": 0.45, "safe_low": 0.25, "safe_high": 0.78,
+			"start_tension": 0.45, "safe_low": 0.18, "safe_high": 0.85,
 			"reel_rise": 0.75, "slack_fall": 0.55, "slack_pull_share": 0.35,
-			"pull_strength": { "min": 0.35, "max": 1.15 }, "pull_seconds": { "min": 0.5, "max": 1.1 },
+			"pull_strength": { "min": 0.25, "max": 0.85 }, "pull_seconds": { "min": 0.5, "max": 1.0 },
 			"pull_every": { "easy": 2.4, "hard": 0.9 },
-			"snap_seconds": 0.7, "escape_seconds": 1.6,
-			"reel_speed": 0.32, "hard_fish_reel": 0.6, "off_band_reel": 0.25
+			"snap_seconds": 1.3, "escape_seconds": 2.8,
+			"reel_speed": 0.4, "hard_fish_reel": 0.65, "off_band_reel": 0.35
 		},
 		"pantry_kind": "fish"
 	},

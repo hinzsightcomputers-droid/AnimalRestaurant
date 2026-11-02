@@ -11,6 +11,10 @@ const RECIPE := "res://data/recipes/fishing.tres"
 const RESULT_SHOW_TIME := 1.8
 const ROD_GRIP := Vector3(0.22, 0.8, -0.1)     # Where the rod is held, from the spot.
 const ROD_TIP := Vector3(0.0, 0.55, -1.35)      # The tip, from the grip.
+const SHOW_OFF_DELAY := 0.9                     # Seconds after the catch before the chef holds it up...
+const SHOW_OFF_SECONDS := 2.4                   # ...and how long they do.
+const HOLD_UP := Vector3(0.3, 1.05, 0.3)        # Where the line's held: up by their hand, the fish hanging beside them.
+const LINE_DROP := 0.08                         # How much line between their hands and the fish.
 
 @export var habitat := "pond"
 @export var water_y := -0.03                   # The water's surface, from the spot.
@@ -87,8 +91,11 @@ func _process(_delta: float) -> void:
 
 
 func _on_finished(_quality: float) -> void:
-	await get_tree().create_timer(RESULT_SHOW_TIME).timeout
 	var caught: Dictionary = session.context.get("catch", {})
+	if caught.is_empty():
+		await get_tree().create_timer(RESULT_SHOW_TIME).timeout
+	else:
+		await _show_off(caught)
 	if not caught.is_empty():
 		Fishing.record_catch(caught["id"], caught["size"], _fisher.player_index)
 	session.queue_free()
@@ -100,6 +107,51 @@ func _on_finished(_quality: float) -> void:
 	_fisher.hide_from_own_view(false)
 	_fisher.ignore_interact_until_released()
 	_fisher = null
+
+
+# Once the catch is out of the water, the chef turns round and holds it up for
+# their camera, which comes in on them from the front.
+func _show_off(caught: Dictionary) -> void:
+	await get_tree().create_timer(SHOW_OFF_DELAY).timeout  # Out of the water it leaps first.
+	session.visible = false
+	var player := _fisher
+	player.hide_from_own_view(false)
+	player.visual.rotation.y += PI
+	var chef := player.visual.get_node_or_null("Chef") as ChefModel
+	if chef != null:
+		chef.carrying = true  # Arms out, holding it up.
+	var length := clampf(caught["size"] / 100.0 * 2.0, 0.5, 0.9)  # Bigger than life, for the photo.
+	var held := Node3D.new()  # The line in their hands, the fish hanging off it nose up.
+	held.position = HOLD_UP
+	player.visual.add_child(held)
+	var line := MeshInstance3D.new()
+	var line_mesh := CylinderMesh.new()
+	line_mesh.top_radius = 0.004
+	line_mesh.bottom_radius = 0.004
+	line_mesh.height = LINE_DROP
+	line_mesh.material = _material(Color(0.95, 0.95, 0.9))
+	line.mesh = line_mesh
+	line.position.y = -LINE_DROP / 2.0
+	held.add_child(line)
+	var fish := Fishing.make_model(GameData.get_fish(caught["id"]), length)
+	# Nose up (it points along -z), then turned so its side faces the camera.
+	fish.basis = Basis(Vector3.UP, PI / 2.0) * Basis(Vector3.RIGHT, PI / 2.0)
+	fish.position.y = -LINE_DROP - length * 0.45
+	held.add_child(fish)
+	var zoom: CameraZoomSettings = _zoom.duplicate()
+	zoom.distance = 2.4
+	zoom.pitch_degrees = 14.0
+	zoom.yaw_degrees = rad_to_deg(global_rotation.y)  # Where it was, behind them: now in front.
+	player.request_camera_focus(player.global_position + Vector3(0.0, 0.9, 0.0), zoom)
+	var swing := held.create_tween()  # It swings on the line, slowing down.
+	for i in 4:
+		var angle := 0.35 * pow(0.55, i)
+		swing.tween_property(held, "rotation:z", angle if i % 2 == 0 else -angle, 0.32).set_trans(Tween.TRANS_SINE)
+	swing.tween_property(held, "rotation:z", 0.0, 0.3).set_trans(Tween.TRANS_SINE)
+	await get_tree().create_timer(SHOW_OFF_SECONDS).timeout
+	held.queue_free()
+	if chef != null:
+		chef.carrying = player.held_item != null
 
 
 # A rod from the grip out to the tip, in the session (gone with it).

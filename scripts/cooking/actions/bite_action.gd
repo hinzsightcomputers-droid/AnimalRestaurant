@@ -10,6 +10,7 @@ extends CookAction
 
 const NIBBLE_DIP := 0.025
 const BITE_DIP := 0.08
+const ROD_PULL := 6.0  # Radians the rod tips down per meter the bobber's pulled under.
 
 var _settings: Dictionary
 var _fish: Dictionary
@@ -21,12 +22,14 @@ var _nibbles: Array[float] = []
 var _bitten := false
 var _bite_left := 0.0
 var _dip := 0.0  # How far under the bobber is pulled right now.
+var _rod: Node3D
 
 
 func _begin() -> void:
 	weight = 0.0
 	_settings = GameData.fishing_settings.get("bite", {})
 	_bobber = session.context["bobber"]
+	_rod = session.context.get("rod")
 	_rest = session.context.get("cast_at", _bobber.position)
 	_fish = Fishing.pick(session.context.get("habitat", "pond"))
 	var wait: Dictionary = _settings.get("wait_seconds", { "min": 3.0, "max": 8.0 })
@@ -54,6 +57,8 @@ func update(delta: float, input: CookInput) -> void:
 	_time += delta
 	_dip = move_toward(_dip, BITE_DIP if _bitten else 0.0, delta * 0.6)
 	_bobber.position = _rest + Vector3(0.0, sin(_time * 2.4) * 0.008 - _dip, 0.0)
+	if _rod != null:  # The rod tip's pulled down with the bobber.
+		_rod.rotation.x = lerp_angle(_rod.rotation.x, -_dip * ROD_PULL, 1.0 - exp(-14.0 * delta))
 	if _fish.is_empty():
 		_fail("Nothing's biting here right now.")
 		return
@@ -68,7 +73,8 @@ func update(delta: float, input: CookInput) -> void:
 		if _time >= _wait:
 			_bitten = true
 			_dip = BITE_DIP
-			session.play_sound("plop", _rest, 0.0, 0.7)
+			session.play_sound("plop", _rest, 2.0, 0.6)
+			session.play_sound("ding", _rest, -2.0, 1.5)  # The tell: a fish is on!
 			session.burst(_rest, Color(0.8, 0.9, 1.0), 16, 0.5)
 			session.pop_text("!", _rest + Vector3(0.0, 0.15, 0.0), 1)
 		session.set_status("Watch the bobber...")

@@ -31,6 +31,8 @@ var _side := 0.0               # Where the fish has dragged the bobber sideways.
 var _tension_meter: FishingMeter
 var _progress_meter: FishingMeter
 var _ended := false
+var _swimmer: Node3D            # The fish itself, swimming about on the line.
+var _swim_angle := 0.0
 
 
 func _begin() -> void:
@@ -50,6 +52,10 @@ func _begin() -> void:
 	_tension_meter = FishingMeter.make(overlay, Rect2(0.88, 0.28, 0.035, 0.44), true, "Tension")
 	_tension_meter.set_band(_low(), _high())
 	_progress_meter = FishingMeter.make(overlay, Rect2(0.3, 0.84, 0.4, 0.035), false, "Reeled in")
+	_swimmer = Fishing.make_model(_fish, maxf(_length() * 2.2, 0.45))  # Bigger than life, to be seen from the bank.
+	_swimmer.position = _from
+	session.add_child(_swimmer)
+	_swim_angle = randf() * TAU
 
 
 func uses_cursor() -> bool:
@@ -103,6 +109,7 @@ func update(delta: float, input: CookInput) -> void:
 	var wobble := sin(_time * 18.0) * 0.03 if pulling else 0.0
 	_bobber.position = _from.lerp(near, _progress) + Vector3(_side * (1.0 - _progress) + wobble, -0.05 + sin(_time * 9.0) * 0.01, 0.0)
 	_rod.rotation.x = lerpf(0.25, -0.25, _tension)  # Bends down as the line goes tight.
+	_swim(delta, pulling)
 	if reeling > 0.1:
 		_tick -= delta * reeling
 		if _tick <= 0.0:
@@ -129,9 +136,8 @@ func _land() -> void:
 	session.context["catch"] = { "id": _fish["id"], "size": size }
 	session.context["finish_text"] = "Caught a %s! %d cm" % [name, size]
 	_bobber.visible = false
-	var model := Fishing.make_model(_fish, clampf(size / 100.0, 0.12, 1.0) * 0.8)
-	model.position = _bobber.position
-	session.add_child(model)
+	var model := _swimmer  # Out of the water it comes.
+	_swimmer = null
 	var show := Vector3(0.0, 0.75, -0.7)
 	var tween := session.create_tween().set_parallel()
 	tween.tween_property(model, "position", show, 0.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
@@ -145,11 +151,38 @@ func _land() -> void:
 
 func _lose(text: String) -> void:
 	_ended = true
+	if _swimmer != null:  # Off it darts.
+		var away := _swimmer.position + _swimmer.basis.z * -0.8 + Vector3(0.0, -0.15, 0.0)
+		var tween := _swimmer.create_tween()
+		tween.tween_property(_swimmer, "position", away, 0.5).set_ease(Tween.EASE_IN)
+		tween.tween_callback(_swimmer.queue_free)
 	session.context["failed"] = true
 	session.context["finish_text"] = text
 	session.pop_text(text.get_slice("!", 0).get_slice(".", 0), _bobber.position, -1)
 	_bobber.visible = false
 	finish(0.0)
+
+
+# The fish swims round and round under the bobber, tugging on the line: faster
+# and with a splash while it pulls, its back breaking the surface. It faces
+# the way it's going.
+func _swim(delta: float, pulling: bool) -> void:
+	if _swimmer == null:
+		return
+	_swim_angle += delta * (4.5 if pulling else 1.4)
+	var reach := lerpf(0.3, 0.1, _progress)
+	var water_y: float = session.context.get("water_y", 0.0)
+	var at := _bobber.position + Vector3(cos(_swim_angle) * reach, 0.0, sin(_swim_angle) * reach * 0.6)
+	at.y = water_y + (0.0 if pulling else -0.02)  # Its back breaks the surface, more so as it fights.
+	var heading := at - _swimmer.position
+	_swimmer.position = at
+	if Vector2(heading.x, heading.z).length() > 0.0001:
+		_swimmer.rotation = Vector3(0.0, atan2(-heading.x, -heading.z), sin(_time * (14.0 if pulling else 6.0)) * 0.15)
+
+
+# How long the fish's model is: its size, toned down to fit the view.
+func _length() -> float:
+	return clampf(session.context.get("size", 20) / 100.0, 0.12, 1.0) * 0.8
 
 
 func _low() -> float:
