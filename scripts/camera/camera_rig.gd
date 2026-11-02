@@ -186,6 +186,11 @@ func _follow_goal() -> Array:
 func _place_camera() -> void:
 	camera.global_position = global_position + _offset
 	camera.look_at(global_position, Vector3.UP)
+	# Following chefs who are all outside: the restaurant's front wall at full height.
+	var targets := follow_targets.filter(func(t): return is_instance_valid(t))
+	var outside := not targets.is_empty() and targets.all(func(t): return RestaurantGrounds.outdoors(t.global_position))
+	camera.set_cull_mask_value(RestaurantGrounds.TALL_FRONT_LAYER, outside)
+	camera.set_cull_mask_value(RestaurantGrounds.LOW_FRONT_LAYER, not outside)
 	if player != null:
 		# Zoomed in on a close-up their own chef would block: leave them out of this view.
 		camera.set_cull_mask_value(player.own_view_layer(), not (player.hidden_from_own_view and mode == Mode.FOCUS))

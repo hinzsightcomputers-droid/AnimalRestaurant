@@ -20,6 +20,12 @@ const DOOR_OPEN_DEGREES := 95.0  # Swings out, away from the room.
 const GROUNDS_MIN := Vector2(-22.0, -20.0)
 const GROUNDS_MAX := Vector2(22.0, 10.6)   # Up to the curb; wide enough for the regulars' houses either side.
 const SIGN_SPOT := Vector3(3.9, 0.0, 5.75)  # Outside, just left of the front door.
+const FRONT_WALL_MODEL := "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/wall.gltf"
+const FRONT_WINDOW_MODEL := "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/wall_window_closed_curtains_red.gltf"
+const TALL_FRONT_LAYER := 15  # Render layers: the full-height front wall, for views outside...
+const LOW_FRONT_LAYER := 16   # ...and the room's low one, for views inside.
+# Inside the restaurant (x and z): the dining room, then the kitchen.
+const INDOORS: Array[Rect2] = [Rect2(-7.15, -5.15, 14.3, 10.3), Rect2(0.85, -9.15, 6.3, 4.0)]
 
 @export var day_manager: DayManager
 
@@ -37,6 +43,7 @@ func _ready() -> void:
 	_barriers.append(_door_barrier(BACK_DOOR, BACK_DOOR_WIDTH))
 	_build_back_door()
 	_build_sign()
+	_build_tall_front_wall()
 	_refresh(true)
 
 
@@ -173,3 +180,56 @@ func _material(color: Color) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
 	return material
+
+
+# The front wall at full height, with windows and a lintel over the doorway,
+# for the views of chefs who are outside (the room's own front wall is low, so
+# the camera can see in from the front). Each wall is on its own render layer
+# and CameraRig shows one or the other.
+func _build_tall_front_wall() -> void:
+	var tall := Node3D.new()
+	tall.name = "TallFrontWall"
+	add_child(tall)
+	var window: PackedScene = load(FRONT_WINDOW_MODEL)
+	var wall: PackedScene = load(FRONT_WALL_MODEL)
+	var left_end := -7.3
+	var door_left := FRONT_DOOR.x - FRONT_DOOR_WIDTH / 2.0
+	var door_right := FRONT_DOOR.x + FRONT_DOOR_WIDTH / 2.0
+	_wall_grid(tall, window, Vector3((left_end + door_left) / 2.0, 0.0, FRONT_DOOR.z), 4, (door_left - left_end) / 4.0)
+	_wall_grid(tall, wall, Vector3((door_right + 7.3) / 2.0, 0.0, FRONT_DOOR.z), 1, 7.3 - door_right)
+	var lintel := MeshInstance3D.new()
+	var mesh := BoxMesh.new()
+	mesh.size = Vector3(FRONT_DOOR_WIDTH, 0.8, 0.32)
+	mesh.material = _material(Color(0.96, 0.9, 0.79))
+	lintel.mesh = mesh
+	lintel.position = FRONT_DOOR + Vector3(0.0, 2.6, 0.0)
+	tall.add_child(lintel)
+	_put_on_layer(tall, TALL_FRONT_LAYER)
+	var low := get_parent().get_node_or_null("RestaurantRoom/Walls/FrontWall")
+	if low != null:
+		_put_on_layer(low, LOW_FRONT_LAYER)
+
+
+func _wall_grid(parent: Node3D, model: PackedScene, at: Vector3, count: int, width: float) -> void:
+	var grid := ModelGrid.new()
+	grid.position = at
+	parent.add_child(grid)
+	grid.cells = Vector2i(count, 1)
+	grid.cell_size = Vector3(width, 3.0, 0.32)
+	grid.model = model
+
+
+# Every mesh under `node` only on render layer `layer`, and the tall one casts no shadow into the room.
+static func _put_on_layer(node: Node, layer: int) -> void:
+	for mesh in node.find_children("*", "VisualInstance3D", true, false):
+		(mesh as VisualInstance3D).layers = 1 << (layer - 1)
+		if layer == TALL_FRONT_LAYER and mesh is GeometryInstance3D:
+			(mesh as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
+
+# Whether a point's outdoors (not in the dining room or the kitchen).
+static func outdoors(point: Vector3) -> bool:
+	for area: Rect2 in INDOORS:
+		if area.has_point(Vector2(point.x, point.z)):
+			return false
+	return true
