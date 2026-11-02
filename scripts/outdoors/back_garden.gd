@@ -25,7 +25,7 @@ const PLANTS := [
 	["Rock_1_C_Color1.gltf", Vector3(-9.6, 0.0, -13.4), 0.5],
 	["Tree_1_C_Color1.gltf", Vector3(6.8, 0.0, -17.4), 4.4],   # The oaks, off to the east.
 	["Tree_2_A_Color1.gltf", Vector3(13.2, 0.0, -13.6), 4.0],
-	["Bush_2_A_Color1.gltf", Vector3(5.2, 0.0, -9.4), 0.8],
+	["Bush_2_A_Color1.gltf", Vector3(5.2, 0.0, -12.6), 0.8],
 	["Bush_1_C_Color1.gltf", Vector3(2.6, 0.0, -16.4), 0.7],
 ]
 

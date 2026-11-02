@@ -32,6 +32,7 @@
 [ext_resource type="Script" path="res://scripts/outdoors/town.gd" id="30_town"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/takeout_counter.tscn" id="31_takeout"]
 [ext_resource type="Script" path="res://scripts/guide/guide.gd" id="32_guide"]
+[ext_resource type="Script" path="res://scripts/furniture/kitchen_slot.gd" id="33_slot"]
 
 [sub_resource type="Environment" id="Env"]
 background_mode = 1
@@ -118,29 +119,84 @@ table = NodePath("../Table4")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0, -3)
 
 [node name="CookingStation" parent="Furniture" unique_id=1688967000 node_paths=PackedStringArray("order_board", "view_manager") instance=ExtResource("7_stove")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.6, 0, -8.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.05, 0, -10.8)
 order_board = NodePath("../../OrderBoard")
 view_manager = NodePath("../../Views")
 
 [node name="Freezer" parent="Furniture" unique_id=6222894 node_paths=PackedStringArray("order_board") instance=ExtResource("15_freezer")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.1, 0, -8.5)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 6.6, 0, -8.45)
 order_board = NodePath("../../OrderBoard")
 
 [node name="ChoppingBoard" parent="Furniture" unique_id=827735368 node_paths=PackedStringArray("view_manager") instance=ExtResource("17_board")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8, 0, -8.55)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.9, 0, -10.85)
 view_manager = NodePath("../../Views")
+
+[node name="CookingStation2" parent="Furniture" node_paths=PackedStringArray("order_board", "view_manager") instance=ExtResource("7_stove")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 0, -10.8)
+order_board = NodePath("../../OrderBoard")
+view_manager = NodePath("../../Views")
+
+[node name="ChoppingBoard2" parent="Furniture" node_paths=PackedStringArray("view_manager") instance=ExtResource("17_board")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.3, 0, -10.85)
+view_manager = NodePath("../../Views")
+
+[node name="OvenSlot2" type="Node3D" parent="Furniture"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 1.4, 0, -8.05)
+script = ExtResource("33_slot")
+upgrade_id = "second_oven"
+counter_size = Vector3(1.8, 0.9, 0.8)
+
+[node name="Oven2" parent="Furniture/OvenSlot2" node_paths=PackedStringArray("order_board", "view_manager") instance=ExtResource("25_oven")]
+order_board = NodePath("../../../OrderBoard")
+view_manager = NodePath("../../../Views")
+
+[node name="StoveSlot3" type="Node3D" parent="Furniture"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 1.4, 0, -9.7)
+script = ExtResource("33_slot")
+upgrade_id = "third_stove"
+
+[node name="CookingStation3" parent="Furniture/StoveSlot3" node_paths=PackedStringArray("order_board", "view_manager") instance=ExtResource("7_stove")]
+order_board = NodePath("../../../OrderBoard")
+view_manager = NodePath("../../../Views")
+
+[node name="BoardSlot3" type="Node3D" parent="Furniture"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 6.6, 0, -9.75)
+script = ExtResource("33_slot")
+upgrade_id = "third_board"
+counter_size = Vector3(1.26, 0.9, 0.76)
+
+[node name="ChoppingBoard3" parent="Furniture/BoardSlot3" node_paths=PackedStringArray("view_manager") instance=ExtResource("17_board")]
+view_manager = NodePath("../../../Views")
+
+[node name="StoveSlot4" type="Node3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, -7.6)
+script = ExtResource("33_slot")
+upgrade_id = "fourth_stove"
+
+[node name="CookingStation4" parent="Furniture/StoveSlot4" node_paths=PackedStringArray("order_board", "view_manager") instance=ExtResource("7_stove")]
+order_board = NodePath("../../../OrderBoard")
+view_manager = NodePath("../../../Views")
+
+[node name="BoardSlot4" type="Node3D" parent="Furniture"]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 4, 0, -8.38)
+script = ExtResource("33_slot")
+upgrade_id = "fourth_board"
+counter_size = Vector3(1.26, 0.9, 0.76)
+
+[node name="ChoppingBoard4" parent="Furniture/BoardSlot4" node_paths=PackedStringArray("view_manager") instance=ExtResource("17_board")]
+view_manager = NodePath("../../../Views")
 
 [node name="TicketWheel" parent="Furniture" node_paths=PackedStringArray("order_board") instance=ExtResource("23_wheel")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.75, 0, -5.15)
 order_board = NodePath("../../OrderBoard")
 
 [node name="Oven" parent="Furniture" node_paths=PackedStringArray("order_board", "view_manager") instance=ExtResource("25_oven")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 1.4, 0, -6.5)
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 1.4, 0, -6.2)
 order_board = NodePath("../../OrderBoard")
 view_manager = NodePath("../../Views")
 
 [node name="Sink" parent="Furniture" node_paths=PackedStringArray("view_manager") instance=ExtResource("24_sink")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 6.6, 0, -6.4)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 6.6, 0, -6.45)
 view_manager = NodePath("../../Views")
 
 [node name="TakeoutCounter" parent="Furniture" node_paths=PackedStringArray("order_board", "view_manager") instance=ExtResource("31_takeout")]

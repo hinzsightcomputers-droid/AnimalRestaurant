@@ -7,6 +7,7 @@ extends Node
 
 signal money_changed(money: int)
 signal unlocks_changed  # A big moment reward or a dish was unlocked (or the debug panel cleared them).
+signal upgrades_changed  # An upgrade was bought (or the debug panel cleared them).
 
 const SAVE_VERSION := 6
 # phase_info(NIGHT) is the night shift's settings. Saves before version 6 kept
@@ -228,6 +229,7 @@ func buy_upgrade(upgrade_id: String) -> bool:
 		return false
 	upgrades.append(upgrade_id)
 	add_money(-int(upgrade["price"]))
+	upgrades_changed.emit()
 	SaveGame.save_game()
 	return true
 
@@ -396,6 +398,7 @@ func apply_save_data(data: Dictionary) -> void:
 	chef_actions_today = data.get("chef_actions_today", {})
 	# Ignore upgrades that were removed from data/upgrades.json.
 	upgrades.assign(data.get("upgrades", []).filter(func(id): return GameData.upgrades.any(func(u): return u["id"] == id)))
+	upgrades_changed.emit()
 	unlocks.assign(data.get("unlocks", []).map(func(id): return "walters_storm_soup" if id == "storm_soup" else id))  # Its old id.
 	delivery_asked = bool(data.get("delivery_asked", false))
 	phone_unlocked = bool(data.get("phone_unlocked", false))  # Saves from before the phone had to be unlocked start without it.

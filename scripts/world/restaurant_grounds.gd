@@ -25,7 +25,7 @@ const FRONT_WINDOW_MODEL := "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaur
 const TALL_FRONT_LAYER := 15  # Render layers: the full-height front wall, for views outside...
 const LOW_FRONT_LAYER := 16   # ...and the room's low one, for views inside.
 # Inside the restaurant (x and z): the dining room, then the kitchen.
-const INDOORS: Array[Rect2] = [Rect2(-7.15, -5.15, 14.3, 10.3), Rect2(0.85, -9.15, 6.3, 4.0)]
+const INDOORS: Array[Rect2] = [Rect2(-7.15, -5.15, 14.3, 10.3), Rect2(0.85, -11.45, 6.3, 6.3)]
 
 @export var day_manager: DayManager
 

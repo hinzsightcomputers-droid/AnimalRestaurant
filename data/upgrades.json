@@ -1,6 +1,7 @@
 {
 	"_arrives": "What the end-of-day shop has in stock: each upgrade, dish (unlock upgrade) and drink (unlock upgrade) arrives at the end of this day (GameState.day_number) and can be bought from then on, so new things turn up a few at a time. Anything not listed is in from day 1.",
 	"arrives": {
+		"third_stove": 2, "third_board": 3, "second_oven": 5, "fourth_stove": 8, "fourth_board": 9,
 		"sharp_knife": 1, "cherry_pie": 1, "pupsi": 1, "dr_salt": 1,
 		"comfy_cushions": 2, "soft_pretzel": 2, "banana_milk": 2, "fawnta": 2,
 		"croissant": 3, "apple_cider": 3, "root_bear": 3,
@@ -27,6 +28,16 @@
 		{ "id": "tip_jar", "name": "Tip Jar", "price": 80,
 			"description": "Happy and delighted customers tip 10% more.",
 			"bonus": { "tip_percent": 10 } },
+		{ "id": "third_stove", "name": "Third Stove", "price": 70,
+			"description": "Another stove in the kitchen, so three chefs can cook at once." },
+		{ "id": "third_board", "name": "Third Chopping Board", "price": 60,
+			"description": "Another chopping board in the kitchen." },
+		{ "id": "second_oven", "name": "Second Oven", "price": 100,
+			"description": "Another oven, so two bakes can go at once." },
+		{ "id": "fourth_stove", "name": "Fourth Stove", "price": 120,
+			"description": "A stove on the kitchen island: room for four chefs at the stoves." },
+		{ "id": "fourth_board", "name": "Fourth Chopping Board", "price": 110,
+			"description": "A chopping board on the other side of the island." },
 		{ "id": "welcome_sign", "name": "Welcome Sign", "price": 100,
 			"description": "Customers arrive 20% more often.",
 			"multiplier": { "arrival_interval": 0.8 } }

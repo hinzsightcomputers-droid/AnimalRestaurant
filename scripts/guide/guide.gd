@@ -14,7 +14,7 @@ class_name Guide
 extends Node3D
 
 const CELL := 0.25                    # The walking grid's squares (meters).
-const AREA := Rect2(-8.0, -9.5, 16.0, 16.5)  # The building, x/z, with a margin.
+const AREA := Rect2(-8.0, -12.0, 16.0, 19.0)  # The building, x/z, with a margin.
 const BODY_RADIUS := 0.3              # Room a chef needs to walk through.
 const BODY_BOTTOM := 0.15             # ...from this far off the floor...
 const BODY_TOP := 1.4                 # ...up to here.
