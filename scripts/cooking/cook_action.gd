@@ -66,6 +66,12 @@ func cursor_height() -> float:
 	return session.work_height
 
 
+# What a piece needs from this step once it's cooked enough, e.g. "Flip!"
+# (HeatAction shows it over the piece); "" if nothing.
+func ready_word(_piece: CookPiece) -> String:
+	return ""
+
+
 func finish(result: float) -> void:
 	quality = clampf(result, 0.0, 1.0)
 	done = true

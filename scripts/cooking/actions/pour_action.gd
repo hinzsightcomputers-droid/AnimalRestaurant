@@ -1,5 +1,6 @@
 # PourAction: aim a bottle over a surface and hold the button to pour. The
 # batter spreads into a circle that grows the longer you pour; let go to stop.
+# A quick press still pours least_share of the size, so none come out too tiny to flip.
 # Pours one piece per CookRecipe.pieces. Each scores how close it came to
 # target_radius, and less if it runs off the edge.
 class_name PourAction
@@ -10,6 +11,7 @@ extends CookAction
 @export var seconds_to_target := 1.3      # Holding this long pours exactly that much.
 @export var perfect_within := 0.012       # Size error that still gets full marks...
 @export var worst_error := 0.06           # ...and the error that gets none.
+@export_range(0.0, 1.0) var least_share := 0.8  # Once started, it pours at least this much of the target size.
 @export var spread_speed := 5.0           # How quickly batter spreads out to its size.
 @export var batter_color := Color(0.96, 0.88, 0.66)
 @export var thickness := 0.022
@@ -61,7 +63,7 @@ func update(delta: float, input: CookInput) -> void:
 		_guide.position = spot + Vector3(0.0, 0.002, 0.0)
 		if input.just_pressed:
 			_try_start(spot)
-	elif input.held:
+	elif input.held or _pouring.spread_to < target_radius * least_share:  # A quick press still pours enough to flip.
 		_area += PI * target_radius * target_radius / seconds_to_target * delta
 		_pouring.spread_to = sqrt(_area / PI)
 	else:
@@ -90,6 +92,9 @@ func update(delta: float, input: CookInput) -> void:
 
 
 func end() -> void:
+	for piece in session.pieces:  # The last pour finishes spreading by itself.
+		if piece.radius < piece.spread_to:
+			piece.create_tween().tween_method(piece.set_radius, piece.radius, piece.spread_to, 0.5).set_ease(Tween.EASE_OUT)
 	_glug.stop()
 	_bottle.queue_free()
 	_stream.queue_free()

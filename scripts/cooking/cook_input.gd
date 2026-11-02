@@ -31,6 +31,7 @@ var _stick_out_time := 0.0     # Seconds since the stick left the center.
 var _stick_flicked := false    # This push already flicked: wait for the stick to come back.
 var _mouse_trail: Array = []   # [time, point on the surface] for the last moment of mouse movement.
 var _mouse_flicked := false
+var _wait_for_release := true  # Until every button's been let go once.
 
 
 func _init(session: CookSession, player_index: int, view_manager: ViewManager) -> void:
@@ -61,6 +62,9 @@ func update(delta: float) -> void:
 	var now_held := Input.is_action_pressed(_action("interact")) \
 		or (mouse_point != null and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)) \
 		or (pad >= 0 and Input.get_joy_axis(pad, JOY_AXIS_TRIGGER_RIGHT) > 0.5)
+	if _wait_for_release:  # The press that opened the close-up: it doesn't count as the first one.
+		_wait_for_release = now_held
+		now_held = false
 	just_pressed = now_held and not held
 	just_released = held and not now_held
 	held = now_held

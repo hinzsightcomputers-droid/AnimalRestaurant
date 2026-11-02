@@ -57,6 +57,10 @@ func _flick_words() -> String:
 	return "Flick up to flip!"
 
 
+func ready_word(piece: CookPiece) -> String:
+	return "Flip!" if _needs(piece) and piece.surface == surface else ""
+
+
 # Over it goes: toward the flick, or sideways for a folded one (a half-moon
 # turned the other way would jump back when it lands).
 func _turn(piece: CookPiece) -> void:

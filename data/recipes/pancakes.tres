@@ -22,12 +22,12 @@ hint = "Aim with [stick] and hold [button] to pour. Let go when it fills the rin
 script = ExtResource("5_gyj60")
 title = "Flip them"
 view_distance = 0.7
-hint = "When a pancake's edge turns golden, hold [grip] on it and [flick_up] to flip it."
+hint = "When \"Flip!\" pops up over a pancake, hold [grip] on it and [flick_up] to flip it."
 
 [sub_resource type="Resource" id="Resource_uysvd"]
 script = ExtResource("6_a77i3")
 title = "Plate them"
-hint = "When the second side's golden, press [button] on a pancake to put it on the plate."
+hint = "When \"Plate it!\" pops up, press [button] on a pancake to put it on the plate."
 weight = 0.0
 auto_plate = true
 view_distance = 0.7

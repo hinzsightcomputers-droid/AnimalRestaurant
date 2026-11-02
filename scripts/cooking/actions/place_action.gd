@@ -80,6 +80,10 @@ func update(delta: float, input: CookInput) -> void:
 		finish(average(_scores))
 
 
+func ready_word(piece: CookPiece) -> String:
+	return "Plate it!" if not _new_item() and piece.surface == from_surface else ""
+
+
 func _new_item() -> bool:
 	return from_surface.is_empty()
 

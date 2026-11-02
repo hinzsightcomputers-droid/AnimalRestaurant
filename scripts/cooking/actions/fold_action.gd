@@ -18,6 +18,10 @@ func _flick_words() -> String:
 	return "Flick up to fold!"
 
 
+func ready_word(piece: CookPiece) -> String:
+	return "Fold!" if _needs(piece) and piece.surface == surface else ""
+
+
 func _turn(piece: CookPiece) -> void:
 	piece.busy = true
 	var heat := session.step_of(HeatAction) as HeatAction

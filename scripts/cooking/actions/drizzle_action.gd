@@ -1,10 +1,11 @@
 # DrizzleAction: hold the button and move to drizzle a line of syrup over the
 # top of a stack, with only so much in the bottle. The line is drawn where it
 # lands, on whichever piece is highest there (so a wider one underneath gets
-# some too); near a piece's round edge it drips a little way down the side. The
-# step ends when the bottle's empty. It scores how much of the food showing
-# from above got covered (full marks at target_coverage), minus what was
-# spilled off it.
+# some too), and over anything put on it (butter); near a piece's round edge it
+# drips a little way down the side. The step ends when the bottle's empty. It
+# scores how much of the food showing from above got covered (full marks at
+# target_coverage), minus what was spilled off it, from least_score up: any
+# syrup on the food scores well.
 class_name DrizzleAction
 extends CookAction
 
@@ -15,6 +16,7 @@ extends CookAction
 @export var spacing := 0.007                  # Gap between the blobs that make up the line.
 @export_range(0.0, 1.0) var target_coverage := 0.45  # Share of the top to cover for full marks.
 @export var spill_penalty := 1.5              # How much each spilled share costs.
+@export_range(0.0, 1.0) var least_score := 0.85  # Any syrup on the food scores at least this: it's a treat, not a test.
 @export_range(0.0, 1.0) var drip_chance := 0.35      # Chance a blob near the edge drips.
 @export var drip_length := Vector2(0.015, 0.04)      # Shortest and longest drip.
 @export var bottle_height := 0.14
@@ -28,6 +30,7 @@ var _bottle: Node3D
 var _flow: AudioStreamPlayer3D
 var _blob_mesh := SphereMesh.new()
 var _foods: Array[CookPiece] = []  # The pieces in the stack, highest first.
+var _toppings: Array[Node3D] = []  # What else is on it (butter): the syrup goes over these.
 var _top_y := 0.0
 
 
@@ -38,6 +41,8 @@ func _begin() -> void:
 	for entry in session.stack_of(target):
 		if entry["node"] is CookPiece:
 			_foods.push_front(entry["node"])
+		else:
+			_toppings.append(entry["node"])
 	_top_y = _surface_of(_foods[0]) if not _foods.is_empty() else session.stack_top(target).y
 	var material := StandardMaterial3D.new()
 	material.albedo_color = syrup_color
@@ -106,7 +111,7 @@ func _add_blob(point: Vector2) -> void:
 	var food := _food_at(point)
 	if food != null:
 		_on_top.append(point)
-		y = _surface_of(food) + 0.001
+		y = maxf(_surface_of(food), _topping_top(point)) + 0.001  # Over the butter, not under it.
 		var from_middle := point - food.middle()
 		var round_edge := not food.folded or from_middle.y < -food.radius * 0.3  # A folded one's straight edge is its fold: no drips.
 		if round_edge and from_middle.length() > food.radius * 0.8 and randf() < drip_chance:
@@ -117,6 +122,21 @@ func _add_blob(point: Vector2) -> void:
 		y = (plate.position.y if plate.contains(Vector3(point.x, 0.0, point.y)) else session.work_height) + 0.001
 	blob.position = Vector3(point.x, y, point.y)
 	session.add_child(blob)
+
+
+# The top of whatever's been put on the food (a pat of butter, melting) over
+# a point, or -INF if there's nothing there.
+func _topping_top(point: Vector2) -> float:
+	var top := -INF
+	var to_session := session.global_transform.affine_inverse()
+	for topping in _toppings:
+		if not is_instance_valid(topping):
+			continue
+		for node in topping.find_children("*", "MeshInstance3D", true, false):
+			var box: AABB = (to_session * (node as MeshInstance3D).global_transform) * (node as MeshInstance3D).get_aabb()
+			if point.x >= box.position.x and point.x <= box.end.x and point.y >= box.position.z and point.y <= box.end.z:
+				top = maxf(top, box.end.y)
+	return top
 
 
 # The highest piece over a point, or null.
@@ -182,4 +202,5 @@ func _score() -> float:
 					break
 	var coverage := float(covered) / maxi(samples, 1)
 	var spill := float(_spilled) / (_spilled + _on_top.size())
-	return clampf(coverage / target_coverage, 0.0, 1.0) * (1.0 - clampf(spill * spill_penalty, 0.0, 1.0))
+	var neatness := clampf(coverage / target_coverage, 0.0, 1.0) * (1.0 - clampf(spill * spill_penalty, 0.0, 1.0))
+	return lerpf(least_score, 1.0, neatness)

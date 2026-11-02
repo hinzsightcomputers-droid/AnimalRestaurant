@@ -21,6 +21,7 @@ extends CookAction
 var _seen := {}    # Piece -> its steam, once it's been on the heat.
 var _scores: Array[float] = []
 var _sizzle: AudioStreamPlayer3D
+var _markers := {}  # Piece -> its "Flip!" label.
 
 
 func _begin() -> void:
@@ -47,12 +48,15 @@ func update(delta: float, _input: CookInput) -> void:
 				piece.doneness[piece.down_side] += delta * piece.cook_speed / seconds
 				piece.refresh()
 			_update_steam(piece, _seen[piece])
+			_update_marker(piece)
 		elif _seen.has(piece) and not piece.scores.has("heat") and not piece.surface.is_empty():
 			# Off the heat and set down somewhere else: the side that was down is done.
 			var score := score(piece.doneness[piece.down_side])
 			piece.scores["heat"] = score
 			_scores.append(score)
 			_seen[piece].emitting = false
+		if piece.surface != surface and _markers.has(piece):
+			_markers[piece].visible = false
 	if cooking > 0 and not _sizzle.playing:
 		_sizzle.play()
 	elif cooking == 0 and _sizzle.playing:
@@ -70,6 +74,43 @@ func end() -> void:
 	_sizzle.stop()
 	for steam in _seen.values():
 		steam.emitting = false
+	for marker in _markers.values():
+		marker.queue_free()
+	_markers.clear()
+
+
+# "Flip!" (whatever the current step wants) bobbing over a piece once the
+# side that's down is cooked enough, with a ding when it first shows. It turns
+# orange, "Hurry!", once that side's past golden.
+func _update_marker(piece: CookPiece) -> void:
+	var word := session.current.ready_word(piece) if session.current != null else ""
+	var amount: float = piece.doneness[piece.down_side]
+	var show := not word.is_empty() and not piece.busy and amount >= perfect_from
+	var marker: Label3D = _markers.get(piece)
+	if marker == null:
+		if not show:
+			return
+		marker = Label3D.new()
+		marker.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		marker.no_depth_test = true
+		marker.font_size = 64
+		marker.outline_size = 18
+		marker.pixel_size = session.text_size
+		marker.outline_modulate = Color(0.2, 0.12, 0.08)
+		session.add_child(marker)
+		_markers[piece] = marker
+		marker.visible = false
+	if show and not marker.visible:
+		session.play_sound("ding", piece.position, -10.0, 1.6)
+		session.wobble(marker, 0.3)
+	marker.visible = show
+	if not show:
+		return
+	var late := amount > perfect_to
+	marker.text = "Hurry! %s" % word if late else word
+	marker.modulate = Color(1.0, 0.6, 0.3) if late else Color(0.6, 1.0, 0.55)
+	var bob := sin(Time.get_ticks_msec() * 0.008) * 0.008
+	marker.position = piece.position + Vector3(0.0, piece.thickness + 0.06 + bob, 0.0)
 
 
 func _update_steam(piece: CookPiece, steam: CPUParticles3D) -> void:

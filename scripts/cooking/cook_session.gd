@@ -429,14 +429,33 @@ func _build_hint(view_manager: ViewManager) -> void:
 	_hint.offset_right = -40.0
 
 
+# A bright ring with a dark edge and a dot in the middle, big enough to find
+# at a glance, gently pulsing.
 func _build_cursor() -> void:
 	var mesh := TorusMesh.new()
-	mesh.inner_radius = 0.012
-	mesh.outer_radius = 0.02
-	mesh.material = _flat_material(Color(1.0, 0.95, 0.6, 0.9))
+	mesh.inner_radius = 0.027
+	mesh.outer_radius = 0.041
+	mesh.material = _flat_material(Color(1.0, 0.92, 0.35, 0.99))  # See-through, so it sorts over its edge.
 	_cursor.mesh = mesh
 	_cursor.scale.y = 0.3
 	add_child(_cursor)
+	var edge := MeshInstance3D.new()
+	var edge_mesh := TorusMesh.new()
+	edge_mesh.inner_radius = 0.023
+	edge_mesh.outer_radius = 0.046
+	edge_mesh.material = _flat_material(Color(0.22, 0.12, 0.05, 0.85))
+	edge_mesh.material.render_priority = -1  # Under the bright ring.
+	edge.mesh = edge_mesh
+	_cursor.add_child(edge)
+	var dot := MeshInstance3D.new()
+	dot.mesh = _dot_mesh(0.007, Color(1.0, 0.92, 0.35, 0.99))
+	(dot.mesh.material as StandardMaterial3D).shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	(dot.mesh.material as StandardMaterial3D).no_depth_test = true
+	dot.scale.y = 1.0 / 0.3  # Round, not squashed with the rings.
+	_cursor.add_child(dot)
+	var pulse := _cursor.create_tween().set_loops()
+	pulse.tween_property(_cursor, "scale", Vector3(1.12, 0.3, 1.12), 0.5).set_trans(Tween.TRANS_SINE)
+	pulse.tween_property(_cursor, "scale", Vector3(1.0, 0.3, 1.0), 0.5).set_trans(Tween.TRANS_SINE)
 
 
 func _flat_material(color: Color) -> StandardMaterial3D:
