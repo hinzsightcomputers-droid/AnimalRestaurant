@@ -121,7 +121,7 @@ func start_phase(entries: Array, done: Array) -> void:
 func _next_gap() -> float:
 	var settings := GameData.day_settings
 	var pacing: Dictionary = settings.get("pacing", {})
-	var base := float(settings.get("arrival_seconds", 9.0)) * GameState.upgrade_multiplier("arrival_interval")  # Welcome Sign.
+	var base := float(settings.get("arrival_seconds", 9.0)) * GameState.upgrade_multiplier("arrival_interval") * GameState.difficulty_value("arrival_interval")  # Welcome Sign, and the difficulty.
 	var still_to_come := _meal_size - _arrived
 	if _arrived == 1 and still_to_come >= 2:
 		return base * float(pacing.get("calm_start", 1.6))
@@ -1292,7 +1292,7 @@ func _settle_bill(player: Player, customer: Customer) -> void:
 		return
 
 	GameState.add_money(amount)
-	var price := int(customer.dish.get("base_price", 0)) + int(customer.served_drink.get("base_price", 0))
+	var price := roundi(Satisfaction.price_of(customer.dish, customer.served_drink))
 	var without_save := Satisfaction.bill_for(customer.dish, customer.served_drink, reaction, streak_percent)
 	var save_bonus := amount - without_save
 	var streak_bonus := without_save - Satisfaction.bill_for(customer.dish, customer.served_drink, reaction)

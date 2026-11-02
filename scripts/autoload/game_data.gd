@@ -26,6 +26,7 @@ const FISH_PATH := "res://data/fish.json"
 const FORAGE_PATH := "res://data/forage.json"
 const TRIPS_PATH := "res://data/trips.json"
 const HOUSES_PATH := "res://data/houses.json"
+const DIFFICULTY_PATH := "res://data/difficulty.json"
 
 # Each dish, from the menu (design/menu/dishes.json): { id, name, origin,
 # description, ingredients, steps, base_price, cook_time, tags, unlock,
@@ -69,6 +70,10 @@ var dialogue: Array[Dictionary] = []
 # Each upgrade: { id, name, price, description, bonus?: { key: amount }, multiplier?: { key: factor } }.
 # See GameState.upgrade_bonus / upgrade_multiplier for the keys.
 var upgrades: Array[Dictionary] = []
+# The difficulty levels and when Hard unlocks (data/difficulty.json).
+var difficulty: Dictionary = {}
+# The day each shop item arrives in stock, by id (see in_stock()).
+var shop_arrivals: Dictionary = {}
 # Phone tuning: ring and gap timings, voicemail size, who calls, the courier.
 var phone_settings: Dictionary = {}
 # Townsfolk who phone in orders: { id, name, species, name_color, personality,
@@ -117,6 +122,8 @@ func _ready() -> void:
 	dialogue = _load_list(DIALOGUE_PATH, "lines")
 	_load_characters()
 	upgrades = _load_list(UPGRADES_PATH, "upgrades")
+	shop_arrivals = _load_dictionary(UPGRADES_PATH).get("arrives", {})
+	difficulty = _load_dictionary(DIFFICULTY_PATH)
 	phone_settings = _load_dictionary(PHONE_PATH).get("settings", {})
 	callers = _load_list(CALLERS_PATH, "callers")
 	_load_gossip()
@@ -171,6 +178,16 @@ func get_drink(drink_id: String) -> Dictionary:
 		if drink["id"] == drink_id:
 			return drink
 	return {}
+
+
+# The end of the day a shop item (upgrade, dish or drink) turns up in the shop.
+func arrival_day(item_id: String) -> int:
+	return int(shop_arrivals.get(item_id, 1))
+
+
+# Whether the shop has it today: it arrives a few at a time (data/upgrades.json "arrives").
+func in_stock(item_id: String) -> bool:
+	return arrival_day(item_id) <= GameState.day_number
 
 
 func get_upgrade(upgrade_id: String) -> Dictionary:

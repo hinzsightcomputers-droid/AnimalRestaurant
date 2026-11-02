@@ -116,6 +116,9 @@ func _summary_text(summary: Dictionary) -> String:
 	lines.append_array(_chef_lines(summary))
 	lines.append("")
 	lines.append("Total money: $%d" % GameState.money)
+	if int(summary.get("day_number", 0)) == int(GameData.difficulty.get("hard_unlock_day", 7)):
+		lines.append("")
+		lines.append(String(GameData.difficulty.get("hard_unlocked_news", "Hard mode unlocked!")))
 	return "\n".join(lines)
 
 
@@ -188,46 +191,59 @@ func _too_big(room: Vector2) -> bool:
 	return needed.x > room.x or needed.y > room.y
 
 
-# "Shop (2 new!)" when there are upgrades, dishes or drinks you can afford right now.
+# "Shop (2 new!)" when there are upgrades, dishes or drinks in stock you can afford right now.
 func _shop_button_text() -> String:
 	var affordable := 0
 	for upgrade in GameData.upgrades:
-		if not GameState.has_upgrade(upgrade["id"]) and GameState.money >= upgrade["price"]:
+		if not GameState.has_upgrade(upgrade["id"]) and GameData.in_stock(upgrade["id"]) and GameState.money >= upgrade["price"]:
 			affordable += 1
 	for item in GameData.shop_dishes() + GameData.shop_drinks():
-		if not GameData.is_unlocked(item["id"]) and GameState.money >= int(item["unlock_cost"]):
+		if not GameData.is_unlocked(item["id"]) and GameData.in_stock(item["id"]) and GameState.money >= int(item["unlock_cost"]):
 			affordable += 1
 	return "Shop (%d new!)" % affordable if affordable > 0 else "Shop"
 
 
 # One button per upgrade, then per dish and per drink to add to the menu:
-# buyable, too pricey, or already owned.
+# buyable, too pricey, or already owned. Only what's arrived in the shop
+# (GameData.in_stock) or was bought already, with what's coming tomorrow named at the bottom.
 func _build_upgrade_list() -> void:
 	for child in upgrade_list.get_children():
 		upgrade_list.remove_child(child)
 		child.queue_free()
 	var buttons: Array[Button] = []
-	for upgrade in GameData.upgrades:
+	for upgrade in GameData.upgrades.filter(func(u): return GameData.in_stock(u["id"]) or GameState.has_upgrade(u["id"])):
 		var button := _shop_button(upgrade["name"], upgrade["description"], int(upgrade["price"]), GameState.has_upgrade(upgrade["id"]), "Owned")
 		button.pressed.connect(_buy.bind(upgrade["id"]))
 		buttons.append(button)
 	_shop_heading("New dishes")
-	for dish in GameData.shop_dishes():
+	for dish in GameData.shop_dishes().filter(func(d): return GameData.in_stock(d["id"]) or GameData.is_unlocked(d["id"])):
 		var button := _shop_button(dish["name"], dish["description"], int(dish["unlock_cost"]), GameData.is_unlocked(dish["id"]), "On the menu")
 		button.pressed.connect(_buy_dish.bind(dish["id"]))
 		buttons.append(button)
 	_shop_heading("New drinks")
-	for drink in GameData.shop_drinks():
+	for drink in GameData.shop_drinks().filter(func(d): return GameData.in_stock(d["id"]) or GameData.is_unlocked(d["id"])):
 		var button := _shop_button(drink["name"], drink["description"], int(drink["unlock_cost"]), GameData.is_unlocked(drink["id"]), "On the menu")
 		button.pressed.connect(_buy_drink.bind(drink["id"]))
 		buttons.append(button)
+	_coming_tomorrow()
 	var buyable := buttons.filter(func(b): return not b.disabled)
 	(buyable[0] if not buyable.is_empty() else shop_button).grab_focus()
+
+
+# "Arriving tomorrow: Croissant, Apple Cider" under the list, if anything is.
+func _coming_tomorrow() -> void:
+	var names: Array[String] = []
+	for item in GameData.upgrades + GameData.shop_dishes() + GameData.shop_drinks():
+		if GameData.arrival_day(item["id"]) == GameState.day_number + 1:
+			names.append(item["name"])
+	if not names.is_empty():
+		_shop_heading("Arriving tomorrow: " + ", ".join(names))
 
 
 func _shop_heading(text: String) -> void:
 	var heading := Label.new()
 	heading.text = text
+	heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	heading.add_theme_font_size_override("font_size", 20)
 	heading.add_theme_color_override("font_color", body_label.get_theme_color("font_color"))
 	upgrade_list.add_child(heading)

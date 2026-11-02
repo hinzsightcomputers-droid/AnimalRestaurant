@@ -19,7 +19,7 @@ static func is_good(quality: float, wait_seconds: float) -> bool:
 
 # The longest a dish can take (from ordering) and still keep the run going.
 static func max_wait() -> float:
-	return float(settings().get("max_wait_seconds", 75.0)) + GameState.upgrade_bonus("patient_seconds")
+	return (float(settings().get("max_wait_seconds", 75.0)) + GameState.upgrade_bonus("patient_seconds")) * GameState.difficulty_value("patience")
 
 
 # How long a customer waiting for food has left before a serve can't keep the run going.

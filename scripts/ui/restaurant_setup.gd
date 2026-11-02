@@ -1,7 +1,8 @@
-# RestaurantSetup: naming the restaurant and picking the color its name is
-# written in. Shown on the start screen the first time (and after the debug
-# panel's "Rename restaurant"). Type on a keyboard or use the on-screen letters
-# (for gamepads), pick a color swatch, then open. Emits `changed` as the players
+# RestaurantSetup: naming the restaurant, picking the color its name is
+# written in, and how hard it is (Easy or Normal; Hard too once it unlocks).
+# Shown on the start screen the first time (and after the debug panel's
+# "Rename restaurant"). Type on a keyboard or use the on-screen letters (for
+# gamepads), pick a color swatch and a difficulty, then open. Emits `changed` as the players
 # type and pick, so the sign on the building can update live, and `done` when
 # they're finished (GameState already holds the name and color then).
 class_name RestaurantSetup
@@ -25,6 +26,8 @@ var _letters := GridContainer.new()
 var _swatches := HBoxContainer.new()
 var _open_button := Button.new()
 var _color := Color(COLORS[0])
+var _difficulty := ButtonGroup.new()
+var _difficulty_note: Label
 
 
 func _ready() -> void:
@@ -76,6 +79,30 @@ func _ready() -> void:
 		button.pressed.connect(_on_letter_pressed.bind(key))
 		_letters.add_child(button)
 	column.add_child(_letters)
+
+	var difficulty_row := HBoxContainer.new()
+	difficulty_row.add_theme_constant_override("separation", 10)
+	difficulty_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	column.add_child(difficulty_row)
+	difficulty_row.add_child(_label("Difficulty", 18))
+	for level in GameData.difficulty.get("levels", []):
+		if level["id"] == "hard" and not GameState.hard_unlocked():
+			continue
+		var choice := Button.new()
+		choice.text = level["name"]
+		choice.toggle_mode = true
+		choice.button_group = _difficulty
+		choice.custom_minimum_size = Vector2(110, 34)
+		choice.add_theme_font_size_override("font_size", 18)
+		choice.set_meta("level", level)
+		choice.button_pressed = level["id"] == GameState.difficulty
+		choice.focus_entered.connect(func(): choice.button_pressed = true)  # Moving onto one picks it, like the colors.
+		choice.toggled.connect(func(on: bool): if on: _difficulty_note.text = level["description"])
+		difficulty_row.add_child(choice)
+	_difficulty_note = _label("", 16)
+	var picked := _difficulty.get_pressed_button()
+	_difficulty_note.text = picked.get_meta("level")["description"] if picked != null else ""
+	column.add_child(_difficulty_note)
 
 	var bottom_row := HBoxContainer.new()
 	bottom_row.add_theme_constant_override("separation", 14)
@@ -171,6 +198,9 @@ func _emit_changed() -> void:
 func _finish() -> void:
 	GameState.restaurant_name = _chosen_name()
 	GameState.restaurant_color = "#" + _color.to_html(false)
+	var picked := _difficulty.get_pressed_button()
+	if picked != null:
+		GameState.difficulty = picked.get_meta("level")["id"]
 	SaveGame.save_game()
 	done.emit()
 	queue_free()

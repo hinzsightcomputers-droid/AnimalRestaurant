@@ -147,6 +147,16 @@ func _build() -> void:
 	_mark(hemisphere, _row_label(grid, "Seasons"))
 	grid.add_child(hemisphere)
 	_label(grid, "", 18, TEXT)
+	var difficulty := Button.new()
+	difficulty.add_theme_font_size_override("font_size", 20)
+	difficulty.text = _difficulty_text()
+	difficulty.tooltip_text = "Easy: more time in close-ups, better pay, calmer customers. Hard (from day %d): the opposite." % int(GameData.difficulty.get("hard_unlock_day", 7))
+	difficulty.pressed.connect(func():
+		GameState.set_difficulty(_next_difficulty())
+		difficulty.text = _difficulty_text())
+	_mark(difficulty, _row_label(grid, "Difficulty"))
+	grid.add_child(difficulty)
+	_label(grid, "", 18, TEXT)
 
 	var hint := _label(content, "Up/down to pick, left/right to change. Escape, Start or B to close.", 16, Color(TEXT, 0.7))
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -185,6 +195,25 @@ func _hemisphere_text() -> String:
 
 
 # A 0-100% slider for a volume.
+# "Normal", or "Easy (Hard unlocks on day 7)" while Hard is still locked.
+func _difficulty_text() -> String:
+	var text := String(GameState.difficulty).capitalize()
+	for level in GameData.difficulty.get("levels", []):
+		if level["id"] == GameState.difficulty:
+			text = level["name"]
+	if not GameState.hard_unlocked():
+		text += "  (Hard unlocks after day %d)" % int(GameData.difficulty.get("hard_unlock_day", 7))
+	return text
+
+
+# The level after the one being played, round the ones that can be picked.
+func _next_difficulty() -> String:
+	var ids: Array = GameData.difficulty.get("levels", []).map(func(l): return l["id"])
+	if not GameState.hard_unlocked():
+		ids.erase("hard")
+	return ids[(ids.find(GameState.difficulty) + 1) % ids.size()]
+
+
 func _volume_row(grid: GridContainer, text: String, key: String) -> HSlider:
 	return _slider_row(grid, text, key, 0.0, 1.0, 0.05, func(value: float) -> String: return "%d%%" % roundi(value * 100.0))
 
@@ -247,6 +276,9 @@ func _label(parent: Control, text: String, size: int, color: Color) -> Label:
 func _fit_to_screen() -> void:
 	var screen := get_viewport().get_visible_rect().size
 	var needed := _panel.get_combined_minimum_size()
-	var size := needed.max(Vector2(PANEL_MAX.x, needed.y)).min(screen - Vector2.ONE * SCREEN_MARGIN * 2.0)
+	var size := needed.max(Vector2(PANEL_MAX.x, needed.y))
+	var room := screen - Vector2.ONE * SCREEN_MARGIN * 2.0
+	var fit := minf(1.0, minf(room.x / size.x, room.y / size.y))  # Shrunk to fit a small window.
 	_panel.size = size
-	_panel.position = (screen - size) / 2.0
+	_panel.scale = Vector2.ONE * fit
+	_panel.position = (screen - size * fit) / 2.0

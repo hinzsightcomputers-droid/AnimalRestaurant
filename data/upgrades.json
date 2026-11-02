@@ -1,4 +1,19 @@
 {
+	"_arrives": "What the end-of-day shop has in stock: each upgrade, dish (unlock upgrade) and drink (unlock upgrade) arrives at the end of this day (GameState.day_number) and can be bought from then on, so new things turn up a few at a time. Anything not listed is in from day 1.",
+	"arrives": {
+		"sharp_knife": 1, "cherry_pie": 1, "pupsi": 1, "dr_salt": 1,
+		"comfy_cushions": 2, "soft_pretzel": 2, "banana_milk": 2, "fawnta": 2,
+		"croissant": 3, "apple_cider": 3, "root_bear": 3,
+		"steady_stove": 4, "pork_dumplings": 4, "mr_dibs": 4,
+		"hotteok": 5, "bubble_tea": 5, "gander_ale": 5,
+		"tip_jar": 6, "omurice": 6, "moose_tain_dew": 6,
+		"mochi": 7, "matcha_latte": 7, "hamster_energy": 7,
+		"egg_tarts": 8, "red_gull": 8,
+		"welcome_sign": 9, "churros": 9,
+		"apple_strudel": 10,
+		"fire_noodles": 11,
+		"cloud_foam_salad": 12
+	},
 	"upgrades": [
 		{ "id": "sharp_knife", "name": "Sharp Knife", "price": 30,
 			"description": "Chopping takes 2 fewer chops.",

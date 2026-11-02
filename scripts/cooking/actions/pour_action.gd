@@ -64,7 +64,7 @@ func update(delta: float, input: CookInput) -> void:
 		if input.just_pressed:
 			_try_start(spot)
 	elif input.held or _pouring.spread_to < target_radius * least_share:  # A quick press still pours enough to flip.
-		_area += PI * target_radius * target_radius / seconds_to_target * delta
+		_area += PI * target_radius * target_radius / seconds_to_target * delta * GameState.difficulty_value("closeup_pace")  # Slower on Easy: easier to stop at the right size.
 		_pouring.spread_to = sqrt(_area / PI)
 	else:
 		_stop_pouring()

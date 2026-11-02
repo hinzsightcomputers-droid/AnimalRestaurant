@@ -23,6 +23,8 @@ var restaurant_color := "#d1453b"
 # GameClock.today), and how many days the restaurant has opened (1 = the first).
 var date := ""
 var day_number := 0
+# How hard it is: an id from data/difficulty.json (easy, normal or hard). See difficulty_value.
+var difficulty := "normal"
 # Today's customers, one list per meal: { regular: id } or { walk_in: true }
 # (see DayPlan), and which of this meal's are done (their indexes), so a day
 # picked up again doesn't send them twice.
@@ -219,10 +221,10 @@ func has_upgrade(upgrade_id: String) -> bool:
 	return upgrade_id in upgrades
 
 
-# Spend money on an upgrade and save. Returns false if it's owned or too pricey.
+# Spend money on an upgrade and save. Returns false if it's owned, not in the shop yet, or too pricey.
 func buy_upgrade(upgrade_id: String) -> bool:
 	var upgrade := GameData.get_upgrade(upgrade_id)
-	if upgrade.is_empty() or has_upgrade(upgrade_id) or money < upgrade["price"]:
+	if upgrade.is_empty() or has_upgrade(upgrade_id) or not GameData.in_stock(upgrade_id) or money < upgrade["price"]:
 		return false
 	upgrades.append(upgrade_id)
 	add_money(-int(upgrade["price"]))
@@ -231,10 +233,10 @@ func buy_upgrade(upgrade_id: String) -> bool:
 
 
 # Spend a shop dish's unlock_cost to put it on the menu, and save. Returns
-# false if it isn't sold, is already unlocked, or is too pricey.
+# false if it isn't sold (or not yet), is already unlocked, or is too pricey.
 func buy_dish(dish_id: String) -> bool:
 	var dish := GameData.get_dish(dish_id)
-	if dish.get("unlock", "") != "upgrade" or GameData.is_unlocked(dish_id) or money < int(dish["unlock_cost"]):
+	if dish.get("unlock", "") != "upgrade" or GameData.is_unlocked(dish_id) or not GameData.in_stock(dish_id) or money < int(dish["unlock_cost"]):
 		return false
 	unlocks.append(dish_id)
 	unlocks_changed.emit()
@@ -246,7 +248,7 @@ func buy_dish(dish_id: String) -> bool:
 # Same for a drink from the shop.
 func buy_drink(drink_id: String) -> bool:
 	var drink := GameData.get_drink(drink_id)
-	if drink.get("unlock", "") != "upgrade" or GameData.is_unlocked(drink_id) or money < int(drink["unlock_cost"]):
+	if drink.get("unlock", "") != "upgrade" or GameData.is_unlocked(drink_id) or not GameData.in_stock(drink_id) or money < int(drink["unlock_cost"]):
 		return false
 	unlocks.append(drink_id)
 	unlocks_changed.emit()
@@ -271,6 +273,34 @@ func upgrade_multiplier(key: String) -> float:
 	for upgrade_id in upgrades:
 		factor *= GameData.get_upgrade(upgrade_id).get("multiplier", {}).get(key, 1.0)
 	return factor
+
+
+# What every price is multiplied by when someone pays: data/service.json
+# pay_scale, and more or less for the difficulty.
+func pay_scale() -> float:
+	return float(GameData.service.get("pay_scale", 1.0)) * difficulty_value("pay")
+
+
+# A number from the difficulty level being played (data/difficulty.json), e.g.
+# difficulty_value("closeup_pace"); 1.0 if it doesn't set it.
+func difficulty_value(key: String) -> float:
+	for level in GameData.difficulty.get("levels", []):
+		if level["id"] == difficulty:
+			return float(level.get(key, 1.0))
+	return 1.0
+
+
+# Whether Hard can be picked: once hard_unlock_day is done.
+func hard_unlocked() -> bool:
+	return day_number >= int(GameData.difficulty.get("hard_unlock_day", 7))
+
+
+# Pick a difficulty (by id) and save. Hard only once it's unlocked.
+func set_difficulty(level_id: String) -> void:
+	if level_id == "hard" and not hard_unlocked():
+		return
+	difficulty = level_id
+	SaveGame.save_game()
 
 
 # Today's customers, one list per meal, planning (and saving) them on the first ask.
@@ -315,6 +345,7 @@ func to_save_data() -> Dictionary:
 		"restaurant_color": restaurant_color,
 		"date": date,
 		"day_number": day_number,
+		"difficulty": difficulty,
 		"day_cycle": DayCycle.to_save_data(),
 		"phase_done": phase_done,
 		"day_plan": day_plan,
@@ -350,6 +381,7 @@ func apply_save_data(data: Dictionary) -> void:
 	restaurant_color = data.get("restaurant_color", restaurant_color)
 	date = data.get("date", date)  # Saves from before real dates had a "day" number instead; it's dropped.
 	day_number = int(data.get("day_number", day_number))
+	difficulty = String(data.get("difficulty", "normal"))
 	if data.get("day_cycle") is Dictionary:
 		DayCycle.apply_save_data(data["day_cycle"])
 	elif data.has("phase"):  # Saves from before version 6: one number for the phase.

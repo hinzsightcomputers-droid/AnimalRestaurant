@@ -77,7 +77,7 @@ func uses_cursor() -> bool:
 func update(delta: float, input: CookInput) -> void:
 	if _phase != 1:
 		return
-	_done = minf(_done + delta / bake_seconds, 1.0)
+	_done = minf(_done + delta * GameState.difficulty_value("closeup_pace") / bake_seconds, 1.0)  # Slower on Easy.
 	_glow.light_energy = lerpf(_glow.light_energy, 1.6, 1.0 - exp(-3.0 * delta))
 	_hum.volume_db = lerpf(_hum.volume_db, -22.0, 1.0 - exp(-2.0 * delta))
 	_fill.scale.x = maxf(_done, 0.001)
