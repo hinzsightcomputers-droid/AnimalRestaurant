@@ -6,8 +6,9 @@
 #   - held / just_pressed / just_released: interact, the left mouse button, or
 #     the right trigger on a gamepad.
 #   - stick: where the stick (or the keys) points, as a direction on the surface.
-#   - flick: a quick push of the stick (or tap of a key), or a quick swipe of
-#     the mouse, as a direction on the surface. Set for one frame.
+#   - flick: a quick push of the stick (or tap of a key, even with another
+#     held), or a quick swipe of the mouse, as a direction on the surface. Set
+#     for one frame.
 # The mouse only drives the player whose view it's over. Tuning is on the
 # CookSession (cursor_speed, pad_cursor_speed, flick_*).
 class_name CookInput
@@ -32,6 +33,7 @@ var _stick_flicked := false    # This push already flicked: wait for the stick t
 var _mouse_trail: Array = []   # [time, point on the surface] for the last moment of mouse movement.
 var _mouse_flicked := false
 var _wait_for_release := true  # Until every button's been let go once.
+var _keys_down := {}           # Direction keys held at the last update (for _key_flick).
 
 
 func _init(session: CookSession, player_index: int, view_manager: ViewManager) -> void:
@@ -70,6 +72,9 @@ func update(delta: float) -> void:
 	held = now_held
 
 	flick = _stick_flick(raw, delta)
+	var tap := _key_flick() if InputSetup.pad_of(_player_index) < 0 else Vector2.ZERO
+	if flick == Vector2.ZERO:
+		flick = tap
 	var swipe := _mouse_flick(mouse_point)
 	if flick == Vector2.ZERO:
 		flick = swipe
@@ -107,6 +112,18 @@ func _stick_flick(raw: Vector2, delta: float) -> Vector2:
 		_stick_flicked = true
 		return _on_surface(raw).normalized()
 	return Vector2.ZERO
+
+
+# On a keyboard, a fresh tap of a direction key, even with another one still
+# held from aiming (which would stop it counting as a push from the center).
+func _key_flick() -> Vector2:
+	var tapped := Vector2.ZERO
+	for key in [["move_up", Vector2.UP], ["move_down", Vector2.DOWN], ["move_left", Vector2.LEFT], ["move_right", Vector2.RIGHT]]:
+		var down := Input.is_action_pressed(_action(key[0]))
+		if down and not _keys_down.get(key[0], false):
+			tapped = key[1]
+		_keys_down[key[0]] = down
+	return _on_surface(tapped).normalized() if tapped != Vector2.ZERO else Vector2.ZERO
 
 
 # The mouse moving faster than flick_mouse_speed (meters a second across the surface).

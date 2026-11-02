@@ -1,11 +1,11 @@
 # DrizzleAction: hold the button and move to drizzle a line of syrup over the
-# top of a stack, with only so much in the bottle. The line is drawn where it
-# lands, on whichever piece is highest there (so a wider one underneath gets
-# some too), and over anything put on it (butter); near a piece's round edge it
-# drips a little way down the side. The step ends when the bottle's empty. It
-# scores how much of the food showing from above got covered (full marks at
-# target_coverage), minus what was spilled off it, from least_score up: any
-# syrup on the food scores well.
+# top of a stack, with only so much in the bottle, which stays over the plate.
+# The line is drawn where it lands, on whichever piece is highest there (so a
+# wider one underneath gets some too), and over anything put on it (butter);
+# near a piece's round edge it drips a little way down the side. The step ends
+# when the bottle's empty. It scores how much of the food showing from above
+# got covered (full marks at target_coverage), minus what was spilled off it,
+# from least_score up: any syrup on the food scores well.
 class_name DrizzleAction
 extends CookAction
 
@@ -70,6 +70,7 @@ func cursor_height() -> float:
 
 
 func update(delta: float, input: CookInput) -> void:
+	input.cursor = _on_plate(input.cursor)
 	var spot := input.cursor
 	var pouring := input.held and _left > 0.0
 	_bottle.position = _bottle.position.lerp(spot + Vector3(0.0, bottle_height, 0.0), 1.0 - exp(-20.0 * delta))
@@ -127,6 +128,20 @@ func _add_blob(point: Vector2) -> void:
 		y = (plate.position.y if plate.contains(Vector3(point.x, 0.0, point.y)) else session.work_height) + 0.001
 	blob.position = Vector3(point.x, y, point.y)
 	session.add_child(blob)
+
+
+# The point pulled back onto the plate, so the bottle (and the syrup) can't
+# go off its edge.
+func _on_plate(point: Vector3) -> Vector3:
+	var plate := session.surface(target)
+	var middle := Vector2(plate.position.x, plate.position.z)
+	var flat := Vector2(point.x, point.z) - middle
+	if plate.round:
+		flat = flat.limit_length(maxf(plate.radius() - line_radius, 0.0))
+	else:
+		var half := plate.size * 0.5 - Vector2.ONE * line_radius
+		flat = flat.clamp(-half, half)
+	return Vector3(middle.x + flat.x, point.y, middle.y + flat.y)
 
 
 # The top of whatever's been put on the food (a pat of butter, melting) over
