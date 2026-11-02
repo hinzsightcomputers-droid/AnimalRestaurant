@@ -1,6 +1,7 @@
-# FlipAction: hold the button (or RT) on a piece to get it on the spatula,
-# then flick up (the right stick, the up key, or a quick upward swipe of the
-# mouse) to flip it over, in any order. Just moving over a piece does nothing.
+# FlipAction: a spatula follows the cursor. Press the button (or RT) on a piece
+# and the spatula slides under it; then flick up (the right stick, the up key,
+# or a quick upward swipe of the mouse) to flip it over. Pressing again puts
+# it back down. Just moving over a piece does nothing.
 # Each flip scores how cooked the side that was down got (the recipe's
 # HeatAction decides what's raw, golden and burnt), so you have to watch every
 # piece's edge.
@@ -16,6 +17,7 @@ extends CookAction
 
 var _scores: Array[float] = []
 var _held: CookPiece = null
+var _spatula: Node3D
 
 
 func view_point() -> Vector3:
@@ -27,7 +29,17 @@ func cursor_area() -> Rect2:
 	return session.area_of(surface, 0.03) if view_distance > 0.0 else Rect2()
 
 
-func update(_delta: float, input: CookInput) -> void:
+func _begin() -> void:
+	_spatula = session.make_spatula()
+	_spatula.position = session.surface(surface).position
+
+
+# The spatula shows where it'll go in.
+func uses_cursor() -> bool:
+	return false
+
+
+func update(delta: float, input: CookInput) -> void:
 	if _held == null:
 		if input.just_pressed:
 			_grab(_piece_at(input.cursor))
@@ -35,9 +47,14 @@ func update(_delta: float, input: CookInput) -> void:
 		var piece := _held
 		_let_go()
 		_turn(piece)
-	elif not input.held:
+	elif input.just_pressed:  # Changed their mind: back down.
 		_let_go()
 		session.pop_text(_flick_words(), input.cursor, 0)
+	# The spatula: under the piece it's holding, or at the cursor, just on the surface.
+	var goal := Vector3(input.cursor.x, session.surface(surface).position.y + 0.004, input.cursor.z)
+	if _held != null:
+		goal = _held.position + Vector3(0.0, -0.004, 0.0)
+	_spatula.position = _spatula.position.lerp(goal, 1.0 - exp(-22.0 * delta))
 	var left := session.pieces_on(surface).filter(func(p): return _needs(p) or p.busy)
 	if left.is_empty() and not session.pieces_on(surface).is_empty():
 		finish(average(_scores))
@@ -46,6 +63,7 @@ func update(_delta: float, input: CookInput) -> void:
 func end() -> void:
 	if _held != null:
 		_let_go()
+	_spatula.queue_free()
 
 
 # Whether a piece still needs this step (a FoldAction overrides these three).

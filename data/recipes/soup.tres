@@ -15,7 +15,7 @@ weight = 0.5
 [sub_resource type="Resource" id="Resource_stir"]
 script = ExtResource("4_stir")
 title = "Stir"
-hint = "Roll [stick] round and round to whisk it (with the mouse, hold [grip] and circle the pot). Not too slow, not too fast!"
+hint = "Roll [stick] round counter-clockwise, the way the arrow goes, to whisk it (with the mouse, hold [grip] and circle the pot). Don't stop stirring!"
 
 [resource]
 script = ExtResource("1_recipe")

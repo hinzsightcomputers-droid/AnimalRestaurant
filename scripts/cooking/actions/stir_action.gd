@@ -1,16 +1,20 @@
-# StirAction: stir a pot with a whisk, round and round. With a stick (or the
-# keys) the whisk goes where the stick points, so rolling it round stirs; with
-# the mouse, hold the button and circle it round the pot. The soup and what's
-# in it swirl along. Stir enough turns to finish; the score is how much of
-# the stirring was at a good pace (too slow and it catches, too fast and it
-# slops over the side).
+# StirAction: stir a pot with a whisk, round and round, counter-clockwise (an
+# arrow round the pot shows the way). With a stick (or the keys) the whisk goes
+# where the stick points, so rolling it round stirs; with the mouse, hold the
+# button and circle it round the pot. The soup and what's in it swirl along.
+# Stir enough turns to finish; the score is how much of the stirring was at a
+# good pace (too slow and it catches, too fast and it slops over the side),
+# with the first warm_up_turns always counted good and full marks from
+# full_marks of it: it's meant to be easy to get right.
 class_name StirAction
 extends CookAction
 
 @export var in_surface := "Pot"
 @export var turns := 8.0                  # Turns of the whisk to finish.
-@export var slow_speed := 0.5             # Turns a second: slower than this is too slow...
-@export var fast_speed := 1.6             # ...and faster than this is too fast.
+@export var slow_speed := 0.25            # Turns a second: slower than this is too slow...
+@export var fast_speed := 2.8             # ...and faster than this is too fast.
+@export var warm_up_turns := 1.5          # The first turns always count as a good pace (getting going).
+@export_range(0.0, 1.0) var full_marks := 0.85  # This share of the stirring at a good pace gets 100%.
 @export var reach := 0.65                 # How far out the whisk goes, as a share of the pot's radius.
 @export var soup_follow := 2.5            # How quickly the soup catches up with the whisk.
 @export var splash_every := 0.2           # Seconds between splashes while stirring too fast.
@@ -26,6 +30,8 @@ var _progress := 0.0
 var _stir_time := 0.0
 var _good_time := 0.0
 var _splash_timer := 0.0
+var _arrow: Node3D
+var _wrong_way := 99.0                    # Seconds since they last stirred clockwise.
 
 
 func _begin() -> void:
@@ -42,6 +48,8 @@ func _begin() -> void:
 	_steam.position = pot.position
 	session.add_child(_steam)
 	_steam.emitting = true
+	_arrow = _make_arrow(pot.radius() * 1.3)
+	_arrow.position = pot.position + Vector3(0.0, 0.03, 0.0)
 
 
 func uses_cursor() -> bool:
@@ -54,6 +62,7 @@ func cursor_height() -> float:
 
 func end() -> void:
 	_whisk.queue_free()
+	_arrow.queue_free()
 	_swish.queue_free()
 	_steam.emitting = false
 
@@ -76,9 +85,12 @@ func update(delta: float, input: CookInput) -> void:
 			turned = wrapf(angle - _angle, -PI, PI)
 		_angle = angle
 		_has_angle = true
-		_progress += absf(turned) / TAU
+		if turned > 0.0:  # Clockwise (seen from above): doesn't count.
+			_wrong_way = 0.0
+			turned = 0.0
+		_progress += -turned / TAU
 		_stir_time += delta
-		if _speed >= slow_speed and _speed <= fast_speed:
+		if _progress < warm_up_turns or (_speed >= slow_speed and _speed <= fast_speed):
 			_good_time += delta
 	else:
 		_has_angle = false
@@ -105,13 +117,57 @@ func update(delta: float, input: CookInput) -> void:
 		_splash_timer = splash_every
 		session.burst(_whisk.position + Vector3(0.0, 0.03, 0.0), pot.color, 8, 0.5)
 		session.play_sound("plop", _whisk.position, -8.0, 1.4)
-	var pace := "Too fast!" if _speed > fast_speed else ("Just right" if _speed >= slow_speed else "Faster!")
-	session.set_status("Stirred %d / %d  -  %s" % [mini(int(_progress), int(turns)), int(turns), pace if stirring else "Stir!"])
+	_wrong_way += delta
+	_arrow.rotation.y += delta * 0.8  # Turning the way to stir.
+	var pace := "Too fast!" if _speed > fast_speed else ("Just right" if _speed >= slow_speed or _progress < warm_up_turns else "Faster!")
+	if _wrong_way < 0.6:
+		pace = "The other way! Follow the arrow"
+	elif not stirring:
+		pace = "Don't stop stirring!"
+	session.set_status("Stirred %d / %d  -  %s" % [mini(int(_progress), int(turns)), int(turns), pace])
 
 	if _progress >= turns:
-		var score := _good_time / maxf(_stir_time, 0.001)
+		var score := clampf(_good_time / maxf(_stir_time, 0.001) / full_marks, 0.0, 1.0)
 		session.pop_text("Smooth!" if score >= 0.8 else ("Stirred" if score >= 0.5 else "Lumpy!"), center, CookSession.mood_of(score))
 		finish(score)
+
+
+# A curved arrow round the pot, going counter-clockwise seen from above: dashes
+# round three quarters of a circle `arc_radius` across, and a head.
+func _make_arrow(arc_radius: float) -> Node3D:
+	var arrow := Node3D.new()
+	var paint := StandardMaterial3D.new()
+	paint.albedo_color = Color(1.0, 0.85, 0.3, 0.95)
+	paint.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	paint.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	paint.no_depth_test = true  # Over the pot's rim.
+	paint.render_priority = 2
+	const DASHES := 14
+	const SWEEP := PI * 1.5
+	var end_angle := 0.0
+	for i in DASHES:
+		var angle := -float(i) / DASHES * SWEEP  # Down the angle: counter-clockwise on screen.
+		var dash := MeshInstance3D.new()
+		var mesh := BoxMesh.new()
+		mesh.size = Vector3(arc_radius * SWEEP / DASHES * 0.7, 0.004, 0.024)
+		mesh.material = paint
+		dash.mesh = mesh
+		dash.position = Vector3(cos(angle), 0.0, sin(angle)) * arc_radius
+		dash.rotation.y = atan2(cos(angle), sin(angle))  # Along the circle.
+		arrow.add_child(dash)
+		end_angle = angle - SWEEP / DASHES
+	var head := MeshInstance3D.new()
+	var cone := CylinderMesh.new()
+	cone.top_radius = 0.0
+	cone.bottom_radius = 0.045
+	cone.height = 0.07
+	cone.material = paint
+	head.mesh = cone
+	head.position = Vector3(cos(end_angle), 0.0, sin(end_angle)) * arc_radius
+	head.rotation = Vector3(0.0, atan2(cos(end_angle), sin(end_angle)), -PI * 0.5)  # Its point along the circle, the way round.
+	arrow.add_child(head)
+	session.add_child(arrow)
+	return arrow
 
 
 # A balloon whisk, its origin at the bottom of the wires.

@@ -33,10 +33,12 @@ func view_point() -> Vector3:
 	return Vector3(center.x, _top(), center.z)
 
 
+# The whole cutter stays on the sheet (just its middle, on a sheet too small for it).
 func cursor_area() -> Rect2:
 	var size: Vector2 = _sheet.get("size", Vector2.ZERO)
 	var center: Vector3 = _sheet.get("center", Vector3.ZERO)
-	return Rect2(center.x - size.x * 0.5, center.z - size.y * 0.5, size.x, size.y).grow(cookie_radius * 1.5)
+	var inside := (size - Vector2.ONE * cookie_radius * 2.0).max(Vector2.ONE * 0.001)
+	return Rect2(center.x - inside.x * 0.5, center.z - inside.y * 0.5, inside.x, inside.y)
 
 
 func _begin() -> void:

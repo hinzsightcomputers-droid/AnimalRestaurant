@@ -57,7 +57,7 @@ func start(cook_recipe: CookRecipe, cook: Player, view_manager: ViewManager, bro
 	player = cook
 	ingredients = brought
 	input = CookInput.new(self, cook.player_index, view_manager)
-	input.cursor = Vector3(bounds.get_center().x, work_height, bounds.get_center().y)
+	input.cursor = Vector3(0.0, work_height, 0.0)  # The middle of the station.
 	if ingredients != null:  # A pot's broth takes on what's going in it.
 		for child in get_children():
 			if child is CookSurface and child.ingredient_tint > 0.0:
@@ -99,6 +99,7 @@ func _next_step() -> void:
 	while _next < steps.size():
 		var action := steps[_next]
 		_next += 1
+		bring_in(action)
 		action.begin(self)
 		if action.done:  # Over before it started (e.g. nothing to reel in): no updates.
 			action.end()
@@ -222,6 +223,15 @@ func _controls(text: String) -> String:
 
 
 # --- Surfaces, pieces and stacks --------------------------------------------
+
+# Slides in any surface out of sight (CookSurface.slides_in) that a step
+# works with (its surface, target, from_surface or in_surface).
+func bring_in(action: CookAction) -> void:
+	for key in ["surface", "target", "from_surface", "in_surface"]:
+		var surface_name = action.get(key)
+		if surface_name is String and not surface_name.is_empty() and surface(surface_name) != null:
+			surface(surface_name).slide_in()
+
 
 func surface(surface_name: String) -> CookSurface:
 	return get_node_or_null(surface_name) as CookSurface
@@ -393,6 +403,36 @@ func make_bottle(liquid: Color) -> Node3D:
 	bottle.add_child(nozzle)
 	add_child(bottle)
 	return bottle
+
+
+# A spatula: a flat metal blade with its middle at the origin, and a handle
+# running back toward the cook (+z) and up.
+func make_spatula() -> Node3D:
+	var spatula := Node3D.new()
+	var metal := StandardMaterial3D.new()
+	metal.albedo_color = Color(0.82, 0.84, 0.87)
+	metal.metallic = 0.7
+	metal.roughness = 0.3
+	var blade := MeshInstance3D.new()
+	var blade_mesh := BoxMesh.new()
+	blade_mesh.size = Vector3(0.12, 0.004, 0.11)
+	blade_mesh.material = metal
+	blade.mesh = blade_mesh
+	spatula.add_child(blade)
+	var wood := StandardMaterial3D.new()
+	wood.albedo_color = Color(0.45, 0.28, 0.16)
+	var handle := MeshInstance3D.new()
+	var handle_mesh := CylinderMesh.new()
+	handle_mesh.top_radius = 0.009
+	handle_mesh.bottom_radius = 0.011
+	handle_mesh.height = 0.2
+	handle_mesh.material = wood
+	handle.mesh = handle_mesh
+	handle.rotation.x = deg_to_rad(70.0)  # Lying back toward the cook, rising a little.
+	handle.position = Vector3(0.0, 0.035, 0.055 + 0.094)
+	spatula.add_child(handle)
+	add_child(spatula)
+	return spatula
 
 
 # A flat ring on the surface, e.g. to show how big a pour should be.

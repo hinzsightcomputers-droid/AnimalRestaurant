@@ -2,6 +2,8 @@
 # position is the middle of its top; it draws itself as a placeholder slab or
 # disc below that (unless the station already has one there: hidden). Steps
 # find surfaces by node name ("Griddle", "Plate", "Board").
+# One with slides_in (the plate beside the griddle) stays out of sight until a
+# step first uses it, then slides in from the right (CookSession.bring_in).
 class_name CookSurface
 extends Node3D
 
@@ -11,12 +13,21 @@ extends Node3D
 @export var color := Color(0.2, 0.2, 0.22)
 @export var hidden := false
 @export_range(0.0, 1.0) var ingredient_tint := 0.0  # How much it takes on the ingredients' color (a pot's broth).
+@export var slides_in := false            # Out of sight until a step uses it.
+@export var ledge := Vector3.ZERO          # Above zero: a counter top this big (x, thickness, z) under it.
+@export var ledge_color := Color(0.55, 0.36, 0.22)
 
 var contents: Array[Node3D] = []  # What's been dropped in (e.g. chopped carrots in a pot).
 var _material := StandardMaterial3D.new()
+var _home := Vector3.ZERO
 
 
 func _ready() -> void:
+	_home = position
+	if ledge != Vector3.ZERO:
+		_build_ledge()
+	if slides_in:
+		visible = false
 	if hidden:
 		return
 	var mesh_instance := MeshInstance3D.new()
@@ -67,3 +78,26 @@ func contains(point: Vector3, margin := 0.0) -> bool:
 	if round:
 		return offset.length() <= radius() + margin
 	return absf(offset.x) <= size.x * 0.5 + margin and absf(offset.y) <= size.y * 0.5 + margin
+
+
+# Out of sight until now (slides_in): slides in from the right, `distance` away.
+func slide_in(distance := 0.8, seconds := 0.45) -> void:
+	if visible:
+		return
+	visible = true
+	position = _home + Vector3(distance, 0.0, 0.0)
+	create_tween().tween_property(self, "position", _home, seconds).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+# A wooden counter top under it, its top just below this surface's bottom.
+func _build_ledge() -> void:
+	var slab := MeshInstance3D.new()
+	var mesh := BoxMesh.new()
+	mesh.size = ledge
+	var wood := StandardMaterial3D.new()
+	wood.albedo_color = ledge_color
+	wood.roughness = 0.8
+	mesh.material = wood
+	slab.mesh = mesh
+	slab.position.y = -thickness - ledge.y * 0.5
+	add_child(slab)

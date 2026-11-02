@@ -23,15 +23,15 @@ batter_color = Color(0.85, 0.62, 0.36, 1)
 script = ExtResource("flip")
 title = "Fry: turn them"
 view_distance = 0.7
-hint = "When \"Flip!\" pops up over one, hold [grip] on it and [flick_up] to flip it."
+hint = "When \"Flip!\" pops up over one, press [button] on it to slide the spatula under, then [flick_up] to flip it."
 
 [sub_resource type="Resource" id="Resource_3"]
 script = ExtResource("place")
 title = "Plate them"
-hint = "When \"Plate it!\" pops up, press [button] on one to put it on the plate."
+hint = "When \"Plate it!\" pops up, press [button] on one to lift it on the spatula, then move over the plate and press [button] again."
 weight = 0.0
-auto_plate = true
-view_distance = 0.7
+carry = true
+view_distance = 0.95
 
 [sub_resource type="Resource" id="Resource_4"]
 script = ExtResource("drizzle")

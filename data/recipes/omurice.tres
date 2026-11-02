@@ -23,22 +23,22 @@ batter_color = Color(0.98, 0.84, 0.32, 1)
 [sub_resource type="Resource" id="Resource_2"]
 script = ExtResource("fold")
 title = "Fold it in half"
-hint = "When \"Fold!\" pops up, hold [grip] on it and [flick_up] to fold it over."
+hint = "When \"Fold!\" pops up, press [button] on it to slide the spatula under, then [flick_up] to fold it over."
 view_distance = 0.7
 
 [sub_resource type="Resource" id="Resource_3"]
 script = ExtResource("flip")
 title = "Flip it"
-hint = "When \"Flip!\" pops up, hold [grip] on it and [flick_up] to flip it."
+hint = "When \"Flip!\" pops up, press [button] on it to slide the spatula under, then [flick_up] to flip it."
 view_distance = 0.7
 
 [sub_resource type="Resource" id="Resource_4"]
 script = ExtResource("place")
 title = "Over the rice"
-hint = "When \"Plate it!\" pops up, press [button] on it to put it on the plate."
+hint = "When \"Plate it!\" pops up, press [button] on it to lift it on the spatula, then move over the plate and press [button] again."
 weight = 0.0
-auto_plate = true
-view_distance = 0.7
+carry = true
+view_distance = 0.95
 
 [sub_resource type="Resource" id="Resource_5"]
 script = ExtResource("drizzle")

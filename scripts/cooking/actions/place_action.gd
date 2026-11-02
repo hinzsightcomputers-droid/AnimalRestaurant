@@ -13,6 +13,7 @@ extends CookAction
 @export var from_surface := "Griddle"
 @export var target := "Plate"
 @export var auto_plate := false         # Press on a piece and it goes to the target by itself.
+@export var carry := false              # Press to lift a piece on the spatula, press over the target to put it down in the middle.
 @export_group("New item")
 @export var item_size := Vector3(0.055, 0.025, 0.04)
 @export var item_color := Color(1.0, 0.92, 0.55)
@@ -31,6 +32,7 @@ var _carry_home := Vector3.ZERO
 var _needed := 0
 var _scores: Array[float] = []
 var _landing := 0  # Drops still falling.
+var _spatula: Node3D = null  # Under what's carried (carry).
 
 
 func _begin() -> void:
@@ -40,10 +42,15 @@ func _begin() -> void:
 		_carrying.position = session.stack_top(target) + Vector3(0.0, carry_height, 0.0)
 	else:
 		_needed = session.pieces_on(from_surface).size()
+		if carry:
+			_spatula = session.make_spatula()
+			_spatula.position = session.surface(from_surface).position
 
 
 # Picking pieces up: looking at where they are. A new item: at the stack it goes on.
 func view_point() -> Vector3:
+	if carry:  # Between the griddle and the plate (nearer the plate, in front), to see both.
+		return session.surface(from_surface).position.lerp(session.surface(target).position, 0.65)
 	return session.stack_top(target) if _new_item() else session.surface(from_surface).position
 
 
@@ -51,6 +58,8 @@ func view_point() -> Vector3:
 func cursor_area() -> Rect2:
 	if view_distance <= 0.0:
 		return Rect2()
+	if carry:
+		return session.area_of(from_surface, 0.03).merge(session.area_of(target, 0.03))
 	return session.area_of(target if _new_item() else from_surface, 0.03)
 
 
@@ -66,8 +75,10 @@ func update(delta: float, input: CookInput) -> void:
 		var lift := maxf(session.stack_top(target).y, session.work_height) + carry_height
 		var goal := Vector3(spot.x, lift, spot.z)
 		_carrying.position = _carrying.position.lerp(goal, 1.0 - exp(-18.0 * delta))
-		if (input.just_pressed if _new_item() else input.just_released):
+		if (input.just_pressed if _new_item() or carry else input.just_released):
 			_drop(spot)
+			if _carrying != null:
+				return  # Not over the plate: still carrying it.
 	elif input.just_pressed and not _new_item():
 		var piece := _piece_at(spot)
 		if piece != null and auto_plate:
@@ -78,8 +89,21 @@ func update(delta: float, input: CookInput) -> void:
 			piece.surface = ""
 			session.play_sound("tick", piece.position)
 			session.wobble(piece, 0.1)
+	if _spatula != null:  # Under what's carried, or at the cursor.
+		var under := _carrying.position + Vector3(0.0, -0.004, 0.0) if _carrying != null else Vector3(spot.x, maxf(session.stack_top(target).y, session.work_height) + 0.004, spot.z)
+		_spatula.position = _spatula.position.lerp(under, 1.0 - exp(-22.0 * delta))
 	if _scores.size() >= _needed and _carrying == null and _landing == 0:
 		finish(average(_scores))
+
+
+# Carrying: the spatula shows where things are.
+func uses_cursor() -> bool:
+	return not carry
+
+
+func end() -> void:
+	if _spatula != null:
+		_spatula.queue_free()
 
 
 func ready_word(piece: CookPiece) -> String:
@@ -95,6 +119,12 @@ func _drop(spot: Vector3) -> void:
 	_carrying = null
 	var top := session.stack_top(target)
 	var on_target := session.surface(target).contains(spot)
+	if carry:
+		if not on_target:  # Keeps hold of it until it's over the plate.
+			_carrying = item
+			session.pop_text("Over the plate!", spot, 0)
+			return
+		spot = top  # Then it slides to the middle.
 	if not on_target and not _new_item():
 		# Not over the plate: back onto the griddle (where it was, if dropped off it).
 		var home := session.surface(from_surface)
