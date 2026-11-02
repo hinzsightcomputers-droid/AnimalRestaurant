@@ -74,5 +74,9 @@
 		"never_mind": "Never mind",
 		"nothing": "(The pantry's empty, and the kitchen's closed for orders. Try cooking something to go.)",
 		"to_go_name": "To go"
+	},
+	"_secrets": "Things a regular hides in the chair they sat in, when they say a line with \"hides\" (CustomerManager, Seat). Once it's hidden, a glint shows on that chair; a chef with free hands can look and find it, for the reward in money. prompt is what the chair says, found the message ({chef} fills in).",
+	"secrets": {
+		"lucky_coin": { "prompt": "Check the chair", "found": "{chef} found something wedged into the chair: Cheddar's lucky coin! (+$10)", "reward": 10 }
 	}
 }

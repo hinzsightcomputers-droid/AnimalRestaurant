@@ -94,6 +94,9 @@ var car_trips := 0
 # The restaurant day Cheddar last drove off after bringing everyone home: he
 # doesn't come back until the next day. Saved.
 var cheddar_left_on := ""
+# Something a regular hid in the restaurant (a line with "hides"): { item, seat
+# (the chair's node name), found }. Empty until they hide it. Saved.
+var hidden_secret: Dictionary = {}
 # Today's house visits: { date (the restaurant day), visited: [regular ids],
 # gift_points: { regular id: friendship from gifts today } }. A new day starts
 # it fresh (see Town.today). Saved.
@@ -333,6 +336,7 @@ func to_save_data() -> Dictionary:
 		"forage_today": forage_today,
 		"car_trips": car_trips,
 		"cheddar_left_on": cheddar_left_on,
+		"hidden_secret": hidden_secret,
 		"house_day": house_day,
 		"regulars": regular_memory,
 	}
@@ -383,6 +387,7 @@ func apply_save_data(data: Dictionary) -> void:
 			entry["by"][account_id] = int(entry["by"][account_id])
 	car_trips = int(data.get("car_trips", 0))
 	cheddar_left_on = String(data.get("cheddar_left_on", ""))
+	hidden_secret = data.get("hidden_secret", {}) if data.get("hidden_secret", {}) is Dictionary else {}
 	house_day = data.get("house_day", {}) if data.get("house_day", {}) is Dictionary else {}
 	var gift_points: Dictionary = house_day.get("gift_points", {}) if house_day.get("gift_points", {}) is Dictionary else {}
 	for regular_id in gift_points:

@@ -799,6 +799,9 @@ func _regular_orders(player: Player, customer: Customer) -> void:
 # name, and whether it made two regulars friends.
 func _after_line(customer: Customer, line: Dictionary, chef_id: String) -> void:
 	var record: Dictionary = GameState.regulars[customer.regular_id]
+	if line.has("hides") and GameState.hidden_secret.is_empty() and customer.seat != null:
+		# "I hid something in this restaurant": it's in their chair, to be found (Seat).
+		GameState.hidden_secret = { "item": line["hides"], "seat": String(customer.seat.name), "by": record["id"], "found": false }
 	if line.has("befriends") and Gossip.befriend(record["id"], line["befriends"]):
 		GameEvents.announce("%s and %s are friends now!" % [record["name"], GameState.regulars[line["befriends"]]["name"]])
 	if Conversation.apply_line(record, line, chef_id):

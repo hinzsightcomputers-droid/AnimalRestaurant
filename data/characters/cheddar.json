@@ -146,7 +146,7 @@
 		{ "event": "served", "priority": 220, "conditions": { "stage": 4, "served_quality_max": 0.4 }, "text": "Burnt, but made with love. I can taste the love. It tastes like smoke.", "emotion": "happy" },
 		{ "event": "served", "priority": 200, "conditions": { "stage": 4 }, "text": "[nickname], you did it again. You're like a food wizard. A fizzard. ...No. Not my best.", "emotion": "joyful" },
 		{ "event": "served", "priority": 200, "conditions": { "max_stage": -1 }, "text": "Wow. Food. Incredible.", "emotion": "neutral" },
-		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Wanna hear a secret? I hid something in this restaurant. Don't look. ...You're gonna look.", "emotion": "excited" },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "hides": "lucky_coin", "text": "Wanna hear a secret? I hid something in this restaurant. Don't look. ...You're gonna look.", "emotion": "excited" },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Rate my chewing. Out of ten. Be honest. Actually don't." },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "I have thirteen siblings. Thirteen. Dinner at my house was a contact sport." },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3 }, "text": "Mabel thinks I'm her grandson. I'm not. I don't correct her. ...Okay, I'm kind of her grandson now.", "emotion": "happy" },
