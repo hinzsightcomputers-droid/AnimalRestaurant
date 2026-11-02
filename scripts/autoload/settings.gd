@@ -40,6 +40,7 @@ func _ready() -> void:
 			AudioServer.set_bus_name(AudioServer.bus_count - 1, bus)
 			AudioServer.set_bus_send(AudioServer.bus_count - 1, "Master")
 	_apply_volumes()
+	MenuTheme.apply()
 	get_tree().node_added.connect(_on_node_added)
 	if not InputMap.has_action(OPEN_ACTION):
 		InputMap.add_action(OPEN_ACTION)
@@ -60,6 +61,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 # Sounds play on the SFX bus, unless they asked for another (Music's are on Music).
 func _on_node_added(node: Node) -> void:
+	MenuTheme.watch(node)
 	if node is AudioStreamPlayer or node is AudioStreamPlayer2D or node is AudioStreamPlayer3D:
 		if node.bus == &"Master":
 			node.bus = SFX_BUS
