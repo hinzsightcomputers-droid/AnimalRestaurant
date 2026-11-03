@@ -1,6 +1,6 @@
 # PhoneCalls: the rules of phone calls, with no UI. Picks who rings next and
 # builds what they say. A call is { kind, id }:
-#   "townsfolk": a caller from data/callers.json ordering their usual (mostly).
+#   "townsfolk": a townsfolk with a phone (data/townsfolk/) ordering their usual (mostly).
 #   "order":     a Withdrawn regular ordering instead of visiting, with a note
 #                choice at the end (the redemption hook, from their file's
 #                phone_greeting / phone_order / phone_note lines). Someone who
@@ -28,7 +28,7 @@ static func next_call(last_id := "", night := false) -> Dictionary:
 		var ids := GameState.regulars.keys().filter(func(id): return _calls_today(id, kind) and not id in waiting)
 		if not ids.is_empty() and randf() < chance:
 			return { "kind": kind, "id": ids.pick_random() }
-	var awake := GameData.callers.filter(func(c): return night or not c.get("night_only", false))
+	var awake := GameData.callers.filter(func(c): return (night or not c.get("night_only", false)) and Townsfolk.is_in_town(c["id"]))
 	var townsfolk := awake.filter(func(c): return c["id"] != last_id and not c["id"] in waiting)
 	if townsfolk.is_empty():
 		townsfolk = awake
@@ -85,7 +85,7 @@ static func _build_townsfolk(caller: Dictionary, voicemail: bool) -> Dictionary:
 	if caller.is_empty():
 		return result
 	var settings := GameData.phone_settings
-	var usual: Array = GameData.menu().filter(func(d): return d["id"] == caller["usual_order"])  # Only once it's on the menu.
+	var usual: Array = GameData.menu().filter(func(d): return d["id"] == caller.get("usual_order", ""))  # Only once it's on the menu.
 	var dish: Dictionary = usual[0] if not usual.is_empty() and randf() < settings.get("townsfolk_usual_order_chance", 0.75) else GameData.random_dish()
 	result["dish"] = dish
 	var context := {

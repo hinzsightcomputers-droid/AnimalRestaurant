@@ -44,6 +44,8 @@ var chef_actions_today: Dictionary = {}
 # always comes from their character file, so editing it still takes effect.
 # known_players and served_by use account ids (see Accounts).
 var regulars: Dictionary = {}
+# The named walk-ins: who's in town, who they've met (see Townsfolk).
+var townsfolk: Dictionary = {}
 # Regular ids the debug panel asked to visit next, in order. Not saved.
 var forced_visitors: Array[String] = []
 # Debug panel: the next regular who can asks "What do you recommend?" / "Surprise me". Not saved.
@@ -65,6 +67,7 @@ var forced_scene := ""
 var delivery_asked := false
 var phone_unlocked := false
 var phone_news := false  # The phone went up this morning: say so once the day starts. Not saved.
+var town_news: Array[String] = []  # Townsfolk who moved in or away this morning, said once the day starts. Not saved.
 # Tonight's night shift: how many calls it gets (picked when it starts) and how
 # many have rung so far. Saved, so a night picked up again doesn't start over.
 var night_calls_total := 0
@@ -166,6 +169,7 @@ func begin_day() -> void:
 	house_day = {}
 	cheddar_left_on = ""
 	ServiceStreak.reset()
+	town_news = Townsfolk.rotate(day_number)
 	replan_today()
 
 
@@ -372,6 +376,7 @@ func to_save_data() -> Dictionary:
 		"hidden_secret": hidden_secret,
 		"house_day": house_day,
 		"regulars": regular_memory,
+		"townsfolk": townsfolk,
 	}
 
 
@@ -401,6 +406,7 @@ func apply_save_data(data: Dictionary) -> void:
 	upgrades_changed.emit()
 	unlocks.assign(data.get("unlocks", []).map(func(id): return "walters_storm_soup" if id == "storm_soup" else id))  # Its old id.
 	delivery_asked = bool(data.get("delivery_asked", false))
+	townsfolk = data.get("townsfolk", {}) if data.get("townsfolk", {}) is Dictionary else {}
 	phone_unlocked = bool(data.get("phone_unlocked", false))  # Saves from before the phone had to be unlocked start without it.
 	night_calls_total = int(data.get("night_calls_total", 0))
 	guided = data.get("guided", [])

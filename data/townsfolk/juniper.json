@@ -1,0 +1,22 @@
+{
+	"id": "juniper",
+	"name": "Juniper",
+	"species": "cat",
+	"name_color": "#c46a1e",
+	"personality": "Sleepy night owl who yawns through every call.",
+	"resident": true,
+	"favorite_dish": "four_cheese_mac",
+	"favorite_drink": "",
+	"seating": "",
+	"lines": {},
+	"phone": {
+		"usual_order": "four_cheese_mac",
+		"night_only": true,
+		"lines": [
+			{ "part": "greeting", "text": "Mrrhello. It's Juniper. I just woke up. Is it dinner or breakfast?" },
+			{ "part": "greeting", "text": "Hi... sorry, I'm yawning. It's Juniper." },
+			{ "part": "order", "text": "Could I get the [dish]? The warm kind. All of it is the warm kind. Okay." },
+			{ "part": "chat", "text": "Is it raining where you are? It's raining on my windowsill.", "choices": [ { "tone": "warm", "text": "Stay cozy. The food will warm you up.", "reply": "Mm. That sounds nice." }, { "tone": "straight", "text": "Dry here so far.", "reply": "Lucky. Okay. Bye-bye." } ] }
+		]
+	}
+}

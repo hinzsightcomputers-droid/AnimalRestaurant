@@ -51,6 +51,8 @@ var seat: Seat = null         # Their chair, once a player seats them.
 var leader: Player = null     # The player leading them to a table.
 var display_name := ""        # "Mabel" for a regular who's told you their name, "Frog" for anyone else.
 var regular_id := ""          # Empty unless this is a regular (data/characters/).
+var townsfolk_id := ""        # A named walk-in (data/townsfolk/), else empty.
+var last_chef := ""           # The account of the chef who last dealt with them (for {chef} in townsfolk lines).
 var greeting_line := ""       # What a regular says at the host stand (empty = generic).
 var greeting_emotion := &""   # How they feel saying it.
 var greeting_introduces := false  # Their greeting tells you their name ("introduces" on the line).
@@ -99,6 +101,10 @@ func setup(species_data: Dictionary, dish_data: Dictionary, reserved_seat: Seat)
 
 func is_regular() -> bool:
 	return not regular_id.is_empty()
+
+
+func is_townsfolk() -> bool:
+	return not townsfolk_id.is_empty()
 
 
 func _ready() -> void:

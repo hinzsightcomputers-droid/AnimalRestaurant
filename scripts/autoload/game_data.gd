@@ -1,5 +1,5 @@
 # GameData (autoload): loads game content (dishes, species, reactions, regulars,
-# dialogue, upgrades, phone callers) from JSON files in res://data/. Each regular has their own
+# dialogue, upgrades, townsfolk) from JSON files in res://data/. Each regular has their own
 # file in res://data/characters/, so adding one only means adding a file. Other
 # scripts ask GameData for content instead of hard-coding it. This is the starting
 # content; what changes during play (like a regular's memory) lives in GameState.
@@ -17,7 +17,7 @@ const CHARACTERS_DIR := "res://data/characters"
 const DIALOGUE_PATH := "res://data/dialogue.json"
 const UPGRADES_PATH := "res://data/upgrades.json"
 const PHONE_PATH := "res://data/phone.json"
-const CALLERS_PATH := "res://data/callers.json"
+const TOWNSFOLK_DIR := "res://data/townsfolk"
 const GOSSIP_PATH := "res://data/gossip.json"
 const SCENES_PATH := "res://data/scenes.json"
 const DAY_PATH := "res://data/day.json"
@@ -76,8 +76,14 @@ var difficulty: Dictionary = {}
 var shop_arrivals: Dictionary = {}
 # Phone tuning: ring and gap timings, voicemail size, who calls, the courier.
 var phone_settings: Dictionary = {}
-# Townsfolk who phone in orders: { id, name, species, name_color, personality,
-# usual_order, lines: [{ part: greeting | order | chat, text, choices? }] }.
+# The named townsfolk who walk in and come and go, one file each in
+# data/townsfolk/ (see _template.json there and Townsfolk): { id, name, species,
+# model?, color?, name_color, personality, resident, favorite_dish,
+# favorite_drink, seating, lines: { <step>: [...], eating, seasonal }, phone? }.
+var townsfolk: Array[Dictionary] = []
+# Those of them who phone in orders (a "phone" block): { id, name, species,
+# name_color, personality, night_only, usual_order, lines: [{ part: greeting |
+# order | chat, text, choices? }] }.
 var callers: Array[Dictionary] = []
 # Big moment scenes: { id, name, regular, conditions, staging, done, steps } (see BigMoments).
 var scenes: Array[Dictionary] = []
@@ -125,7 +131,7 @@ func _ready() -> void:
 	shop_arrivals = _load_dictionary(UPGRADES_PATH).get("arrives", {})
 	difficulty = _load_dictionary(DIFFICULTY_PATH)
 	phone_settings = _load_dictionary(PHONE_PATH).get("settings", {})
-	callers = _load_list(CALLERS_PATH, "callers")
+	_load_townsfolk()
 	_load_gossip()
 	for line in dialogue:
 		_add_dish_condition(line)
@@ -319,6 +325,29 @@ func _load_characters() -> void:
 
 		for line in character.get("lines", []):
 			dialogue.append(_with_token_conditions(line, character["id"]))
+
+
+func _load_townsfolk() -> void:
+	var files := Array(DirAccess.get_files_at(TOWNSFOLK_DIR)).filter(func(f): return f.ends_with(".json") and not f.begins_with("_"))
+	files.sort()
+	for file_name in files:
+		var person := _load_dictionary("%s/%s" % [TOWNSFOLK_DIR, file_name])
+		if not person.has("id"):
+			push_error("%s needs an \"id\"" % file_name)
+			continue
+		townsfolk.append(person)
+		var phone: Dictionary = person.get("phone", {})
+		if not phone.is_empty():
+			var caller := { "id": person["id"], "name": person.get("name", "?"), "species": person.get("species", ""), "name_color": person.get("name_color", "#555555"), "personality": person.get("personality", "") }
+			caller.merge(phone)
+			callers.append(caller)
+
+
+func get_townsfolk(townsfolk_id: String) -> Dictionary:
+	for person in townsfolk:
+		if person["id"] == townsfolk_id:
+			return person
+	return {}
 
 
 # What regulars say about each other (data/gossip.json): each line is said by

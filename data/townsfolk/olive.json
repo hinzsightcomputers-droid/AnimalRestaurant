@@ -1,0 +1,21 @@
+{
+	"id": "olive",
+	"name": "Olive",
+	"species": "tortoise",
+	"name_color": "#5b7f3e",
+	"personality": "Slow talker who never forgets to say thank you.",
+	"resident": true,
+	"favorite_dish": "vegetable_soup",
+	"favorite_drink": "",
+	"seating": "",
+	"lines": {},
+	"phone": {
+		"usual_order": "vegetable_soup",
+		"lines": [
+			{ "part": "greeting", "text": "Hello... dear. It's Olive. Take your time. I always do." },
+			{ "part": "order", "text": "I would like... the [dish]. Please. ...Thank you." },
+			{ "part": "order", "text": "Just the [dish], if it's no trouble. No hurry. Truly." },
+			{ "part": "chat", "text": "Is that a new restaurant name I keep hearing? [restaurant]... how lovely.", "choices": [ { "tone": "warm", "text": "Thank you! We picked it ourselves.", "reply": "You picked well... dear." }, { "tone": "playful", "text": "Tell all your friends.", "reply": "I will... slowly." } ] }
+		]
+	}
+}

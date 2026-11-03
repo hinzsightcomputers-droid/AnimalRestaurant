@@ -224,7 +224,10 @@ func _try_spawn_customer() -> void:
 
 	var customer: Customer = CUSTOMER_SCENE.instantiate()
 	customer.plan_index = next["index"]
-	if regular.is_empty():
+	var person := Townsfolk.pick_walk_in() if regular.is_empty() else {}
+	if not person.is_empty():
+		_setup_townsfolk(customer, person)
+	elif regular.is_empty():
 		customer.setup(GameData.random_species(), GameData.random_dish(), null)
 	else:
 		_setup_regular(customer, regular)
@@ -240,7 +243,7 @@ func _try_spawn_customer() -> void:
 	_queue.append(customer)
 	var path: Array[Vector3] = [door_point.global_position, _on_front_lane(_queue_spot(0)), _queue_spot(_queue.size() - 1)]
 	customer.walk_to(path, Customer.State.WAITING_TO_BE_SEATED)
-	if customer.is_regular():
+	if customer.is_regular() or customer.is_townsfolk():
 		GameEvents.announce("%s the %s walked in." % [customer.display_name, customer.species.get("name", "?")])
 	else:
 		GameEvents.announce("A %s walked in." % customer.display_name)
@@ -287,6 +290,16 @@ func _setup_regular(customer: Customer, record: Dictionary) -> void:
 	customer.greeting_introduces = greeting.get("introduces", false)
 
 
+# A named walk-in: their species (in their own tint), name and favorites.
+func _setup_townsfolk(customer: Customer, person: Dictionary) -> void:
+	var species := GameData.get_species(person.get("species", "")).duplicate()
+	if person.has("color"):
+		species["color"] = person["color"]
+	customer.setup(species, Townsfolk.choose(person, "favorite_dish", GameData.menu(), GameData.random_dish()), null)
+	customer.townsfolk_id = person["id"]
+	customer.display_name = person.get("name", customer.display_name)
+
+
 # What to call a regular: their name once they've told you it, else their animal.
 func _known_name(record: Dictionary) -> String:
 	return record["name"] if record["introduced"] else GameData.get_species(record["species"]).get("name", "Customer")
@@ -319,9 +332,14 @@ func _pick_served_line(customer: Customer, chef_id: String) -> Dictionary:
 	return line
 
 
-# One of the townsfolk lines for a step of the visit (data/service.json), with
-# {drink} and such filled in.
-func _townsfolk_line(step: String, context: Dictionary = {}) -> String:
+# What a walk-in says at a step of the visit, with {drink} and such filled in:
+# a named one's own line (see Townsfolk) if they have one, else one of the
+# townsfolk lines (data/service.json).
+func _townsfolk_line(customer: Customer, step: String, context: Dictionary = {}) -> String:
+	if customer.is_townsfolk():
+		var own := Townsfolk.line(customer.townsfolk_id, step, context, customer.last_chef)
+		if not own.is_empty():
+			return own
 	var lines: Array = GameData.service.get("townsfolk", {}).get(step, [])
 	return String(lines.pick_random()).format(context) if not lines.is_empty() else ""
 
@@ -426,7 +444,8 @@ func _greet(player: Player, customer: Customer, lock_target: Interactable) -> vo
 	if customer.is_regular():
 		seating = await _regular_greets(player, customer, lock_target)
 	else:
-		customer.say(_townsfolk_line("host_stand"))
+		customer.last_chef = Accounts.id_of(player.player_index)
+		customer.say(_townsfolk_line(customer, "host_stand"))
 		await _hold_with_zoom(player, _at_counter(player, customer), order_chat_zoom, order_chat_seconds, lock_target, customer)
 	_busy.erase(customer)
 	_greeting.erase(player.player_index)
@@ -533,6 +552,7 @@ func _on_table_seat_requested(table: DiningTable, player_index: int) -> void:
 		return
 	_leading.erase(player_index)
 	_seat_owners[seat] = customer
+	customer.last_chef = Accounts.id_of(player_index)
 	customer.sit_at(seat)
 	_on_seated(customer, table)
 
@@ -571,7 +591,7 @@ func _on_seated(customer: Customer, table: DiningTable) -> void:
 		if not customer.seat_note.is_empty():
 			GameEvents.announce(customer.seat_note)
 	else:
-		customer.say(_townsfolk_line("seated"))
+		customer.say(_townsfolk_line(customer, "seated"))
 	GameEvents.announce("%s sat down. Take their drink order!" % _who(customer).capitalize())
 
 
@@ -593,7 +613,8 @@ func _take_drink_order(player: Player, customer: Customer) -> void:
 	if customer.is_regular():
 		drink = await _regular_orders_drink(player, customer, drink)
 	else:
-		await _talk(player, customer, _townsfolk_line("drink_order", { "drink": drink.get("name", "drink") }), &"")
+		customer.last_chef = Accounts.id_of(player.player_index)
+		await _talk(player, customer, _townsfolk_line(customer, "drink_order", { "drink": drink.get("name", "drink") }), &"")
 	_busy.erase(customer)
 	if not is_instance_valid(customer) or customer.state != Customer.State.WAITING_DRINK_ORDER:
 		return  # Sent home meanwhile.
@@ -679,6 +700,8 @@ func _favorite_drink_of(record: Dictionary) -> String:
 # What they'll drink: a regular has their favorite most of the time, else
 # something else they can have; townsfolk anything unlocked.
 func _choose_drink(customer: Customer) -> Dictionary:
+	if customer.is_townsfolk():
+		return Townsfolk.choose(GameData.get_townsfolk(customer.townsfolk_id), "favorite_drink", GameData.drink_menu(), GameData.random_drink())
 	if not customer.is_regular():
 		return GameData.random_drink()
 	var favorite := _favorite_drink_of(GameState.regulars[customer.regular_id])
@@ -723,7 +746,8 @@ func _give_drink(player: Player, customer: Customer, item: Drink) -> void:
 		if Conversation.emotion_of(line) == &"":
 			customer.emote(&"happy" if right else &"neutral")
 	else:
-		customer.say(_townsfolk_line("drink_served" if right else "wrong_drink"))
+		customer.last_chef = Accounts.id_of(player.player_index)
+		customer.say(_townsfolk_line(customer, "drink_served" if right else "wrong_drink"))
 		customer.emote(&"happy" if right else &"neutral")
 	_busy.erase(customer)
 
@@ -765,7 +789,8 @@ func _take_food_order(player: Player, customer: Customer) -> void:
 	GameEvents.announce("%s took an order: %s wants %s." % [
 		Accounts.name_of(player.player_index), customer.display_name, customer.dish.get("name", "?")])
 	if not customer.is_regular():
-		await _talk(player, customer, _townsfolk_line("food_order", { "dish": customer.dish.get("name", "special") }), &"")
+		customer.last_chef = Accounts.id_of(player.player_index)
+		await _talk(player, customer, _townsfolk_line(customer, "food_order", { "dish": customer.dish.get("name", "special") }), &"")
 	await TicketPopup.write(view_manager, player, order)
 	_busy.erase(customer)
 
@@ -1053,7 +1078,10 @@ func _serve(player: Player, customer: Customer) -> void:
 	if not customer.is_regular():
 		var quality := customer.served_quality
 		var tier := "served_" + CookingMinigame.quality_label(quality).to_lower()  # How it looks to them.
-		var said := _townsfolk_line(tier if GameData.service.get("townsfolk", {}).has(tier) else "served", { "dish": plate.dish_name() })
+		customer.last_chef = customer.served_by_account
+		var said := _townsfolk_line(customer, tier, { "dish": plate.dish_name() })
+		if said.is_empty():
+			said = _townsfolk_line(customer, "served", { "dish": plate.dish_name() })
 		await _talk(player, customer, said,
 			&"joyful" if quality >= 0.85 else (&"happy" if quality >= 0.5 else &"sad"), serve_zoom)
 		return
@@ -1245,7 +1273,7 @@ func _on_customer_finished_eating(customer: Customer) -> void:
 	if customer.is_regular():
 		line = RegularMemory.say(GameState.regulars[customer.regular_id], "bill", _visit_context(customer, customer.served_by_account))
 	if line.is_empty():
-		line = _townsfolk_line("bill")
+		line = _townsfolk_line(customer, "bill")
 	customer.say(line)
 	GameEvents.announce("%s would like the bill." % _who(customer).capitalize())
 
@@ -1272,7 +1300,12 @@ func _settle_bill(player: Player, customer: Customer) -> void:
 		var goodbye := _remember_visit(customer, reaction.get("id", ""))
 		line = goodbye["text"]
 		feeling = goodbye["emotion"]
-	elif _asks_about_delivery():
+	elif customer.is_townsfolk():
+		customer.last_chef = Accounts.id_of(player.player_index)
+		var farewell := Townsfolk.line(customer.townsfolk_id, "farewell", {}, customer.last_chef)
+		line = farewell if not farewell.is_empty() else line
+		Townsfolk.record_visit(customer.townsfolk_id, customer.served_by_account)  # They know who served them now.
+	if not customer.is_regular() and _asks_about_delivery():
 		asks_delivery = true
 		GameState.delivery_asked = true
 		SaveGame.save_game()
@@ -1403,7 +1436,7 @@ func _remember_visit(customer: Customer, reaction_id: String) -> Dictionary:
 
 # "Mabel" for a regular, "the Frog" for anyone else.
 func _who(customer: Customer) -> String:
-	var named: bool = customer.is_regular() and GameState.regulars[customer.regular_id]["introduced"]
+	var named: bool = customer.is_townsfolk() or (customer.is_regular() and GameState.regulars[customer.regular_id]["introduced"])
 	return customer.display_name if named else "the %s" % customer.display_name
 
 

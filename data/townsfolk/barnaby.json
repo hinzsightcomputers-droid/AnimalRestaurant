@@ -1,0 +1,22 @@
+{
+	"id": "barnaby",
+	"name": "Barnaby",
+	"species": "bear",
+	"name_color": "#7a4a2a",
+	"personality": "Big, polite, and always ordering for his whole family.",
+	"resident": true,
+	"favorite_dish": "honey_pancakes",
+	"favorite_drink": "",
+	"seating": "",
+	"lines": {},
+	"phone": {
+		"usual_order": "honey_pancakes",
+		"lines": [
+			{ "part": "greeting", "text": "Good evening! Barnaby speaking. Sorry about the noise, the cubs are excited." },
+			{ "part": "greeting", "text": "Hello, hello! Barnaby here, from the big house up the hill." },
+			{ "part": "order", "text": "We'd love the [dish], please. Extra napkins. Lots of extra napkins." },
+			{ "part": "order", "text": "The [dish], please. It's for sharing. Well. It's meant to be for sharing." },
+			{ "part": "chat", "text": "The little one wants to know if the chef has a hat.", "choices": [ { "tone": "playful", "text": "A very tall one.", "reply": "She just gasped. You're her hero now." }, { "tone": "straight", "text": "Not yet, but I'm saving up.", "reply": "Ha! She says to get a red one." } ] }
+		]
+	}
+}

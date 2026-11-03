@@ -24,6 +24,15 @@
 		"bill": ["Could I get the check?", "I'm all done. The bill, please!", "Check, please!"],
 		"get_going": ["I should get going soon..."]
 	},
+	"_semi_regulars": "Named townsfolk (data/townsfolk/, see Townsfolk): who walks in is one of those in town (with a model, not inside already, not been yet today), else an unnamed walk-in. in_town: how many non-residents live here at once; stay_days and away_days: [min, max] days one stays before moving away, and is away before they can come back. favorite_chance: how often they order their favorite dish or drink when it can be had. moved_in and moved_away are the morning news ({name}).",
+	"semi_regulars": {
+		"in_town": 12,
+		"stay_days": [14, 35],
+		"away_days": [14, 40],
+		"favorite_chance": 0.5,
+		"moved_in": "{name} just moved to town.",
+		"moved_away": "{name} moved away. Bye, {name}!"
+	},
 	"regular_get_going": "I should get going soon. Just finishing up.",
 	"_guide": "The Guide's arrow for new chefs: one per player, pointing the walking way to their next step, with a line at the bottom of their view (hints, by step; {name}, {verb}, {station} and {dish} are filled in). Shown to a new chef (until they've finished their first customer, or worked a shift), or to everyone with the Guide arrow setting. A new chef's first customer is followed through the whole visit (the wait_ hints show, with no arrow, while there's nothing to do for them), then a box in their view says lesson_done_title and lesson_done, with a chime, until they press on, and the arrow's gone for them from then on.",
 	"guide": {

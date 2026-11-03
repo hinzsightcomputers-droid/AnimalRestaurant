@@ -1,0 +1,22 @@
+{
+	"id": "nibs",
+	"name": "Nibs",
+	"species": "mouse",
+	"name_color": "#6f6d78",
+	"personality": "Nervous first-timer who over-explains everything.",
+	"resident": true,
+	"favorite_dish": "big_breakfast",
+	"favorite_drink": "",
+	"seating": "",
+	"lines": {},
+	"phone": {
+		"usual_order": "big_breakfast",
+		"lines": [
+			{ "part": "greeting", "text": "Oh! Someone answered. Hi. I'm Nibs. I've never ordered on the phone before." },
+			{ "part": "greeting", "text": "Hello, is this [restaurant]? It is? Okay. Good. I practiced this." },
+			{ "part": "order", "text": "Could I please have the [dish]? Just one. Unless that's too many. It's not too many, right?" },
+			{ "part": "order", "text": "I'd like the [dish], please. I wrote it down so I wouldn't forget. I still almost forgot." },
+			{ "part": "chat", "text": "Do I... tip the delivery duck? How much do ducks get?", "choices": [ { "tone": "warm", "text": "A thank-you is plenty.", "reply": "Oh, phew. I can do a thank-you." }, { "tone": "playful", "text": "One shiny pebble.", "reply": "I have SO many pebbles!" } ] }
+		]
+	}
+}

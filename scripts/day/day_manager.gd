@@ -55,6 +55,9 @@ func _ready() -> void:
 	if GameState.phone_news:
 		GameState.phone_news = false
 		get_tree().create_timer(2.0, false).timeout.connect(func(): GameEvents.announce(String(GameData.service.get("phone_installed", "There's a phone on the wall now."))))
+	for i in GameState.town_news.size():  # Who moved in or away.
+		get_tree().create_timer(3.5 + i * 2.5, false).timeout.connect(GameEvents.announce.bind(GameState.town_news[i]))
+	GameState.town_news.clear()
 	match DayCycle.phase:
 		DayCycle.Phase.SUMMARY, DayCycle.Phase.AFTER_HOURS:
 			DayCycle.phase = DayCycle.Phase.AFTER_HOURS  # A summary left open: it's at the host stand.

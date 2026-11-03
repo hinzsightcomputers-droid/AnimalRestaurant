@@ -1,0 +1,48 @@
+{
+	"_about": "A copy-me file for a new townsfolk (a named walk-in who comes and goes; see Townsfolk). Copy it to <id>.json (files starting with _ are skipped), fill it in, and delete the _ notes you don't need. Anything left empty falls back to the generic lines in data/service.json \"townsfolk\".",
+
+	"id": "rosie",
+	"name": "Rosie",
+	"_species": "One of data/species.json. Only townsfolk with a model walk in: their own \"model\", or their species' (songbird, rabbit, cow, deer, pig, terrier, wolf have one). Without either they can still phone in.",
+	"species": "rabbit",
+	"_model": "Optional: their own look, like a regular's: { \"path\": \"res://design/characters/...glb\", \"height\": 1.0 }. Leave it out to use their species' model.",
+	"_color": "Optional: their own tint for the placeholder body, e.g. \"#e9c4d4\".",
+	"name_color": "#c4607a",
+	"personality": "One line to write their lines from.",
+	"_resident": "true: lives here for good (never moves away). Leave it false and they come and go: in town for a few weeks, then away a while (data/service.json \"semi_regulars\").",
+	"resident": false,
+	"_favorites": "Dish and drink ids (design/menu/). They order these most of the time once they're on the menu.",
+	"favorite_dish": "",
+	"favorite_drink": "",
+	"_seating": "Not used yet (seating types are still to come). E.g. \"window\", \"booth\", \"bar\".",
+	"seating": "",
+
+	"_lines": "Lists of lines for each step of a visit, one picked at random. {dish} and {drink} fill in; {chef} is the name of the chef they're talking to, and a line with {chef} is only said once they've met that chef (been served by them before). Steps: host_stand, seated, drink_order, drink_served, wrong_drink, food_order, served (or served_perfect / served_great / served_okay / served_burnt), bill, farewell (as they pay). \"eating\" is one bubble per tier: { \"perfect\": ..., \"great\": ..., \"okay\": ..., \"burnt\": ... }. \"seasonal\" has the same steps for \"spring\", \"summer\", \"autumn\" or \"winter\": in that season they're said instead, half the time.",
+	"lines": {
+		"host_stand": ["Hi! Table for one?"],
+		"seated": [],
+		"drink_order": ["A {drink}, please!"],
+		"drink_served": [],
+		"wrong_drink": [],
+		"food_order": ["The {dish}, please!"],
+		"served": [],
+		"served_perfect": ["{chef}, you've outdone yourself!"],
+		"served_burnt": [],
+		"bill": [],
+		"farewell": ["See you soon!"],
+		"eating": { "perfect": "Mmm!" },
+		"seasonal": {
+			"winter": { "host_stand": ["Brr! Something warm, please."] }
+		}
+	},
+
+	"_phone": "Optional: they also phone in delivery orders (see PhoneCalls). usual_order is a dish id; night_only callers only ring at night. Lines are { part: greeting | order | chat, text, choices? } with [dish] filled in; a chat line's choices are { tone, text, reply }.",
+	"phone": {
+		"usual_order": "",
+		"night_only": false,
+		"lines": [
+			{ "part": "greeting", "text": "Hi! It's Rosie." },
+			{ "part": "order", "text": "Could I get the [dish] delivered?" }
+		]
+	}
+}

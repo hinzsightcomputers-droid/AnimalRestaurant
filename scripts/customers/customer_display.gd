@@ -92,7 +92,8 @@ func _on_state_changed(_customer: Customer) -> void:
 			bubble.text = "%s, please!" % dish_name
 		Customer.State.EATING:
 			var tier := CookingMinigame.quality_label(customer.served_quality).to_lower()
-			bubble.text = String(GameData.service.get("townsfolk", {}).get("eating", {}).get(tier, "Nom nom..."))
+			var own := Townsfolk.eating_line(customer.townsfolk_id, tier) if customer.is_townsfolk() else ""
+			bubble.text = own if not own.is_empty() else String(GameData.service.get("townsfolk", {}).get("eating", {}).get(tier, "Nom nom..."))
 			if _aura == null:
 				_start_aura(tier)
 				_react_mid_meal(tier)
@@ -212,10 +213,13 @@ func _on_speech_timer_timeout() -> void:
 		_on_state_changed(customer)
 
 
-# Regulars wear a name tag showing how well they know you, e.g. "Stitches - Nervous".
+# Regulars wear a name tag showing how well they know you, e.g. "Stitches - Nervous";
+# named townsfolk just their name.
 func _update_name_tag() -> void:
-	name_tag.visible = customer.is_regular() and customer.state != Customer.State.GONE
-	if customer.is_regular():
+	name_tag.visible = (customer.is_regular() or customer.is_townsfolk()) and customer.state != Customer.State.GONE
+	if customer.is_townsfolk():
+		name_tag.text = customer.display_name
+	elif customer.is_regular():
 		var record: Dictionary = GameState.regulars[customer.regular_id]
 		name_tag.text = "%s - %s" % [customer.display_name, RegularMemory.stage_name(record)]
 
@@ -254,10 +258,13 @@ func _load_model() -> void:
 	HeadTurn.attach(_model)  # Looks at a chef nearby.
 
 
-# { path, height }: the regular's own model, or one of their species'.
+# { path, height }: the regular's (or named townsfolk's) own model, or one of their species'.
 func _model_settings() -> Dictionary:
 	if customer.is_regular():
 		return GameState.regulars[customer.regular_id].get("model", {})
+	var own: Dictionary = GameData.get_townsfolk(customer.townsfolk_id).get("model", {}) if customer.is_townsfolk() else {}
+	if not own.is_empty():
+		return own
 	var models: Array = customer.species.get("models", [])
 	if models.is_empty():
 		return {}
