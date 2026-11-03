@@ -91,6 +91,10 @@ func _process(delta: float) -> void:
 		if current.done:
 			current.end()
 			_next_step()
+		elif current.to_background:  # Leaves something going (a tray in the oven) and lets the next step start.
+			current.to_background = false
+			_background.append(current)
+			_next_step()
 	_cursor.visible = current != null and current.uses_cursor()
 	if _cursor.visible:
 		var dot := current.cursor_dot()
@@ -122,6 +126,8 @@ func _next_step() -> void:
 			var middle := area.get_center()
 			input.cursor = Vector3(middle.x, input.height, middle.y)
 		_frame_step(action)
+		if not action.cue.is_empty():
+			pop_text(action.cue, action.view_point(), 1)
 		return
 	_finish()
 
@@ -187,7 +193,7 @@ func snapshot(surface_name: String) -> Array:
 	var origin := plate.global_transform.affine_inverse()
 	for node in find_children("*", "MeshInstance3D", true, false):
 		var mesh_instance := node as MeshInstance3D
-		if mesh_instance == _cursor or not mesh_instance.is_visible_in_tree() or mesh_instance.get_parent() is CookSurface:
+		if mesh_instance == _cursor or not mesh_instance.is_visible_in_tree() or mesh_instance.get_parent() is CookSurface or mesh_instance.transparency >= 1.0:
 			continue
 		var placed := origin * mesh_instance.global_transform
 		if Vector2(placed.origin.x, placed.origin.z).length() > plate.radius() * 1.3 or placed.origin.y < -0.03:
@@ -441,6 +447,231 @@ func make_spatula() -> Node3D:
 	spatula.add_child(handle)
 	add_child(spatula)
 	return spatula
+
+
+# --- Cut pieces ----------------------------------------------------------------
+# The pieces CutAction cuts (the context's "cookies") are flat discs of dough
+# (a CylinderMesh each), which the later steps put things on and the oven
+# browns. A piece can be given another look (dress): it goes see-through and
+# the look, sharing its material so it browns the same, shows instead. Its
+# footprint ("half": half its size across, x and z) and height ("top": of its
+# top above its middle) are kept as metadata for the steps that need them.
+
+func dress(cookie: MeshInstance3D, look: Node3D, half := Vector2.ZERO, top := -1.0) -> void:
+	for child in cookie.get_children():
+		if child.has_meta("look"):
+			child.queue_free()
+	look.set_meta("look", true)
+	cookie.add_child(look)
+	cookie.transparency = 1.0
+	var material := (cookie.mesh as CylinderMesh).material as StandardMaterial3D
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED  # Shapes made by hand (prism) show either way round.
+	var meshes := look.find_children("*", "MeshInstance3D", true, false)
+	if look is MeshInstance3D:
+		meshes.append(look)
+	for node: MeshInstance3D in meshes:
+		if node.material_override == null and not node.has_meta("own_material"):
+			node.material_override = material
+	if half != Vector2.ZERO:
+		cookie.set_meta("half", half)
+	if top >= 0.0:
+		cookie.set_meta("top", top)
+
+
+# Half a piece's size across (x, z).
+static func half_of(cookie: MeshInstance3D) -> Vector2:
+	var radius := (cookie.mesh as CylinderMesh).top_radius
+	return cookie.get_meta("half", Vector2(radius, radius))
+
+
+# How far a piece's top is above its middle.
+static func top_of(cookie: MeshInstance3D) -> float:
+	return cookie.get_meta("top", (cookie.mesh as CylinderMesh).height * 0.5)
+
+
+# Whether a point (x, z) is on a piece, going by its footprint (round ones by their circle).
+static func on_piece(cookie: MeshInstance3D, point: Vector2) -> bool:
+	var half := half_of(cookie)
+	var offset := point - Vector2(cookie.position.x, cookie.position.z)
+	if not cookie.has_meta("half"):
+		return offset.length() <= half.x
+	return absf(offset.x) <= half.x and absf(offset.y) <= half.y
+
+
+# A flat shape `height` tall, standing on y = 0, from its outline (x, z),
+# which must be convex (seen either side: give it a two-sided material).
+static func prism(outline: PackedVector2Array, height: float) -> ArrayMesh:
+	var tool := SurfaceTool.new()
+	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var count := outline.size()
+	var middle := Vector2.ZERO
+	for point in outline:
+		middle += point
+	middle /= count
+	for i in count:
+		var a := outline[i]
+		var b := outline[(i + 1) % count]
+		tool.set_normal(Vector3.UP)
+		for p in [middle, b, a]:
+			tool.add_vertex(Vector3(p.x, height, p.y))
+		tool.set_normal(Vector3.DOWN)
+		for p in [middle, a, b]:
+			tool.add_vertex(Vector3(p.x, 0.0, p.y))
+		var side := (b - a).orthogonal().normalized() * -1.0
+		tool.set_normal(Vector3(side.x, 0.0, side.y))
+		for corner in [Vector3(a.x, 0.0, a.y), Vector3(b.x, height, b.y), Vector3(b.x, 0.0, b.y), Vector3(a.x, 0.0, a.y), Vector3(a.x, height, a.y), Vector3(b.x, height, b.y)]:
+			tool.add_vertex(corner)
+	return tool.commit()
+
+
+# A row of balls along points (session or local), `radius` each (or tapering
+# from radii[0] at the ends to radii[1] in the middle): a rope of dough.
+static func rope(points: Array, radii: Vector2) -> Node3D:
+	var rope_node := Node3D.new()
+	var count := points.size()
+	for i in count:
+		var t := float(i) / maxf(count - 1, 1)
+		var radius := lerpf(radii.x, radii.y, sin(t * PI))
+		var ball := MeshInstance3D.new()
+		var mesh := SphereMesh.new()
+		mesh.radius = radius
+		mesh.height = radius * 2.0
+		mesh.radial_segments = 10
+		mesh.rings = 5
+		ball.mesh = mesh
+		ball.position = points[i]
+		rope_node.add_child(ball)
+	return rope_node
+
+
+# --- Meters and tools ---------------------------------------------------------
+
+# A flat bar lying at `at` (or standing up, facing the camera), its good part
+# marked in green: returns its fill bar (a child; use set_meter to fill it).
+func make_meter(at: Vector3, length: float, band: Vector2, fill_color: Color, standing := false) -> MeshInstance3D:
+	var meter := Node3D.new()
+	meter.position = at
+	if standing:
+		meter.rotation.x = PI * 0.5
+	add_child(meter)
+	var parts := [
+		[Vector3(length, 0.002, 0.04), 0.0, Color(0.2, 0.15, 0.1, 0.75), 0.0],
+		[Vector3((band.y - band.x) * length, 0.003, 0.048), ((band.x + band.y) * 0.5 - 0.5) * length, Color(0.4, 0.95, 0.45, 0.65), 0.002],
+		[Vector3(length, 0.004, 0.026), 0.0, fill_color, 0.004],
+	]
+	var fill: MeshInstance3D = null
+	for part in parts:
+		var mesh := BoxMesh.new()
+		mesh.size = part[0]
+		var material := _flat_material(part[2])
+		material.render_priority = roundi(part[3] * 1000.0)
+		mesh.material = material
+		var bar := MeshInstance3D.new()
+		bar.mesh = mesh
+		bar.position = Vector3(part[1], part[3], 0.0)
+		meter.add_child(bar)
+		fill = bar
+	fill.set_meta("length", length)
+	set_meter(fill, 0.0)
+	return fill
+
+
+func set_meter(fill: MeshInstance3D, amount: float) -> void:
+	var length: float = fill.get_meta("length")
+	amount = clampf(amount, 0.0, 1.0)
+	fill.scale.x = maxf(amount, 0.001)
+	fill.position.x = (amount - 1.0) * length * 0.5
+
+
+# A jug, its origin at the spout's tip (the body behind it, +x), tipping
+# forward (rotation.z) to pour.
+func make_jug(liquid: Color) -> Node3D:
+	var jug := Node3D.new()
+	var glass := StandardMaterial3D.new()
+	glass.albedo_color = Color(0.9, 0.95, 1.0, 0.45)
+	glass.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	var body := MeshInstance3D.new()
+	var body_mesh := CylinderMesh.new()
+	body_mesh.top_radius = 0.035
+	body_mesh.bottom_radius = 0.04
+	body_mesh.height = 0.1
+	body_mesh.material = glass
+	body.mesh = body_mesh
+	body.position = Vector3(0.04, 0.0, 0.0)
+	jug.add_child(body)
+	var inside := MeshInstance3D.new()
+	var inside_mesh := CylinderMesh.new()
+	inside_mesh.top_radius = 0.031
+	inside_mesh.bottom_radius = 0.036
+	inside_mesh.height = 0.06
+	var filling := StandardMaterial3D.new()
+	filling.albedo_color = liquid
+	inside_mesh.material = filling
+	inside.mesh = inside_mesh
+	inside.position = Vector3(0.04, -0.018, 0.0)
+	jug.add_child(inside)
+	var spout := MeshInstance3D.new()
+	var spout_mesh := CylinderMesh.new()
+	spout_mesh.top_radius = 0.006
+	spout_mesh.bottom_radius = 0.014
+	spout_mesh.height = 0.04
+	spout_mesh.material = glass
+	spout.mesh = spout_mesh
+	spout.position = Vector3(0.0, 0.04, 0.0)
+	spout.rotation.z = deg_to_rad(50.0)
+	jug.add_child(spout)
+	add_child(jug)
+	return jug
+
+
+# A pastry brush, its origin at the bristles' tip, the handle up and back.
+func make_brush() -> Node3D:
+	var brush := Node3D.new()
+	var bristles := MeshInstance3D.new()
+	var bristle_mesh := BoxMesh.new()
+	bristle_mesh.size = Vector3(0.035, 0.03, 0.01)
+	var hair := StandardMaterial3D.new()
+	hair.albedo_color = Color(0.95, 0.85, 0.55)
+	bristle_mesh.material = hair
+	bristles.mesh = bristle_mesh
+	bristles.position.y = 0.015
+	brush.add_child(bristles)
+	var handle := MeshInstance3D.new()
+	var handle_mesh := CylinderMesh.new()
+	handle_mesh.top_radius = 0.007
+	handle_mesh.bottom_radius = 0.009
+	handle_mesh.height = 0.12
+	var wood := StandardMaterial3D.new()
+	wood.albedo_color = Color(0.6, 0.38, 0.2)
+	handle_mesh.material = wood
+	handle.mesh = handle_mesh
+	handle.position = Vector3(0.0, 0.09, 0.0)
+	brush.add_child(handle)
+	brush.rotation.x = deg_to_rad(25.0)  # Leaning back toward the cook.
+	add_child(brush)
+	return brush
+
+
+# Kitchen tongs, their tips at the origin, pointing down; `opened` 0 to 1.
+func make_tongs() -> Node3D:
+	var tongs := Node3D.new()
+	var metal := StandardMaterial3D.new()
+	metal.albedo_color = Color(0.82, 0.84, 0.87)
+	metal.metallic = 0.7
+	metal.roughness = 0.3
+	for side in [-1.0, 1.0]:
+		var arm := MeshInstance3D.new()
+		var mesh := BoxMesh.new()
+		mesh.size = Vector3(0.008, 0.16, 0.012)
+		mesh.material = metal
+		arm.mesh = mesh
+		arm.position = Vector3(side * 0.02, 0.08, 0.0)
+		arm.rotation.z = side * 0.18
+		arm.name = "Left" if side < 0.0 else "Right"
+		tongs.add_child(arm)
+	tongs.rotation.x = deg_to_rad(20.0)
+	add_child(tongs)
+	return tongs
 
 
 # A flat ring on the surface, e.g. to show how big a pour should be.

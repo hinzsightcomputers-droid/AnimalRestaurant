@@ -1,0 +1,47 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/cooking/cook_session.gd" id="1_session"]
+[ext_resource type="Script" path="res://scripts/cooking/cook_surface.gd" id="2_surface"]
+[ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="3_fit"]
+[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/stove_single_countertop.gltf" id="4_burner"]
+[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/pot_B.gltf" id="5_pan"]
+
+[node name="PretzelCloseup" type="Node3D"]
+script = ExtResource("1_session")
+bounds = Rect2(-0.85, -0.3, 1.7, 0.6)
+work_height = 0.02
+
+[node name="Counter" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0, 0)
+script = ExtResource("2_surface")
+size = Vector2(0.7, 0.5)
+hidden = true
+
+[node name="Tray" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0.012, -0.02)
+script = ExtResource("2_surface")
+size = Vector2(0.42, 0.3)
+thickness = 0.012
+color = Color(0.42, 0.44, 0.48, 1)
+
+[node name="Saucepan" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0.07, 0.02)
+script = ExtResource("2_surface")
+size = Vector2(0.17, 0.17)
+round = true
+hidden = true
+slides_in = true
+depth = 0.06
+color = Color(0.98, 0.9, 0.55, 1)
+
+[node name="Burner" type="Node3D" parent="Saucepan"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.07, 0)
+script = ExtResource("3_fit")
+model = ExtResource("4_burner")
+size = Vector3(0.3, 0, 0)
+
+[node name="Pan" type="Node3D" parent="Saucepan"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.02, 0)
+script = ExtResource("3_fit")
+model = ExtResource("5_pan")
+size = Vector3(0.24, 0, 0)

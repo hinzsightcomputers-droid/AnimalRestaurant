@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/roll_action.gd" id="roll"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/cut_action.gd" id="cut"]
-[ext_resource type="Script" path="res://scripts/cooking/actions/top_action.gd" id="top"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/fill_action.gd" id="fill"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/bake_action.gd" id="bake"]
 [ext_resource type="PackedScene" path="res://scenes/cooking/cookie_closeup.tscn" id="scene"]
 
@@ -21,16 +21,15 @@ cookies = 6
 piece_name = "Tart cases"
 
 [sub_resource type="Resource" id="Resource_2"]
-script = ExtResource("top")
-title = "Pour the custard"
-hint = "Press [button] to fill each one right in the middle."
-topping = "Filled"
-on_name = "tart"
-acorn_shape = false
-nut_radius = 0.03
-nut_color = Color(0.98, 0.82, 0.3, 1)
-perfect_offset = 0.008
-worst_offset = 0.03
+script = ExtResource("fill")
+title = "Fill with custard"
+cue = "Fill!"
+hint = "Hold [button] to pour the custard and let go at the white line. Too much and it spills over!"
+liquid_name = "Custard"
+liquid_color = Color(0.98, 0.82, 0.3, 1)
+line = 0.8
+view_distance = 0.45
+view_pitch = 50
 weight = 0.8
 
 [sub_resource type="Resource" id="Resource_3"]

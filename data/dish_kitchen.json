@@ -1,5 +1,5 @@
 {
-	"_about": "How each dish in design/menu/dishes.json looks and is cooked, by dish id. GameData merges these in. model: the finished dish (served on a plate, or this model if no recipe says otherwise); dirty_model: what's left on the table (a plate if unset); recipe: a close-up in data/recipes/ (without one it's the stirring minigame at the stove; data/recipes/<dish id>.tres for most); station: 'stove' (default) or 'oven'; cook_speed: how fast the stirring marker moves (1.0 normal); ingredient: what's carried from the freezer ({ name, color, model?, chop? }, a plain crate without a model); uses: what it takes from the pantry when ordered (e.g. { 'fish': 1 }; see Pantry), and it's only on the menu while the pantry has it. Dishes not listed here get the stirring minigame and a plain crate. Most models are stand-ins from the asset packs.",
+	"_about": "How each dish in design/menu/dishes.json looks and is cooked, by dish id. GameData merges these in. model: the finished dish (served on a plate, or this model if no recipe says otherwise); dirty_model: what's left on the table (a plate if unset); recipe: a close-up in data/recipes/ (without one it's the stirring minigame at the stove; data/recipes/<dish id>.tres for most); station: 'stove' (default), 'oven' or 'microwave'; cook_speed: how fast the stirring marker moves (1.0 normal); ingredient: what's carried from the freezer ({ name, color, model?, chop? }, a plain crate without a model); uses: what it takes from the pantry when ordered (e.g. { 'fish': 1 }; see Pantry), and it's only on the menu while the pantry has it. Dishes not listed here get the stirring minigame and a plain crate. Most models are stand-ins from the asset packs.",
 	"dishes": {
 		"honey_pancakes": { "model": "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/Pancakes_Stack.fbx", "recipe": "pancakes", "cook_speed": 1.2,
 			"ingredient": { "name": "Pancake Batter", "color": "#e8c46a", "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/crate_dough.gltf" } },
@@ -24,8 +24,8 @@
 			"ingredient": { "name": "Noodles & Chili Oil", "color": "#d6402a" } },
 		"hotteok": { "recipe": "hotteok", "model": "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/Pancake.fbx", "cook_speed": 1.1,
 			"ingredient": { "name": "Hotteok Dough", "color": "#9c6233", "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/crate_dough.gltf" } },
-		"mochi": { "recipe": "mochi", "station": "oven", "model": "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/Donut3.fbx", "cook_speed": 1.0,
-			"ingredient": { "name": "Mochi Dough", "color": "#f4d4e0" } },
+		"mochi": { "recipe": "mochi", "station": "microwave", "model": "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/Donut3.fbx", "cook_speed": 1.0,
+			"ingredient": { "name": "Mochiko & Sugar", "color": "#bfe0a4" } },
 		"egg_tarts": { "recipe": "egg_tarts", "station": "oven", "model": "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/Cupcake.fbx", "cook_speed": 1.0,
 			"ingredient": { "name": "Pastry & Custard", "color": "#ecd3a0" } },
 		"apple_strudel": { "recipe": "apple_strudel", "station": "oven", "model": "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/Bread_Slice.fbx", "cook_speed": 1.0,

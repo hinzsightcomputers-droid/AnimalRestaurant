@@ -3,26 +3,90 @@
 [ext_resource type="Script" path="res://scripts/cooking/cook_recipe.gd" id="1_recipe"]
 [ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/roll_action.gd" id="roll"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/dough_fold_action.gd" id="dough_fold"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/cut_action.gd" id="cut"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/trace_action.gd" id="trace"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/coat_action.gd" id="coat"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/bake_action.gd" id="bake"]
 [ext_resource type="PackedScene" path="res://scenes/cooking/cookie_closeup.tscn" id="scene"]
 
 [sub_resource type="Resource" id="Resource_0"]
 script = ExtResource("roll")
-title = "Roll the dough"
-hint = "Hold [grip] and roll the pin across the dough with [stick]. It stretches the way you roll: fill the dashed square."
+title = "Roll a long rectangle"
+hint = "Hold [grip] and roll the pin across the dough with [stick]. It stretches the way you roll: fill the dashed rectangle."
+target_size = Vector2(0.2, 0.33)
 
 [sub_resource type="Resource" id="Resource_1"]
-script = ExtResource("cut")
-title = "Shape them"
-hint = "Move the cutter with [stick] and press [button] to cut. Keep them on the dough and apart!"
-cookies = 4
-piece_name = "Croissants"
-cookie_radius = 0.055
-columns = 2
-tray_spacing = Vector2(0.16, 0.13)
+script = ExtResource("dough_fold")
+title = "Fold in thirds"
+cue = "Fold!"
+hint = "Press [button] on the dough, then [flick_up] to fold a third over. Twice, like a letter."
+weight = 0.5
 
 [sub_resource type="Resource" id="Resource_2"]
+script = ExtResource("dough_fold")
+title = "Turn it"
+cue = "Turn!"
+hint = "Press [button] to give the dough a quarter turn."
+turn_first = true
+folds = 0
+weight = 0
+
+[sub_resource type="Resource" id="Resource_3"]
+script = ExtResource("roll")
+title = "Roll it out again"
+hint = "Hold [grip] and roll the pin across the dough with [stick]. It stretches the way you roll: fill the dashed rectangle."
+target_size = Vector2(0.2, 0.33)
+use_sheet = true
+
+[sub_resource type="Resource" id="Resource_4"]
+script = ExtResource("dough_fold")
+title = "Fold in thirds again"
+cue = "Fold!"
+hint = "Press [button] on the dough, then [flick_up] to fold a third over. Twice, like a letter."
+butter_streaks = true
+weight = 0.5
+
+[sub_resource type="Resource" id="Resource_5"]
+script = ExtResource("roll")
+title = "Roll it long and thin"
+hint = "Hold [grip] and roll the pin across the dough with [stick]. It stretches the way you roll: fill the dashed rectangle."
+target_size = Vector2(0.42, 0.2)
+use_sheet = true
+
+[sub_resource type="Resource" id="Resource_6"]
+script = ExtResource("cut")
+title = "Cut triangles"
+hint = "Move the cutter with [stick] and press [button] to cut long triangles. Keep them on the dough and apart!"
+cookies = 4
+piece_name = "Triangles"
+shape = "triangle"
+shape_size = Vector2(0.085, 0.17)
+columns = 4
+tray_spacing = Vector2(0.1, 0.13)
+
+[sub_resource type="Resource" id="Resource_7"]
+script = ExtResource("trace")
+title = "Roll them up"
+cue = "Roll up!"
+hint = "Hold [button] on the green ring and follow the arrow with [stick] to roll each one up from the wide end to the tip."
+shape = "roll_up"
+
+[sub_resource type="Resource" id="Resource_8"]
+script = ExtResource("coat")
+title = "Brush with butter"
+cue = "Brush!"
+hint = "Hold [button] and move the brush over the croissants to glaze them."
+tool = "brush"
+coat_name = "Butter"
+coat_color = Color(1, 0.86, 0.4, 0.75)
+seconds = 5
+target_coverage = 0.5
+view_distance = 0.5
+view_pitch = 64
+weight = 0.6
+
+[sub_resource type="Resource" id="Resource_9"]
 script = ExtResource("bake")
 title = "Bake"
 hint = "Press [button] to take them out when they're golden!"
@@ -34,4 +98,4 @@ display_name = "Croissants"
 pieces = 4
 serve_on = ""
 scene = ExtResource("scene")
-steps = Array[ExtResource("2_action")]([SubResource("Resource_0"), SubResource("Resource_1"), SubResource("Resource_2")])
+steps = Array[ExtResource("2_action")]([SubResource("Resource_0"), SubResource("Resource_1"), SubResource("Resource_2"), SubResource("Resource_3"), SubResource("Resource_4"), SubResource("Resource_5"), SubResource("Resource_6"), SubResource("Resource_7"), SubResource("Resource_8"), SubResource("Resource_9")])

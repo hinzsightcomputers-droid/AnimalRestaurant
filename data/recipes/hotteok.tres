@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://scripts/cooking/actions/flip_action.gd" id="flip"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/place_action.gd" id="place"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/drizzle_action.gd" id="drizzle"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/press_action.gd" id="press"]
 
 [sub_resource type="Resource" id="Resource_0"]
 script = ExtResource("heat")
@@ -14,7 +15,7 @@ background = true
 
 [sub_resource type="Resource" id="Resource_1"]
 script = ExtResource("pour")
-title = "Press the dough flat"
+title = "Pour the dough"
 view_distance = 0.7
 hint = "Aim with [stick] and hold [button] to pour. Let go when it fills the ring."
 batter_color = Color(0.86, 0.68, 0.42, 1)
@@ -24,6 +25,16 @@ script = ExtResource("flip")
 title = "Pan fry: flip them"
 view_distance = 0.7
 hint = "When \"Flip!\" pops up over one, press [button] on it to slide the spatula under, then [flick_up] to flip it."
+
+[sub_resource type="Resource" id="Resource_5"]
+script = ExtResource("press")
+title = "Press them flat"
+cue = "Press!"
+view_distance = 0.7
+hint = "Hold [button] to press a hotteok flat with the spatula, and let go when the meter's in the green."
+rise_seconds = 1.4
+low_word = "Too thick"
+high_word = "Too thin!"
 
 [sub_resource type="Resource" id="Resource_3"]
 script = ExtResource("place")
@@ -45,4 +56,4 @@ weight = 0.5
 script = ExtResource("1_recipe")
 display_name = "Hotteok"
 pieces = 2
-steps = Array[ExtResource("2_action")]([SubResource("Resource_0"), SubResource("Resource_1"), SubResource("Resource_2"), SubResource("Resource_3"), SubResource("Resource_4")])
+steps = Array[ExtResource("2_action")]([SubResource("Resource_0"), SubResource("Resource_1"), SubResource("Resource_2"), SubResource("Resource_5"), SubResource("Resource_3"), SubResource("Resource_4")])

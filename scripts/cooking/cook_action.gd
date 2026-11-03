@@ -13,6 +13,7 @@ extends Resource
 @export var title := ""            # Shown above the stove while this step is going, e.g. "Pour the batter".
 @export_multiline var hint := ""   # How to do it. [button] and [stick] become this player's controls.
 @export var weight := 1.0          # Its share of the dish's quality (0 = doesn't count).
+@export var cue := ""              # Pops up over what it works on as it starts, e.g. "Twist!".
 # Runs alongside the steps after it instead of before them (e.g. the griddle's
 # heat, which keeps cooking while you pour and flip). It finishes on its own.
 @export var background := false
@@ -27,6 +28,7 @@ extends Resource
 var session: CookSession
 var done := false
 var quality := 0.0
+var to_background := false  # Set by a step mid-way: it carries on alongside the next steps (see CookSession).
 
 
 func begin(cook_session: CookSession) -> void:

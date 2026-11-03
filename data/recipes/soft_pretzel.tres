@@ -4,9 +4,15 @@
 [ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/roll_action.gd" id="roll"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/cut_action.gd" id="cut"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/trace_action.gd" id="trace"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/top_action.gd" id="top"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/bake_action.gd" id="bake"]
-[ext_resource type="PackedScene" path="res://scenes/cooking/cookie_closeup.tscn" id="scene"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/place_action.gd" id="place"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/stir_action.gd" id="stir"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/fill_action.gd" id="fill"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/press_action.gd" id="press"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/take_out_action.gd" id="take_out"]
+[ext_resource type="PackedScene" path="res://scenes/cooking/pretzel_closeup.tscn" id="scene"]
 
 [sub_resource type="Resource" id="Resource_0"]
 script = ExtResource("roll")
@@ -15,15 +21,25 @@ hint = "Hold [grip] and roll the pin across the dough with [stick]. It stretches
 
 [sub_resource type="Resource" id="Resource_1"]
 script = ExtResource("cut")
-title = "Twist them"
-hint = "Move the cutter with [stick] and press [button] to cut. Keep them on the dough and apart!"
+title = "Cut the strips"
+hint = "Move the cutter with [stick] and press [button] to cut a strip. Keep them on the dough and apart!"
 cookies = 4
-piece_name = "Pretzels"
-cookie_radius = 0.055
+piece_name = "Strips"
+shape = "rect"
+shape_size = Vector2(0.12, 0.024)
+cookie_thickness = 0.014
 columns = 2
-tray_spacing = Vector2(0.16, 0.13)
+tray_spacing = Vector2(0.17, 0.13)
 
 [sub_resource type="Resource" id="Resource_2"]
+script = ExtResource("trace")
+title = "Twist them"
+cue = "Twist!"
+hint = "Hold [button] on the green ring and follow the dots round with [stick] to twist the strip into a pretzel."
+shape = "twist"
+size = 0.12
+
+[sub_resource type="Resource" id="Resource_3"]
 script = ExtResource("top")
 title = "Salt"
 hint = "Press [button] to put a pinch of salt right in the middle of each one."
@@ -34,11 +50,150 @@ nut_radius = 0.01
 nut_color = Color(0.97, 0.97, 0.95, 1)
 weight = 0.5
 
-[sub_resource type="Resource" id="Resource_3"]
+[sub_resource type="Resource" id="Resource_4"]
 script = ExtResource("bake")
-title = "Bake"
-hint = "Press [button] to take them out when they're golden!"
+title = "Into the oven"
+hint = "In they go! They bake while you make the cheese dip, so don't be long."
+leave_in = true
+bake_seconds = 90
+band = Vector2(0.5, 0.8)
 weight = 1.3
+
+[sub_resource type="Resource" id="Resource_5"]
+script = ExtResource("place")
+title = "Butter"
+cue = "Melt!"
+hint = "Move the butter over the saucepan with [stick] and press [button] to drop it in."
+from_surface = ""
+target = "Saucepan"
+anywhere = true
+item_size = Vector3(0.05, 0.022, 0.035)
+item_color = Color(1, 0.92, 0.55, 1)
+view_distance = 0.5
+weight = 0.2
+
+[sub_resource type="Resource" id="Resource_6"]
+script = ExtResource("stir")
+title = "Melt the butter"
+cue = "Melt!"
+in_surface = "Saucepan"
+turns = 3
+view_distance = 0.5
+hint = "Roll [stick] round counter-clockwise, the way the arrow goes, to stir it (with the mouse, hold [grip] and circle the pan). Don't stop stirring!"
+melt = true
+tint_to = Color(1, 0.9, 0.5, 1)
+
+[sub_resource type="Resource" id="Resource_7"]
+script = ExtResource("fill")
+title = "Milk"
+cue = "Pour!"
+hint = "Hold [button] to pour the milk and let go at the white line."
+into = "Saucepan"
+liquid_name = "Milk"
+liquid_color = Color(0.98, 0.97, 0.93, 1)
+line = 0.6
+view_distance = 0.5
+
+[sub_resource type="Resource" id="Resource_8"]
+script = ExtResource("stir")
+title = "Stir in the milk"
+cue = "Stir!"
+in_surface = "Saucepan"
+turns = 4
+view_distance = 0.5
+hint = "Roll [stick] round counter-clockwise, the way the arrow goes, to stir it (with the mouse, hold [grip] and circle the pan). Don't stop stirring!"
+tint_to = Color(0.99, 0.95, 0.8, 1)
+
+[sub_resource type="Resource" id="Resource_9"]
+script = ExtResource("press")
+title = "Heat off"
+hint = "Watch the bubbles. Press [button] to turn the heat off when the meter's in the green."
+surface = "Saucepan"
+hold = false
+rise_seconds = 4
+low_word = "Still thin"
+high_word = "Grainy!"
+good_word = "Heat off!"
+view_distance = 0.55
+view_pitch = 58
+
+[sub_resource type="Resource" id="Resource_10"]
+script = ExtResource("place")
+title = "Cheese (1 of 3)"
+cue = "Add cheese!"
+hint = "Move the cheese over the pan with [stick] and press [button] to drop it in."
+from_surface = ""
+target = "Saucepan"
+anywhere = true
+item_size = Vector3(0.05, 0.018, 0.045)
+item_color = Color(1, 0.82, 0.3, 1)
+view_distance = 0.5
+weight = 0.2
+
+[sub_resource type="Resource" id="Resource_11"]
+script = ExtResource("stir")
+title = "Stir it in"
+cue = "Stir!"
+in_surface = "Saucepan"
+turns = 3
+view_distance = 0.5
+hint = "Roll [stick] round counter-clockwise, the way the arrow goes, to stir it (with the mouse, hold [grip] and circle the pan). Don't stop stirring!"
+melt = true
+tint_to = Color(1, 0.86, 0.5, 1)
+
+[sub_resource type="Resource" id="Resource_12"]
+script = ExtResource("place")
+title = "Cheese (2 of 3)"
+cue = "Add cheese!"
+hint = "Move the cheese over the pan with [stick] and press [button] to drop it in."
+from_surface = ""
+target = "Saucepan"
+anywhere = true
+item_size = Vector3(0.05, 0.018, 0.045)
+item_color = Color(1, 0.82, 0.3, 1)
+view_distance = 0.5
+weight = 0.2
+
+[sub_resource type="Resource" id="Resource_13"]
+script = ExtResource("stir")
+title = "Stir it in"
+cue = "Stir!"
+in_surface = "Saucepan"
+turns = 3
+view_distance = 0.5
+hint = "Roll [stick] round counter-clockwise, the way the arrow goes, to stir it (with the mouse, hold [grip] and circle the pan). Don't stop stirring!"
+melt = true
+tint_to = Color(1, 0.76, 0.36, 1)
+
+[sub_resource type="Resource" id="Resource_14"]
+script = ExtResource("place")
+title = "Cheese (3 of 3)"
+cue = "Add cheese!"
+hint = "Move the cheese over the pan with [stick] and press [button] to drop it in."
+from_surface = ""
+target = "Saucepan"
+anywhere = true
+item_size = Vector3(0.05, 0.018, 0.045)
+item_color = Color(1, 0.82, 0.3, 1)
+view_distance = 0.5
+weight = 0.2
+
+[sub_resource type="Resource" id="Resource_15"]
+script = ExtResource("stir")
+title = "Stir until smooth"
+cue = "Stir!"
+in_surface = "Saucepan"
+turns = 3
+view_distance = 0.5
+hint = "Roll [stick] round counter-clockwise, the way the arrow goes, to stir it (with the mouse, hold [grip] and circle the pan). Don't stop stirring!"
+melt = true
+tint_to = Color(0.98, 0.64, 0.2, 1)
+
+[sub_resource type="Resource" id="Resource_16"]
+script = ExtResource("take_out")
+title = "Take them out"
+hint = "Press [button] to take them out when they're golden!"
+side_dish = "Saucepan"
 
 [resource]
 script = ExtResource("1_recipe")
@@ -46,4 +201,4 @@ display_name = "Soft Pretzels"
 pieces = 4
 serve_on = ""
 scene = ExtResource("scene")
-steps = Array[ExtResource("2_action")]([SubResource("Resource_0"), SubResource("Resource_1"), SubResource("Resource_2"), SubResource("Resource_3")])
+steps = Array[ExtResource("2_action")]([SubResource("Resource_0"), SubResource("Resource_1"), SubResource("Resource_2"), SubResource("Resource_3"), SubResource("Resource_4"), SubResource("Resource_5"), SubResource("Resource_6"), SubResource("Resource_7"), SubResource("Resource_8"), SubResource("Resource_9"), SubResource("Resource_10"), SubResource("Resource_11"), SubResource("Resource_12"), SubResource("Resource_13"), SubResource("Resource_14"), SubResource("Resource_15"), SubResource("Resource_16")])

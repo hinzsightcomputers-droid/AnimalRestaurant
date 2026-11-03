@@ -1,13 +1,13 @@
 {
-	"_about": "How hard the game is (GameState.difficulty), picked when naming the restaurant and changed in Settings. Hard can only be picked once hard_unlock_day is done (GameState.day_number). For each level: closeup_pace speeds up the timed close-ups (how fast food cooks on the stove and in the oven, and how fast batter pours: under 1 gives more time to flip, plate, bake and stop pouring), pay multiplies what customers pay (on top of service.json pay_scale), arrival_interval multiplies the gap between walk-ins (over 1 is fewer), and patience multiplies how long customers wait for their food (the WaitRing, and what counts as quick service).",
+	"_about": "How hard the game is (GameState.difficulty), picked when naming the restaurant and changed in Settings. Hard can only be picked once hard_unlock_day is done (GameState.day_number). For each level: closeup_pace speeds up the timed close-ups (how fast food cooks on the stove and in the oven, and how fast batter pours: under 1 gives more time to flip, plate, bake and stop pouring), pay multiplies what customers pay (on top of service.json pay_scale), arrival_interval multiplies the gap between walk-ins (over 1 is fewer), patience multiplies how long customers wait for their food (the WaitRing, and what counts as quick service), and bake_waits (1 or 0) pauses a bake left in the oven while something else is made alongside it (the soft pretzel's cheese dip) until the cook comes back to it.",
 	"hard_unlock_day": 7,
 	"hard_unlocked_news": "Hard mode unlocked! Pick it in Settings for less time, less pay and busier days.",
 	"levels": [
 		{ "id": "easy", "name": "Easy", "description": "More time in close-ups, better pay, calmer customers.",
-			"closeup_pace": 0.7, "pay": 1.25, "arrival_interval": 1.3, "patience": 1.35 },
+			"closeup_pace": 0.7, "pay": 1.25, "arrival_interval": 1.3, "patience": 1.35, "bake_waits": 1 },
 		{ "id": "normal", "name": "Normal", "description": "The restaurant as it's meant to be.",
-			"closeup_pace": 1.0, "pay": 1.0, "arrival_interval": 1.0, "patience": 1.0 },
+			"closeup_pace": 1.0, "pay": 1.0, "arrival_interval": 1.0, "patience": 1.0, "bake_waits": 0 },
 		{ "id": "hard", "name": "Hard", "description": "Less time, less pay, busier days.",
-			"closeup_pace": 1.25, "pay": 0.8, "arrival_interval": 0.8, "patience": 0.8 }
+			"closeup_pace": 1.25, "pay": 0.8, "arrival_interval": 0.8, "patience": 0.8, "bake_waits": 0 }
 	]
 }

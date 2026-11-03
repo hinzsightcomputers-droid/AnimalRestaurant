@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/roll_action.gd" id="roll"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/cut_action.gd" id="cut"]
-[ext_resource type="Script" path="res://scripts/cooking/actions/top_action.gd" id="top"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/lattice_action.gd" id="lattice"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/bake_action.gd" id="bake"]
 [ext_resource type="PackedScene" path="res://scenes/cooking/cookie_closeup.tscn" id="scene"]
 
@@ -15,37 +15,30 @@ hint = "Hold [grip] and roll the pin across the dough with [stick]. It stretches
 
 [sub_resource type="Resource" id="Resource_1"]
 script = ExtResource("cut")
-title = "Cut the crusts"
-hint = "Move the cutter with [stick] and press [button] to cut. Keep them on the dough and apart!"
-cookies = 4
-piece_name = "Little pies"
-cookie_radius = 0.055
-columns = 2
-tray_spacing = Vector2(0.16, 0.13)
+title = "Cut the crust"
+hint = "Move the cutter with [stick] and press [button] to cut the pie's crust. Keep it on the dough!"
+cookies = 1
+piece_name = "Crust"
+cookie_radius = 0.105
+columns = 1
+keep_scraps = true
 
 [sub_resource type="Resource" id="Resource_2"]
-script = ExtResource("top")
-title = "Fill with cherries"
-hint = "Press [button] to fill each one right in the middle."
-topping = "Filled"
-on_name = "pie"
-acorn_shape = false
-nut_radius = 0.032
-nut_color = Color(0.72, 0.08, 0.14, 1)
-perfect_offset = 0.008
-worst_offset = 0.035
-weight = 0.8
+script = ExtResource("lattice")
+title = "Lattice top"
+cue = "Lattice!"
+hint = "Press [button] on the leftover dough to cut a strip, then move over the pie and press [button] to lay it. Space them out evenly!"
 
 [sub_resource type="Resource" id="Resource_3"]
 script = ExtResource("bake")
 title = "Bake"
-hint = "Press [button] to take them out when they're golden!"
+hint = "Press [button] to take it out when it's golden!"
 weight = 1.3
 
 [resource]
 script = ExtResource("1_recipe")
 display_name = "Cherry Pie"
-pieces = 4
+pieces = 1
 serve_on = ""
 scene = ExtResource("scene")
 steps = Array[ExtResource("2_action")]([SubResource("Resource_0"), SubResource("Resource_1"), SubResource("Resource_2"), SubResource("Resource_3")])

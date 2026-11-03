@@ -16,8 +16,11 @@ extends Node3D
 @export var slides_in := false            # Out of sight until a step uses it.
 @export var ledge := Vector3.ZERO          # Above zero: a counter top this big (x, thickness, z) under it.
 @export var ledge_color := Color(0.55, 0.36, 0.22)
+@export var depth := 0.0                  # A container (a saucepan, a bowl): how high liquid can come up in it.
 
 var contents: Array[Node3D] = []  # What's been dropped in (e.g. chopped carrots in a pot).
+var level := 0.0                  # A container: how full it is (1 = depth).
+var liquid: MeshInstance3D = null # Its liquid, once there's some (see fill_to).
 var _material := StandardMaterial3D.new()
 var _home := Vector3.ZERO
 
@@ -57,6 +60,42 @@ func tint(new_color: Color) -> void:
 
 func radius() -> float:
 	return size.x * 0.5
+
+
+# A container: its liquid up to `new_level` (of depth), in `liquid_color` if given.
+func fill_to(new_level: float, liquid_color = null) -> void:
+	level = maxf(new_level, 0.0)
+	if liquid == null:
+		liquid = MeshInstance3D.new()
+		var mesh := CylinderMesh.new()
+		mesh.top_radius = radius() * 0.94
+		mesh.bottom_radius = radius() * 0.94
+		mesh.height = 0.004
+		mesh.radial_segments = 32
+		var material := StandardMaterial3D.new()
+		material.albedo_color = color
+		material.roughness = 0.25
+		mesh.material = material
+		liquid.mesh = mesh
+		add_child(liquid)
+	if liquid_color is Color:
+		set_liquid_color(liquid_color)
+	liquid.visible = level > 0.001
+	liquid.position.y = depth * minf(level, 1.0)
+
+
+func liquid_color() -> Color:
+	return (liquid.mesh.material as StandardMaterial3D).albedo_color if liquid != null else color
+
+
+func set_liquid_color(new_color: Color) -> void:
+	if liquid != null:
+		(liquid.mesh.material as StandardMaterial3D).albedo_color = new_color
+
+
+# The top of its liquid (or of the surface, without any), in the session.
+func liquid_top() -> float:
+	return position.y + (depth * minf(level, 1.0) if liquid != null and liquid.visible else 0.0)
 
 
 # The point moved onto this surface if it's off it, at least `inset` in from

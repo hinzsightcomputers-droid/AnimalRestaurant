@@ -4,7 +4,8 @@
 [ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/roll_action.gd" id="roll"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/cut_action.gd" id="cut"]
-[ext_resource type="Script" path="res://scripts/cooking/actions/top_action.gd" id="top"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/fill_action.gd" id="fill"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/cover_action.gd" id="cover"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/bake_action.gd" id="bake"]
 [ext_resource type="PackedScene" path="res://scenes/cooking/cookie_closeup.tscn" id="scene"]
 
@@ -15,35 +16,45 @@ hint = "Hold [grip] and roll the pin across the dough with [stick]. It stretches
 
 [sub_resource type="Resource" id="Resource_1"]
 script = ExtResource("cut")
-title = "Cut the pastry"
+title = "Cut two rectangles"
 hint = "Move the cutter with [stick] and press [button] to cut. Keep them on the dough and apart!"
-cookies = 3
-piece_name = "Pieces"
-cookie_radius = 0.06
-columns = 3
-tray_spacing = Vector2(0.13, 0.13)
+cookies = 2
+piece_name = "Rectangles"
+shape = "rect"
+shape_size = Vector2(0.16, 0.1)
+columns = 2
+tray_spacing = Vector2(0.19, 0.13)
 
 [sub_resource type="Resource" id="Resource_2"]
-script = ExtResource("top")
-title = "Add the apples"
-hint = "Press [button] to spoon cinnamon apples right in the middle of each one."
-topping = "Filled"
-on_name = "piece"
-acorn_shape = false
-nut_radius = 0.028
-nut_color = Color(0.86, 0.72, 0.38, 1)
+script = ExtResource("fill")
+title = "Apple filling"
+cue = "Fill!"
+hint = "Hold [button] to spoon on the apples and let go when they fill the dashed outline, before they run over the edge."
+spread = true
+liquid_name = "Apples"
+liquid_color = Color(0.86, 0.68, 0.32, 1)
+line = 0.8
+fill_seconds = 2
+view_distance = 0.45
 weight = 0.8
 
 [sub_resource type="Resource" id="Resource_3"]
+script = ExtResource("cover")
+title = "Cover it"
+cue = "Cover!"
+hint = "Move the top over the filling with [stick] and press [button] to lay it down. Line it up!"
+weight = 0.8
+
+[sub_resource type="Resource" id="Resource_4"]
 script = ExtResource("bake")
 title = "Bake"
-hint = "Press [button] to take them out when they're golden!"
+hint = "Press [button] to take it out when it's golden!"
 weight = 1.3
 
 [resource]
 script = ExtResource("1_recipe")
 display_name = "Apple Strudel"
-pieces = 3
+pieces = 1
 serve_on = ""
 scene = ExtResource("scene")
-steps = Array[ExtResource("2_action")]([SubResource("Resource_0"), SubResource("Resource_1"), SubResource("Resource_2"), SubResource("Resource_3")])
+steps = Array[ExtResource("2_action")]([SubResource("Resource_0"), SubResource("Resource_1"), SubResource("Resource_2"), SubResource("Resource_3"), SubResource("Resource_4")])

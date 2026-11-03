@@ -33,6 +33,7 @@
 [ext_resource type="PackedScene" path="res://scenes/furniture/takeout_counter.tscn" id="31_takeout"]
 [ext_resource type="Script" path="res://scripts/guide/guide.gd" id="32_guide"]
 [ext_resource type="Script" path="res://scripts/furniture/kitchen_slot.gd" id="33_slot"]
+[ext_resource type="PackedScene" path="res://scenes/furniture/microwave.tscn" id="34_microwave"]
 
 [sub_resource type="Environment" id="Env"]
 background_mode = 1
@@ -184,6 +185,15 @@ upgrade_id = "fourth_board"
 counter_size = Vector3(1.26, 0.9, 0.76)
 
 [node name="ChoppingBoard4" parent="Furniture/BoardSlot4" node_paths=PackedStringArray("view_manager") instance=ExtResource("17_board")]
+view_manager = NodePath("../../../Views")
+
+[node name="MicrowaveSlot" type="Node3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, -6.8)
+script = ExtResource("33_slot")
+dish_id = "mochi"
+
+[node name="Microwave" parent="Furniture/MicrowaveSlot" node_paths=PackedStringArray("order_board", "view_manager") instance=ExtResource("34_microwave")]
+order_board = NodePath("../../../OrderBoard")
 view_manager = NodePath("../../../Views")
 
 [node name="TicketWheel" parent="Furniture" node_paths=PackedStringArray("order_board") instance=ExtResource("23_wheel")]

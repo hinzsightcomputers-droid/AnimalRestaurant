@@ -2,38 +2,153 @@
 
 [ext_resource type="Script" path="res://scripts/cooking/cook_recipe.gd" id="1_recipe"]
 [ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/place_action.gd" id="place"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/fill_action.gd" id="fill"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/stir_action.gd" id="stir"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/microwave_action.gd" id="microwave"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/coat_action.gd" id="coat"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/roll_action.gd" id="roll"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/cut_action.gd" id="cut"]
-[ext_resource type="Script" path="res://scripts/cooking/actions/top_action.gd" id="top"]
-[ext_resource type="PackedScene" path="res://scenes/cooking/cookie_closeup.tscn" id="scene"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/serve_action.gd" id="serve"]
+[ext_resource type="PackedScene" path="res://scenes/cooking/microwave_closeup.tscn" id="scene"]
 
 [sub_resource type="Resource" id="Resource_0"]
-script = ExtResource("roll")
-title = "Knead the dough"
-hint = "Hold [grip] and roll the pin across the dough with [stick]. It stretches the way you roll: fill the dashed square."
+script = ExtResource("place")
+title = "Mochiko flour"
+cue = "Mix!"
+hint = "Move the flour over the bowl with [stick] and press [button] to tip it in."
+from_surface = ""
+target = "Bowl"
+anywhere = true
+item_size = Vector3(0.06, 0.025, 0.05)
+item_color = Color(0.98, 0.97, 0.94, 1)
+view_distance = 0.5
+weight = 0.2
 
 [sub_resource type="Resource" id="Resource_1"]
-script = ExtResource("cut")
-title = "Shape the mochi"
-hint = "Move the cutter with [stick] and press [button] to cut. Keep them on the dough and apart!"
-cookies = 6
-piece_name = "Mochi"
+script = ExtResource("place")
+title = "Sugar"
+hint = "Move the sugar over the bowl with [stick] and press [button] to tip it in."
+from_surface = ""
+target = "Bowl"
+anywhere = true
+item_size = Vector3(0.045, 0.02, 0.04)
+item_color = Color(1, 1, 1, 1)
+view_distance = 0.5
+weight = 0.2
 
 [sub_resource type="Resource" id="Resource_2"]
-script = ExtResource("top")
-title = "Red bean filling"
-hint = "Press [button] to put red bean paste right in the middle of each one."
-topping = "Filled"
-on_name = "mochi"
-acorn_shape = false
-nut_radius = 0.02
-nut_color = Color(0.4, 0.15, 0.12, 1)
-weight = 0.8
+script = ExtResource("fill")
+title = "Water"
+cue = "Pour!"
+hint = "Hold [button] to pour the water and let go at the white line."
+into = "Bowl"
+liquid_name = "Water"
+liquid_color = Color(0.82, 0.92, 1, 1)
+line = 0.5
+view_distance = 0.5
+
+[sub_resource type="Resource" id="Resource_3"]
+script = ExtResource("stir")
+title = "Whisk until smooth"
+cue = "Mix!"
+hint = "Roll [stick] round counter-clockwise, the way the arrow goes, to whisk out the lumps (with the mouse, hold [grip] and circle the bowl). Don't stop stirring!"
+in_surface = "Bowl"
+turns = 5
+lumps = 6
+melt = true
+tint_to = Color(0.86, 0.93, 0.78, 1)
+view_distance = 0.5
+
+[sub_resource type="Resource" id="Resource_4"]
+script = ExtResource("microwave")
+title = "Microwave it"
+cue = "Microwave!"
+hint = "Press [button] to put the bowl in. When it dings, press [button] to take it out quickly!"
+cooked_color = Color(0.8, 0.9, 0.7, 1)
+
+[sub_resource type="Resource" id="Resource_5"]
+script = ExtResource("stir")
+title = "Fold the dough"
+cue = "Fold!"
+hint = "Roll [stick] round counter-clockwise to fold the sticky dough over with the wet spatula (with the mouse, hold [grip] and circle the bowl)."
+in_surface = "Bowl"
+turns = 4
+tool = "spatula"
+view_distance = 0.5
+
+[sub_resource type="Resource" id="Resource_6"]
+script = ExtResource("microwave")
+title = "Microwave it again"
+cue = "Microwave!"
+hint = "Press [button] to put the bowl in. When it dings, press [button] to take it out quickly!"
+cooked_color = Color(0.74, 0.88, 0.62, 1)
+glossy = true
+
+[sub_resource type="Resource" id="Resource_7"]
+script = ExtResource("coat")
+title = "Dust the counter"
+cue = "Dust!"
+hint = "Hold [button] and move the shaker to dust the square with cornstarch, so the dough won't stick."
+tool = "shaker"
+on_surface = "Counter"
+patch = Vector2(0.28, 0.28)
+coat_name = "Cornstarch"
+coat_color = Color(0.98, 0.98, 0.96, 1)
+seconds = 3.5
+blob_radius = 0.014
+target_coverage = 0.5
+turn_out = "Bowl"
+view_distance = 0.5
+weight = 0.5
+
+[sub_resource type="Resource" id="Resource_8"]
+script = ExtResource("roll")
+title = "Flatten the dough"
+hint = "Hold [grip] and roll the pin across the dough with [stick]. It stretches the way you roll: fill the dashed square."
+on_surface = "Counter"
+target = 0.24
+start_size = 0.1
+
+[sub_resource type="Resource" id="Resource_9"]
+script = ExtResource("cut")
+title = "Cut into three"
+cue = "Cut!"
+hint = "Move the cutter with [stick] and press [button] to cut. Keep them on the dough and apart!"
+cookies = 3
+piece_name = "Mochi"
+cookie_radius = 0.035
+onto = "Counter"
+columns = 3
+tray_spacing = Vector2(0.1, 0.1)
+become = "dome"
+become_color = Color(0.62, 0.82, 0.5, 1)
+
+[sub_resource type="Resource" id="Resource_10"]
+script = ExtResource("serve")
+title = "Onto the plate"
+hint = "Press [button] on each mochi and the tongs carry it to the plate."
+
+[sub_resource type="Resource" id="Resource_11"]
+script = ExtResource("coat")
+title = "Powdered sugar"
+cue = "Sugar!"
+hint = "Hold [button] and move the shaker to dust the mochi with powdered sugar."
+tool = "shaker"
+coat_name = "Sugar"
+coat_color = Color(1, 1, 1, 1)
+seconds = 2.5
+blob_radius = 0.012
+always_full = true
+keep_on = "Plate"
+view_distance = 0.4
+view_pitch = 64
+weight = 0.3
 
 [resource]
 script = ExtResource("1_recipe")
 display_name = "Mochi"
-pieces = 6
-serve_on = ""
+pieces = 3
+serve_on = "Plate"
 scene = ExtResource("scene")
-steps = Array[ExtResource("2_action")]([SubResource("Resource_0"), SubResource("Resource_1"), SubResource("Resource_2")])
+steps = Array[ExtResource("2_action")]([SubResource("Resource_0"), SubResource("Resource_1"), SubResource("Resource_2"), SubResource("Resource_3"), SubResource("Resource_4"), SubResource("Resource_5"), SubResource("Resource_6"), SubResource("Resource_7"), SubResource("Resource_8"), SubResource("Resource_9"), SubResource("Resource_10"), SubResource("Resource_11")])

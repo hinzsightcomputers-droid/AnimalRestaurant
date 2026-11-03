@@ -5,6 +5,10 @@
 # of the door and up onto the top of the oven, the camera rising with it to
 # look down on how they came out. Leave them too long and they come out burnt
 # on their own.
+# With leave_in, once the tray's in it carries on baking while the next steps
+# go (a dip made while the pretzels bake), and a TakeOutAction later brings
+# the camera back to take it out. On a difficulty with bake_waits (Easy) the
+# meter waits until then.
 class_name BakeAction
 extends CookAction
 
@@ -18,6 +22,9 @@ extends CookAction
 @export var inside := Vector3(0.0, -0.08, -0.1)  # Where the tray bakes, from the door's middle: just behind the glass, so it shows.
 @export var meter_offset := Vector3(0.0, -0.33, 0.03)  # Where the meter stands, from the oven door's middle (under the window).
 @export var out_view := Vector2(0.62, 58.0)  # Camera distance and pitch on the tray once it's out, on top of the oven.
+@export var leave_in := false              # Keeps baking alongside the next steps, until a TakeOutAction.
+
+var claimed := false                       # leave_in: a TakeOutAction is here for it.
 
 var _done := 0.0
 var _phase := 0                            # 0 sliding in, 1 baking, 2 coming out.
@@ -61,7 +68,9 @@ func _begin() -> void:
 	slide.tween_property(_tray, "position", oven_front + inside, 0.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	slide.tween_callback(func():
 		session.play_sound("clack", oven_front, -2.0, 0.7)
-		_phase = 1)
+		_phase = 1
+		if leave_in:
+			to_background = true)
 
 
 func end() -> void:
@@ -77,13 +86,17 @@ func uses_cursor() -> bool:
 func update(delta: float, input: CookInput) -> void:
 	if _phase != 1:
 		return
-	_done = minf(_done + delta * GameState.difficulty_value("closeup_pace") / bake_seconds, 1.0)  # Slower on Easy.
+	var waiting := leave_in and not claimed  # Something else is being made meanwhile.
+	if not (waiting and GameState.difficulty_value("bake_waits") > 0.0):
+		_done = minf(_done + delta * GameState.difficulty_value("closeup_pace") / bake_seconds, 1.0)  # Slower on Easy.
 	_glow.light_energy = lerpf(_glow.light_energy, 1.6, 1.0 - exp(-3.0 * delta))
 	_hum.volume_db = lerpf(_hum.volume_db, -22.0, 1.0 - exp(-2.0 * delta))
 	_fill.scale.x = maxf(_done, 0.001)
 	_fill.position.x = (_done - 1.0) * meter_length * 0.5
 	for material: StandardMaterial3D in _raw:  # Browning, through the oven window.
 		material.albedo_color = _color_for(_raw[material])
+	if waiting:
+		return  # Not taken out till a TakeOutAction comes for it.
 	var words := "Still pale..." if _done < band.x else ("Golden!" if _done <= band.y else "Burning!")
 	session.set_status(words)
 	if input.just_pressed or _done >= 1.0:

@@ -4,14 +4,18 @@
 # Fill the dashed square: once the sheet is as big as the square it's done,
 # scoring how well it matches (roll only one way and you get a long thin
 # strip). Leaves the sheet for the next step in the session's context
-# "dough": { node, size (x, z), center }.
+# "dough": { node, size (x, z), center }. With target_size it's a dashed
+# rectangle to fill instead (a long one for croissants). With use_sheet it rolls
+# on the sheet already there (folded croissant dough) instead of a new lump.
 class_name RollAction
 extends CookAction
 
 const PIN_MODEL := "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/rollingpin.gltf"
 
 @export var on_surface := "Counter"
-@export var target := 0.32                 # The square to fill (meters a side).
+@export var target := 0.32                 # The square to fill (meters a side)...
+@export var target_size := Vector2.ZERO    # ...or this rectangle (x, z), if set.
+@export var use_sheet := false             # Roll the sheet left by the last step (the context's "dough").
 @export var start_size := 0.12
 @export var start_thickness := 0.06
 @export var stretch := 0.3                 # How much the dough grows per meter rolled over it.
@@ -39,21 +43,35 @@ func view_point() -> Vector3:
 
 
 func cursor_area() -> Rect2:
-	return Rect2(_center.x, _center.z, 0.0, 0.0).grow(target * 0.5 + 0.07)
+	var goal := _goal()
+	return Rect2(_center.x - goal.x * 0.5, _center.z - goal.y * 0.5, goal.x, goal.y).grow(0.07)
+
+
+# The rectangle to fill (x, z).
+func _goal() -> Vector2:
+	return target_size if target_size != Vector2.ZERO else Vector2(target, target)
 
 
 func _begin() -> void:
 	_center = session.surface(on_surface).position
-	_size = Vector2(start_size, start_size)
-	_volume = start_size * start_size * start_thickness
-	var material := StandardMaterial3D.new()
-	material.albedo_color = session.ingredients.color() if session.ingredients != null else dough_color
-	material.roughness = 0.85
-	_box.material = material
-	_dough = MeshInstance3D.new()
-	_dough.mesh = _box
-	_dough.position = _center
-	session.add_child(_dough)
+	var sheet: Dictionary = session.context.get("dough", {})
+	if use_sheet and is_instance_valid(sheet.get("node")):
+		_dough = sheet["node"]
+		_box = _dough.mesh as BoxMesh
+		_size = sheet["size"]
+		_volume = _size.x * _size.y * _box.size.y
+		_center = sheet["center"]
+	else:
+		_size = Vector2(start_size, start_size)
+		_volume = start_size * start_size * start_thickness
+		var material := StandardMaterial3D.new()
+		material.albedo_color = session.ingredients.color() if session.ingredients != null else dough_color
+		material.roughness = 0.85
+		_box.material = material
+		_dough = MeshInstance3D.new()
+		_dough.mesh = _box
+		_dough.position = _center
+		session.add_child(_dough)
 	_shape()
 	_outline()
 	_pin = ModelFit.place(PIN_MODEL, session, _center + Vector3(0.0, 0.1, 0.2), Vector3(pin_length, 0.0, 0.0))
@@ -84,9 +102,10 @@ func update(delta: float, input: CookInput) -> void:
 		_pin.rotation.y = lerp_angle(_pin.rotation.y, across, 1.0 - exp(-14.0 * delta))
 	_rolling = pressing
 	_pin.position = _pin.position.lerp(goal, 1.0 - exp(-22.0 * delta))
-	session.set_status("Sheet: %d%% of the square" % roundi(minf(_size.x * _size.y / (target * target), 1.0) * 100.0))
-	if _size.x * _size.y >= target * target * 0.97:
-		var off := (absf(_size.x - target) + absf(_size.y - target)) / target
+	var fill := _goal()
+	session.set_status("Sheet: %d%% of the %s" % [roundi(minf(_size.x * _size.y / (fill.x * fill.y), 1.0) * 100.0), "square" if fill.x == fill.y else "rectangle"])
+	if _size.x * _size.y >= fill.x * fill.y * 0.97:
+		var off := absf(_size.x - fill.x) / fill.x + absf(_size.y - fill.y) / fill.y
 		var score := clampf(1.0 - off * 1.5, 0.0, 1.0)
 		session.pop_text("Nice and even!" if score >= 0.85 else ("Bit lopsided" if score >= 0.5 else "That's a strip!"), _center, CookSession.mood_of(score))
 		session.context["dough"] = { "node": _dough, "size": _size, "center": _center }
@@ -100,6 +119,11 @@ func _thickness() -> float:
 func _shape() -> void:
 	_box.size = Vector3(_size.x, _thickness(), _size.y)
 	_dough.position.y = _center.y + _thickness() * 0.5
+	var streaks := _dough.get_node_or_null("Streaks") as Node3D  # Butter folded in (DoughFoldAction): stretched with the sheet.
+	if streaks != null:
+		var base: Vector2 = streaks.get_meta("size")
+		streaks.scale = Vector3(_size.x / base.x, 1.0, _size.y / base.y)
+		streaks.position.y = _thickness() * 0.5
 
 
 # A dashed square on the counter: how big to roll it.
@@ -108,22 +132,23 @@ func _outline() -> void:
 	material.albedo_color = Color(1.0, 1.0, 1.0, 0.75)
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	var dashes := 6
-	var dash := target / dashes * 0.6
+	var goal := _goal()
 	for side in 4:
+		var span := goal.x if side < 2 else goal.y
+		var dashes := maxi(roundi(span / goal.x * 6.0), 3) if side >= 2 else 6
+		var dash := span / dashes * 0.6
 		for i in dashes:
-			var along := -target * 0.5 + (i + 0.5) * target / dashes
+			var along := -span * 0.5 + (i + 0.5) * span / dashes
 			var piece := MeshInstance3D.new()
 			var mesh := BoxMesh.new()
 			mesh.size = Vector3(dash, 0.002, 0.005)
 			mesh.material = material
 			piece.mesh = mesh
-			var edge := target * 0.5
 			match side:
-				0: piece.position = Vector3(along, 0.001, -edge)
-				1: piece.position = Vector3(along, 0.001, edge)
-				2: piece.position = Vector3(-edge, 0.001, along)
-				3: piece.position = Vector3(edge, 0.001, along)
+				0: piece.position = Vector3(along, 0.001, -goal.y * 0.5)
+				1: piece.position = Vector3(along, 0.001, goal.y * 0.5)
+				2: piece.position = Vector3(-goal.x * 0.5, 0.001, along)
+				3: piece.position = Vector3(goal.x * 0.5, 0.001, along)
 			if side >= 2:
 				piece.rotation.y = PI * 0.5
 			piece.position += _center
