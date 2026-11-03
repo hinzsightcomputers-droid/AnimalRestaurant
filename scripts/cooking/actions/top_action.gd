@@ -44,6 +44,10 @@ func cursor_area() -> Rect2:
 	return area.grow((_cookies[0].mesh as CylinderMesh).top_radius + 0.04)
 
 
+func uses_cursor() -> bool:
+	return false  # The topping in hand shows the spot.
+
+
 func _begin() -> void:
 	_cookies = session.context.get("cookies", [])
 	_hand = _make_acorn()

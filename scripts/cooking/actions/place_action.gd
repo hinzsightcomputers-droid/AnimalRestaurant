@@ -52,11 +52,7 @@ func _begin() -> void:
 
 # Picking pieces up: looking at where they are. A new item: at the stack it goes on.
 func view_point() -> Vector3:
-	if carry:  # On the griddle, nudged over (and down) so the plate shows at the side.
-		var from := session.surface(from_surface).position
-		var to := session.surface(target).position
-		return Vector3(lerpf(from.x, to.x, 0.3), from.y, lerpf(from.z, to.z, 0.6))
-	return session.stack_top(target) if _new_item() else session.surface(from_surface).position
+	return session.stack_top(target) if _new_item() else session.surface(from_surface).position  # carry: the griddle, centred.
 
 
 # With a view of its own, the cursor stays where the step is (and on screen).
@@ -100,11 +96,6 @@ func update(delta: float, input: CookInput) -> void:
 # Carrying: the spatula shows where things are.
 func uses_cursor() -> bool:
 	return not carry
-
-
-# A new item in hand shows where it goes: just a dot under it.
-func cursor_dot() -> bool:
-	return _new_item()
 
 
 func end() -> void:

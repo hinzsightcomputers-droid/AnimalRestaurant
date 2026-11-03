@@ -17,6 +17,7 @@ var radius := 0.0            # Current size (spreads while being poured).
 var spread_to := 0.0         # The size it's spreading to.
 var thickness := 0.022
 var raw_color := Color.WHITE
+var done_color := GOLDEN     # The color it is when just right (yellow for eggs), before browning.
 var doneness := [0.0, 0.0]   # How cooked each side is: 1.0 is just right.
 var down_side := 0           # Which side faces down.
 var flipped := false
@@ -70,8 +71,8 @@ func set_radius(value: float) -> void:
 # Colors from how cooked each side is, and bubbles on a raw top as the
 # underside gets close (the cook's tell that it's nearly time to flip).
 func refresh() -> void:
-	_top_material.albedo_color = cooked_color(raw_color, maxf(doneness[up_side()], up_shade))
-	_bottom_material.albedo_color = cooked_color(raw_color.darkened(0.08), doneness[down_side])
+	_top_material.albedo_color = cooked_color(raw_color, maxf(doneness[up_side()], up_shade), done_color)
+	_bottom_material.albedo_color = cooked_color(raw_color.darkened(0.08), doneness[down_side], done_color)
 	var tell := 0.0 if flipped or folded else clampf((doneness[down_side] - 0.5) / 0.45, 0.0, 1.0)
 	for i in _bubbles.size():
 		_bubbles[i].visible = i < roundi(tell * BUBBLES)
@@ -158,11 +159,11 @@ func _half_moon(side: float, height: float) -> MeshInstance3D:
 	return instance
 
 
-static func cooked_color(raw: Color, amount: float) -> Color:
+static func cooked_color(raw: Color, amount: float, done := GOLDEN) -> Color:
 	if amount < 1.0:
-		return raw.lerp(GOLDEN, pow(clampf(amount / 1.0, 0.0, 1.0), 1.6))
+		return raw.lerp(done, pow(clampf(amount / 1.0, 0.0, 1.0), 1.6))
 	if amount < 1.4:
-		return GOLDEN.lerp(BROWN, (amount - 1.0) / 0.4)
+		return done.lerp(BROWN, (amount - 1.0) / 0.4)
 	return BROWN.lerp(BURNT, clampf((amount - 1.4) / 0.4, 0.0, 1.0))
 
 

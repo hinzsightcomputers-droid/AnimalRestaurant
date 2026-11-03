@@ -4,7 +4,8 @@
 # rolled sheet (the context's "dough", kept by CutAction's keep_scraps) to cut
 # a strip, then move over the pie and press to lay it. A strip scores how near
 # it lands to its even spot (the strips per way spread evenly across the pie,
-# the middle one through its centre).
+# the middle one through its centre). Dashed lines on the pie show the even
+# spots still free the way the next strip goes.
 class_name LatticeAction
 extends CookAction
 
@@ -23,6 +24,7 @@ var _scores: Array[float] = []
 var _taken := {}                           # "across" / "down" -> slot indices with a strip.
 var _knife: MeshInstance3D                 # Over the sheet: where the next strip comes off.
 var _sheet: Dictionary
+var _guides := Node3D.new()               # Dashed lines where the next strips go.
 
 
 func _init() -> void:
@@ -42,8 +44,8 @@ func cursor_height() -> float:
 	return _pie.position.y + CookSession.top_of(_pie) if _pie != null else session.work_height
 
 
-func cursor_dot() -> bool:
-	return true
+func uses_cursor() -> bool:
+	return false  # The knife or the strip in hand shows the spot.
 
 
 func _begin() -> void:
@@ -81,12 +83,15 @@ func _begin() -> void:
 	blade.material = see_through
 	_knife.mesh = blade
 	session.add_child(_knife)
+	session.add_child(_guides)
+	_show_guides()
 	if _sheet.is_empty():
 		_holding = _make_strip()  # No sheet to cut from: one's ready.
 
 
 func end() -> void:
 	_knife.queue_free()
+	_guides.queue_free()
 	if _holding != null:
 		_holding.queue_free()
 	var dough: MeshInstance3D = _sheet.get("node")
@@ -157,10 +162,44 @@ func _lay(spot: Vector3, across: bool) -> void:
 	session.play_sound("plop", spot, -6.0, 1.4)
 	session.pop_text("Even!" if score >= 0.9 else ("Nice" if score >= 0.6 else "Off to the side"), spot, CookSession.mood_of(score))
 	_laid += 1
+	_show_guides()
 	if _laid >= per_way * 2:
 		finish(average(_scores))
 	elif _sheet.is_empty():
 		_holding = _make_strip()
+
+
+# A dashed line on the pie at each even spot still free, the way the next
+# strip goes.
+func _show_guides() -> void:
+	for child in _guides.get_children():
+		child.queue_free()
+	if _laid >= per_way * 2:
+		return
+	var across := _laid % 2 == 0
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color(1.0, 1.0, 1.0, 0.85)
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.no_depth_test = true
+	var dash := BoxMesh.new()
+	dash.size = Vector3(0.012, 0.001, 0.003)
+	dash.material = material
+	var top := _pie.position.y + CookSession.top_of(_pie) + 0.014
+	for i in per_way:
+		if i in _taken["across" if across else "down"]:
+			continue
+		var along := _slot(i)
+		var half := sqrt(maxf(_radius * _radius - along * along, 0.0)) * 0.92
+		var x := -half
+		while x < half:
+			var piece := MeshInstance3D.new()
+			piece.mesh = dash
+			piece.rotation.y = 0.0 if across else PI * 0.5
+			piece.position = _pie.position + (Vector3(x + 0.006, 0.0, along) if across else Vector3(along, 0.0, x + 0.006))
+			piece.position.y = top
+			_guides.add_child(piece)
+			x += 0.02
 
 
 # Where strip `i` should go, from the pie's middle.

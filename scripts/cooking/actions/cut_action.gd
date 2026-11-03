@@ -81,8 +81,8 @@ func cursor_height() -> float:
 	return _top()
 
 
-func cursor_dot() -> bool:
-	return shape != "round"  # The shape shows where it'll cut.
+func uses_cursor() -> bool:
+	return false  # The cutter shows the spot.
 
 
 func update(delta: float, input: CookInput) -> void:

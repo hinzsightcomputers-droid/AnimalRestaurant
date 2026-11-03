@@ -36,6 +36,10 @@ var _toppings: Array[Node3D] = []  # What else is on it (butter): the syrup goes
 var _top_y := 0.0
 
 
+func uses_cursor() -> bool:
+	return false  # The bottle shows the spot.
+
+
 func _begin() -> void:
 	_left = syrup_seconds
 	_bottle = session.make_bottle(syrup_color)

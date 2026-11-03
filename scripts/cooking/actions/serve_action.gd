@@ -6,7 +6,8 @@ class_name ServeAction
 extends CookAction
 
 @export var target := "Plate"
-@export var ring := 0.055                  # How far from the plate's middle they sit.
+@export var ring := 0.055                  # How far from the plate's middle they sit...
+@export var ring_center := Vector3.ZERO    # ...round this spot, from the middle (to one side, leaving room for a dip).
 @export var carry_seconds := 0.5
 @export var grab_margin := 0.02
 
@@ -31,8 +32,8 @@ func view_point() -> Vector3:
 	return (middle + session.surface(target).position) * 0.5
 
 
-func cursor_dot() -> bool:
-	return true
+func uses_cursor() -> bool:
+	return false  # The tongs show the spot.
 
 
 func _begin() -> void:
@@ -70,7 +71,7 @@ func _carry(cookie: MeshInstance3D) -> void:
 	_served[cookie] = true
 	var plate := session.surface(target)
 	var angle := TAU * index / _cookies.size() - PI * 0.5
-	var spot := plate.position + Vector3(cos(angle) * ring, (cookie.mesh as CylinderMesh).height * 0.5, sin(angle) * ring)
+	var spot := plate.position + ring_center + Vector3(cos(angle) * ring, (cookie.mesh as CylinderMesh).height * 0.5, sin(angle) * ring)
 	session.play_sound("tick", cookie.position, -6.0, 1.5)
 	var from := cookie.position
 	var tween := cookie.create_tween()

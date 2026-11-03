@@ -20,7 +20,7 @@ target_size = Vector2(0.2, 0.33)
 script = ExtResource("dough_fold")
 title = "Fold in thirds"
 cue = "Fold!"
-hint = "Press [button] on the dough, then [flick_up] to fold a third over. Twice, like a letter."
+hint = "Press [button] on the dough, then [flick_up] to fold it over the way the arrow goes. Twice, like a letter."
 weight = 0.5
 
 [sub_resource type="Resource" id="Resource_2"]
@@ -43,7 +43,7 @@ use_sheet = true
 script = ExtResource("dough_fold")
 title = "Fold in thirds again"
 cue = "Fold!"
-hint = "Press [button] on the dough, then [flick_up] to fold a third over. Twice, like a letter."
+hint = "Press [button] on the dough, then [flick_up] to fold it over the way the arrow goes. Twice, like a letter."
 butter_streaks = true
 weight = 0.5
 

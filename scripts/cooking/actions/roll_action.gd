@@ -7,6 +7,7 @@
 # "dough": { node, size (x, z), center }. With target_size it's a dashed
 # rectangle to fill instead (a long one for croissants). With use_sheet it rolls
 # on the sheet already there (folded croissant dough) instead of a new lump.
+# A double-headed arrow over the dough shows which way it needs rolling next.
 class_name RollAction
 extends CookAction
 
@@ -19,7 +20,7 @@ const PIN_MODEL := "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/
 @export var start_size := 0.12
 @export var start_thickness := 0.06
 @export var stretch := 0.3                 # How much the dough grows per meter rolled over it.
-@export var pin_length := 0.34
+@export var pin_length := 0.16
 @export var dough_color := Color(0.69, 0.48, 0.27)  # When there are no ingredients to take it from.
 
 var _size := Vector2.ZERO
@@ -31,6 +32,7 @@ var _last := Vector3.ZERO
 var _rolling := false
 var _center := Vector3.ZERO
 var _dashes: Array[Node3D] = []
+var _arrow: Node3D                         # Which way to roll next.
 
 
 func _init() -> void:
@@ -50,6 +52,10 @@ func cursor_area() -> Rect2:
 # The rectangle to fill (x, z).
 func _goal() -> Vector2:
 	return target_size if target_size != Vector2.ZERO else Vector2(target, target)
+
+
+func uses_cursor() -> bool:
+	return false  # The rolling pin shows the spot.
 
 
 func _begin() -> void:
@@ -74,11 +80,14 @@ func _begin() -> void:
 		session.add_child(_dough)
 	_shape()
 	_outline()
+	_arrow = Node3D.new()  # Made by _point_arrow.
+	session.add_child(_arrow)
 	_pin = ModelFit.place(PIN_MODEL, session, _center + Vector3(0.0, 0.1, 0.2), Vector3(pin_length, 0.0, 0.0))
 
 
 func end() -> void:
 	_pin.queue_free()
+	_arrow.queue_free()
 	for dash in _dashes:
 		dash.queue_free()
 
@@ -101,6 +110,7 @@ func update(delta: float, input: CookInput) -> void:
 			across += PI
 		_pin.rotation.y = lerp_angle(_pin.rotation.y, across, 1.0 - exp(-14.0 * delta))
 	_rolling = pressing
+	_point_arrow(delta)
 	_pin.position = _pin.position.lerp(goal, 1.0 - exp(-22.0 * delta))
 	var fill := _goal()
 	session.set_status("Sheet: %d%% of the %s" % [roundi(minf(_size.x * _size.y / (fill.x * fill.y), 1.0) * 100.0), "square" if fill.x == fill.y else "rectangle"])
@@ -110,6 +120,26 @@ func update(delta: float, input: CookInput) -> void:
 		session.pop_text("Nice and even!" if score >= 0.85 else ("Bit lopsided" if score >= 0.5 else "That's a strip!"), _center, CookSession.mood_of(score))
 		session.context["dough"] = { "node": _dough, "size": _size, "center": _center }
 		finish(score)
+
+
+# Along whichever way the sheet is furthest short of the outline, over the
+# dough and gently pulsing.
+func _point_arrow(delta: float) -> void:
+	var fill := _goal()
+	var across := _size.x / fill.x < _size.y / fill.y
+	var length := (fill.x if across else fill.y) * 0.7
+	var way := "%s %.3f" % [across, length]
+	if _arrow.get_meta("way", "") != way:  # Remade only when it changes.
+		var old := _arrow
+		_arrow = session.make_arrow(length, true)
+		_arrow.set_meta("way", way)
+		_arrow.rotation.y = 0.0 if across else PI * 0.5
+		_arrow.position = old.position
+		_arrow.scale = old.scale
+		old.queue_free()
+	_arrow.position = Vector3(_center.x, _center.y + _thickness() + 0.01, _center.z)
+	var pulse := 1.0 + sin(Time.get_ticks_msec() * 0.006) * 0.06
+	_arrow.scale = _arrow.scale.lerp(Vector3(pulse, 1.0, pulse), 1.0 - exp(-10.0 * delta))
 
 
 func _thickness() -> float:

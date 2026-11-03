@@ -5,6 +5,7 @@
 [ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="3_fit"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/stove_single_countertop.gltf" id="4_burner"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/pot_B.gltf" id="5_pan"]
+[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/bowl.gltf" id="6_bowl"]
 
 [node name="PretzelCloseup" type="Node3D"]
 script = ExtResource("1_session")
@@ -45,3 +46,28 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.02, 0)
 script = ExtResource("3_fit")
 model = ExtResource("5_pan")
 size = Vector3(0.24, 0, 0)
+
+[node name="Plate" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.012, 0.08)
+script = ExtResource("2_surface")
+size = Vector2(0.38, 0.38)
+round = true
+thickness = 0.012
+color = Color(0.96, 0.95, 0.92, 1)
+slides_in = true
+
+[node name="DipBowl" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.11, 0.02, 0.17)
+script = ExtResource("2_surface")
+size = Vector2(0.07, 0.07)
+round = true
+hidden = true
+slides_in = true
+depth = 0.022
+color = Color(0.96, 0.95, 0.92, 1)
+
+[node name="Model" type="Node3D" parent="DipBowl"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.008, 0)
+script = ExtResource("3_fit")
+model = ExtResource("6_bowl")
+size = Vector3(0.095, 0, 0)

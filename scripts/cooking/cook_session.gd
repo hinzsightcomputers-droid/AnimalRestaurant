@@ -46,9 +46,6 @@ var _background: Array[CookAction] = []
 var _stacks := {}  # Surface name -> [{ node, at, height }], bottom first.
 var _status := ""
 var _cursor := MeshInstance3D.new()
-var _cursor_ring: TorusMesh
-var _cursor_edge: MeshInstance3D
-var _cursor_dot: MeshInstance3D
 var _screen: Control                       # The instructions' holder, on the cook's own view.
 var _hint := Label.new()
 var _framed := false                       # The camera is on a step's own view, not home_view.
@@ -96,11 +93,6 @@ func _process(delta: float) -> void:
 			_background.append(current)
 			_next_step()
 	_cursor.visible = current != null and current.uses_cursor()
-	if _cursor.visible:
-		var dot := current.cursor_dot()
-		_cursor_edge.visible = not dot
-		_cursor.mesh = null if dot else _cursor_ring  # The rings go; the dot (a child) stays.
-		_cursor_dot.scale = Vector3(1.8, 1.8 / 0.3, 1.8) if dot else Vector3(1.0, 1.0 / 0.3, 1.0)
 	_cursor.position = input.cursor + Vector3(0.0, 0.003, 0.0)
 	_show_hint()
 
@@ -193,7 +185,7 @@ func snapshot(surface_name: String) -> Array:
 	var origin := plate.global_transform.affine_inverse()
 	for node in find_children("*", "MeshInstance3D", true, false):
 		var mesh_instance := node as MeshInstance3D
-		if mesh_instance == _cursor or not mesh_instance.is_visible_in_tree() or mesh_instance.get_parent() is CookSurface or mesh_instance.transparency >= 1.0:
+		if mesh_instance == _cursor or not mesh_instance.is_visible_in_tree() or (mesh_instance.get_parent() is CookSurface and not mesh_instance.has_meta("food")) or mesh_instance.transparency >= 1.0:
 			continue
 		var placed := origin * mesh_instance.global_transform
 		if Vector2(placed.origin.x, placed.origin.z).length() > plate.radius() * 1.3 or placed.origin.y < -0.03:
@@ -241,7 +233,7 @@ func _controls(text: String) -> String:
 # Slides in any surface out of sight (CookSurface.slides_in) that a step
 # works with (its surface, target, from_surface or in_surface).
 func bring_in(action: CookAction) -> void:
-	for key in ["surface", "target", "from_surface", "in_surface"]:
+	for key in ["surface", "target", "from_surface", "in_surface", "into"]:
 		var surface_name = action.get(key)
 		if surface_name is String and not surface_name.is_empty() and surface(surface_name) != null:
 			surface(surface_name).slide_in()
@@ -687,6 +679,38 @@ func make_ring(ring_radius: float, color := Color(1.0, 1.0, 1.0, 0.55)) -> MeshI
 	return ring
 
 
+# A flat yellow arrow `length` long, lying on the surface pointing along +x
+# (turn it with rotation.y), drawn over everything; with both_ways it has a
+# head at each end.
+func make_arrow(length: float, both_ways := false) -> Node3D:
+	var arrow := Node3D.new()
+	var paint := _flat_material(Color(1.0, 0.85, 0.3, 0.95))
+	paint.no_depth_test = true
+	paint.render_priority = 2
+	var head_length := minf(0.035, length * 0.3)
+	var shaft := MeshInstance3D.new()
+	var bar := BoxMesh.new()
+	bar.size = Vector3(length - head_length * (2.0 if both_ways else 1.0), 0.003, head_length * 0.35)
+	bar.material = paint
+	shaft.mesh = bar
+	shaft.position.x = -head_length * 0.5 if not both_ways else 0.0
+	arrow.add_child(shaft)
+	for way in ([1.0, -1.0] if both_ways else [1.0]):
+		var head := MeshInstance3D.new()
+		var cone := CylinderMesh.new()
+		cone.top_radius = 0.0
+		cone.bottom_radius = head_length * 0.6
+		cone.height = head_length
+		cone.material = paint
+		head.mesh = cone
+		head.position.x = way * (length * 0.5 - head_length * 0.5)
+		head.rotation.z = -PI * 0.5 * way  # Its point outward.
+		head.scale.x = 0.25  # Flat on the surface.
+		arrow.add_child(head)
+	add_child(arrow)
+	return arrow
+
+
 # The step's instructions, at the top of the cook's own view (just theirs in split screen).
 func _build_hint(view_manager: ViewManager) -> void:
 	_screen = Control.new()
@@ -708,36 +732,16 @@ func _build_hint(view_manager: ViewManager) -> void:
 	_hint.offset_right = -40.0
 
 
-# A bright ring with a dark edge and a dot in the middle, big enough to find
-# at a glance, gently pulsing.
+# A bright dot, drawn over everything, gently pulsing. Steps where a tool or
+# a held piece already shows the spot hide it (uses_cursor).
 func _build_cursor() -> void:
-	var mesh := TorusMesh.new()
-	mesh.inner_radius = 0.027
-	mesh.outer_radius = 0.041
-	mesh.material = _flat_material(Color(1.0, 0.92, 0.35, 0.99))  # See-through, so it sorts over its edge.
-	_cursor.mesh = mesh
-	_cursor_ring = mesh
-	_cursor.scale.y = 0.3
+	_cursor.mesh = _dot_mesh(0.0125, Color(1.0, 0.92, 0.35, 0.99))
+	(_cursor.mesh.material as StandardMaterial3D).shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	(_cursor.mesh.material as StandardMaterial3D).no_depth_test = true
 	add_child(_cursor)
-	var edge := MeshInstance3D.new()
-	var edge_mesh := TorusMesh.new()
-	edge_mesh.inner_radius = 0.023
-	edge_mesh.outer_radius = 0.046
-	edge_mesh.material = _flat_material(Color(0.22, 0.12, 0.05, 0.85))
-	edge_mesh.material.render_priority = -1  # Under the bright ring.
-	edge.mesh = edge_mesh
-	_cursor.add_child(edge)
-	_cursor_edge = edge
-	var dot := MeshInstance3D.new()
-	dot.mesh = _dot_mesh(0.007, Color(1.0, 0.92, 0.35, 0.99))
-	(dot.mesh.material as StandardMaterial3D).shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	(dot.mesh.material as StandardMaterial3D).no_depth_test = true
-	dot.scale.y = 1.0 / 0.3  # Round, not squashed with the rings.
-	_cursor.add_child(dot)
-	_cursor_dot = dot
 	var pulse := _cursor.create_tween().set_loops()
-	pulse.tween_property(_cursor, "scale", Vector3(1.12, 0.3, 1.12), 0.5).set_trans(Tween.TRANS_SINE)
-	pulse.tween_property(_cursor, "scale", Vector3(1.0, 0.3, 1.0), 0.5).set_trans(Tween.TRANS_SINE)
+	pulse.tween_property(_cursor, "scale", Vector3.ONE * 1.2, 0.5).set_trans(Tween.TRANS_SINE)
+	pulse.tween_property(_cursor, "scale", Vector3.ONE, 0.5).set_trans(Tween.TRANS_SINE)
 
 
 func _flat_material(color: Color) -> StandardMaterial3D:

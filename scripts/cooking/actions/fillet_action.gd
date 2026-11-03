@@ -37,6 +37,10 @@ var _dot_material := StandardMaterial3D.new()
 var _cut_material := StandardMaterial3D.new()
 
 
+func uses_cursor() -> bool:
+	return false  # The knife shows the spot.
+
+
 func _begin() -> void:
 	var board := session.surface(on_surface).position
 	_fish = ModelFit.place(FOOD + "Fish.fbx", session, board, Vector3(fish_length, 0.0, 0.0))

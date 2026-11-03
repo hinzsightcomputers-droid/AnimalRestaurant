@@ -1,7 +1,8 @@
 # DoughFoldAction: fold the rolled sheet (the context's "dough") into thirds
 # like a letter, with the controls of folding an omelette: press the button on
-# the sheet, then flick up: the near third folds over, then (again) the far
-# third, leaving it a third as long and three times as thick. With turn_first
+# the sheet, then flick up: the near third folds over, then (again) the near
+# half of what's left, leaving it a third as long and three times as thick. An
+# arrow over the part to fold shows the flick. With turn_first
 # it starts with a press to give the sheet a quarter turn. With butter_streaks
 # it shows the butter folded through it once it's done. With no folds it's
 # just the turn. A fold scores how
@@ -24,6 +25,7 @@ var _held := false
 var _busy := false
 var _scores: Array[float] = []
 var _length := 0.0                         # The sheet's length (z) before folding.
+var _arrow: Node3D                         # Up over the part that folds next.
 
 
 func _init() -> void:
@@ -54,9 +56,22 @@ func _begin() -> void:
 	_box = _dough.mesh as BoxMesh
 	_turned = not turn_first
 	_length = _sheet["size"].y
+	if folds > 0:
+		_arrow = session.make_arrow(0.09)
+		_arrow.rotation.y = PI * 0.5  # Pointing up the screen.
+		_arrow.visible = false
+
+
+func end() -> void:
+	if _arrow != null:
+		_arrow.queue_free()
 
 
 func update(_delta: float, input: CookInput) -> void:
+	if _arrow != null:
+		_arrow.visible = _turned and not _busy
+		var near_edge: float = _sheet["center"].z + _sheet["size"].y * 0.5
+		_arrow.position = Vector3(_sheet["center"].x, _dough.position.y + _box.size.y * 0.5 + 0.01, near_edge - _length / 6.0 - 0.006 * (1.0 + sin(Time.get_ticks_msec() * 0.008)))  # Nudging up.
 	if _busy:
 		return
 	if not _turned:
@@ -106,7 +121,6 @@ func _turn() -> void:
 func _fold() -> void:
 	_busy = true
 	var size: Vector2 = _sheet["size"]
-	var near := _folded % 2 == 0  # The near third first, then the far.
 	var flap := MeshInstance3D.new()  # The third coming over, for show.
 	var flap_mesh := BoxMesh.new()
 	flap_mesh.size = Vector3(size.x, _box.size.y, _length / 3.0)
@@ -114,18 +128,18 @@ func _fold() -> void:
 	flap.mesh = flap_mesh
 	var hinge := Node3D.new()
 	var edge := size.y * 0.5 - _length / 3.0  # Where it bends.
-	hinge.position = Vector3(_dough.position.x, _dough.position.y + _box.size.y * 0.5, _dough.position.z + (edge if near else -edge))
+	hinge.position = Vector3(_dough.position.x, _dough.position.y + _box.size.y * 0.5, _dough.position.z + edge)
 	session.add_child(hinge)
 	hinge.add_child(flap)
-	flap.position = Vector3(0.0, -_box.size.y * 0.5, (_length / 6.0) * (1.0 if near else -1.0))
+	flap.position = Vector3(0.0, -_box.size.y * 0.5, _length / 6.0)
 	var thickness := _box.size.y
 	var new_length := size.y - _length / 3.0
 	_set_size(Vector2(size.x, new_length), thickness * size.y / new_length)
-	_dough.position.z += (-1.0 if near else 1.0) * _length / 6.0
+	_dough.position.z -= _length / 6.0
 	_sheet["center"] = Vector3(_dough.position.x, _sheet["center"].y, _dough.position.z)
 	session.play_sound("whoosh", hinge.position, -10.0, 1.2)
 	var tween := hinge.create_tween()
-	tween.tween_property(hinge, "rotation:x", -PI if near else PI, fold_seconds).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(hinge, "rotation:x", -PI, fold_seconds).set_trans(Tween.TRANS_SINE)
 	await tween.finished
 	hinge.queue_free()
 	session.wobble(_dough, 0.1)

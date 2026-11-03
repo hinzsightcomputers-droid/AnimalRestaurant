@@ -19,6 +19,7 @@ title = "Pour the eggs"
 hint = "Aim with [stick] and hold [button] to pour. Let go when it fills the ring."
 view_distance = 0.7
 batter_color = Color(0.98, 0.84, 0.32, 1)
+done_color = Color(1, 0.8, 0.22, 1)
 
 [sub_resource type="Resource" id="Resource_2"]
 script = ExtResource("fold")

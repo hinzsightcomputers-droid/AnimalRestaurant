@@ -24,6 +24,10 @@ var _fill: MeshInstance3D
 var _meter := Node3D.new()
 
 
+func uses_cursor() -> bool:
+	return false  # The shaker shows the spot.
+
+
 func _begin() -> void:
 	var pot := session.surface(in_surface)
 	_shaker = _make_shaker()

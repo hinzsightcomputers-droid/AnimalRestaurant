@@ -111,11 +111,6 @@ func cursor_height() -> float:
 	return _top()
 
 
-# The peeler shows where it is: just a dot for where it's aimed.
-func cursor_dot() -> bool:
-	return true
-
-
 func update(delta: float, input: CookInput) -> void:
 	session.set_status("Sides peeled: %d of %d" % [_side, sides])
 	var over := absf(input.cursor.z - _z) <= radius + peel_margin \

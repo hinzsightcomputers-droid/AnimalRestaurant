@@ -14,6 +14,7 @@ extends CookAction
 @export_range(0.0, 1.0) var least_share := 0.8  # Once started, it pours at least this much of the target size.
 @export var spread_speed := 5.0           # How quickly batter spreads out to its size.
 @export var batter_color := Color(0.96, 0.88, 0.66)
+@export var done_color := CookPiece.GOLDEN  # What it cooks to when just right (yellow for eggs).
 @export var thickness := 0.022
 @export var bottle_height := 0.2          # How high the nozzle is above the surface.
 @export var show_guide := true            # A faint ring the size of a perfect pour.
@@ -40,7 +41,7 @@ func cursor_area() -> Rect2:
 # No cursor ring over the batter: the guide ring (or, without it, the cursor
 # until pouring starts) shows where it'll go.
 func uses_cursor() -> bool:
-	return not show_guide and _pouring == null
+	return false  # The bottle (and the guide circle) show the spot.
 
 
 func _begin() -> void:
@@ -119,6 +120,7 @@ func _try_start(spot: Vector3) -> void:
 			session.wobble(_bottle)
 			return
 	_pouring = session.add_piece(batter_color, thickness, spot, surface)
+	_pouring.done_color = done_color
 	_area = 0.0
 	session.wobble(_bottle, 0.12)
 

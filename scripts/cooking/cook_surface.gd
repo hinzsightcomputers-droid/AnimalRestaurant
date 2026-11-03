@@ -77,6 +77,7 @@ func fill_to(new_level: float, liquid_color = null) -> void:
 		material.roughness = 0.25
 		mesh.material = material
 		liquid.mesh = mesh
+		liquid.set_meta("food", true)  # Served with the dish (CookSession.snapshot), unlike the surface itself.
 		add_child(liquid)
 	if liquid_color is Color:
 		set_liquid_color(liquid_color)
@@ -124,8 +125,16 @@ func slide_in(distance := 0.8, seconds := 0.45) -> void:
 	if visible:
 		return
 	visible = true
-	position = _home + Vector3(distance, 0.0, 0.0)
-	create_tween().tween_property(self, "position", _home, seconds).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	# Only what it draws slides: it stays where it is, so a step can aim at it straight away.
+	var shift := [distance]
+	for child in get_children():
+		if child is Node3D:
+			child.position.x += distance
+	create_tween().tween_method(func(to: float):
+		for child in get_children():
+			if child is Node3D:
+				child.position.x += to - shift[0]
+		shift[0] = to, distance, 0.0, seconds).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 # A wooden counter top under it, its top just below this surface's bottom.

@@ -17,6 +17,7 @@ title = "Crack the eggs"
 view_distance = 0.7
 hint = "Aim with [stick] and hold [button] to pour. Let go when it fills the ring."
 batter_color = Color(0.98, 0.97, 0.9, 1)
+done_color = Color(1, 0.84, 0.28, 1)
 
 [sub_resource type="Resource" id="Resource_2"]
 script = ExtResource("flip")

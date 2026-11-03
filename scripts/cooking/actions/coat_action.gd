@@ -63,8 +63,8 @@ func cursor_height() -> float:
 	return _height_at(Vector2.INF)
 
 
-func cursor_dot() -> bool:
-	return true
+func uses_cursor() -> bool:
+	return false  # The brush or shaker shows the spot.
 
 
 func _begin() -> void:
