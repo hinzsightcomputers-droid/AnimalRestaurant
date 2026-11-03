@@ -46,6 +46,9 @@ var _background: Array[CookAction] = []
 var _stacks := {}  # Surface name -> [{ node, at, height }], bottom first.
 var _status := ""
 var _cursor := MeshInstance3D.new()
+var _cursor_ring: TorusMesh
+var _cursor_edge: MeshInstance3D
+var _cursor_dot: MeshInstance3D
 var _screen: Control                       # The instructions' holder, on the cook's own view.
 var _hint := Label.new()
 var _framed := false                       # The camera is on a step's own view, not home_view.
@@ -89,6 +92,11 @@ func _process(delta: float) -> void:
 			current.end()
 			_next_step()
 	_cursor.visible = current != null and current.uses_cursor()
+	if _cursor.visible:
+		var dot := current.cursor_dot()
+		_cursor_edge.visible = not dot
+		_cursor.mesh = null if dot else _cursor_ring  # The rings go; the dot (a child) stays.
+		_cursor_dot.scale = Vector3(1.8, 1.8 / 0.3, 1.8) if dot else Vector3(1.0, 1.0 / 0.3, 1.0)
 	_cursor.position = input.cursor + Vector3(0.0, 0.003, 0.0)
 	_show_hint()
 
@@ -110,7 +118,7 @@ func _next_step() -> void:
 		current = action
 		input.height = action.cursor_height()
 		var area := action.cursor_area()
-		if area.has_area() and not area.has_point(Vector2(input.cursor.x, input.cursor.z)):  # Start it where the step is (and the camera will be).
+		if area.has_area():  # Start it in the middle of where the step is (and the camera will be).
 			var middle := area.get_center()
 			input.cursor = Vector3(middle.x, input.height, middle.y)
 		_frame_step(action)
@@ -477,6 +485,7 @@ func _build_cursor() -> void:
 	mesh.outer_radius = 0.041
 	mesh.material = _flat_material(Color(1.0, 0.92, 0.35, 0.99))  # See-through, so it sorts over its edge.
 	_cursor.mesh = mesh
+	_cursor_ring = mesh
 	_cursor.scale.y = 0.3
 	add_child(_cursor)
 	var edge := MeshInstance3D.new()
@@ -487,12 +496,14 @@ func _build_cursor() -> void:
 	edge_mesh.material.render_priority = -1  # Under the bright ring.
 	edge.mesh = edge_mesh
 	_cursor.add_child(edge)
+	_cursor_edge = edge
 	var dot := MeshInstance3D.new()
 	dot.mesh = _dot_mesh(0.007, Color(1.0, 0.92, 0.35, 0.99))
 	(dot.mesh.material as StandardMaterial3D).shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	(dot.mesh.material as StandardMaterial3D).no_depth_test = true
 	dot.scale.y = 1.0 / 0.3  # Round, not squashed with the rings.
 	_cursor.add_child(dot)
+	_cursor_dot = dot
 	var pulse := _cursor.create_tween().set_loops()
 	pulse.tween_property(_cursor, "scale", Vector3(1.12, 0.3, 1.12), 0.5).set_trans(Tween.TRANS_SINE)
 	pulse.tween_property(_cursor, "scale", Vector3(1.0, 0.3, 1.0), 0.5).set_trans(Tween.TRANS_SINE)

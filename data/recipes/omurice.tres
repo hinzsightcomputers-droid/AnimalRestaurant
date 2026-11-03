@@ -35,7 +35,7 @@ view_distance = 0.7
 [sub_resource type="Resource" id="Resource_4"]
 script = ExtResource("place")
 title = "Over the rice"
-hint = "When \"Plate it!\" pops up, press [button] on it to lift it on the spatula, then move over the plate and press [button] again."
+hint = "When \"Plate it!\" pops up, press [button] on it: the spatula slides under it and puts it on the plate."
 weight = 0.0
 carry = true
 view_distance = 0.95

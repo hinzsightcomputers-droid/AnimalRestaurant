@@ -27,7 +27,7 @@ hint = "When \"Flip!\" pops up over a pancake, press [button] on it to slide the
 [sub_resource type="Resource" id="Resource_uysvd"]
 script = ExtResource("6_a77i3")
 title = "Plate them"
-hint = "When \"Plate it!\" pops up, press [button] on a pancake to lift it on the spatula, then move over the plate and press [button] again."
+hint = "When \"Plate it!\" pops up, press [button] on a pancake: the spatula slides under it and puts it on the plate."
 weight = 0.0
 carry = true
 view_distance = 0.95

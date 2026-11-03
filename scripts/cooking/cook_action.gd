@@ -60,6 +60,11 @@ func uses_cursor() -> bool:
 	return true
 
 
+# Whether the cursor is just its dot (when what's held already shows the spot).
+func cursor_dot() -> bool:
+	return false
+
+
 # How high above the session the cursor should sit, so the mouse points at
 # what this step works on (e.g. the top of a stack).
 func cursor_height() -> float:
