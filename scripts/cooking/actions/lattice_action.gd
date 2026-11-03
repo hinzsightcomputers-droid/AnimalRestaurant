@@ -15,6 +15,7 @@ extends CookAction
 @export var spacing := 0.5                 # Between strips, as a share of the pie's radius.
 @export var filling_color := Color(0.72, 0.08, 0.14)
 @export var snap_within := 0.02            # This near a line, it goes right on it.
+@export var lay_view := Vector2(0.45, 64.0)  # Camera distance and pitch on the pie once the strips are cut.
 @export var worst_offset := 0.045
 
 var _pie: MeshInstance3D
@@ -150,6 +151,8 @@ func _cut_strip(spot: Vector3) -> void:
 func _take_next() -> void:
 	if _pile.is_empty():
 		return
+	if _holding == null and _laid == 0:  # Done cutting: in close on the pie to lay them.
+		session.frame(_pie.position, lay_view.x, lay_view.y, 0.6)
 	_holding = _pile.pop_back()
 	_holding.visible = true
 	(_holding.mesh as BoxMesh).size.x = _radius * 2.0

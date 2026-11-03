@@ -22,6 +22,7 @@ const PIN_MODEL := "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/
 @export var stretch := 0.3                 # How much the dough grows per meter rolled over it.
 @export var pin_length := 0.16
 @export var dough_color := Color(0.69, 0.48, 0.27)  # When there are no ingredients to take it from.
+@export var perfect_within := 0.15         # This far off the outline's shape (both ways added) still gets full marks.
 
 var _size := Vector2.ZERO
 var _volume := 0.0
@@ -116,7 +117,7 @@ func update(delta: float, input: CookInput) -> void:
 	session.set_status("Sheet: %d%% of the %s" % [roundi(minf(_size.x * _size.y / (fill.x * fill.y), 1.0) * 100.0), "square" if fill.x == fill.y else "rectangle"])
 	if _size.x * _size.y >= fill.x * fill.y * 0.97:
 		var off := absf(_size.x - fill.x) / fill.x + absf(_size.y - fill.y) / fill.y
-		var score := clampf(1.0 - off * 1.5, 0.0, 1.0)
+		var score := clampf(1.0 - maxf(off - perfect_within, 0.0) * 1.5, 0.0, 1.0)
 		session.pop_text("Nice and even!" if score >= 0.85 else ("Bit lopsided" if score >= 0.5 else "That's a strip!"), _center, CookSession.mood_of(score))
 		session.context["dough"] = { "node": _dough, "size": _size, "center": _center }
 		finish(score)

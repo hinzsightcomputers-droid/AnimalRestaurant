@@ -27,7 +27,7 @@ keep_scraps = true
 script = ExtResource("lattice")
 title = "Lattice top"
 cue = "Lattice!"
-hint = "Press [button] on the leftover dough to cut a strip, then move over the pie and press [button] to lay it. Space them out evenly!"
+hint = "Press [button] on the leftover dough to cut each strip. Then move each one over the pie with [stick] and press [button] to lay it on a dashed line."
 
 [sub_resource type="Resource" id="Resource_3"]
 script = ExtResource("bake")

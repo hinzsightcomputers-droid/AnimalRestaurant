@@ -25,8 +25,8 @@ var _arrow: Node3D                         # From the bowl to the door, or back.
 
 
 func _init() -> void:
-	view_distance = 0.85
-	view_pitch = 22.0
+	view_distance = 1.1  # Back far enough to see the bowl's spot and the microwave.
+	view_pitch = 26.0
 	view_seconds = 0.6
 
 
