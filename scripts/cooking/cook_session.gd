@@ -711,6 +711,20 @@ func make_arrow(length: float, both_ways := false) -> Node3D:
 	return arrow
 
 
+# An arrow up the screen for "flick up", hidden until show_flick puts it over
+# something (each frame, so it bobs).
+func make_flick_arrow() -> Node3D:
+	var arrow := make_arrow(0.08)
+	arrow.rotation.y = PI * 0.5
+	arrow.visible = false
+	return arrow
+
+
+func show_flick(arrow: Node3D, over: Vector3) -> void:
+	arrow.visible = true
+	arrow.position = over + Vector3(0.0, 0.02, -0.008 * (1.0 + sin(Time.get_ticks_msec() * 0.01)))
+
+
 # The step's instructions, at the top of the cook's own view (just theirs in split screen).
 func _build_hint(view_manager: ViewManager) -> void:
 	_screen = Control.new()

@@ -71,10 +71,9 @@ cooked_color = Color(0.8, 0.9, 0.7, 1)
 script = ExtResource("stir")
 title = "Fold the dough"
 cue = "Fold!"
-hint = "Roll [stick] round counter-clockwise to fold the sticky dough over with the wet spatula (with the mouse, hold [grip] and circle the bowl)."
+hint = "Roll [stick] round counter-clockwise to fold the sticky dough over with the whisk (with the mouse, hold [grip] and circle the bowl)."
 in_surface = "Bowl"
 turns = 4
-tool = "spatula"
 view_distance = 0.5
 
 [sub_resource type="Resource" id="Resource_6"]

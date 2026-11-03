@@ -28,8 +28,7 @@ hint = "Hold [button] to pour the custard and let go at the white line. Too much
 liquid_name = "Custard"
 liquid_color = Color(0.98, 0.82, 0.3, 1)
 line = 0.8
-view_distance = 0.45
-view_pitch = 50
+view_distance = 0.5
 weight = 0.8
 
 [sub_resource type="Resource" id="Resource_3"]

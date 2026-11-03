@@ -1,7 +1,8 @@
 # PleatAction: fold each filled wrapper (the context's "cookies") shut, with
 # the controls of folding an omelette: press the button on one to take hold of
 # its near edge, then flick up to fold it over the filling into a pleated
-# half-moon (press again to let go). A fold scores how cleanly it was flicked
+# half-moon (press again to let go); an arrow over the one held shows the
+# flick. A fold scores how cleanly it was flicked
 # (straight up is best; any flick up still folds it).
 class_name PleatAction
 extends CookAction
@@ -16,6 +17,7 @@ var _folded := {}                          # Cookie -> true once it's shut.
 var _held: MeshInstance3D = null
 var _scores: Array[float] = []
 var _ring: MeshInstance3D                  # Round the one held.
+var _arrow: Node3D                         # Over the one held: flick up.
 
 
 func _init() -> void:
@@ -52,14 +54,21 @@ func _begin() -> void:
 		return
 	_ring = session.make_ring(CookSession.half_of(_cookies[0]).x + 0.006, Color(1.0, 0.92, 0.35, 0.95))
 	_ring.visible = false
+	_arrow = session.make_flick_arrow()
 
 
 func end() -> void:
-	_ring.queue_free()
+	if _ring != null:
+		_ring.queue_free()
+		_arrow.queue_free()
 
 
 func update(_delta: float, input: CookInput) -> void:
 	session.set_status("Pleated: %d of %d" % [_folded.size(), _cookies.size()])
+	if _held != null:
+		session.show_flick(_arrow, _held.position + Vector3(0.0, CookSession.top_of(_held), 0.0))
+	else:
+		_arrow.visible = false
 	if _held == null:
 		if input.just_pressed:
 			var cookie := _cookie_at(Vector2(input.cursor.x, input.cursor.z))

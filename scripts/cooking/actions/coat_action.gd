@@ -3,7 +3,8 @@
 # pieces, or a shaker dusting powder (cornstarch over a patch of counter, sugar
 # over mochi). It scores how much of what's to be coated got covered (full
 # marks at target_coverage), less a little for what missed, from least_score
-# up; with always_full, full marks wherever it lands. keep_on keeps the tool
+# up; with always_full, full marks wherever it lands; with each_some, full marks
+# once every piece has some on (salt on pretzels). keep_on keeps the tool
 # over a surface (the sugar stays on the plate). It's done once the coat's
 # run out, or once there's enough on and you let go.
 # With turn_out, a container's contents are turned out once it's done (the
@@ -22,6 +23,7 @@ extends CookAction
 @export_range(0.0, 1.0) var target_coverage := 0.6
 @export_range(0.0, 1.0) var least_score := 0.5
 @export var always_full := false
+@export var each_some := false
 @export var keep_on := ""                  # A surface the tool can't leave.
 @export var turn_out := ""                 # A container to turn out onto on_surface afterwards.
 
@@ -33,6 +35,7 @@ var _tool: Node3D
 var _blob_mesh: Mesh
 var _outline: Node3D
 var _cookies: Array = []
+var _touched := {}                         # Pieces with some on (each_some).
 var _sound: AudioStreamPlayer3D
 
 
@@ -134,6 +137,13 @@ func update(delta: float, input: CookInput) -> void:
 		_last = null
 		if _sound.playing:
 			_sound.stop()
+	if each_some:
+		session.set_status("%s on %d of %d" % [coat_name, _touched.size(), _cookies.size()])
+		if _left <= 0.0 or (not input.held and _touched.size() >= _cookies.size()):
+			var share := float(_touched.size()) / maxi(_cookies.size(), 1)
+			session.pop_text("Perfect!" if share >= 1.0 else "Some got none", view_point(), CookSession.mood_of(share))
+			finish(share)
+		return
 	var coverage := _coverage()
 	session.set_status("%s left: %d%%  -  covered %d%%" % [coat_name, ceili(_left / seconds * 100.0), roundi(minf(coverage / target_coverage, 1.0) * 100.0)])
 	if _left <= 0.0 or (not input.held and coverage >= target_coverage):
@@ -157,6 +167,7 @@ func _coat(point: Vector2) -> void:
 		if target is MeshInstance3D:  # Bakes with the piece.
 			session.add_child(blob)
 			blob.reparent(target)
+			_touched[target] = true
 		else:
 			session.add_child(blob)
 		if target != null:

@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/cooking/actions/roll_action.gd" id="roll"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/cut_action.gd" id="cut"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/trace_action.gd" id="trace"]
-[ext_resource type="Script" path="res://scripts/cooking/actions/top_action.gd" id="top"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/coat_action.gd" id="coat"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/bake_action.gd" id="bake"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/place_action.gd" id="place"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/stir_action.gd" id="stir"]
@@ -41,14 +41,17 @@ shape = "twist"
 size = 0.12
 
 [sub_resource type="Resource" id="Resource_3"]
-script = ExtResource("top")
+script = ExtResource("coat")
 title = "Salt"
-hint = "Press [button] to put a pinch of salt right in the middle of each one."
-topping = "Salted"
-on_name = "pretzel"
-acorn_shape = false
-nut_radius = 0.01
-nut_color = Color(0.97, 0.97, 0.95, 1)
+cue = "Salt!"
+hint = "Hold [button] and move the shaker to sprinkle salt over every pretzel."
+tool = "shaker"
+coat_name = "Salt"
+coat_color = Color(0.97, 0.97, 0.95, 1)
+seconds = 4
+blob_radius = 0.01
+each_some = true
+view_distance = 0.5
 weight = 0.5
 
 [sub_resource type="Resource" id="Resource_4"]
@@ -212,7 +215,6 @@ liquid_name = "Cheese sauce"
 liquid_color = Color(0.98, 0.64, 0.2, 1)
 line = 0.75
 view_distance = 0.45
-view_pitch = 58
 weight = 0.6
 
 [resource]

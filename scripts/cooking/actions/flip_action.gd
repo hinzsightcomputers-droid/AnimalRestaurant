@@ -1,7 +1,8 @@
 # FlipAction: a spatula follows the cursor. Press the button (or RT) on a piece
 # and the spatula slides under it; then flick up (the right stick, the up key,
 # or a quick upward swipe of the mouse) to flip it over. Pressing again puts
-# it back down. Just moving over a piece does nothing.
+# it back down. Just moving over a piece does nothing. While one's held an
+# arrow over it shows the flick.
 # Each flip scores how cooked the side that was down got (the recipe's
 # HeatAction decides what's raw, golden and burnt), so you have to watch every
 # piece's edge.
@@ -18,6 +19,7 @@ extends CookAction
 var _scores: Array[float] = []
 var _held: CookPiece = null
 var _spatula: Node3D
+var _arrow: Node3D
 
 
 func view_point() -> Vector3:
@@ -32,6 +34,7 @@ func cursor_area() -> Rect2:
 func _begin() -> void:
 	_spatula = session.make_spatula()
 	_spatula.position = session.surface(surface).position
+	_arrow = session.make_flick_arrow()
 
 
 # The spatula shows where it'll go in.
@@ -55,6 +58,10 @@ func update(delta: float, input: CookInput) -> void:
 	if _held != null:
 		goal = _held.position + Vector3(0.0, -0.004, 0.0)
 	_spatula.position = _spatula.position.lerp(goal, 1.0 - exp(-22.0 * delta))
+	if _held != null:
+		session.show_flick(_arrow, _held.position + Vector3(0.0, _held.thickness, 0.0))
+	else:
+		_arrow.visible = false
 	var left := session.pieces_on(surface).filter(func(p): return _needs(p) or p.busy)
 	if left.is_empty() and not session.pieces_on(surface).is_empty():
 		finish(average(_scores))
@@ -64,6 +71,7 @@ func end() -> void:
 	if _held != null:
 		_let_go()
 	_spatula.queue_free()
+	_arrow.queue_free()
 
 
 # Whether a piece still needs this step (a FoldAction overrides these three).

@@ -1,8 +1,9 @@
 # TopAction: put a topping on each cookie (the session's context "cookies",
 # from CutAction): an acorn on top of each, or with acorn_shape off a plain dollop
 # (custard, filling, cherries...). Press over a cookie to set one down; it
-# scores how near the middle it lands. Done when every cookie has one. A press
-# off the cookies just drops it on the tray.
+# scores how near the middle it lands, marked with a ring on each one still to
+# do. Done when every cookie has one. A press off the cookies just drops it on
+# the tray.
 class_name TopAction
 extends CookAction
 
@@ -19,6 +20,7 @@ var _cookies: Array = []
 var _topped := {}                          # Cookie -> its acorn.
 var _scores: Array[float] = []
 var _hand: Node3D                          # The acorn waiting to go on, under the cursor.
+var _marks := {}                           # Cookie -> the ring marking its middle, till it's topped.
 
 
 func _init() -> void:
@@ -51,10 +53,16 @@ func uses_cursor() -> bool:
 func _begin() -> void:
 	_cookies = session.context.get("cookies", [])
 	_hand = _make_acorn()
+	for cookie: MeshInstance3D in _cookies:
+		var mark := session.make_ring(0.011, Color(1.0, 1.0, 1.0, 0.9))
+		mark.position = cookie.position + Vector3(0.0, (cookie.mesh as CylinderMesh).height * 0.5 + 0.002, 0.0)
+		_marks[cookie] = mark
 
 
 func end() -> void:
 	_hand.queue_free()
+	for mark in _marks.values():
+		mark.queue_free()
 
 
 func cursor_height() -> float:
@@ -87,6 +95,8 @@ func _drop(spot: Vector3) -> void:
 	var tween := acorn.create_tween()
 	tween.tween_property(acorn, "position", rest, 0.12).set_ease(Tween.EASE_IN)
 	_topped[cookie] = acorn
+	_marks[cookie].queue_free()
+	_marks.erase(cookie)
 	var score := 1.0 - clampf((offset.length() - perfect_offset) / (worst_offset - perfect_offset), 0.0, 1.0)
 	_scores.append(score)
 	session.play_sound("tick", spot, -4.0, 1.4)
