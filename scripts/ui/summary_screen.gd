@@ -4,12 +4,13 @@
 # After Hours. After hours the host stand opens it again (the same summary,
 # kept by DayCycle), and then its button closes it, or opens up for the new
 # day once 5 AM has been. The Friends button flips to a page of which chefs
-# each regular knows, the Shop button to the upgrades you can buy, and
+# each regular knows, the Shop button to the upgrades you can buy, Rating to
+# how close the next star is (see Rating), and
 # Collections opens the Fish and Forage Logs (CollectionsScreen) on top.
 # Runs while the game is paused.
 extends CanvasLayer
 
-enum Page { SUMMARY, FRIENDS, SHOP }
+enum Page { SUMMARY, FRIENDS, SHOP, RATING }
 
 const INPUT_DELAY := 1.0  # Ignore input briefly so a held E doesn't skip the screen.
 # The panel keeps this far inside the window: on a small window (or a long day)
@@ -43,6 +44,7 @@ var _summary: Dictionary = {}
 var _page := Page.SUMMARY
 var _from_host_stand := false  # Reopened after hours, rather than the day just ending.
 var _collections_button: Button
+var _rating_button: Button
 
 
 func _ready() -> void:
@@ -58,6 +60,10 @@ func _ready() -> void:
 	_collections_button.text = "Collections"
 	friends_button.add_sibling(_collections_button)
 	_collections_button.pressed.connect(_open_collections)
+	_rating_button = friends_button.duplicate(0) as Button
+	_rating_button.name = "RatingButton"
+	friends_button.add_sibling(_rating_button)
+	_rating_button.pressed.connect(_toggle_page.bind(Page.RATING))
 
 
 func _process(delta: float) -> void:
@@ -116,6 +122,8 @@ func _summary_text(summary: Dictionary) -> String:
 	lines.append_array(_chef_lines(summary))
 	lines.append("")
 	lines.append("Total money: $%d" % GameState.money)
+	if summary.has("stars"):
+		lines.append("Rating: %d of %d stars%s" % [summary["stars"], Rating.MAX_STARS, "  (new today!)" if summary.get("new_star", false) else ""])
 	if int(summary.get("day_number", 0)) == int(GameData.difficulty.get("hard_unlock_day", 7)):
 		lines.append("")
 		lines.append(String(GameData.difficulty.get("hard_unlocked_news", "Hard mode unlocked!")))
@@ -139,10 +147,14 @@ func _refresh_page() -> void:
 	body_label.size_flags_vertical = Control.SIZE_FILL if _page == Page.SHOP else Control.SIZE_EXPAND_FILL
 	friends_button.text = "Back to summary" if _page == Page.FRIENDS else "Friends"
 	shop_button.text = "Back to summary" if _page == Page.SHOP else _shop_button_text()
+	_rating_button.text = "Back to summary" if _page == Page.RATING else "Rating"
 	match _page:
 		Page.FRIENDS:
 			title_label.text = "Friends"
 			body_label.text = _friends_text()
+		Page.RATING:
+			title_label.text = "Rating"
+			body_label.text = Rating.page_text()
 		Page.SHOP:
 			title_label.text = "Shop"
 			body_label.text = "You have $%d. Treat the restaurant to something nice!" % GameState.money

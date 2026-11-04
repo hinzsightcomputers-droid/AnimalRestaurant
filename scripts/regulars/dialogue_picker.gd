@@ -96,6 +96,8 @@ static func _condition_met(key: String, want: Variant, context: Dictionary) -> b
 	match key:
 		"regular":
 			return context.get("regular", "") == want
+		"rating_needs":  # The area furthest from the next star: service, menu, community or decor.
+			return Rating.holding_back() == want
 		"personality":
 			return want in context.get("personality", [])
 		"first_visit":

@@ -14,6 +14,7 @@ const SAVE_VERSION := 6
 # the day's phase here as a meal index, NIGHT or CLOSED (see DayCycle).
 const NIGHT := 98
 const CLOSED := 99
+const SERVICE_HISTORY_DAYS := 30  # More than data/rating.json is ever likely to ask for.
 
 var money := 0
 # What the players named their restaurant and the color it's written in (on the
@@ -109,6 +110,16 @@ var hidden_secret: Dictionary = {}
 var house_day: Dictionary = {}
 var guided: Array = []  # Account ids done with the Guide's arrow (after their first customer, or a whole shift); it's only shown to new chefs.
 var guide_old_save := false  # Loaded from before the guide: the Guide counts everyone already here as shown.
+# The star rating (see Rating): the stars earned, the average satisfaction of
+# each recent day open (oldest first), the day the critic last came, whether
+# they've earned a star that's given out at closing, and the restaurant day the
+# last star was. Saved.
+var stars := 1
+var service_history: Array = []
+var critic_last_day := 0
+var star_earned := false
+var star_awarded_on := ""
+var forced_critic := false  # Debug panel: the critic comes in next. Not saved.
 # Debug panel: pretend it's this season ("" = the real one) or hour block
 # outdoors (for fishing), and the fish that bites on the next cast. Not saved.
 var debug_season := ""
@@ -183,6 +194,9 @@ func mark_guided(account_id: String) -> void:
 func close_day(summary: Dictionary) -> void:
 	for account_id in chef_actions_today:
 		mark_guided(account_id)
+	if int(summary.get("customers_served", 0)) > 0:
+		service_history.append(float(summary.get("average_satisfaction", 0.0)))
+		service_history = service_history.slice(-SERVICE_HISTORY_DAYS)
 	services_today.clear()
 	chef_actions_today.clear()
 	DayCycle.to_summary(summary)
@@ -377,6 +391,11 @@ func to_save_data() -> Dictionary:
 		"house_day": house_day,
 		"regulars": regular_memory,
 		"townsfolk": townsfolk,
+		"stars": stars,
+		"service_history": service_history,
+		"critic_last_day": critic_last_day,
+		"star_earned": star_earned,
+		"star_awarded_on": star_awarded_on,
 	}
 
 
@@ -405,6 +424,11 @@ func apply_save_data(data: Dictionary) -> void:
 	upgrades.assign(data.get("upgrades", []).filter(func(id): return GameData.upgrades.any(func(u): return u["id"] == id)))
 	upgrades_changed.emit()
 	unlocks.assign(data.get("unlocks", []).map(func(id): return "walters_storm_soup" if id == "storm_soup" else id))  # Its old id.
+	stars = clampi(int(data.get("stars", 1)), 1, Rating.MAX_STARS)
+	service_history = data.get("service_history", []) if data.get("service_history", []) is Array else []
+	critic_last_day = int(data.get("critic_last_day", 0))
+	star_earned = bool(data.get("star_earned", false))
+	star_awarded_on = String(data.get("star_awarded_on", ""))
 	delivery_asked = bool(data.get("delivery_asked", false))
 	townsfolk = data.get("townsfolk", {}) if data.get("townsfolk", {}) is Dictionary else {}
 	phone_unlocked = bool(data.get("phone_unlocked", false))  # Saves from before the phone had to be unlocked start without it.

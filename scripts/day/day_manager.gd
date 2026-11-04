@@ -280,6 +280,8 @@ func _end_day(show := true) -> void:
 	var summary := DaySummary.build(GameState.services_today, GameState.chef_actions_today)
 	summary["date"] = GameState.date
 	summary["day_number"] = GameState.day_number
+	summary["stars"] = GameState.stars
+	summary["new_star"] = GameState.star_awarded_on == GameState.date
 	GameState.close_day(summary)  # On to the summary + save.
 	if show:
 		get_tree().paused = true

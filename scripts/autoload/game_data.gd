@@ -27,6 +27,7 @@ const FORAGE_PATH := "res://data/forage.json"
 const TRIPS_PATH := "res://data/trips.json"
 const HOUSES_PATH := "res://data/houses.json"
 const DIFFICULTY_PATH := "res://data/difficulty.json"
+const RATING_PATH := "res://data/rating.json"
 
 # Each dish, from the menu (design/menu/dishes.json): { id, name, origin,
 # description, ingredients, steps, base_price, cook_time, tags, unlock,
@@ -72,6 +73,8 @@ var dialogue: Array[Dictionary] = []
 var upgrades: Array[Dictionary] = []
 # The difficulty levels and when Hard unlocks (data/difficulty.json).
 var difficulty: Dictionary = {}
+# The star rating's thresholds, the critic and their wording (data/rating.json, see Rating).
+var rating: Dictionary = {}
 # The day each shop item arrives in stock, by id (see in_stock()).
 var shop_arrivals: Dictionary = {}
 # Phone tuning: ring and gap timings, voicemail size, who calls, the courier.
@@ -130,6 +133,7 @@ func _ready() -> void:
 	upgrades = _load_list(UPGRADES_PATH, "upgrades")
 	shop_arrivals = _load_dictionary(UPGRADES_PATH).get("arrives", {})
 	difficulty = _load_dictionary(DIFFICULTY_PATH)
+	rating = _load_dictionary(RATING_PATH)
 	phone_settings = _load_dictionary(PHONE_PATH).get("settings", {})
 	_load_townsfolk()
 	_load_gossip()

@@ -2,7 +2,7 @@
 # it, and it's saved): each phase in data/day.json gets its walk_ins townsfolk,
 # and today's regulars (VisitSchedule) are spread across the phases, each at a
 # random spot in their phase's line. A plan is one list per phase of
-# { "regular": id } or { "walk_in": true }. Pure logic.
+# { "regular": id }, { "walk_in": true } or { "critic": true } (see Rating). Pure logic.
 class_name DayPlan
 extends RefCounted
 
@@ -25,4 +25,7 @@ static func plan() -> Array:
 	for i in regulars.size():
 		var entries: Array = result[order[i % order.size()]]
 		entries.insert(randi_range(0, entries.size()), { "regular": regulars[i] })
+	if Rating.critic_due():
+		var entries: Array = result.pick_random()
+		entries.insert(randi_range(0, entries.size()), { "critic": true })
 	return result

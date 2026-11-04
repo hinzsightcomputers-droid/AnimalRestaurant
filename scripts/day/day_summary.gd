@@ -14,6 +14,7 @@ static func build(services: Array[Dictionary], chef_actions: Dictionary = {}) ->
 		"tips": 0,              # Money paid above the menu price.
 		"average_quality": 0.0,
 		"average_wait": 0.0,
+		"average_satisfaction": 0.0,  # Goes toward the star rating (see Rating).
 		"reaction_counts": {},  # reaction id -> count
 		"top_dish": "",         # dish id ordered most often
 		"best_streak": 0,       # the longest run of good serves (ServiceStreak)
@@ -27,6 +28,7 @@ static func build(services: Array[Dictionary], chef_actions: Dictionary = {}) ->
 		summary["tips"] += maxi(0, service["payment"] - service["price"])
 		summary["average_quality"] += service["quality"]
 		summary["average_wait"] += service["wait_seconds"]
+		summary["average_satisfaction"] += float(service.get("satisfaction", service["quality"]))
 		var reaction: String = service["reaction"]
 		summary["reaction_counts"][reaction] = summary["reaction_counts"].get(reaction, 0) + 1
 		dish_counts[service["dish"]] = dish_counts.get(service["dish"], 0) + 1
@@ -34,6 +36,7 @@ static func build(services: Array[Dictionary], chef_actions: Dictionary = {}) ->
 
 	summary["average_quality"] /= services.size()
 	summary["average_wait"] /= services.size()
+	summary["average_satisfaction"] /= services.size()
 
 	var best_count := 0
 	for dish_id in dish_counts:

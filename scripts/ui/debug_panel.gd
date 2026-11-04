@@ -562,6 +562,11 @@ func _build() -> void:
 	var today_row := _add_row(box)
 	_add_button(today_row, "Re-roll today", _replan_today)
 	_add_button(today_row, "Force a new day", _force_new_day)
+	_add_label(box, "Star rating", 18, true)
+	var rating_row := _add_row(box)
+	_add_button(rating_row, "Critic next", func(): GameState.forced_critic = true; _refresh())
+	_add_button(rating_row, "Star at closing", func(): GameState.star_earned = true; _changed = true; _refresh())
+	_add_button(rating_row, "Back to 1 star", func(): GameState.stars = 1; GameState.star_earned = false; GameState.critic_last_day = 0; _changed = true; _refresh())
 
 	_add_label(box, "Outdoors and fishing", 18, true)
 	_fishing_label = _add_label(box, "")

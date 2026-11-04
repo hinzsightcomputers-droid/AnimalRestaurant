@@ -42,6 +42,9 @@ func is_playing() -> bool:
 func play_due() -> bool:
 	if _playing:
 		return true
+	if GameState.star_earned:
+		_award_star()
+		return true
 	if _played_this_shift:
 		return false
 	var scene := BigMoments.due()
@@ -50,6 +53,26 @@ func play_due() -> bool:
 	_played_this_shift = true
 	play(scene)
 	return true
+
+
+# The critic liked it: the star goes up, with a few lines in a box (data/rating.json).
+func _award_star() -> void:
+	var news := Rating.award()
+	var player: Player = null
+	for i in 4:
+		if player == null:
+			player = Player.find(get_tree(), i)
+	if player != null:
+		_playing = true
+		player.movement_locked = true
+		var box := ConversationBox.open(ConversationBox.parent_for(view_manager, player.player_index, self), player.player_index)
+		for line in Rating.settings().get("award_lines", []):
+			await box.tell("", Rating.fill(String(line)))
+		box.close()
+		player.ignore_interact_until_released()
+		player.movement_locked = false
+		_playing = false
+	GameEvents.announce(news)
 
 
 func play(scene: Dictionary) -> void:

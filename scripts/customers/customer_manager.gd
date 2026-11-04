@@ -224,8 +224,11 @@ func _try_spawn_customer() -> void:
 
 	var customer: Customer = CUSTOMER_SCENE.instantiate()
 	customer.plan_index = next["index"]
-	var person := Townsfolk.pick_walk_in() if regular.is_empty() else {}
-	if not person.is_empty():
+	var critic: bool = next.get("critic", false)
+	var person := Townsfolk.pick_walk_in() if regular.is_empty() and not critic else {}
+	if critic:
+		_setup_critic(customer)
+	elif not person.is_empty():
 		_setup_townsfolk(customer, person)
 	elif regular.is_empty():
 		customer.setup(GameData.random_species(), GameData.random_dish(), null)
@@ -243,7 +246,9 @@ func _try_spawn_customer() -> void:
 	_queue.append(customer)
 	var path: Array[Vector3] = [door_point.global_position, _on_front_lane(_queue_spot(0)), _queue_spot(_queue.size() - 1)]
 	customer.walk_to(path, Customer.State.WAITING_TO_BE_SEATED)
-	if customer.is_regular() or customer.is_townsfolk():
+	if customer.is_critic:
+		GameEvents.announce(String(Rating.critic_settings().get("arrives", "")))
+	elif customer.is_regular() or customer.is_townsfolk():
 		GameEvents.announce("%s the %s walked in." % [customer.display_name, customer.species.get("name", "?")])
 	else:
 		GameEvents.announce("A %s walked in." % customer.display_name)
@@ -255,13 +260,16 @@ func _try_spawn_customer() -> void:
 # come after all (they've stopped visiting, or already came today) counts as
 # done and the next one comes instead.
 func _next_customer() -> Dictionary:
+	if GameState.forced_critic:
+		GameState.forced_critic = false
+		return { "index": -1, "regular": {}, "critic": true }
 	if not GameState.forced_visitors.is_empty():
 		return { "index": -1, "regular": GameState.regulars.get(GameState.forced_visitors.pop_front(), {}) }
 	while not _pending.is_empty():
 		var next: Array = _pending.pop_front()
 		var entry: Dictionary = next[1]
 		if not entry.has("regular"):
-			return { "index": next[0], "regular": {} }
+			return { "index": next[0], "regular": {}, "critic": entry.has("critic") }
 		var record: Dictionary = GameState.regulars.get(entry["regular"], {})
 		if not record.is_empty() and RegularMemory.visits_in_person(record) and not RegularMemory.visited_today(record):
 			return { "index": next[0], "regular": record }
@@ -298,6 +306,20 @@ func _setup_townsfolk(customer: Customer, person: Dictionary) -> void:
 	customer.setup(species, Townsfolk.choose(person, "favorite_dish", GameData.menu(), GameData.random_dish()), null)
 	customer.townsfolk_id = person["id"]
 	customer.display_name = person.get("name", customer.display_name)
+
+
+# The critic: the named townsfolk playing them, or the unnamed one from
+# data/rating.json. Served like anyone else; see Rating.critic_left.
+func _setup_critic(customer: Customer) -> void:
+	var person := Rating.critic_person()
+	if not person.is_empty():
+		_setup_townsfolk(customer, person)
+	else:
+		var settings := Rating.critic_settings()
+		customer.setup(GameData.get_species(String(settings.get("species", ""))).duplicate(), GameData.random_dish(), null)
+		customer.display_name = String(settings.get("name", customer.display_name))
+	customer.is_critic = true
+	GameState.critic_last_day = GameState.day_number
 
 
 # What to call a regular: their name once they've told you it, else their animal.
@@ -1334,6 +1356,8 @@ func _settle_bill(player: Player, customer: Customer) -> void:
 		GameEvents.announce("%s paid $%d (+$%d tip)." % [_who(customer).capitalize(), amount, amount - price])
 	else:
 		GameEvents.announce("%s paid $%d." % [_who(customer).capitalize(), amount])
+	if customer.is_critic:
+		GameEvents.announce(Rating.critic_left(satisfaction))
 	GameState.record_service({
 		"species": customer.species.get("id", ""),
 		"regular": customer.regular_id,
