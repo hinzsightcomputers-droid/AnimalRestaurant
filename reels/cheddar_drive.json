@@ -1,0 +1,11 @@
+{
+	"title": "The drive to the beach",
+	"meal": "lunch",
+	"hour": "afternoon",
+	"regular": { "id": "cheddar", "relationship": 40, "first_visit": false },
+	"beats": [
+		{ "do": "drive", "seconds": 9.0, "lines": ["cheddar_drive_dent", "cheddar_drive_windows"] },
+		{ "do": "wait", "seconds": 3.0 },
+		{ "do": "end" }
+	]
+}

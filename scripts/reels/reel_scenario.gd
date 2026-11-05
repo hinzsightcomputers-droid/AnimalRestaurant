@@ -6,7 +6,7 @@ extends RefCounted
 
 const DIR := "res://reels/"
 const MAIN_SCENE := "res://scenes/main.tscn"
-const BEATS := ["walk_in", "line", "choices", "reaction", "serve", "wait", "end"]
+const BEATS := ["walk_in", "line", "choices", "reaction", "serve", "drive", "wait", "end"]
 
 
 # Every scenario's name (its file name without .json), sorted.
@@ -76,6 +76,8 @@ static func problems(scenario: Dictionary) -> Array[String]:
 	var lighting: String = scenario.get("lighting", scenario.get("meal", ""))
 	if meal_index(lighting) < 0:
 		found.append("lighting \"%s\" isn't a meal in data/day.json" % lighting)
+	if scenario.has("hour") and not scenario["hour"] in GameData.trips.get("drive", {}).get("sky", {}):
+		found.append("hour \"%s\" isn't an hour block in data/time.json" % scenario["hour"])
 	var regular: Dictionary = scenario.get("regular", {})
 	_check_regular(regular, found)
 	var spots := table_spots()
@@ -156,6 +158,13 @@ static func _check_beats(beats: Array, regular_id: String, spots: Array[String],
 			"serve":
 				if GameData.get_dish(beat.get("dish", "")).is_empty():
 					found.append("%s: dish \"%s\" doesn't exist" % [where, beat.get("dish", "")])
+			"drive":
+				var car: Dictionary = GameData.trips.get("car", {})
+				if regular_id != car.get("regular", ""):
+					found.append("%s: only %s drives, so he has to be the regular" % [where, car.get("regular", "")])
+				for line_id in beat.get("lines", []):
+					if find_line(regular_id, line_id).is_empty():
+						found.append("%s: %s has no line \"%s\"" % [where, regular_id, line_id])
 			"wait":
 				if float(beat.get("seconds", 0.0)) <= 0.0:
 					found.append("%s: needs seconds" % where)

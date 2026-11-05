@@ -6,7 +6,7 @@
 class_name ReelCamera
 extends Node
 
-enum Shot { WIDE, FOLLOW, TABLE, SERVE }
+enum Shot { WIDE, FOLLOW, TABLE, SERVE, CAR, BEACH }
 
 const FOV := 42.0
 const GLIDE_SPEED := 2.5     # Higher = gets to the next shot sooner.
@@ -23,6 +23,10 @@ const SERVE_DISTANCE := 3.8
 const SERVE_HEIGHT := 2.6
 const SERVE_SIDE := 2.9
 const SERVE_LOOK_ACROSS := 0.3  # Toward the table, so the plate's in the shot.
+const CAR_POSITION := Vector3(-1.6, 2.8, 5.2)  # Cheddar's car out front, across the corner of the restaurant.
+const CAR_LOOK := Vector3(-6.8, 0.5, 10.8)
+const BEACH_OFFSET := Vector3(-0.5, 2.2, 7.5)  # Behind the chef as they look out to sea.
+const BEACH_LOOK := Vector3(-0.5, 1.2, -4.0)
 
 var view: PlayerView
 var subject: Customer  # The regular.
@@ -67,6 +71,10 @@ func _goal() -> Array:
 			return _at_table(TABLE_DISTANCE, TABLE_HEIGHT, TABLE_SIDE, 0.0)
 		Shot.SERVE:
 			return _at_table(SERVE_DISTANCE, SERVE_HEIGHT, SERVE_SIDE, SERVE_LOOK_ACROSS)
+		Shot.CAR:
+			return [CAR_POSITION, CAR_LOOK]
+		Shot.BEACH:
+			return [chef.global_position + BEACH_OFFSET, chef.global_position + BEACH_LOOK]
 	return [WIDE_POSITION, WIDE_LOOK]
 
 

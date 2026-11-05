@@ -41,6 +41,9 @@ only apply while recording. Godot writes an AVI; with `ffmpeg.exe` in
 - `wide_seconds`: how long the opening shot of the room lasts. Optional, 2 by
   default. After it the camera follows the regular, moves in close at their
   table for `line`, and cuts to a wider shot for `serve`.
+- `hour`: the time of day outdoors, for the sky on a drive and the beach campfire:
+  `early_morning`, `morning`, `midday`, `afternoon`, `evening` or `late_night`.
+  Leave it out to use the real time.
 - `chef`, `restaurant`: the names used in lines. Optional.
 - `regular`: who it's about.
   - `id`: their file in `data/characters/`.
@@ -66,6 +69,10 @@ only apply while recording. Godot writes an AVI; with `ffmpeg.exe` in
     for as many as it goes on (see `cheddar_knock_knock.json`).
   - `serve`: cuts to the chef arriving with `dish`, skipping the cooking and the
     trip to the kitchen, at `quality` (0 to 1).
+  - `drive`: opens on Cheddar's car out front for `wide_seconds`, then the drive to
+    the beach (he has to be the regular), `seconds` long, then the chef on the
+    beach. `lines` is a list of his line ids to say on the way; leave it out and
+    they're picked at random.
   - `wait`: nothing happens for `seconds`.
   - `end`: stops. Has to be the last beat.
 

@@ -217,7 +217,7 @@ func _ask(player: Player, to_beach: bool, answers: Dictionary) -> void:
 
 
 # The drive itself: one shared view while the chefs are moved, then they're there.
-func _drive(travelers: Array[int], to_beach: bool) -> void:
+func _drive(travelers: Array[int], to_beach: bool, reel_seconds := 0.0, reel_lines: Array = []) -> void:
 	var settings: Dictionary = GameData.trips.get("drive", {})
 	var skippable := GameState.car_trips >= int(settings.get("skip_after_trips", 3))
 	if to_beach:
@@ -226,7 +226,7 @@ func _drive(travelers: Array[int], to_beach: bool) -> void:
 	var drive := DriveView.new()
 	drive.view_manager = _view_manager
 	drive.travelers = travelers
-	drive.full_screen = travelers.size() >= get_tree().get_nodes_in_group(Player.GROUP).size()
+	drive.full_screen = travelers.size() >= get_tree().get_nodes_in_group(Player.GROUP).size() and not ReelSandbox.active()
 	drive.skippable = skippable
 	add_child(drive)
 	await drive.shown
@@ -236,8 +236,9 @@ func _drive(travelers: Array[int], to_beach: bool) -> void:
 		if player != null:
 			player.release_camera_focus()
 			_place(player, points[i % points.size()], to_beach)
-	var seconds := float(settings.get("seconds" if to_beach else "home_seconds", 12.0))
-	var lines := int(settings.get("chatter_lines", 2)) if to_beach else 1
+	var seconds := reel_seconds if reel_seconds > 0.0 else float(settings.get("seconds" if to_beach else "home_seconds", 12.0))
+	var script := reel_lines.duplicate()
+	var lines := script.size() if not script.is_empty() else (int(settings.get("chatter_lines", 2)) if to_beach else 1)
 	var say_at: Array[float] = []
 	for i in lines:
 		say_at.append(0.6 + i * seconds / (lines + 0.5))
@@ -249,7 +250,7 @@ func _drive(travelers: Array[int], to_beach: bool) -> void:
 		time += get_process_delta_time()
 		if not say_at.is_empty() and time >= say_at[0]:
 			say_at.pop_front()
-			drive.say(_line("car_chatter", travelers[0]), _emotion)
+			drive.say(_said_line(script.pop_front()) if not script.is_empty() else _line("car_chatter", travelers[0]), _emotion)
 		if skippable and time > SKIP_GRACE:
 			for index in travelers:
 				var pressed := Input.is_action_pressed(InputSetup.action_name(index, "interact"))
@@ -270,6 +271,30 @@ func _drive(travelers: Array[int], to_beach: bool) -> void:
 			_release(player)
 	if not to_beach:
 		_drive_off()
+
+
+# A reel opens on the car out front, Cheddar beside it and `chef` about to get in.
+func reel_stage(chef: Player) -> void:
+	_leaving = true  # So _refresh leaves them out, whatever the day says.
+	_car.visible = true
+	_cheddar.visible = true
+	_place(chef, _at(GameData.trips.get("car", {}).get("step_out_at", [-7.5, 10.0])), true)
+
+
+# A reel's drive to the beach, for the first chef, `seconds` long (0 = as usual),
+# with these of his lines (none = picked as usual).
+func reel_drive(seconds: float, chatter: Array) -> void:
+	var travelers: Array[int] = [0]
+	await _drive(travelers, true, seconds, chatter)
+	_leaving = false
+
+
+# His line with this id, with its emotion in _emotion.
+func _said_line(line_id: String) -> String:
+	var regular := record()
+	var line := ReelScenario.find_line(regular.get("id", "cheddar"), line_id)
+	_emotion = Conversation.emotion_of(line)
+	return DialoguePicker.fill(line.get("text", ""), RegularMemory.dialogue_context(regular, Accounts.id_of(0)))
 
 
 # Home again: Cheddar hops in and the car drives off down the road, not to

@@ -61,6 +61,7 @@ func play() -> void:
 
 
 func _set_the_scene() -> void:
+	GameState.debug_hour_block = scenario.get("hour", "")
 	var lighting: String = scenario.get("lighting", scenario["meal"])
 	if lighting != scenario["meal"]:
 		main.get_node("DayManager")._light(GameState.phase_info(ReelScenario.meal_index(lighting)).get("lighting", {}), 0.0)
@@ -92,6 +93,8 @@ func _run(beat: Dictionary, index: int) -> void:
 			await _finish_talking(float(beat.get("hold", REPLY_HOLD_SECONDS)))
 		"serve":
 			await _serve(beat)
+		"drive":
+			await _drive(beat)
 		"wait":
 			await _seconds(float(beat["seconds"]))
 
@@ -181,6 +184,16 @@ func _serve(beat: Dictionary) -> void:
 	_chef.set_held_item(CookedDish.new(order, float(beat.get("quality", 1.0))))
 	await _walk_chef(way)
 	_customers.reel_serve(_chef, customer, _chef.held_item)
+
+
+# A moment by Cheddar's car, the drive with him chatting, then the beach as it fades away.
+func _drive(beat: Dictionary) -> void:
+	var trip: CarTrip = main.find_children("*", "CarTrip", true, false).front()
+	trip.reel_stage(_chef)
+	_camera.cut_to(ReelCamera.Shot.CAR)
+	await _seconds(float(scenario.get("wide_seconds", WIDE_SECONDS)))
+	await trip.reel_drive(float(beat.get("seconds", 0.0)), beat.get("lines", []))
+	_camera.cut_to(ReelCamera.Shot.BEACH)
 
 
 # From the pass: along the back, down the aisle beside their chair, and up to them.

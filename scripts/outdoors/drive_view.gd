@@ -11,6 +11,7 @@ extends Node
 
 const FADE_SECONDS := 0.4
 const WRAP := 36.0  # Scenery that goes past -WRAP comes round again at +WRAP.
+const TALL_CAMERA_BACK := 11.0
 
 signal shown
 
@@ -135,6 +136,7 @@ func _build_world(settings: Dictionary) -> void:
 	_box(world, Vector3(0.0, -0.05, -3.5), Vector3(200.0, 0.1, 9.0), Color(0.42, 0.6, 0.3))     # Grass by the road.
 	_box(world, Vector3(0.0, -0.04, -7.8), Vector3(200.0, 0.1, 1.2), Color(0.88, 0.8, 0.58))   # A strip of sand.
 	_box(world, Vector3(0.0, -0.03, 0.0), Vector3(200.0, 0.1, 3.4), Color(0.3, 0.3, 0.32))     # The road.
+	_box(world, Vector3(0.0, -0.05, 8.0), Vector3(200.0, 0.1, 13.0), Color(0.42, 0.6, 0.3))    # Grass this side of it, for a tall view.
 	for i in 18:  # Lane marks.
 		_moving.append(_box(world, Vector3(-WRAP + i * 4.0, 0.03, 0.0), Vector3(1.6, 0.02, 0.12), Color(0.95, 0.9, 0.7)))
 	var nature := "res://design/assets/KayKit_Forest_Nature_Pack_1.0_FREE/Assets/gltf/"
@@ -159,7 +161,10 @@ func _build_world(settings: Dictionary) -> void:
 	var camera := Camera3D.new()
 	camera.fov = 40.0
 	world.add_child(camera)
-	camera.look_at_from_position(Vector3(0.6, 2.0, 8.5), Vector3(0.6, 0.8, 0.0))
+	if _viewport.size.y > _viewport.size.x:  # A tall view: back a little and centered, or the car doesn't fit.
+		camera.look_at_from_position(Vector3(0.0, 2.2, TALL_CAMERA_BACK), Vector3(0.0, 0.3, 0.0))
+	else:
+		camera.look_at_from_position(Vector3(0.6, 2.0, 8.5), Vector3(0.6, 0.8, 0.0))
 
 
 func _box(parent: Node3D, at: Vector3, size: Vector3, color: Color) -> MeshInstance3D:
