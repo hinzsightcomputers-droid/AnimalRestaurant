@@ -626,6 +626,7 @@ func reel_extra(species: Dictionary, dish: Dictionary, spot: String) -> Customer
 	var customer: Customer = CUSTOMER_SCENE.instantiate()
 	customer.setup(species, dish, null)
 	customer.eat_duration = REEL_EXTRA_MEAL_SECONDS
+	customer.quiet = true
 	add_child(customer)
 	var seat := _reel_seat(spot)
 	_seat_owners[seat] = customer

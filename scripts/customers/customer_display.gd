@@ -113,6 +113,8 @@ func _on_state_changed(_customer: Customer) -> void:
 		Customer.State.LEAVING:
 			bubble.visible = false  # Their goodbye was in the dialogue box; what they paid is announced.
 
+	if customer.quiet:
+		bubble.visible = false
 	_update_name_tag()
 
 
@@ -223,7 +225,7 @@ func _on_speech_timer_timeout() -> void:
 # Regulars wear a name tag showing how well they know you, e.g. "Stitches - Nervous";
 # named townsfolk just their name.
 func _update_name_tag() -> void:
-	name_tag.visible = (customer.is_regular() or customer.is_townsfolk()) and customer.state != Customer.State.GONE
+	name_tag.visible = (customer.is_regular() or customer.is_townsfolk()) and customer.state != Customer.State.GONE and not ReelSandbox.active()
 	if customer.is_townsfolk():
 		name_tag.text = customer.display_name
 	elif customer.is_regular():
