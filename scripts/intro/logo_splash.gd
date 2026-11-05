@@ -57,7 +57,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _next() -> void:
-	get_tree().change_scene_to_file(NEXT_SCENE)
+	IrisTransition.change_scene(get_tree(), NEXT_SCENE, 0.0, 0.3)  # Already black: straight to the loading icon.
 
 
 func _find_logo() -> String:

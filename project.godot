@@ -15,7 +15,7 @@ run/main_scene="res://scenes/intro/logo_splash.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="Godot/app_userdata/AnimalRestaurant"
 config/features=PackedStringArray("4.7", "Forward Plus")
-config/icon="res://icon.svg"
+config/icon="res://assets/icon.png"
 
 [autoload]
 
