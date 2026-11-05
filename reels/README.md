@@ -14,7 +14,18 @@ It lists anything wrong with the file, or a summary of what it set up.
 
     godot --path . res://reels/reel_player.tscn -- --scenario=stitches_patches
 
-The window plays it through and closes by itself.
+A small tall window plays it through and closes by itself. Don't press anything
+while it plays: real key presses still reach the game.
+
+## Recording one
+
+    bash reels/record.sh stitches_patches
+
+It takes about twice as long as the reel and saves to
+`Videos/Dinner Time Reels`, outside the project. The size comes from the
+`.movie` settings in `project.godot` (`--resolution` doesn't change it), which
+only apply while recording. Godot writes an AVI; with `ffmpeg.exe` in
+`%LOCALAPPDATA%/DinnerTimeTools` it's turned into an MP4.
 
 ## The format
 

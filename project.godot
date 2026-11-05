@@ -30,6 +30,11 @@ Music="*res://scripts/autoload/music.gd"
 
 [display]
 
+window/size/viewport_width.movie=1080
+window/size/viewport_height.movie=1920
+window/size/window_width_override.movie=450
+window/size/window_height_override.movie=800
+window/stretch/mode.movie="viewport"
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
