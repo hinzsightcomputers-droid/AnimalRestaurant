@@ -10,6 +10,7 @@ extends CookAction
 
 const FLIGHT_SECONDS := 0.6
 const AIM_WIDTH := 0.9  # How far left or right of straight out a cast can go (meters).
+const SCRIPTED_PAUSE := 1.0  # A reel looks at the water this long before casting.
 
 var _settings: Dictionary
 var _charging := false
@@ -21,6 +22,7 @@ var _bobber: Node3D
 var _rod: Node3D
 var _meter: FishingMeter
 var _hot_at := Vector3.ZERO
+var _scripted_pause := SCRIPTED_PAUSE
 
 
 func _begin() -> void:
@@ -70,6 +72,17 @@ func update(delta: float, input: CookInput) -> void:
 		_cast(input)
 	else:
 		session.set_status("")
+
+
+# Straight into the ripples.
+func scripted_hold(delta: float, input: CookInput) -> bool:
+	_scripted_pause -= delta
+	if _scripted_pause > 0.0 or _flying:
+		return false
+	var distance := -_hot_at.z
+	input.stick = Vector2(clampf(_hot_at.x * 3.0 / (AIM_WIDTH * distance), -1.0, 1.0), 0.0)
+	var power := inverse_lerp(float(_settings.get("min_distance", 0.8)), float(_settings.get("max_distance", 3.0)), distance)
+	return not _charging or _power < power
 
 
 func _cast(input: CookInput) -> void:

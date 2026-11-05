@@ -6,7 +6,7 @@ extends RefCounted
 
 const DIR := "res://reels/"
 const MAIN_SCENE := "res://scenes/main.tscn"
-const BEATS := ["walk_in", "line", "choices", "reaction", "serve", "drive", "wait", "end"]
+const BEATS := ["walk_in", "line", "choices", "reaction", "serve", "drive", "beach", "walk", "fish", "wait", "end"]
 
 
 # Every scenario's name (its file name without .json), sorted.
@@ -124,6 +124,7 @@ static func _check_beats(beats: Array, regular_id: String, spots: Array[String],
 		found.append("the last beat has to be \"end\"")
 	var line := {}  # The line last said, for the choices after it.
 	var walked_in := false
+	var at_beach := false
 	for i in beats.size():
 		var beat: Dictionary = beats[i]
 		var where := "beat %d (%s)" % [i + 1, beat.get("do", "?")]
@@ -131,6 +132,8 @@ static func _check_beats(beats: Array, regular_id: String, spots: Array[String],
 		var last: String = beats[i - 1].get("do", "") if i > 0 else ""
 		if beat.get("do", "") in ["line", "serve"] and not walked_in:
 			found.append("%s: needs a walk_in beat before it" % where)
+		if beat.get("do", "") in ["walk", "fish"] and not at_beach:
+			found.append("%s: needs a drive or beach beat before it" % where)
 		match beat.get("do", ""):
 			"walk_in":
 				var table: String = beat.get("table", "")
@@ -165,6 +168,17 @@ static func _check_beats(beats: Array, regular_id: String, spots: Array[String],
 				for line_id in beat.get("lines", []):
 					if find_line(regular_id, line_id).is_empty():
 						found.append("%s: %s has no line \"%s\"" % [where, regular_id, line_id])
+				at_beach = true
+			"beach":
+				at_beach = true
+			"walk":
+				var to: Array = beat.get("to", [])
+				if to.is_empty() or not to.all(func(point): return point is Array and point.size() == 2):
+					found.append("%s: \"to\" has to be a list of [x, z] points on the beach" % where)
+			"fish":
+				var fish := GameData.get_fish(beat.get("fish", ""))
+				if fish.get("habitat", "") != "beach":
+					found.append("%s: \"%s\" isn't a fish from the beach" % [where, beat.get("fish", "")])
 			"wait":
 				if float(beat.get("seconds", 0.0)) <= 0.0:
 					found.append("%s: needs seconds" % where)

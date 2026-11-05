@@ -1,0 +1,13 @@
+{
+	"title": "Fishing off the pier",
+	"meal": "lunch",
+	"hour": "afternoon",
+	"regular": { "id": "cheddar", "relationship": 40, "first_visit": false },
+	"beats": [
+		{ "do": "beach" },
+		{ "do": "wait", "seconds": 0.6 },
+		{ "do": "walk", "to": [[2.5, 0.5], [1.0, -4.0]] },
+		{ "do": "fish", "fish": "sea_bream" },
+		{ "do": "end" }
+	]
+}

@@ -281,6 +281,11 @@ func reel_stage(chef: Player) -> void:
 	_place(chef, _at(GameData.trips.get("car", {}).get("step_out_at", [-7.5, 10.0])), true)
 
 
+# A reel that starts at the beach, `chef` just out of the car.
+func reel_arrive(chef: Player) -> void:
+	_place(chef, beach.arrival_points()[0], true)
+
+
 # A reel's drive to the beach, for the first chef, `seconds` long (0 = as usual),
 # with these of his lines (none = picked as usual).
 func reel_drive(seconds: float, chatter: Array) -> void:

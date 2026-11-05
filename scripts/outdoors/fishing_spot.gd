@@ -7,7 +7,10 @@
 class_name FishingSpot
 extends Node3D
 
+signal catch_held  # The chef's turned round and is holding it up.
+
 const RECIPE := "res://data/recipes/fishing.tres"
+const REEL_TEXT_SIZE := 0.005                   # Words over the water, big enough for a reel's wider shot.
 const RESULT_SHOW_TIME := 1.8
 const ROD_GRIP := Vector3(0.22, 0.8, -0.1)     # Where the rod is held, from the spot.
 const ROD_TIP := Vector3(0.0, 0.55, -1.35)      # The tip, from the grip.
@@ -74,6 +77,14 @@ func _start(player: Player) -> void:
 	player.hide_from_own_view(true)
 	session.finished.connect(_on_finished)
 	session.start(load(RECIPE), player, get_tree().root.find_children("*", "ViewManager", true, false).front())
+
+
+# A reel's chef fishes here by themselves, seen by the reel's own camera with the rod in their hands.
+func reel_start(player: Player) -> void:
+	_start(player)
+	session.input.scripted = true
+	session.text_size = REEL_TEXT_SIZE
+	(player.visual.get_node("Chef") as ChefModel).carrying = true
 
 
 func _process(_delta: float) -> void:
@@ -143,6 +154,7 @@ func _show_off(caught: Dictionary) -> void:
 	zoom.pitch_degrees = 14.0
 	zoom.yaw_degrees = rad_to_deg(global_rotation.y)  # Where it was, behind them: now in front.
 	player.request_camera_focus(player.global_position + Vector3(0.0, 0.9, 0.0), zoom)
+	catch_held.emit()
 	var swing := held.create_tween()  # It swings on the line, slowing down.
 	for i in 4:
 		var angle := 0.35 * pow(0.55, i)

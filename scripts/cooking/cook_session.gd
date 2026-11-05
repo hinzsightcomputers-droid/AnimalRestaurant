@@ -208,7 +208,7 @@ func set_status(text: String) -> void:
 func _show_hint() -> void:
 	if current == null:
 		return
-	var lines := [current.title, _controls(current.hint)]
+	var lines := [] if input.scripted else [current.title, _controls(current.hint)]  # Nobody watching a reel needs the controls.
 	if not _status.is_empty():
 		lines.append(_status)
 	_hint.text = "\n".join(lines.filter(func(line): return not line.is_empty()))

@@ -42,6 +42,12 @@ func update(_delta: float, _input: CookInput) -> void:
 
 
 # Clean up anything only this step needed (its tool, sounds).
+# For a reel: whether a good player has the button down this frame. A step that
+# can play itself says so here, and can set `input.stick` too.
+func scripted_hold(_delta: float, _input: CookInput) -> bool:
+	return false
+
+
 func end() -> void:
 	pass
 

@@ -6,7 +6,7 @@
 class_name ReelCamera
 extends Node
 
-enum Shot { WIDE, FOLLOW, TABLE, SERVE, CAR, BEACH }
+enum Shot { WIDE, FOLLOW, TABLE, SERVE, CAR, BEACH, STROLL, FISHING, CATCH }
 
 const FOV := 42.0
 const GLIDE_SPEED := 2.5     # Higher = gets to the next shot sooner.
@@ -27,10 +27,17 @@ const CAR_POSITION := Vector3(-1.6, 2.8, 5.2)  # Cheddar's car out front, across
 const CAR_LOOK := Vector3(-6.8, 0.5, 10.8)
 const BEACH_OFFSET := Vector3(-0.5, 2.2, 7.5)  # Behind the chef as they look out to sea.
 const BEACH_LOOK := Vector3(-0.5, 1.2, -4.0)
+const STROLL_OFFSET := Vector3(3.5, 4.0, 7.0)   # Along with the chef on the sand, from up the beach and clear of the umbrella.
+const STROLL_LOOK := Vector3(0.0, 0.5, -2.0)
+const FISHING_OFFSET := Vector3(3.6, 4.5, 3.4)  # Up and off to the side of the chef, or they stand right in front of the bobber.
+const FISHING_LOOK := Vector3(-0.2, 0.2, -1.5)
+const CATCH_OFFSET := Vector3(0.3, 1.25, 2.6)   # In front of them, once they've turned round with the fish.
+const CATCH_LOOK := Vector3(0.15, 0.85, 0.0)
 
 var view: PlayerView
 var subject: Customer  # The regular.
 var chef: Player
+var spot: FishingSpot  # Where the chef's fishing.
 
 var _shot := Shot.WIDE
 var _position := WIDE_POSITION
@@ -75,6 +82,12 @@ func _goal() -> Array:
 			return [CAR_POSITION, CAR_LOOK]
 		Shot.BEACH:
 			return [chef.global_position + BEACH_OFFSET, chef.global_position + BEACH_LOOK]
+		Shot.STROLL:
+			return [chef.global_position + STROLL_OFFSET, chef.global_position + STROLL_LOOK]
+		Shot.FISHING:
+			return [spot.to_global(FISHING_OFFSET), spot.to_global(FISHING_LOOK)]
+		Shot.CATCH:
+			return [spot.to_global(CATCH_OFFSET), spot.to_global(CATCH_LOOK)]
 	return [WIDE_POSITION, WIDE_LOOK]
 
 

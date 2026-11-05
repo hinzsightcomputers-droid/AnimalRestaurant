@@ -11,6 +11,7 @@ extends CookAction
 const NIBBLE_DIP := 0.025
 const BITE_DIP := 0.08
 const ROD_PULL := 6.0  # Radians the rod tips down per meter the bobber's pulled under.
+const SCRIPTED_REACTION := 0.35  # Seconds a reel's chef takes to strike.
 
 var _settings: Dictionary
 var _fish: Dictionary
@@ -89,6 +90,11 @@ func update(delta: float, input: CookInput) -> void:
 	_bite_left -= delta
 	if _bite_left <= 0.0:
 		_fail("Too slow... it got away.")
+
+
+# Ignores the nibbles and strikes on the bite.
+func scripted_hold(_delta: float, _input: CookInput) -> bool:
+	return _bitten and _bite_left <= float(_settings.get("bite_window_seconds", 1.0)) - SCRIPTED_REACTION
 
 
 func _fail(text: String) -> void:

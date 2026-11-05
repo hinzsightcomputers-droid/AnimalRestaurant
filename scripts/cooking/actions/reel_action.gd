@@ -11,6 +11,7 @@ class_name ReelAction
 extends CookAction
 
 const TICK_EVERY := 0.09  # Seconds between reel clicks at full speed.
+const SCRIPTED_TENSION := Vector2(0.45, 0.65)  # A reel's chef reels below the first and eases off above the second.
 
 var _settings: Dictionary
 var _fish: Dictionary
@@ -33,6 +34,7 @@ var _progress_meter: FishingMeter
 var _ended := false
 var _swimmer: Node3D            # The fish itself, swimming about on the line.
 var _swim_angle := 0.0
+var _scripted_reeling := true
 
 
 func _begin() -> void:
@@ -127,6 +129,15 @@ func update(delta: float, input: CookInput) -> void:
 		_lose("It shook free and got away.")
 	elif _progress >= 1.0:
 		_land()
+
+
+# Keeps the tension in the middle of the band.
+func scripted_hold(_delta: float, _input: CookInput) -> bool:
+	if _tension < SCRIPTED_TENSION.x:
+		_scripted_reeling = true
+	elif _tension > SCRIPTED_TENSION.y:
+		_scripted_reeling = false
+	return _scripted_reeling
 
 
 func _land() -> void:

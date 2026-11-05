@@ -22,6 +22,7 @@ var just_released := false
 var flick := Vector2.ZERO      # x, z on the surface, normalized; zero when there's no flick.
 var stick := Vector2.ZERO      # x, z on the surface, up to 1 long; zero in the deadzone.
 var using_mouse := false       # The mouse moved the cursor last (rather than the stick).
+var scripted := false          # A reel is playing: the step plays itself (CookAction.scripted_hold), and nothing real counts.
 
 var _session: CookSession
 var _player_index: int
@@ -43,6 +44,9 @@ func _init(session: CookSession, player_index: int, view_manager: ViewManager) -
 
 
 func update(delta: float) -> void:
+	if scripted:
+		_press(_session.current != null and _session.current.scripted_hold(delta, self))
+		return
 	_time += delta
 	var raw := _raw_stick()
 	var mouse_point = _mouse_point()  # null while the mouse isn't over this player's view.
@@ -67,9 +71,7 @@ func update(delta: float) -> void:
 	if _wait_for_release:  # The press that opened the close-up: it doesn't count as the first one.
 		_wait_for_release = now_held
 		now_held = false
-	just_pressed = now_held and not held
-	just_released = held and not now_held
-	held = now_held
+	_press(now_held)
 
 	flick = _stick_flick(raw, delta)
 	var tap := _key_flick() if InputSetup.pad_of(_player_index) < 0 else Vector2.ZERO
@@ -78,6 +80,12 @@ func update(delta: float) -> void:
 	var swipe := _mouse_flick(mouse_point)
 	if flick == Vector2.ZERO:
 		flick = swipe
+
+
+func _press(now_held: bool) -> void:
+	just_pressed = now_held and not held
+	just_released = held and not now_held
+	held = now_held
 
 
 # Meters a second for this push: on a gamepad, from nothing at the edge of the

@@ -95,6 +95,14 @@ func _run(beat: Dictionary, index: int) -> void:
 			await _serve(beat)
 		"drive":
 			await _drive(beat)
+		"beach":
+			_trip().reel_arrive(_chef)
+			_camera.cut_to(ReelCamera.Shot.STROLL)
+		"walk":
+			_camera.glide_to(ReelCamera.Shot.STROLL)
+			await _walk_chef(_on_beach(beat["to"]))
+		"fish":
+			await _fish(beat)
 		"wait":
 			await _seconds(float(beat["seconds"]))
 
@@ -188,12 +196,43 @@ func _serve(beat: Dictionary) -> void:
 
 # A moment by Cheddar's car, the drive with him chatting, then the beach as it fades away.
 func _drive(beat: Dictionary) -> void:
-	var trip: CarTrip = main.find_children("*", "CarTrip", true, false).front()
+	var trip := _trip()
 	trip.reel_stage(_chef)
 	_camera.cut_to(ReelCamera.Shot.CAR)
 	await _seconds(float(scenario.get("wide_seconds", WIDE_SECONDS)))
 	await trip.reel_drive(float(beat.get("seconds", 0.0)), beat.get("lines", []))
 	_camera.cut_to(ReelCamera.Shot.BEACH)
+
+
+# Out along the pier to the end, then the whole of fishing, played by the steps
+# themselves, with the fish they want on the line. Ends once it's been held up.
+func _fish(beat: Dictionary) -> void:
+	var beach := _trip().beach
+	var spot: FishingSpot = beach.find_children("*", "FishingSpot", true, false).front()
+	var way: Array[Vector3] = [beach.to_global(Vector3(0.0, 0.0, Beach.SAND_MIN.y + 1.0)), spot.to_global(Vector3(0.0, 0.0, 0.3))]
+	_camera.glide_to(ReelCamera.Shot.STROLL)
+	await _walk_chef(way)
+	var caught := int(GameState.fish_log.get(beat["fish"], {}).get("caught", 0))
+	GameState.forced_fish = beat["fish"]
+	_camera.spot = spot
+	_camera.glide_to(ReelCamera.Shot.FISHING)
+	spot.catch_held.connect(_camera.cut_to.bind(ReelCamera.Shot.CATCH), CONNECT_ONE_SHOT)
+	spot.reel_start(_chef)
+	await _until(func(): return spot.session == null, "the chef to finish fishing")
+	if int(GameState.fish_log.get(beat["fish"], {}).get("caught", 0)) == caught:
+		_fail("the %s got away" % beat["fish"])
+
+
+func _trip() -> CarTrip:
+	return main.find_children("*", "CarTrip", true, false).front()
+
+
+# Beach coordinates ([x, z] each) as points in the world.
+func _on_beach(points: Array) -> Array[Vector3]:
+	var way: Array[Vector3] = []
+	for point in points:
+		way.append(_trip().beach.to_global(Vector3(float(point[0]), 0.0, float(point[1]))))
+	return way
 
 
 # From the pass: along the back, down the aisle beside their chair, and up to them.

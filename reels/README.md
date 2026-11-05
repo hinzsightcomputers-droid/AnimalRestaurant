@@ -73,6 +73,13 @@ only apply while recording. Godot writes an AVI; with `ffmpeg.exe` in
     the beach (he has to be the regular), `seconds` long, then the chef on the
     beach. `lines` is a list of his line ids to say on the way; leave it out and
     they're picked at random.
+  - `beach`: starts at the beach instead, the chef just out of the car.
+  - `walk`: after `drive` or `beach`, the chef walks the beach through `to`, a list
+    of `[x, z]` points. The sand runs from -14 to 14 across and from 4 at the road
+    to -9.6 at the water, where the pier starts, at `[0, -9.6]`.
+  - `fish`: after `drive` or `beach`, the chef walks to the end of the pier and
+    fishes: casts, waits for the bite, reels in and holds up `fish` (an id from
+    `data/fish.json`, a beach one). It takes about 15 seconds.
   - `wait`: nothing happens for `seconds`.
   - `end`: stops. Has to be the last beat.
 
