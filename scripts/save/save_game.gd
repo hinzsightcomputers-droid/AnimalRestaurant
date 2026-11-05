@@ -7,10 +7,12 @@ const SAVE_PATH := "user://save.json"
 
 
 static func has_save() -> bool:
-	return FileAccess.file_exists(SAVE_PATH)
+	return not ReelSandbox.active() and FileAccess.file_exists(SAVE_PATH)
 
 
 static func save_game() -> bool:
+	if ReelSandbox.active():
+		return true  # A reel's state stays in memory.
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
 		push_error("Could not write save file: %s" % error_string(FileAccess.get_open_error()))

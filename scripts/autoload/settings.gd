@@ -33,7 +33,8 @@ func _ready() -> void:
 	var range_list: Array = data.get("cursor_speed_range", [0.4, 2.0])
 	cursor_speed_range = Vector2(float(range_list[0]), float(range_list[1]))
 	_apply_values(data.get("defaults", {}))
-	_apply_values(_read_json(PATH))
+	if not ReelSandbox.active():  # A reel always sounds the same: the defaults.
+		_apply_values(_read_json(PATH))
 	for bus in [MUSIC_BUS, SFX_BUS]:
 		if AudioServer.get_bus_index(bus) < 0:
 			AudioServer.add_bus()
@@ -75,6 +76,8 @@ func set_value(key: String, value: Variant) -> void:
 
 
 func save() -> void:
+	if ReelSandbox.active():
+		return
 	var file := FileAccess.open(PATH, FileAccess.WRITE)
 	if file == null:
 		push_warning("Couldn't save settings to %s" % PATH)

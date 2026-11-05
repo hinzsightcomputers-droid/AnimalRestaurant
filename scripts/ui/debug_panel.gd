@@ -782,6 +782,8 @@ func _wipe_pressed() -> void:
 
 # The save, the chefs and the debug date are gone; settings stay.
 static func wipe_files() -> void:
+	if ReelSandbox.active():
+		return
 	for path in [SaveGame.SAVE_PATH, Accounts.SAVE_PATH, GameClock.DEBUG_PATH]:
 		if FileAccess.file_exists(path):
 			DirAccess.remove_absolute(path)

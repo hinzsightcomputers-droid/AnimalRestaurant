@@ -140,6 +140,8 @@ static func format_playtime(seconds: float) -> String:
 
 func save() -> void:
 	_since_save = 0.0
+	if ReelSandbox.active():
+		return  # A reel's chef stays in memory.
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
 		push_error("Could not write accounts file: %s" % error_string(FileAccess.get_open_error()))
@@ -148,7 +150,7 @@ func save() -> void:
 
 
 func _load() -> void:
-	if not FileAccess.file_exists(SAVE_PATH):
+	if ReelSandbox.active() or not FileAccess.file_exists(SAVE_PATH):
 		return
 	var parsed = JSON.parse_string(FileAccess.get_file_as_string(SAVE_PATH))
 	if not parsed is Dictionary:

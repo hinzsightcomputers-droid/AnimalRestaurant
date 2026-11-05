@@ -1,0 +1,20 @@
+{
+	"title": "Stitches and the patches",
+	"meal": "lunch",
+	"lighting": "lunch",
+	"regular": { "id": "stitches", "stage": 1, "relationship": 10, "first_visit": false },
+	"extras": [
+		{ "table": "window", "species": "cow", "dish": "honey_pancakes" },
+		{ "table": "middle", "species": "deer", "dish": "honey_pancakes" },
+		{ "table": "kitchen", "species": "rabbit", "dish": "honey_pancakes" }
+	],
+	"beats": [
+		{ "do": "walk_in", "table": "corner" },
+		{ "do": "line", "line": "stitches_order_1c" },
+		{ "do": "choices", "highlight": [{ "tone": "rude", "hold": 1.2 }], "pick": "warm" },
+		{ "do": "reaction", "emotion": "happy" },
+		{ "do": "serve", "dish": "honey_pancakes", "quality": 1.0 },
+		{ "do": "wait", "seconds": 2.0 },
+		{ "do": "end" }
+	]
+}

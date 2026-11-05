@@ -135,7 +135,7 @@ static func describe_time(local: Dictionary) -> String:
 static func offset_days() -> int:
 	if _offset_days < 0:
 		_offset_days = 0
-		var parsed = JSON.parse_string(FileAccess.get_file_as_string(DEBUG_PATH)) if FileAccess.file_exists(DEBUG_PATH) else null
+		var parsed = JSON.parse_string(FileAccess.get_file_as_string(DEBUG_PATH)) if FileAccess.file_exists(DEBUG_PATH) and not ReelSandbox.active() else null
 		if parsed is Dictionary:
 			_offset_days = maxi(0, int(parsed.get("clock_offset_days", 0)))
 	return _offset_days
@@ -144,6 +144,8 @@ static func offset_days() -> int:
 # Only forward: going back in time would make last visits look like the future.
 static func set_offset_days(days: int) -> void:
 	_offset_days = maxi(0, days)
+	if ReelSandbox.active():
+		return
 	var file := FileAccess.open(DEBUG_PATH, FileAccess.WRITE)
 	if file != null:
 		file.store_string(JSON.stringify({ "clock_offset_days": _offset_days }, "\t"))
