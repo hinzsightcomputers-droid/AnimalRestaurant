@@ -23,6 +23,9 @@ extends CookAction
 @export var one_stroke := false               # Done as soon as one line on the food is let go (a squiggle of ketchup).
 @export var least_blobs := 6                  # How much of that line has to be on the food to count.
 
+const SCRIPTED_REACH := 0.75    # A reel's zigzag covers this much of the food's radius...
+const SCRIPTED_ZIGZAGS := 7.0   # ...going across this many times.
+
 var _left := 0.0
 var _last_point = null       # Where the line got to (Vector2), or null between drizzles.
 var _on_top: Array[Vector2] = []
@@ -110,6 +113,16 @@ func update(delta: float, input: CookInput) -> void:
 func end() -> void:
 	_flow.stop()
 	_bottle.queue_free()
+
+
+# Back and forth down the food until the bottle's empty.
+func scripted_hold(_delta: float, input: CookInput) -> bool:
+	var middle := session.stack_top(target)
+	var reach := (_foods[0].radius if not _foods.is_empty() else 0.1) * SCRIPTED_REACH
+	var through := 1.0 - _left / syrup_seconds
+	var across := sin(through * PI * SCRIPTED_ZIGZAGS) * reach
+	input.cursor = Vector3(middle.x + across, input.height, middle.z + lerpf(-reach, reach, through))
+	return _left > 0.0
 
 
 func _add_blob(point: Vector2) -> void:

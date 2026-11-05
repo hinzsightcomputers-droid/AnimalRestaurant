@@ -16,10 +16,13 @@ extends CookAction
 @export var grab_margin := 0.02       # How far outside a piece you can still get hold of it.
 @export_range(0.0, 1.0) var up_needed := 0.6  # How straight up the flick must be (1 = exactly).
 
+const SCRIPTED_FLICK_DELAY := 0.25  # A reel's spatula sits under the piece this long.
+
 var _scores: Array[float] = []
 var _held: CookPiece = null
 var _spatula: Node3D
 var _arrow: Node3D
+var _scripted_delay := 0.0
 
 
 func view_point() -> Vector3:
@@ -72,6 +75,24 @@ func end() -> void:
 		_let_go()
 	_spatula.queue_free()
 	_arrow.queue_free()
+
+
+# Waits over the next piece until its side's golden, then under and over.
+func scripted_hold(delta: float, input: CookInput) -> bool:
+	if _held != null:
+		_scripted_delay -= delta
+		if _scripted_delay <= 0.0:
+			input.flick = Vector2(0.0, -1.0)
+		return false
+	var left := session.pieces_on(surface).filter(func(p): return _needs(p) and not p.busy)
+	if left.is_empty():
+		return false
+	var piece := HeatAction.most_done(left)
+	var heat := session.step_of(HeatAction) as HeatAction
+	if input.move_to(piece.position, delta) and (heat == null or heat.scripted_ready(piece)):
+		_scripted_delay = SCRIPTED_FLICK_DELAY
+		return true
+	return false
 
 
 # Whether a piece still needs this step (a FoldAction overrides these three).

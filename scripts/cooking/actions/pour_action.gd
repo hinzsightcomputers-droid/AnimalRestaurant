@@ -20,6 +20,8 @@ extends CookAction
 @export var show_guide := true            # A faint ring the size of a perfect pour.
 @export var stack := false                # Poured straight onto a plate: it starts the plate's stack, so toppings and drizzles go on it.
 
+const SCRIPTED_GAP := 0.26  # A reel pours its pieces this far apart, in a row.
+
 var _bottle: Node3D
 var _stream: MeshInstance3D
 var _guide: MeshInstance3D
@@ -106,6 +108,17 @@ func end() -> void:
 	_bottle.queue_free()
 	_stream.queue_free()
 	_guide.queue_free()
+
+
+# Each piece side by side, stopped at just the right size.
+func scripted_hold(delta: float, input: CookInput) -> bool:
+	if _pouring != null:
+		return _pouring.spread_to < target_radius
+	var count := session.recipe.pieces
+	if _scores.size() >= count:
+		return false
+	var side := (_scores.size() - (count - 1) / 2.0) * SCRIPTED_GAP
+	return input.move_to(session.surface(surface).position + Vector3(side, 0.0, 0.0), delta)
 
 
 func _try_start(spot: Vector3) -> void:

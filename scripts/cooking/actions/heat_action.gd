@@ -18,6 +18,9 @@ extends CookAction
 @export var perfect_to := 1.15   # ...to here...
 @export var burnt_at := 1.6      # ...and 0 again once it's this burnt.
 
+const SCRIPTED_PACE := 2.5       # A reel doesn't wait around: this much faster while the chef's only waiting on the heat.
+const SCRIPTED_DONE := 1.0       # How done a reel's chef lets a side get.
+
 var _seen := {}    # Piece -> its steam, once it's been on the heat.
 var _scores: Array[float] = []
 var _sizzle: AudioStreamPlayer3D
@@ -33,7 +36,9 @@ func uses_cursor() -> bool:
 	return false
 
 
-func update(delta: float, _input: CookInput) -> void:
+func update(delta: float, input: CookInput) -> void:
+	if input.scripted and (session.current is FlipAction or session.current is PlaceAction):
+		delta *= SCRIPTED_PACE
 	var cooking := 0
 	for piece in session.pieces:
 		if piece.surface == surface:
@@ -123,6 +128,20 @@ func _update_steam(piece: CookPiece, steam: CPUParticles3D) -> void:
 	else:
 		steam.color = Color.WHITE
 		steam.speed_scale = 0.7 + amount * 0.5
+
+
+# For a reel: the side that's down is golden.
+func scripted_ready(piece: CookPiece) -> bool:
+	return piece.doneness[piece.down_side] >= SCRIPTED_DONE
+
+
+# For a reel: whichever of these needs seeing to first.
+static func most_done(pieces: Array) -> CookPiece:
+	var most: CookPiece = pieces[0]
+	for piece: CookPiece in pieces:
+		if piece.doneness[piece.down_side] > most.doneness[most.down_side]:
+			most = piece
+	return most
 
 
 # 0..1 for how well a side came out at this doneness.

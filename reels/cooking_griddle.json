@@ -1,0 +1,12 @@
+{
+	"title": "On the griddle",
+	"meal": "breakfast",
+	"regular": { "id": "cheddar", "relationship": 40, "first_visit": false },
+	"beats": [
+		{ "do": "cook", "recipe": "pancakes", "speed": 1.6 },
+		{ "do": "cook", "recipe": "hotteok", "speed": 1.6 },
+		{ "do": "cook", "recipe": "omurice", "speed": 1.6 },
+		{ "do": "cook", "recipe": "churros", "speed": 1.6 },
+		{ "do": "end" }
+	]
+}

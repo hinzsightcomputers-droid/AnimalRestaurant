@@ -14,6 +14,8 @@ extends Node3D
 
 signal finished(quality: float)
 
+const REEL_HINT_SIZE := 36
+
 @export_group("Controls")
 @export var cursor_speed := 0.7            # Meters a second the keys move the cursor.
 @export var pad_cursor_speed := 1.6        # Meters a second a gamepad stick, pushed all the way, moves it.
@@ -194,6 +196,11 @@ func snapshot(surface_name: String) -> Array:
 	return parts
 
 
+# For a reel: the words at the top, big enough to read on a phone.
+func big_hint() -> void:
+	_hint.add_theme_font_size_override("font_size", REEL_HINT_SIZE)
+
+
 # The cook's own view, full-size, for a step's on-screen bits (e.g. a tension
 # meter). Freed with the session.
 func overlay() -> Control:
@@ -208,7 +215,7 @@ func set_status(text: String) -> void:
 func _show_hint() -> void:
 	if current == null:
 		return
-	var lines := [] if input.scripted else [current.title, _controls(current.hint)]  # Nobody watching a reel needs the controls.
+	var lines := [recipe.display_name] if input.scripted else [current.title, _controls(current.hint)]  # Nobody watching a reel needs the controls.
 	if not _status.is_empty():
 		lines.append(_status)
 	_hint.text = "\n".join(lines.filter(func(line): return not line.is_empty()))

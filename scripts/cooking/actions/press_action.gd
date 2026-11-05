@@ -110,6 +110,14 @@ func update(delta: float, input: CookInput) -> void:
 	session.set_meter(_fill, _amount)
 
 
+# Stops in the middle of the band, a press for each piece.
+func scripted_hold(_delta: float, input: CookInput) -> bool:
+	var middle := (band.x + band.y) / 2.0
+	if not hold:
+		return _amount >= middle
+	return _amount < middle if _pressing else not input.held
+
+
 func _start_on(index: int) -> void:
 	_index = index
 	_amount = 0.0

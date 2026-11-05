@@ -152,6 +152,13 @@ func practice(player: Player, recipe: CookRecipe) -> void:
 	_open_closeup(player, recipe)
 
 
+# A reel's chef cooks a recipe by themselves, every step playing itself.
+func reel_cook(player: Player, recipe: CookRecipe) -> void:
+	practice(player, recipe)
+	session.input.scripted = true
+	session.big_hint()
+
+
 # Put the close-up (the recipe's own, or the usual one) on the stovetop and zoom this player in on it.
 func _open_closeup(player: Player, recipe: CookRecipe, ingredients: Ingredients = null) -> void:
 	session = (recipe.scene if recipe.scene != null else closeup_scene).instantiate()

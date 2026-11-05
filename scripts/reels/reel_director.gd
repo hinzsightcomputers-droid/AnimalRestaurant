@@ -27,6 +27,7 @@ const BOX_BOTTOM_GAP := 170      # Keeps the dialogue box above the app's own bu
 const VISIT_WALK_FROM := Vector3(-6.5, 0.0, 1.0)  # Where the chef comes along the sidewalk from, from the door...
 const VISIT_STAND := Vector3(-0.55, 0.0, 0.6)     # ...and where they stand, to the side so they don't hide the regular.
 const VISIT_SECONDS := 90.0      # The longest a whole house visit should take.
+const COOK_SECONDS := 90.0       # The longest a recipe should take.
 
 var scenario: Dictionary
 var main: Node
@@ -108,6 +109,8 @@ func _run(beat: Dictionary, index: int) -> void:
 			await _fish(beat)
 		"visit":
 			await _visit(beat)
+		"cook":
+			await _cook(beat)
 		"wait":
 			await _seconds(float(beat["seconds"]))
 
@@ -279,6 +282,21 @@ func _through_visit(house: House, chats: int) -> void:
 			return
 
 
+# A close-up at the stove (or `station`) from start to finished plate, every step
+# playing itself.
+func _cook(beat: Dictionary) -> void:
+	var wanted: String = beat.get("station", "stove")
+	var stations := main.find_children("*", "CookingStation", true, false).filter(func(s): return s.station_id == wanted)
+	var station: CookingStation = stations.front()
+	Engine.time_scale = float(beat.get("speed", 1.0))
+	_camera.close_up = true
+	station.reel_cook(_chef, load(ReelScenario.RECIPES + beat["recipe"] + ".tres"))
+	_camera.view.rig.snap()
+	await _until(func(): return station.session == null, "%s to be cooked" % beat["recipe"], COOK_SECONDS)
+	_camera.close_up = false
+	Engine.time_scale = 1.0
+
+
 func _trip() -> CarTrip:
 	return main.find_children("*", "CarTrip", true, false).front()
 
@@ -331,8 +349,8 @@ func _seconds(seconds: float) -> void:
 	await get_tree().create_timer(seconds).timeout
 
 
-func _until(done: Callable, waiting_for: String) -> void:
-	var left := BEAT_SECONDS
+func _until(done: Callable, waiting_for: String, seconds := BEAT_SECONDS) -> void:
+	var left := seconds
 	while not done.call():
 		await get_tree().process_frame
 		left -= get_process_delta_time()

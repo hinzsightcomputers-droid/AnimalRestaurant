@@ -29,6 +29,9 @@ extends CookAction
 @export var hop_seconds := 0.45          # An auto_plate piece's trip to the plate...
 @export var hop_height := 0.14           # ...and how high it arcs.
 
+const SCRIPTED_PAUSE := 0.5  # A reel holds a new item over the food this long.
+const SCRIPTED_BESIDE := Vector3(0.12, 0.0, 0.05)  # Where a reel puts things that go beside the food, either side.
+
 var _carrying: Node3D = null
 var _carry_home := Vector3.ZERO
 var _needed := 0
@@ -36,6 +39,7 @@ var _scores: Array[float] = []
 var _landing := 0  # Drops still falling.
 var _spatula: Node3D = null  # Follows the cursor (carry).
 var _riding: CookPiece = null  # On the spatula, on its way to the target.
+var _scripted_pause := SCRIPTED_PAUSE
 
 
 func _begin() -> void:
@@ -105,6 +109,25 @@ func end() -> void:
 
 func ready_word(piece: CookPiece) -> String:
 	return "Plate it!" if not _new_item() and piece.surface == from_surface else ""
+
+
+# A new item straight down the middle, or each piece over as soon as it's done.
+func scripted_hold(delta: float, input: CookInput) -> bool:
+	if _new_item():
+		_scripted_pause -= delta
+		var aim := session.stack_top(target)
+		if anywhere:
+			var side := 1.0 if session.stack_of(target).size() % 2 == 0 else -1.0
+			aim = session.surface(target).position + SCRIPTED_BESIDE * Vector3(side, 1.0, 1.0)
+		return input.move_to(aim, delta) and _scripted_pause <= 0.0 and _carrying != null
+	if _riding != null or input.held:
+		return false
+	var left := session.pieces_on(from_surface).filter(func(p): return not p.busy)
+	if left.is_empty():
+		return false
+	var piece := HeatAction.most_done(left)
+	var heat := session.step_of(HeatAction) as HeatAction
+	return input.move_to(piece.position, delta) and (heat == null or heat.scripted_ready(piece))
 
 
 func _new_item() -> bool:

@@ -6,7 +6,8 @@ extends RefCounted
 
 const DIR := "res://reels/"
 const MAIN_SCENE := "res://scenes/main.tscn"
-const BEATS := ["walk_in", "line", "choices", "reaction", "serve", "drive", "beach", "walk", "fish", "visit", "wait", "end"]
+const RECIPES := "res://data/recipes/"
+const BEATS := ["walk_in", "line", "choices", "reaction", "serve", "drive", "beach", "walk", "fish", "visit", "cook", "wait", "end"]
 
 
 # Every scenario's name (its file name without .json), sorted.
@@ -179,6 +180,9 @@ static func _check_beats(beats: Array, regular_id: String, spots: Array[String],
 				var fish := GameData.get_fish(beat.get("fish", ""))
 				if fish.get("habitat", "") != "beach":
 					found.append("%s: \"%s\" isn't a fish from the beach" % [where, beat.get("fish", "")])
+			"cook":
+				if not ResourceLoader.exists(RECIPES + String(beat.get("recipe", "")) + ".tres"):
+					found.append("%s: no recipe \"%s\" in data/recipes/" % [where, beat.get("recipe", "")])
 			"visit":
 				for key in ["hello", "inside", "bye"]:
 					if beat.has(key) and find_line(regular_id, beat[key]).is_empty():

@@ -9,6 +9,7 @@ extends Node
 enum Shot { WIDE, FOLLOW, TABLE, SERVE, CAR, BEACH, STROLL, FISHING, CATCH, HOUSE, PORCH, ROOM }
 
 const FOV := 42.0
+const CLOSE_UP_FOV := 60.0   # Across the view, not up it.
 const GLIDE_SPEED := 2.5     # Higher = gets to the next shot sooner.
 const UI_SCALE := 2.0        # The dialogue box and replies, big enough to read on a phone.
 const WIDE_POSITION := Vector3(2.6, 14.0, 15.5)  # The room from over the front, door included.
@@ -45,6 +46,7 @@ var subject: Customer  # The regular.
 var chef: Player
 var spot: FishingSpot  # Where the chef's fishing.
 var house: House       # Whose house they're visiting.
+var close_up := false : set = _set_close_up  # The game's own close-up camera is working, framed for a tall view.
 
 var _shot := Shot.WIDE
 var _position := WIDE_POSITION
@@ -69,11 +71,23 @@ func cut_to(shot: Shot) -> void:
 
 func _process(delta: float) -> void:
 	view.set_ui_scale(UI_SCALE)
+	if close_up:
+		return
 	var goal := _goal()
 	var weight := 1.0 - exp(-GLIDE_SPEED * delta)
 	_position = _position.lerp(goal[0], weight)
 	_look = _look.lerp(goal[1], weight)
 	view.rig.camera.look_at_from_position(_position, _look)
+
+
+# In a close-up the rig steers, wide as it is on a landscape screen, so nothing
+# being cooked is cut off at the sides of a tall view.
+func _set_close_up(on: bool) -> void:
+	close_up = on
+	var camera := view.rig.camera
+	view.rig.set_process(on)
+	camera.keep_aspect = Camera3D.KEEP_WIDTH if on else Camera3D.KEEP_HEIGHT
+	camera.fov = CLOSE_UP_FOV if on else FOV
 
 
 # [where the camera goes, what it looks at] for the current shot.

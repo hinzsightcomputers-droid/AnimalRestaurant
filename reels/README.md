@@ -86,6 +86,10 @@ only apply while recording. Godot writes an AVI; with `ffmpeg.exe` in
     `chat` (a list, each picked from the menu in turn) and `bye` are their line
     ids. Leave any out and it's picked as usual, but `chat` being empty goes
     straight to goodbye. Ends back outside with the door closed.
+  - `cook`: a close-up of `recipe` (a file in `data/recipes/`) from start to finished
+    plate, played well. Waiting on the heat goes 2.5 times as fast as usual. `station` is
+    where, `stove` by default. `speed` plays the whole thing faster, e.g. 1.6 for a
+    montage. Several in a row cut straight from one to the next.
   - `wait`: nothing happens for `seconds`.
   - `end`: stops. Has to be the last beat.
 

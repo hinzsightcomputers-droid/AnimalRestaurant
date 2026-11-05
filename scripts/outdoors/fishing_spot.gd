@@ -84,6 +84,7 @@ func reel_start(player: Player) -> void:
 	_start(player)
 	session.input.scripted = true
 	session.text_size = REEL_TEXT_SIZE
+	session.big_hint()
 	(player.visual.get_node("Chef") as ChefModel).carrying = true
 
 

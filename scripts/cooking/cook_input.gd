@@ -24,6 +24,8 @@ var stick := Vector2.ZERO      # x, z on the surface, up to 1 long; zero in the 
 var using_mouse := false       # The mouse moved the cursor last (rather than the stick).
 var scripted := false          # A reel is playing: the step plays itself (CookAction.scripted_hold), and nothing real counts.
 
+const SCRIPTED_HAND_SPEED := 0.9  # Meters a second a reel's chef moves the cursor.
+
 var _session: CookSession
 var _player_index: int
 var _view_manager: ViewManager
@@ -45,6 +47,7 @@ func _init(session: CookSession, player_index: int, view_manager: ViewManager) -
 
 func update(delta: float) -> void:
 	if scripted:
+		flick = Vector2.ZERO
 		_press(_session.current != null and _session.current.scripted_hold(delta, self))
 		return
 	_time += delta
@@ -80,6 +83,13 @@ func update(delta: float) -> void:
 	var swipe := _mouse_flick(mouse_point)
 	if flick == Vector2.ZERO:
 		flick = swipe
+
+
+# For a step playing itself: the cursor heads for `point`. True once it's there.
+func move_to(point: Vector3, delta: float) -> bool:
+	var goal := Vector3(point.x, height, point.z)
+	cursor = cursor.move_toward(goal, SCRIPTED_HAND_SPEED * delta)
+	return cursor.distance_to(goal) < 0.005
 
 
 func _press(now_held: bool) -> void:
