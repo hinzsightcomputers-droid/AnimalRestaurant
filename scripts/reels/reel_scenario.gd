@@ -6,7 +6,7 @@ extends RefCounted
 
 const DIR := "res://reels/"
 const MAIN_SCENE := "res://scenes/main.tscn"
-const BEATS := ["walk_in", "line", "choices", "reaction", "serve", "drive", "beach", "walk", "fish", "wait", "end"]
+const BEATS := ["walk_in", "line", "choices", "reaction", "serve", "drive", "beach", "walk", "fish", "visit", "wait", "end"]
 
 
 # Every scenario's name (its file name without .json), sorted.
@@ -179,6 +179,15 @@ static func _check_beats(beats: Array, regular_id: String, spots: Array[String],
 				var fish := GameData.get_fish(beat.get("fish", ""))
 				if fish.get("habitat", "") != "beach":
 					found.append("%s: \"%s\" isn't a fish from the beach" % [where, beat.get("fish", "")])
+			"visit":
+				for key in ["hello", "inside", "bye"]:
+					if beat.has(key) and find_line(regular_id, beat[key]).is_empty():
+						found.append("%s: %s has no line \"%s\"" % [where, regular_id, beat[key]])
+				for line_id in beat.get("chat", []):
+					if find_line(regular_id, line_id).is_empty():
+						found.append("%s: %s has no line \"%s\"" % [where, regular_id, line_id])
+				if not GameData.houses.get("houses", []).any(func(house): return house.get("regular", "") == regular_id):
+					found.append("%s: %s has no house in data/houses.json" % [where, regular_id])
 			"wait":
 				if float(beat.get("seconds", 0.0)) <= 0.0:
 					found.append("%s: needs seconds" % where)

@@ -1,0 +1,17 @@
+{
+	"title": "Round at Mabel's",
+	"meal": "dinner",
+	"hour": "evening",
+	"regular": { "id": "mabel", "relationship": 55, "first_visit": false },
+	"beats": [
+		{
+			"do": "visit",
+			"hello": "mabel_house_hi_3a",
+			"inside": "mabel_house_in_3a",
+			"chat": ["mabel_house_chat_3a"],
+			"bye": "mabel_house_bye_3a"
+		},
+		{ "do": "wait", "seconds": 1.0 },
+		{ "do": "end" }
+	]
+}

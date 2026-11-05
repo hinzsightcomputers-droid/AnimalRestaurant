@@ -24,6 +24,9 @@ const STEP_SECONDS := 0.2        # Per reply as the highlight moves.
 const REPLY_HOLD_SECONDS := 1.5  # How long a finished line stays up (line and reaction "hold").
 const WIDE_SECONDS := 2.0        # How long the opening shot of the room lasts ("wide_seconds").
 const BOX_BOTTOM_GAP := 170      # Keeps the dialogue box above the app's own buttons and caption.
+const VISIT_WALK_FROM := Vector3(-6.5, 0.0, 1.0)  # Where the chef comes along the sidewalk from, from the door...
+const VISIT_STAND := Vector3(-0.55, 0.0, 0.6)     # ...and where they stand, to the side so they don't hide the regular.
+const VISIT_SECONDS := 90.0      # The longest a whole house visit should take.
 
 var scenario: Dictionary
 var main: Node
@@ -103,6 +106,8 @@ func _run(beat: Dictionary, index: int) -> void:
 			await _walk_chef(_on_beach(beat["to"]))
 		"fish":
 			await _fish(beat)
+		"visit":
+			await _visit(beat)
 		"wait":
 			await _seconds(float(beat["seconds"]))
 
@@ -221,6 +226,57 @@ func _fish(beat: Dictionary) -> void:
 	await _until(func(): return spot.session == null, "the chef to finish fishing")
 	if int(GameState.fish_log.get(beat["fish"], {}).get("caught", 0)) == caught:
 		_fail("the %s got away" % beat["fish"])
+
+
+# Up the path to the regular's door and through the game's own visit: the knock, the
+# hello, inside if they're close enough, each of `chat`, then goodbye and back out.
+func _visit(beat: Dictionary) -> void:
+	var town: Town = main.find_children("*", "Town", true, false).front()
+	var house := town.house_of(scenario["regular"]["id"])
+	if not house.is_unlocked():
+		GameState.unlocks.append(String(house.data["unlock"]))
+	var chats: Array = beat.get("chat", [])
+	house.reel_lines = {
+		"house_greeting": [beat.get("hello", ""), beat.get("inside", "")].filter(func(id): return not id.is_empty()),
+		"house_chat": chats.duplicate(),
+		"house_farewell": [beat["bye"]] if beat.has("bye") else [],
+	}
+	_camera.house = house
+	_camera.cut_to(ReelCamera.Shot.HOUSE)
+	_chef.global_position = house.reel_door() + VISIT_WALK_FROM
+	_chef.reset_physics_interpolation()
+	var way: Array[Vector3] = [house.reel_door() + VISIT_STAND]
+	await _walk_chef(way)
+	_camera.glide_to(ReelCamera.Shot.PORCH)
+	_chef.visual.rotation.y = PI  # Facing the door.
+	house.reel_knock(_chef)
+	await _through_visit(house, chats.size())
+
+
+# Does what a player's presses would until it's over: Chat `chats` times, then Say
+# goodbye. The camera cuts while the visit's fade is black.
+func _through_visit(house: House, chats: int) -> void:
+	var inside := false
+	var started := Time.get_ticks_msec()
+	while house.is_visiting():
+		if house.is_inside() != inside:
+			inside = house.is_inside()
+			_camera.cut_to(ReelCamera.Shot.ROOM if inside else ReelCamera.Shot.PORCH)
+		var box := house.reel_box
+		if is_instance_valid(box) and box.is_choosing():
+			await _seconds(READ_SECONDS)
+			if chats == 0:
+				box.highlight(box.last_option())
+			await _seconds(PICK_SECONDS)
+			box.pick()
+			chats -= 1
+		elif is_instance_valid(box) and box.is_waiting():
+			await _seconds(REPLY_HOLD_SECONDS)
+			box.move_on()
+		await get_tree().process_frame
+		if Time.get_ticks_msec() - started > VISIT_SECONDS * 1000.0:
+			_fail("the visit never ended")
+			return
 
 
 func _trip() -> CarTrip:

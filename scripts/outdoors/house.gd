@@ -33,6 +33,8 @@ const DOOR_OPEN_DEGREES := 100.0   # Swings in, out of sight.
 
 var data: Dictionary = {}           # Its entry in data/houses.json.
 var regular_id := ""
+var reel_lines := {}                # A reel's script: event -> the line ids to say, in order.
+var reel_box: ConversationBox       # The last box opened, for a reel to work.
 
 var _view_manager: ViewManager
 var _size := Vector2(4.4, 4.0)
@@ -108,6 +110,23 @@ func is_unlocked() -> bool:
 
 func is_visiting() -> bool:
 	return _visiting
+
+
+func is_inside() -> bool:
+	return _inside
+
+
+# A reel's chef knocks, whatever the hour, and it's a visit.
+func reel_knock(player: Player) -> void:
+	_start_visit(player)
+
+
+func reel_door() -> Vector3:
+	return _door_point()
+
+
+func reel_room() -> Vector3:
+	return _room.global_position
 
 
 func door_state() -> Door:
@@ -515,7 +534,11 @@ func _say(event: String, player_index: int, extra: Dictionary = {}) -> Dictionar
 		return { "text": "...", "emotion": &"" }
 	var facts := { "inside": _inside, "house_item": "", "gift_kind": "", "gift": "" }
 	facts.merge(extra, true)
-	var line := RegularMemory.say_feeling(regular, event, RegularMemory.dialogue_context(regular, Accounts.id_of(player_index), facts))
+	var context := RegularMemory.dialogue_context(regular, Accounts.id_of(player_index), facts)
+	if not reel_lines.get(event, []).is_empty():
+		var scripted := ReelScenario.find_line(regular_id, reel_lines[event].pop_front())
+		return { "text": DialoguePicker.fill(scripted.get("text", ""), context), "emotion": Conversation.emotion_of(scripted) }
+	var line := RegularMemory.say_feeling(regular, event, context)
 	if String(line["text"]).is_empty():
 		line["text"] = "..."
 	return line
@@ -559,7 +582,8 @@ func _release(player: Player) -> void:
 
 
 func _open_box(player_index: int) -> ConversationBox:
-	return ConversationBox.open(ConversationBox.parent_for(_view_manager, player_index, self), player_index, regular_id)
+	reel_box = ConversationBox.open(ConversationBox.parent_for(_view_manager, player_index, self), player_index, regular_id)
+	return reel_box
 
 
 func _swing_door(open: bool) -> void:

@@ -6,7 +6,7 @@
 class_name ReelCamera
 extends Node
 
-enum Shot { WIDE, FOLLOW, TABLE, SERVE, CAR, BEACH, STROLL, FISHING, CATCH }
+enum Shot { WIDE, FOLLOW, TABLE, SERVE, CAR, BEACH, STROLL, FISHING, CATCH, HOUSE, PORCH, ROOM }
 
 const FOV := 42.0
 const GLIDE_SPEED := 2.5     # Higher = gets to the next shot sooner.
@@ -33,11 +33,18 @@ const FISHING_OFFSET := Vector3(3.6, 4.5, 3.4)  # Up and off to the side of the 
 const FISHING_LOOK := Vector3(-0.2, 0.2, -1.5)
 const CATCH_OFFSET := Vector3(0.3, 1.25, 2.6)   # In front of them, once they've turned round with the fish.
 const CATCH_LOOK := Vector3(0.15, 0.85, 0.0)
+const HOUSE_OFFSET := Vector3(1.5, 2.6, 9.0)    # The whole front of the house, from across the street.
+const HOUSE_LOOK := Vector3(0.0, 0.8, -1.0)
+const PORCH_OFFSET := Vector3(1.0, 1.9, 5.2)    # From the street, the door and whoever's in it above the dialogue box.
+const PORCH_LOOK := Vector3(0.2, 0.3, 0.0)
+const ROOM_OFFSET := Vector3(1.6, 3.6, 7.0)     # In over the room's low front wall.
+const ROOM_LOOK := Vector3(0.8, 0.2, -0.8)
 
 var view: PlayerView
 var subject: Customer  # The regular.
 var chef: Player
 var spot: FishingSpot  # Where the chef's fishing.
+var house: House       # Whose house they're visiting.
 
 var _shot := Shot.WIDE
 var _position := WIDE_POSITION
@@ -88,6 +95,12 @@ func _goal() -> Array:
 			return [spot.to_global(FISHING_OFFSET), spot.to_global(FISHING_LOOK)]
 		Shot.CATCH:
 			return [spot.to_global(CATCH_OFFSET), spot.to_global(CATCH_LOOK)]
+		Shot.HOUSE:
+			return [house.reel_door() + HOUSE_OFFSET, house.reel_door() + HOUSE_LOOK]
+		Shot.PORCH:
+			return [house.reel_door() + PORCH_OFFSET, house.reel_door() + PORCH_LOOK]
+		Shot.ROOM:
+			return [house.reel_room() + ROOM_OFFSET, house.reel_room() + ROOM_LOOK]
 	return [WIDE_POSITION, WIDE_LOOK]
 
 

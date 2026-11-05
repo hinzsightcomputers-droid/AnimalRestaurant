@@ -80,6 +80,12 @@ only apply while recording. Godot writes an AVI; with `ffmpeg.exe` in
   - `fish`: after `drive` or `beach`, the chef walks to the end of the pier and
     fishes: casts, waits for the bite, reels in and holds up `fish` (an id from
     `data/fish.json`, a beach one). It takes about 15 seconds.
+  - `visit`: the chef walks up to the regular's door, knocks, and visits. At
+    relationship 50 and up (`inside_stage` in `data/houses.json`) they're asked in;
+    below that it stays on the porch. `hello` (at the door), `inside` (once in),
+    `chat` (a list, each picked from the menu in turn) and `bye` are their line
+    ids. Leave any out and it's picked as usual, but `chat` being empty goes
+    straight to goodbye. Ends back outside with the door closed.
   - `wait`: nothing happens for `seconds`.
   - `end`: stops. Has to be the last beat.
 

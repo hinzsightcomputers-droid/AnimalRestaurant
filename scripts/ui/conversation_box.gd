@@ -261,6 +261,10 @@ func highlighted() -> int:
 	return _selected
 
 
+func last_option() -> int:
+	return _option_texts.size() - 1
+
+
 func highlight(index: int) -> void:
 	_selected = index
 	_refresh_options()
