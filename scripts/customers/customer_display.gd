@@ -12,6 +12,7 @@
 # through. Display only.
 extends Node3D
 
+const SIT_DROP_SPEED := 0.5  # How quickly a model settles into the chair (its "sit_drop").
 const DONE_DOTS_SCALE := 3.0  # The "..." of someone done eating, big enough to spot across the room.
 
 @onready var customer: Customer = get_parent()
@@ -35,6 +36,9 @@ var _look: Node3D = null           # A close-up dish as it came out, on their pl
 var _model: Node3D = null          # A regular's own model, instead of the placeholder shapes.
 var _animations: AnimationPlayer = null
 var _clips := {}  # What this model calls walk, idle, talk...
+var _held_clips := []  # Its clips that are a single motion, not a loop.
+var _lean: LeanDamp = null  # Keeps its back straighter while it sits down and stands up.
+var _clip_parts := {}  # { "sit_down": [from, to] }: the seconds of a clip to use, for sitting down and standing up.
 var _sit_drop := 0.0  # How far down its sitting clip needs lowering, to be on the chair and not above it.
 var _talk_turn := 0.0  # How far round its standing talk clip needs turning, to face who it's talking to.
 var _walk_time := 0.0
@@ -273,12 +277,20 @@ func _load_model() -> void:
 	var players := _model.find_children("*", "AnimationPlayer", true, false)
 	_animations = players[0] if not players.is_empty() else null
 	_clips = settings.get("animations", GameData.regular_settings.get("model_animations", {}))
+	_held_clips = settings.get("hold", [])
+	_clip_parts = settings.get("clip_parts", {})
+	if settings.has("lean_keep"):
+		_lean = LeanDamp.attach(_model, float(settings["lean_keep"]))
+	if _clip_parts.has("sit_down"):
+		customer.sit_seconds = float(_clip_parts["sit_down"][1]) - float(_clip_parts["sit_down"][0])
+	if _clip_parts.has("stand_up"):
+		customer.stand_seconds = float(_clip_parts["stand_up"][1]) - float(_clip_parts["stand_up"][0])
 	_sit_drop = float(settings.get("sit_drop", 0.0))
 	_talk_turn = deg_to_rad(float(settings.get("talk_turn", 0.0)))
 	HeadTurn.attach(_model)  # Looks at a chef nearby.
 
 
-# { path, height, animations, sit_drop, talk_turn }: the regular's (or named townsfolk's) own
+# { path, height, animations, hold, clip_parts, lean_keep, sit_drop, talk_turn }: the regular's (or named townsfolk's) own
 # model, or one of their species'. "animations" names its clips, if not as in
 # regular_settings.model_animations.
 func _model_settings() -> Dictionary:
@@ -301,8 +313,14 @@ func _process(delta: float) -> void:
 	var animation := "walk" if customer.is_walking() else ("sit" if seated else "idle")
 	if customer.talking:
 		animation = "sit_talk" if seated else "talk"
+	if customer.sitting_down:
+		animation = "sit_down"
+	elif customer.standing_up:
+		animation = "stand_up"
+	if _lean != null:
+		_lean.active = customer.sitting_down or customer.standing_up
 	if _animations != null:
-		_model.position.y = -_sit_drop if seated else 0.0
+		_model.position.y = move_toward(_model.position.y, -_sit_drop if seated else 0.0, SIT_DROP_SPEED * delta)
 		_model.rotation.y = lerp_angle(_model.rotation.y, _talk_turn if animation == "talk" else 0.0, 1.0 - exp(-RegularFigure.TALK_TURN_SPEED * delta))
 		_play(animation)
 		return
@@ -320,10 +338,14 @@ func _process(delta: float) -> void:
 # Play one of the model's animations, by what it's for (walk, idle, sit, talk, sit_talk), looping.
 func _play(what: String) -> void:
 	var animation_name: String = _clips.get(what, what)
-	if not _animations.has_animation(animation_name) or _animations.current_animation == animation_name:
+	if not _animations.has_animation(animation_name) or _animations.assigned_animation == animation_name:
 		return
-	_animations.get_animation(animation_name).loop_mode = Animation.LOOP_LINEAR
+	var part: Array = _clip_parts.get(what, [])
+	var once: bool = animation_name in _held_clips or not part.is_empty()  # Played once, then stays in its last pose.
+	_animations.get_animation(animation_name).loop_mode = Animation.LOOP_NONE if once else Animation.LOOP_LINEAR
 	_animations.play(animation_name, 0.25)
+	if not part.is_empty():
+		_animations.seek(float(part[0]), true)
 
 
 func _bounds(node: Node) -> AABB:

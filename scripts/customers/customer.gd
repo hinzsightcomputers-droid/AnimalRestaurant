@@ -78,6 +78,12 @@ var served_by_account := ""   # Account id of the chef who brought the food.
 var reaction_line := ""       # What they say when leaving.
 var payment := 0              # What they paid.
 
+var sit_seconds := 0.0    # How long their model takes to sit down, or 0: they just walk onto the chair.
+var stand_seconds := 0.0  # How long it takes to stand up, or 0: they just walk off the chair.
+var sitting_down := false  # On the last step into the chair, timed to the clip.
+var standing_up := false   # On the first step out of it, the same.
+
+var _timed_speed := 0.0    # Meters a second on a step timed to a clip.
 var _path: Array[Vector3] = []
 var _state_after_path: State = State.ARRIVING
 var _eat_time_left := 0.0
@@ -301,7 +307,13 @@ func leave(points: Array[Vector3], line: String, amount: int) -> void:
 	reaction_line = line
 	payment = amount
 	leader = null
-	walk_to(points, State.GONE)
+	var way := points.duplicate()
+	if stand_seconds > 0.0 and seat != null and is_seated():
+		var beside := seat.approach_point.global_position
+		way.push_front(beside)
+		standing_up = true
+		_timed_speed = global_position.distance_to(beside) / stand_seconds
+	walk_to(way, State.GONE)
 	_set_state(State.LEAVING)
 
 
@@ -415,19 +427,27 @@ func _follow_path(delta: float) -> void:
 		return
 
 	var offset := _path[0] - global_position
-	var step := walk_speed * _pace * delta
-	if _blocked(offset, delta):
+	if sit_seconds > 0.0 and not sitting_down and _path.size() == 1 and seat != null and _state_after_path == State.WAITING_DRINK_ORDER:
+		sitting_down = true
+		_timed_speed = offset.length() / sit_seconds
+	var step := (_timed_speed if _timed_speed > 0.0 else walk_speed * _pace) * delta
+	if _timed_speed <= 0.0 and _blocked(offset, delta):
 		return
 
 	if offset.length() <= step:
 		global_position = _path[0]
 		_path.pop_front()
+		_timed_speed = 0.0
+		sitting_down = false
+		standing_up = false
 		if _path.is_empty():
 			_on_path_finished()
 		return
 
 	global_position += offset.normalized() * step
-	if Vector2(offset.x, offset.z).length() > 0.01:
+	if sitting_down:
+		rotation.y = lerp_angle(rotation.y, seat.global_rotation.y, turn_speed * delta)
+	elif not standing_up and Vector2(offset.x, offset.z).length() > 0.01:
 		rotation.y = lerp_angle(rotation.y, atan2(offset.x, offset.z), turn_speed * delta)
 
 

@@ -4,7 +4,7 @@
 	"species": "mouse",
 	"name_color": "#e0780f",
 	"color": "#f5922f",
-	"model": { "path": "res://design/characters/Stitches/maple-the-cat.glb", "height": 0.95 },
+	"model": { "path": "res://design/characters/Cheddar/cheddar.tscn", "height": 0.95, "sit_drop": 0.12, "lean_keep": 0.3, "hold": ["Sit_on_Chair_Arms_Crossed"], "clip_parts": { "sit_down": [2.6, 4.2], "stand_up": [0.6, 2.27] }, "animations": { "sit_down": "Step_to_Sit_Transition", "stand_up": "Sit_to_standTransition_Female_2", "walk": "Walking", "idle": "Idle_02", "talk": "Talk_with_Hands_Open", "sit": "Sit_on_Chair_Arms_Crossed", "sit_talk": "Sitting_Answering_Questions" } },
 	"voice": { "blips": "res://design/sound/sound_effects/text moving sound", "pitch": 1.5 },
 	"personality": ["playful", "chatty", "showman"],
 	"favorite_dish": "fire_noodles",
