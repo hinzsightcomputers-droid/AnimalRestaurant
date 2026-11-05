@@ -11,16 +11,18 @@ extends Node
 
 const MAX_PLAYERS := 4
 const DEADZONE := 0.2
-const ACTIONS := ["move_left", "move_right", "move_up", "move_down", "interact"]
+const ACTIONS := ["move_left", "move_right", "move_up", "move_down", "interact", "decor_rotate", "decor_next", "decor_store", "decor_done"]
 
 const KEYBOARD_LAYOUTS := {
-	"keys_left": {"move_left": KEY_A, "move_right": KEY_D, "move_up": KEY_W, "move_down": KEY_S, "interact": KEY_E},
-	"keys_right": {"move_left": KEY_LEFT, "move_right": KEY_RIGHT, "move_up": KEY_UP, "move_down": KEY_DOWN, "interact": KEY_ENTER},
+	"keys_left": {"move_left": KEY_A, "move_right": KEY_D, "move_up": KEY_W, "move_down": KEY_S, "interact": KEY_E, "decor_rotate": KEY_Q, "decor_next": KEY_R, "decor_store": KEY_F, "decor_done": KEY_X},
+	"keys_right": {"move_left": KEY_LEFT, "move_right": KEY_RIGHT, "move_up": KEY_UP, "move_down": KEY_DOWN, "interact": KEY_ENTER, "decor_rotate": KEY_COMMA, "decor_next": KEY_PERIOD, "decor_store": KEY_SLASH, "decor_done": KEY_BACKSPACE},
 }
 const KEYBOARD_HINTS := {"keys_left": "E", "keys_right": "Enter"}
 const PAD_HINT := "A"
 const KEYBOARD_MOVE_HINTS := {"keys_left": "WASD", "keys_right": "the arrow keys"}
 const PAD_MOVE_HINT := "the stick"
+const KEYBOARD_DECOR_HINTS := {"keys_left": "E place or pick up (hold to drag), Q rotate, R next item, F store, X done", "keys_right": "Enter place or pick up (hold to drag), comma rotate, period next item, slash store, Backspace done"}
+const PAD_DECOR_HINT := "A place or pick up (hold to drag), X rotate, RB next item, Y store, B done"
 const KEYBOARD_UP_HINTS := {"keys_left": "W", "keys_right": "Up"}
 
 # Gamepad stick direction for each move action: [axis, direction].
@@ -38,6 +40,10 @@ const PAD_BUTTONS := {
 	"move_up": JOY_BUTTON_DPAD_UP,
 	"move_down": JOY_BUTTON_DPAD_DOWN,
 	"interact": JOY_BUTTON_A,
+	"decor_rotate": JOY_BUTTON_X,
+	"decor_next": JOY_BUTTON_RIGHT_SHOULDER,
+	"decor_store": JOY_BUTTON_Y,
+	"decor_done": JOY_BUTTON_B,
 }
 
 var _devices: Dictionary = {}  # player_index -> device name. Lasts across days (this is an autoload).
@@ -115,6 +121,12 @@ func interact_hint(player_index: int) -> String:
 func move_hint(player_index: int) -> String:
 	var device: String = _devices.get(player_index, "")
 	return KEYBOARD_MOVE_HINTS.get(device, PAD_MOVE_HINT)
+
+
+# The Decorate mode controls for this player's device.
+func decor_hint(player_index: int) -> String:
+	var device: String = _devices.get(player_index, "")
+	return KEYBOARD_DECOR_HINTS.get(device, PAD_DECOR_HINT)
 
 
 # Text for the move-up key, e.g. "W" (or "the stick" on a gamepad).

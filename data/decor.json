@@ -1,0 +1,109 @@
+{
+	"_about": "Decor (see Decor, DecorRoom, DecorateMode). The shop sells shop_per_day items a day, picked from those whose tier (stars needed) has been reached. An item: kind is floor or wall, size is its [width, depth] in meters on the floor, points count toward the Decor area of the star rating, set (optional) names a set. parts are what it looks like: { box: [x, y, z] } or { cylinder: [radius, height] } with a color, or { model: path, size: [x, y, z] }, each with at: [x, y, z] (the bottom middle of the part, from the item's bottom middle). ALL OF THIS IS PLACEHOLDER ART AND PLACEHOLDER PRICES. Scoring: each item id counts up to max_copies times, a category is worth at most category_cap points (so one category can't do it all), and a whole set placed adds set_points. grid is the floor's squares (cell meters each; min and max are the middles of the corner squares): floor decor always fills whole squares, so a floor item's size should be whole squares; keep_clear rectangles [x1, z1, x2, z2] keep the customers' lanes, the tables, the line, the doors and the pass free, and nothing goes within station_gap meters of a station. wall_spots are where wall decor hangs (turn in degrees).",
+	"shop_per_day": 6,
+	"max_copies": 2,
+	"category_cap": 8,
+	"set_points": 4,
+	"camera": { "distance": 15.0, "pitch": 62.0, "center": [0.0, 0.0, 0.3] },
+	"grid": { "min": [-6.75, -4.75], "max": [6.75, 4.75], "cell": 0.5 },
+	"station_gap": 1.1,
+	"keep_clear": [
+		[-1.6, -1.9, 6.0, 3.3],
+		[-7.0, 3.5, 7.0, 5.0],
+		[-7.0, -2.9, 7.0, -1.3],
+		[-3.3, -2.9, -1.7, 2.0],
+		[-4.3, -5.0, -2.3, -1.3],
+		[3.7, -5.0, 6.3, -3.7]
+	],
+	"wall_spots": [
+		{ "at": [-1.8, 1.7, -4.97], "turn": 0 },
+		{ "at": [-0.4, 1.7, -4.97], "turn": 0 },
+		{ "at": [-6.2, 1.7, -4.97], "turn": 0 },
+		{ "at": [6.97, 1.7, -2.5], "turn": -90 },
+		{ "at": [6.97, 1.7, 0.0], "turn": -90 },
+		{ "at": [6.97, 1.7, 2.5], "turn": -90 },
+		{ "at": [-6.97, 1.7, -2.5], "turn": 90 },
+		{ "at": [-6.97, 1.7, 2.5], "turn": 90 }
+	],
+	"items": [
+		{ "id": "potted_fern", "name": "Potted Fern", "description": "A small green friend for a corner.", "category": "plants", "kind": "floor", "tier": 1, "price": 15, "points": 2, "size": [0.5, 0.5], "set": "cozy",
+			"parts": [
+				{ "cylinder": [0.2, 0.3], "color": "#b5683c", "at": [0, 0, 0] },
+				{ "model": "res://design/assets/KayKit_Forest_Nature_Pack_1.0_FREE/Assets/gltf/Bush_1_A_Color1.gltf", "size": [0.6, 0.5, 0.6], "at": [0, 0.28, 0] }
+			] },
+		{ "id": "big_planter", "name": "Big Planter", "description": "A wide box of leafy green.", "category": "plants", "kind": "floor", "tier": 1, "price": 25, "points": 3, "size": [1.0, 0.5],
+			"parts": [
+				{ "box": [1.0, 0.35, 0.45], "color": "#8a5a36", "at": [0, 0, 0] },
+				{ "model": "res://design/assets/KayKit_Forest_Nature_Pack_1.0_FREE/Assets/gltf/Bush_2_A_Color1.gltf", "size": [1.0, 0.6, 0.5], "at": [0, 0.3, 0] }
+			] },
+		{ "id": "indoor_tree", "name": "Indoor Tree", "description": "Almost too tall for the room.", "category": "plants", "kind": "floor", "tier": 3, "price": 70, "points": 5, "size": [1.0, 1.0],
+			"parts": [
+				{ "cylinder": [0.32, 0.35], "color": "#c9c2b5", "at": [0, 0, 0] },
+				{ "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/City Builder Bits/Assets/gltf/tree_A.gltf", "size": [1.2, 2.2, 1.2], "at": [0, 0.3, 0] }
+			] },
+		{ "id": "floor_lamp", "name": "Floor Lamp", "description": "Warm light on a thin stand.", "category": "lights", "kind": "floor", "tier": 1, "price": 20, "points": 2, "size": [0.5, 0.5], "set": "cozy",
+			"parts": [
+				{ "cylinder": [0.17, 0.05], "color": "#3d3a38", "at": [0, 0, 0] },
+				{ "cylinder": [0.03, 1.5], "color": "#3d3a38", "at": [0, 0.05, 0] },
+				{ "cylinder": [0.2, 0.28], "color": "#f6dc9a", "at": [0, 1.5, 0] }
+			] },
+		{ "id": "street_lamp", "name": "Street Lamp", "description": "A real street lamp, indoors. Bold.", "category": "lights", "kind": "floor", "tier": 3, "price": 60, "points": 4, "size": [0.5, 0.5],
+			"parts": [
+				{ "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/City Builder Bits/Assets/gltf/streetlight.gltf", "size": [0.6, 2.3, 0.6], "at": [0, 0, 0] }
+			] },
+		{ "id": "low_shelf", "name": "Low Shelf", "description": "A simple wooden shelf.", "category": "shelves", "kind": "floor", "tier": 1, "price": 25, "points": 3, "size": [1.0, 0.5], "set": "cozy",
+			"parts": [
+				{ "box": [1.0, 0.06, 0.4], "color": "#9a6b43", "at": [0, 0, 0] },
+				{ "box": [1.0, 0.06, 0.4], "color": "#9a6b43", "at": [0, 0.42, 0] },
+				{ "box": [1.0, 0.06, 0.4], "color": "#9a6b43", "at": [0, 0.84, 0] },
+				{ "box": [0.06, 0.9, 0.4], "color": "#7f5634", "at": [-0.47, 0, 0] },
+				{ "box": [0.06, 0.9, 0.4], "color": "#7f5634", "at": [0.47, 0, 0] }
+			] },
+		{ "id": "bookcase", "name": "Bookcase", "description": "Tall, full, and slightly dusty.", "category": "shelves", "kind": "floor", "tier": 2, "price": 45, "points": 4, "size": [1.0, 0.5],
+			"parts": [
+				{ "box": [1.0, 1.9, 0.4], "color": "#6d4a2f", "at": [0, 0, 0] },
+				{ "box": [0.85, 0.34, 0.03], "color": "#a8423a", "at": [0, 0.2, 0.2] },
+				{ "box": [0.85, 0.34, 0.03], "color": "#3f6f8f", "at": [0, 0.75, 0.2] },
+				{ "box": [0.85, 0.34, 0.03], "color": "#c9a23f", "at": [0, 1.3, 0.2] }
+			] },
+		{ "id": "display_cabinet", "name": "Display Cabinet", "description": "Glass doors and gold trim.", "category": "shelves", "kind": "floor", "tier": 4, "price": 120, "points": 6, "size": [1.0, 0.5], "set": "fancy",
+			"parts": [
+				{ "box": [1.0, 1.9, 0.42], "color": "#4a2f25", "at": [0, 0, 0] },
+				{ "box": [0.86, 1.65, 0.03], "color": "#bfe3ea", "at": [0, 0.12, 0.21] },
+				{ "box": [1.04, 0.06, 0.46], "color": "#d4af37", "at": [0, 1.9, 0] }
+			] },
+		{ "id": "crate_stack", "name": "Crate Stack", "description": "Rustic, or just left over.", "category": "counters", "kind": "floor", "tier": 1, "price": 15, "points": 2, "size": [0.5, 0.5],
+			"parts": [
+				{ "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Prototype Bits/Assets/gltf/Box_A.gltf", "size": [0.5, 0.5, 0.5], "at": [0, 0, 0] }
+			] },
+		{ "id": "side_table", "name": "Side Table", "description": "For a vase, or a stray menu.", "category": "counters", "kind": "floor", "tier": 1, "price": 20, "points": 2, "size": [0.5, 0.5],
+			"parts": [
+				{ "cylinder": [0.05, 0.6], "color": "#7f5634", "at": [0, 0, 0] },
+				{ "cylinder": [0.24, 0.05], "color": "#9a6b43", "at": [0, 0.6, 0] }
+			] },
+		{ "id": "barrel_stand", "name": "Barrel Stand", "description": "A barrel with a job.", "category": "counters", "kind": "floor", "tier": 2, "price": 35, "points": 3, "size": [0.5, 0.5],
+			"parts": [
+				{ "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Prototype Bits/Assets/gltf/Barrel_A.gltf", "size": [0.55, 0.9, 0.55], "at": [0, 0, 0] }
+			] },
+		{ "id": "marble_column", "name": "Marble Column", "description": "It holds up nothing, beautifully.", "category": "counters", "kind": "floor", "tier": 5, "price": 200, "points": 8, "size": [0.5, 0.5], "set": "fancy",
+			"parts": [
+				{ "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Prototype Bits/Assets/gltf/Pillar_A.gltf", "size": [0.5, 2.4, 0.5], "at": [0, 0, 0] }
+			] },
+		{ "id": "small_frame", "name": "Small Frame", "description": "A little picture of something nice.", "category": "wall art", "kind": "wall", "tier": 1, "price": 15, "points": 2, "size": [0.6, 0.1],
+			"parts": [
+				{ "box": [0.6, 0.5, 0.04], "color": "#7f5634", "at": [0, -0.25, 0] },
+				{ "box": [0.48, 0.38, 0.02], "color": "#9fc7a8", "at": [0, -0.19, 0.03] }
+			] },
+		{ "id": "big_painting", "name": "Big Painting", "description": "Nobody knows who painted it.", "category": "wall art", "kind": "wall", "tier": 2, "price": 40, "points": 4, "size": [1.1, 0.1],
+			"parts": [
+				{ "box": [1.1, 0.8, 0.04], "color": "#4a2f25", "at": [0, -0.4, 0] },
+				{ "box": [0.96, 0.66, 0.02], "color": "#e3a45c", "at": [0, -0.33, 0.03] },
+				{ "box": [0.96, 0.24, 0.02], "color": "#4f7fa3", "at": [0, -0.33, 0.04] }
+			] },
+		{ "id": "gold_mirror", "name": "Gold Mirror", "description": "The room looks twice as fancy.", "category": "wall art", "kind": "wall", "tier": 4, "price": 110, "points": 6, "size": [0.8, 0.1], "set": "fancy",
+			"parts": [
+				{ "box": [0.8, 1.1, 0.05], "color": "#d4af37", "at": [0, -0.55, 0] },
+				{ "box": [0.66, 0.96, 0.02], "color": "#cfe6ee", "at": [0, -0.48, 0.035] }
+			] }
+	]
+}

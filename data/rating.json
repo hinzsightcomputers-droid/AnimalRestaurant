@@ -1,12 +1,12 @@
 {
-	"_about": "The restaurant's star rating (see Rating). It starts at 1 star and only goes up. Each star in \"stars\" needs all four areas: service (average satisfaction over the last service_days days open, 0 to 1), menu (dishes and drinks unlocked), community (friendship with the regulars, plus guest_points for each different named townsfolk served) and decor (0 = not needed; decorating isn't built yet). When they're all met, the critic comes to that day's service. Happy or better (pass_satisfaction) earns the star at closing; if not, they come back retry_days later, with no loss.",
+	"_about": "The restaurant's star rating (see Rating). It starts at 1 star and only goes up. Each star in \"stars\" needs all four areas: service (average satisfaction over the last service_days days open, 0 to 1), menu (dishes and drinks unlocked), community (friendship with the regulars, plus guest_points for each different named townsfolk served) and decor (Decor.score; 0 = not needed). When they're all met, the critic comes to that day's service. Happy or better (pass_satisfaction) earns the star at closing; if not, they come back retry_days later, with no loss.",
 	"service_days": 7,
 	"guest_points": 2,
 	"stars": [
-		{ "star": 2, "service": 0.6, "menu": 12, "community": 10, "decor": 0 },
-		{ "star": 3, "service": 0.7, "menu": 20, "community": 75, "decor": 0 },
-		{ "star": 4, "service": 0.8, "menu": 28, "community": 150, "decor": 0 },
-		{ "star": 5, "service": 0.88, "menu": 34, "community": 260, "decor": 0 }
+		{ "star": 2, "service": 0.6, "menu": 12, "community": 10, "decor": 4 },
+		{ "star": 3, "service": 0.7, "menu": 20, "community": 75, "decor": 14 },
+		{ "star": 4, "service": 0.8, "menu": 28, "community": 150, "decor": 26 },
+		{ "star": 5, "service": 0.88, "menu": 34, "community": 260, "decor": 38 }
 	],
 	"_critic": "Who visits. townsfolk: the id of a file in data/townsfolk/ to use as the critic (they then say that file's lines). Left empty, an unnamed critic comes with the name and species here and says the generic townsfolk lines. PLACEHOLDER wording below, along with award_lines.",
 	"critic": {

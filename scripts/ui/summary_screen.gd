@@ -223,6 +223,12 @@ func _build_upgrade_list() -> void:
 		upgrade_list.remove_child(child)
 		child.queue_free()
 	var buttons: Array[Button] = []
+	if _from_host_stand and DayCycle.is_after_hours():
+		var decorate := _shop_button("Decorate", "Place what's in storage, or move things around.", 0, false, "")
+		decorate.text = "Decorate\nPlace what's in storage, or move things around."
+		decorate.disabled = false
+		decorate.pressed.connect(_decorate)
+		buttons.append(decorate)
 	for upgrade in GameData.upgrades.filter(func(u): return GameData.in_stock(u["id"]) or GameState.has_upgrade(u["id"])):
 		var button := _shop_button(upgrade["name"], upgrade["description"], int(upgrade["price"]), GameState.has_upgrade(upgrade["id"]), "Owned")
 		button.pressed.connect(_buy.bind(upgrade["id"]))
@@ -236,6 +242,12 @@ func _build_upgrade_list() -> void:
 	for drink in GameData.shop_drinks().filter(func(d): return GameData.in_stock(d["id"]) or GameData.is_unlocked(d["id"])):
 		var button := _shop_button(drink["name"], drink["description"], int(drink["unlock_cost"]), GameData.is_unlocked(drink["id"]), "On the menu")
 		button.pressed.connect(_buy_drink.bind(drink["id"]))
+		buttons.append(button)
+	_shop_heading("Decor today (it goes in storage until you place it)")
+	for item in Decor.stock():
+		var stored := int(GameState.decor_stored.get(item["id"], 0))
+		var button := _shop_button(item["name"], "%s  (%s, %d in storage)" % [item["description"], item["category"], stored], int(item["price"]), false, "")
+		button.pressed.connect(_buy_decor.bind(item["id"]))
 		buttons.append(button)
 	_coming_tomorrow()
 	var buyable := buttons.filter(func(b): return not b.disabled)
@@ -286,6 +298,16 @@ func _shop_button(item_name: String, description: String, price: int, owned: boo
 func _buy(upgrade_id: String) -> void:
 	if GameState.buy_upgrade(upgrade_id):
 		_refresh_page()
+
+
+func _buy_decor(item_id: String) -> void:
+	if GameState.buy_decor(item_id):
+		_refresh_page()
+
+
+func _decorate() -> void:
+	visible = false
+	day_manager.start_decorating()
 
 
 func _buy_dish(dish_id: String) -> void:

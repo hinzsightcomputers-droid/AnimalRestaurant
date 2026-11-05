@@ -19,11 +19,13 @@ signal camera_focus_released
 @export var turn_speed := 12.0    # How quickly the body turns to face the move direction.
 
 var movement_locked := false      # True while busy (e.g. cooking).
+var decorating := false           # In Decorate mode: interact belongs to that, not the room.
 var hidden_from_own_view := false  # In a close-up: their own camera leaves them out.
 var has_acted := false            # Becomes true the first time this player moves or interacts.
 var held_item: RefCounted = null  # What the player is carrying, e.g. a CookedDish.
 var tickets: Array[Order] = []    # Order tickets in their pocket, for the TicketWheel (hands stay free).
 var _interact_blocked := false    # See ignore_interact_until_released().
+var decor_carry := DecorCarry.new()  # Hold interact by placed decor to move it.
 
 @onready var input: PlayerInput = $PlayerInput
 @onready var visual: Node3D = $Visual
@@ -42,6 +44,8 @@ func _ready() -> void:
 	add_to_group(GROUP)
 	input.player_index = player_index
 	set_collision_mask_value(Customer.BODY_LAYER, true)  # Bump into customers, not through them.
+	decor_carry.chef = self
+	add_child(decor_carry)
 
 
 # `settings` = how close / what angle / how fast (null = the camera's default zoom).
@@ -107,7 +111,7 @@ func _physics_process(delta: float) -> void:
 	var input_vector := Vector2.ZERO if movement_locked else input.get_move_vector()
 	var direction := Vector3(input_vector.x, 0.0, input_vector.y)
 
-	var target_velocity := direction * move_speed
+	var target_velocity := direction * move_speed * decor_carry.speed_share()
 	velocity.x = move_toward(velocity.x, target_velocity.x, acceleration * delta)
 	velocity.z = move_toward(velocity.z, target_velocity.z, acceleration * delta)
 
@@ -127,13 +131,14 @@ func _physics_process(delta: float) -> void:
 		_interact_blocked = false
 	if input.is_interact_just_pressed() and not _interact_blocked and not in_conversation():
 		has_acted = true
+		decor_carry.press(held_item == null)
 		interactor.try_interact(player_index)
 
 
 # A dialogue box of ours is open: interact moves the conversation on, so it
 # mustn't also use the counter, chair or table in front of us.
 func in_conversation() -> bool:
-	return get_tree().get_nodes_in_group(ConversationBox.GROUP).any(func(box): return box.player_index == player_index and not box.is_queued_for_deletion())
+	return decorating or get_tree().get_nodes_in_group(ConversationBox.GROUP).any(func(box): return box.player_index == player_index and not box.is_queued_for_deletion())
 
 
 # The press that's down right now (e.g. the one that closed a dialogue box)

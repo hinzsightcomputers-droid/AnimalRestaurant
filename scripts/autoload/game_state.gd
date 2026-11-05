@@ -120,6 +120,10 @@ var critic_last_day := 0
 var star_earned := false
 var star_awarded_on := ""
 var forced_critic := false  # Debug panel: the critic comes in next. Not saved.
+# Decor bought (see Decor): how many of each id are in storage, and what's
+# placed: { id, x, z, turn, spot }. Saved.
+var decor_stored: Dictionary = {}
+var decor_placed: Array = []
 # Debug panel: pretend it's this season ("" = the real one) or hour block
 # outdoors (for fishing), and the fish that bites on the next cast. Not saved.
 var debug_season := ""
@@ -277,6 +281,30 @@ func buy_drink(drink_id: String) -> bool:
 	return true
 
 
+# Spend money on one decor item from today's shop, into storage, and save.
+func buy_decor(item_id: String) -> bool:
+	var item := Decor.get_item(item_id)
+	if item.is_empty() or money < int(item["price"]) or not Decor.stock().any(func(i): return i["id"] == item_id):
+		return false
+	decor_stored[item_id] = int(decor_stored.get(item_id, 0)) + 1
+	add_money(-int(item["price"]))
+	SaveGame.save_game()
+	return true
+
+
+# One out of storage and into the room (spot -1: on the floor at x, z).
+func decor_place(item_id: String, x: float, z: float, turn: int, spot: int) -> void:
+	decor_stored[item_id] = int(decor_stored.get(item_id, 0)) - 1
+	decor_placed.append({ "id": item_id, "x": x, "z": z, "turn": turn, "spot": spot })
+
+
+# Placed decor `index` back into storage.
+func decor_take_back(index: int) -> void:
+	var id: String = decor_placed[index]["id"]
+	decor_stored[id] = int(decor_stored.get(id, 0)) + 1
+	decor_placed.remove_at(index)
+
+
 # What owned upgrades add to a number, e.g. upgrade_bonus("patient_seconds").
 # Keys: chops, patient_seconds, tip_percent.
 func upgrade_bonus(key: String) -> float:
@@ -396,6 +424,8 @@ func to_save_data() -> Dictionary:
 		"critic_last_day": critic_last_day,
 		"star_earned": star_earned,
 		"star_awarded_on": star_awarded_on,
+		"decor_stored": decor_stored,
+		"decor_placed": decor_placed,
 	}
 
 
@@ -429,6 +459,13 @@ func apply_save_data(data: Dictionary) -> void:
 	critic_last_day = int(data.get("critic_last_day", 0))
 	star_earned = bool(data.get("star_earned", false))
 	star_awarded_on = String(data.get("star_awarded_on", ""))
+	decor_stored = {}
+	var saved_decor = data.get("decor_stored", {})
+	if saved_decor is Dictionary:
+		for id in saved_decor:
+			decor_stored[id] = int(saved_decor[id])
+	decor_placed = data.get("decor_placed", []).filter(func(p): return p is Dictionary and p.has("id")) if data.get("decor_placed", []) is Array else []
+	Decor.settle_on_grid()
 	delivery_asked = bool(data.get("delivery_asked", false))
 	townsfolk = data.get("townsfolk", {}) if data.get("townsfolk", {}) is Dictionary else {}
 	phone_unlocked = bool(data.get("phone_unlocked", false))  # Saves from before the phone had to be unlocked start without it.

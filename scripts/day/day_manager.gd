@@ -35,6 +35,7 @@ const AFTER_HOURS_LIGHT_CHECK_SECONDS := 60.0
 @export var world_environment: WorldEnvironment
 @export var phone: Phone                          # Takes the night shift's calls.
 
+var decor_room := DecorRoom.new()  # What's been placed (see Decor).
 var _announced_bell := false
 var _lighting: Tween
 var _night_ending := false
@@ -44,6 +45,7 @@ var _light_check_left := 0.0
 
 func _ready() -> void:
 	customer_manager.day_manager = self
+	add_child(decor_room)
 	GameState.begin_day()
 	Music.play_hour_themes()  # In the restaurant the music follows the real hour.
 	EventBanner.show_today(self)  # "Happy Halloween!", birthdays (see EventCalendar).
@@ -209,6 +211,18 @@ func open_summary() -> void:
 	if DayCycle.is_after_hours():
 		get_tree().paused = true
 		summary_requested.emit()
+
+
+# From the shop at the host stand: Decorate mode for the first chef playing.
+func start_decorating() -> void:
+	get_tree().paused = false
+	for i in InputSetup.MAX_PLAYERS:
+		var chef := Player.find(get_tree(), i)
+		if chef != null:
+			var mode := DecorateMode.new()
+			mode.setup(chef, decor_room, customer_manager.view_manager)
+			add_child(mode)
+			return
 
 
 # It's a new restaurant day (5 AM has been) and someone opened up from the

@@ -36,7 +36,7 @@ static func value(area: String) -> float:
 			return float(menu_size())
 		"community":
 			return float(community())
-	return 0.0  # Decor: nothing to place yet.
+	return float(Decor.score())
 
 
 # Average satisfaction over the last service_days days open, 0 with none yet.

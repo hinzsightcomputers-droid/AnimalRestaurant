@@ -562,6 +562,21 @@ func _build() -> void:
 	var today_row := _add_row(box)
 	_add_button(today_row, "Re-roll today", _replan_today)
 	_add_button(today_row, "Force a new day", _force_new_day)
+	_add_label(box, "Decor", 18, true)
+	var decor_row := _add_row(box)
+	_add_button(decor_row, "One of each", func():
+		for item in Decor.items():
+			GameState.decor_stored[item["id"]] = int(GameState.decor_stored.get(item["id"], 0)) + 1
+		_changed = true
+		_refresh())
+	_add_button(decor_row, "Clear decor", func():
+		GameState.decor_stored = {}
+		GameState.decor_placed = []
+		var day := get_tree().current_scene.find_child("DayManager", true, false) as DayManager
+		if day != null:
+			day.decor_room.refresh()
+		_changed = true
+		_refresh())
 	_add_label(box, "Star rating", 18, true)
 	var rating_row := _add_row(box)
 	_add_button(rating_row, "Critic next", func(): GameState.forced_critic = true; _refresh())
