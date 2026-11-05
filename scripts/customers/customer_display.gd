@@ -34,6 +34,9 @@ var _speech_state: Customer.State  # What they were doing when they said it.
 var _look: Node3D = null           # A close-up dish as it came out, on their plate.
 var _model: Node3D = null          # A regular's own model, instead of the placeholder shapes.
 var _animations: AnimationPlayer = null
+var _clips := {}  # What this model calls walk, idle, talk...
+var _sit_drop := 0.0  # How far down its sitting clip needs lowering, to be on the chair and not above it.
+var _talk_turn := 0.0  # How far round its standing talk clip needs turning, to face who it's talking to.
 var _walk_time := 0.0
 var _body := Node3D.new()          # Holds the model: hops and droops with their feelings.
 var _emotions := EmotionPlayer.new()  # On top of their head (the placeholder's, unless a model moves it).
@@ -269,10 +272,15 @@ func _load_model() -> void:
 			child.visible = false
 	var players := _model.find_children("*", "AnimationPlayer", true, false)
 	_animations = players[0] if not players.is_empty() else null
+	_clips = settings.get("animations", GameData.regular_settings.get("model_animations", {}))
+	_sit_drop = float(settings.get("sit_drop", 0.0))
+	_talk_turn = deg_to_rad(float(settings.get("talk_turn", 0.0)))
 	HeadTurn.attach(_model)  # Looks at a chef nearby.
 
 
-# { path, height }: the regular's (or named townsfolk's) own model, or one of their species'.
+# { path, height, animations, sit_drop, talk_turn }: the regular's (or named townsfolk's) own
+# model, or one of their species'. "animations" names its clips, if not as in
+# regular_settings.model_animations.
 func _model_settings() -> Dictionary:
 	if customer.is_regular():
 		return GameState.regulars[customer.regular_id].get("model", {})
@@ -294,6 +302,8 @@ func _process(delta: float) -> void:
 	if customer.talking:
 		animation = "sit_talk" if seated else "talk"
 	if _animations != null:
+		_model.position.y = -_sit_drop if seated else 0.0
+		_model.rotation.y = lerp_angle(_model.rotation.y, _talk_turn if animation == "talk" else 0.0, 1.0 - exp(-RegularFigure.TALK_TURN_SPEED * delta))
 		_play(animation)
 		return
 	# No animations: a little waddle while walking, and sunk into the chair when seated.
@@ -309,8 +319,7 @@ func _process(delta: float) -> void:
 
 # Play one of the model's animations, by what it's for (walk, idle, sit, talk, sit_talk), looping.
 func _play(what: String) -> void:
-	var names: Dictionary = GameData.regular_settings.get("model_animations", {})
-	var animation_name: String = names.get(what, what)
+	var animation_name: String = _clips.get(what, what)
 	if not _animations.has_animation(animation_name) or _animations.current_animation == animation_name:
 		return
 	_animations.get_animation(animation_name).loop_mode = Animation.LOOP_LINEAR
@@ -321,7 +330,8 @@ func _bounds(node: Node) -> AABB:
 	var box := AABB()
 	var first := true
 	for mesh in node.find_children("*", "MeshInstance3D", true, false):
-		var part: AABB = mesh.global_transform * mesh.get_aabb()
+		# A rigged mesh is drawn by its bones, at its own size whatever the nodes above it say.
+		var part: AABB = (node.global_transform if mesh.skin != null else mesh.global_transform) * mesh.get_aabb()
 		box = part if first else box.merge(part)
 		first = false
 	return box
