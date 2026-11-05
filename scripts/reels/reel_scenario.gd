@@ -48,6 +48,15 @@ static func find_line(regular_id: String, line_id: String) -> Dictionary:
 	return {}
 
 
+# The reply a beat means, or {}: by its tone, or by how its text starts (not every
+# reply has a tone). It's the line's own dictionary, not a copy.
+static func choice_of(line: Dictionary, wanted: String) -> Dictionary:
+	for choice in line.get("choices", []):
+		if choice.get("tone", "") == wanted or (not wanted.is_empty() and String(choice.get("text", "")).begins_with(wanted)):
+			return choice
+	return {}
+
+
 # The table spots in the restaurant ("corner", "window"...).
 static func table_spots() -> Array[String]:
 	var spots: Array[String] = []
@@ -138,9 +147,12 @@ static func _check_beats(beats: Array, regular_id: String, spots: Array[String],
 				_check_choices(beat, line, where, found)
 				if next != "reaction":
 					found.append("%s: a reaction beat has to come next" % where)
+				line = choice_of(line, beat.get("pick", "")).get("then", {})  # The follow-up, if this reply leads to one.
 			"reaction":
 				if last != "choices":
 					found.append("%s: has to come straight after a choices beat" % where)
+				elif not line.is_empty() and next != "choices":
+					found.append("%s: that reply leads to a follow-up question, so a choices beat has to come next" % where)
 			"serve":
 				if GameData.get_dish(beat.get("dish", "")).is_empty():
 					found.append("%s: dish \"%s\" doesn't exist" % [where, beat.get("dish", "")])
@@ -154,12 +166,13 @@ static func _check_beats(beats: Array, regular_id: String, spots: Array[String],
 
 
 static func _check_choices(beat: Dictionary, line: Dictionary, where: String, found: Array[String]) -> void:
-	var tones: Array = line.get("choices", []).map(func(c): return c.get("tone", ""))
-	if tones.is_empty():
+	var choices: Array = line.get("choices", [])
+	if choices.is_empty():
 		found.append("%s: the line before it has no choices" % where)
 		return
 	var wanted: Array = beat.get("highlight", []).map(func(h): return h.get("tone", ""))
 	wanted.append(beat.get("pick", ""))
-	for tone in wanted:
-		if not tone in tones:
-			found.append("%s: no \"%s\" choice (it has: %s)" % [where, tone, ", ".join(tones)])
+	for reply in wanted:
+		if choice_of(line, reply).is_empty():
+			var has: Array = choices.map(func(c): return c.get("tone", c.get("text", "")))
+			found.append("%s: no \"%s\" choice (it has: %s)" % [where, reply, ", ".join(has)])

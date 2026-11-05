@@ -113,7 +113,7 @@ func _on_state_changed(_customer: Customer) -> void:
 		Customer.State.LEAVING:
 			bubble.visible = false  # Their goodbye was in the dialogue box; what they paid is announced.
 
-	if customer.quiet:
+	if _no_bubble():
 		bubble.visible = false
 	_update_name_tag()
 
@@ -202,11 +202,16 @@ func _update_table_things() -> void:
 # back to whatever fits their state.
 func _on_spoke(_customer: Customer) -> void:
 	_speech_state = customer.state
-	bubble.visible = true
+	bubble.visible = not _no_bubble()
 	bubble.scale = Vector3.ONE
 	# In a conversation the dialogue box has the words; the bubble just shows they're talking.
 	bubble.text = "..." if customer.talking else _quoted(customer.speech, "")
 	_speech_timer.start(SPEECH_SECONDS)
+
+
+# An extra in a reel never has one, and in a reel the box is all a conversation needs.
+func _no_bubble() -> bool:
+	return customer.quiet or (customer.talking and ReelSandbox.active())
 
 
 # When a conversation ends, the bubble goes straight back to normal (the dialogue

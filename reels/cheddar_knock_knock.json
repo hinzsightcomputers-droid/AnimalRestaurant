@@ -1,0 +1,20 @@
+{
+	"title": "Cheddar's knock knock joke",
+	"meal": "dinner",
+	"lighting": "dinner",
+	"regular": { "id": "cheddar", "relationship": 10, "first_visit": false },
+	"extras": [
+		{ "table": "window", "species": "cow", "dish": "honey_pancakes" },
+		{ "table": "kitchen", "species": "rabbit", "dish": "honey_pancakes" }
+	],
+	"beats": [
+		{ "do": "walk_in", "table": "corner" },
+		{ "do": "line", "line": "cheddar_return" },
+		{ "do": "choices", "highlight": [{ "tone": "I missed your jokes", "hold": 0.8 }], "pick": "Knock knock" },
+		{ "do": "reaction" },
+		{ "do": "choices", "pick": "Your chef" },
+		{ "do": "reaction", "hold": 2.5 },
+		{ "do": "wait", "seconds": 1.0 },
+		{ "do": "end" }
+	]
+}

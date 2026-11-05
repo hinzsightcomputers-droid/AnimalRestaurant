@@ -58,9 +58,12 @@ only apply while recording. Godot writes an AVI; with `ffmpeg.exe` in
   - `choices`: shows the line's replies. After `read` seconds the highlight
     moves through `highlight`, a list of `{ "tone", "hold" }`, then to `pick`,
     stays there for `hold` seconds and picks it. Tones are `warm`, `playful`,
-    `straight` and `rude`. `reaction` has to come next.
+    `straight` and `rude`. A reply with no tone is named by how its text starts,
+    e.g. `"pick": "Knock knock"`, in `highlight` too. `reaction` has to come next.
   - `reaction`: their reply to the choice. `emotion` replaces the one in their
-    character file, and `hold` is how long it stays up once typed.
+    character file, and `hold` is how long it stays up once typed. If the reply
+    leads to a follow-up question, another `choices` and `reaction` come next,
+    for as many as it goes on (see `cheddar_knock_knock.json`).
   - `serve`: cuts to the chef arriving with `dish`, skipping the cooking and the
     trip to the kitchen, at `quality` (0 to 1).
   - `wait`: nothing happens for `seconds`.

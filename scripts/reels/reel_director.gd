@@ -33,6 +33,7 @@ var _customers: CustomerManager
 var _chef: Player
 var _camera: ReelCamera
 var _talking := false
+var _asking := {}  # The line whose replies are up (a follow-up, after one that leads to it).
 var _failed := false
 
 
@@ -101,6 +102,7 @@ func _line(beat: Dictionary, index: int) -> void:
 	_camera.glide_to(ReelCamera.Shot.TABLE)
 	await _walk_chef(_way_to_customer())
 	var line := _line_for(beat, index)
+	_asking = line
 	_talking = true
 	_talk(line)
 	if line.has("choices"):
@@ -114,14 +116,19 @@ func _talk(line: Dictionary) -> void:
 	_talking = false
 
 
-# The line from their file, with the reply's feeling swapped if the reaction beat says so.
+# The line from their file, with each reply's feeling swapped if its reaction beat
+# says so, down through any follow-ups.
 func _line_for(beat: Dictionary, index: int) -> Dictionary:
 	var line := ReelScenario.find_line(scenario["regular"]["id"], beat["line"]).duplicate(true)
 	var beats: Array = scenario["beats"]
-	if line.has("choices") and beats[index + 2].has("emotion"):
-		for choice in line["choices"]:
-			if choice.get("tone", "") == beats[index + 1]["pick"]:
-				choice["emotion"] = beats[index + 2]["emotion"]
+	var asking := line
+	var next := index + 1
+	while asking.has("choices"):
+		var choice := ReelScenario.choice_of(asking, beats[next]["pick"])
+		if beats[next + 1].has("emotion"):
+			choice["emotion"] = beats[next + 1]["emotion"]
+		asking = choice.get("then", {})
+		next += 2
 	return line
 
 
@@ -133,15 +140,15 @@ func _choices(beat: Dictionary) -> void:
 	await _move_highlight(beat["pick"])
 	await _seconds(float(beat.get("hold", PICK_SECONDS)))
 	_box().pick()
+	_asking = ReelScenario.choice_of(_asking, beat["pick"]).get("then", {})
 
 
 # One reply at a time, the short way round (the list wraps, like the real thing).
-func _move_highlight(tone: String) -> void:
+func _move_highlight(reply: String) -> void:
 	var box := _box()
-	var line := ReelScenario.find_line(scenario["regular"]["id"], _said_line())
-	var tones: Array = Conversation.choices_of(line).map(func(c): return c.get("tone", ""))
-	var target := tones.find(tone)
-	var count := tones.size()
+	var choices := Conversation.choices_of(_asking)
+	var target := choices.find(ReelScenario.choice_of(_asking, reply))
+	var count := choices.size()
 	var down := posmod(target - box.highlighted(), count)
 	var step := 1 if down <= count - down else -1
 	while box.highlighted() != target:
@@ -150,22 +157,12 @@ func _move_highlight(tone: String) -> void:
 			await _seconds(STEP_SECONDS)
 
 
-# The id of the last line beat.
-func _said_line() -> String:
-	var found := ""
-	for beat in scenario["beats"]:
-		if beat["do"] == "line":
-			found = beat["line"]
-		elif beat["do"] == "choices" and _box() != null:
-			return found
-	return found
-
-
-# Let each line type out and stay up for `hold` seconds, until the talk is over.
+# Let each line type out and stay up for `hold` seconds, until the talk is over or
+# a follow-up question has its replies up.
 func _finish_talking(hold: float) -> void:
 	while _talking:
-		await _until(func(): return not _talking or (_box() != null and _box().is_waiting()), "the line to finish")
-		if _failed or not _talking:
+		await _until(func(): return not _talking or (_box() != null and (_box().is_waiting() or _box().is_choosing())), "the line to finish")
+		if _failed or not _talking or _box().is_choosing():
 			return
 		await _seconds(hold)
 		_box().move_on()
