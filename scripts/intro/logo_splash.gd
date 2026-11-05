@@ -1,17 +1,14 @@
-# LogoSplash: the very first thing on screen. The logo fades in, holds, and
-# fades out, then the start screen (StreetIntro) fades in. Uses the first logo
-# file found in LOGO_PATHS; until one is added, a placeholder line of text shows
-# instead. The logo sits on LOGO_BACKGROUND (white, like the logo was drawn on),
-# which eases to dark at the end so the start screen can fade in from it. Any
-# button skips ahead.
+# LogoSplash: the very first thing on screen. The logo fades in and holds, then
+# a circle wipe closes on it and opens on the start screen (StreetIntro). Uses
+# the first logo file found in LOGO_PATHS; until one is added, a placeholder line
+# of text shows instead. The logo sits on LOGO_BACKGROUND (white, like the logo
+# was drawn on). Any button skips ahead.
 extends Control
 
 const NEXT_SCENE := "res://scenes/intro/street_intro.tscn"
 const LOGO_PATHS := ["res://assets/logo.png", "res://assets/logo.svg", "res://assets/logo.webp", "res://assets/logo.jpg"]
 const FADE_IN_SECONDS := 1.0
 const HOLD_SECONDS := 1.6
-const FADE_OUT_SECONDS := 1.0
-const TO_DARK_SECONDS := 0.5
 const LOGO_BACKGROUND := Color(1, 1, 1)
 
 @onready var content: Control = $Content
@@ -37,8 +34,6 @@ func _ready() -> void:
 	_tween = create_tween()
 	_tween.tween_property(content, "modulate:a", 1.0, FADE_IN_SECONDS).set_trans(Tween.TRANS_SINE)
 	_tween.tween_interval(HOLD_SECONDS)
-	_tween.tween_property(content, "modulate:a", 0.0, FADE_OUT_SECONDS).set_trans(Tween.TRANS_SINE)
-	_tween.tween_property(background, "color", IrisTransition.COLOR, TO_DARK_SECONDS)
 	_tween.tween_callback(_next)
 
 
@@ -47,17 +42,13 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not pressed or _leaving:
 		return
 	get_viewport().set_input_as_handled()
-	# Skip: fade out quickly from wherever it is.
-	_leaving = true
 	_tween.kill()
-	_tween = create_tween()
-	_tween.tween_property(content, "modulate:a", 0.0, 0.3)
-	_tween.tween_property(background, "color", IrisTransition.COLOR, 0.25)
-	_tween.tween_callback(_next)
+	_next()
 
 
 func _next() -> void:
-	IrisTransition.change_scene(get_tree(), NEXT_SCENE, 0.0, 0.3)  # Already black: straight to the loading icon.
+	_leaving = true
+	IrisTransition.change_scene(get_tree(), NEXT_SCENE)
 
 
 func _find_logo() -> String:

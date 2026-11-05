@@ -4,10 +4,13 @@
 # start and the chef walks up, unlocks the door, goes in, closes it, flips the
 # sign to open and the lights come on; then a circle wipe opens on the
 # restaurant. Pressing again skips ahead. F4 previews the other times of day.
+# Nobody walks through anybody, and nobody stops: the chef has the strip by the
+# building, and the animals walk the two lanes beyond it, each lane all at one
+# speed, so nobody catches anybody. The opening always takes the same time.
 # After closing on the same day it's After Hours (see DayCycle): the prompt
 # says so, and the chef unlocks the door and goes in but leaves the sign on
 # closed.
-# It fades in from black, coming after the LogoSplash. The main theme (started
+# It comes after the LogoSplash, through a circle wipe. The main theme (started
 # on the splash) slowly fades out once the lights come on, reaching silence as
 # the circle wipe closes to black.
 extends Node3D
@@ -18,17 +21,16 @@ const CAMERA_LOOK_START := Vector3(0, 2.0, 0)
 const CAMERA_CLOSE := Vector3(1.0, 2.2, 8.4)
 const CAMERA_LOOK_CLOSE := Vector3(1.0, 1.6, 0)
 const CHEF_SPEED := 2.0
-const FADE_IN_SECONDS := 1.2
 const LIGHTS_HOLD_SECONDS := 1.4  # Looking at the lit-up restaurant before the circle wipe.
 const WIPE_CLOSE_SECONDS := 0.9   # The circle wipe closing to black (see IrisTransition).
 # Where the chef walks: up the sidewalk to the door, in, aside so the door can
 # close, then to the sign in the right-hand window.
-const DOOR_OUTSIDE := Vector3(0, 0, 1.0)
+const DOOR_OUTSIDE := Vector3(0, 0, 0.85)
 const DOOR_INSIDE := Vector3(0, 0, -1.1)
 const BESIDE_DOOR := Vector3(1.2, 0, -1.1)
 const AT_SIGN := Vector3(3.2, 0, -0.75)
 # Between the planters and the street lamps at the curb.
-const WALKER_LANES := [{ "z": 1.3, "direction": 1.0 }, { "z": 1.85, "direction": -1.0 }]
+const WALKER_LANES := [{ "z": 1.5, "direction": 1.0, "speed": 1.2 }, { "z": 2.05, "direction": -1.0, "speed": 1.1 }]
 const WALKER_DIR := "res://design/characters/Extras/"  # Every model in here strolls past.
 const WALKER_HEIGHT := [0.9, 1.15]
 const WALKER_STRIDE := 1.2  # Meters a second their walk animation is made for.
@@ -97,7 +99,6 @@ var _setup: RestaurantSetup = null  # Open while the restaurant is being named.
 func _ready() -> void:
 	camera.position = CAMERA_START
 	_apply_look(look_for_hour(GameClock.now_local()["hour"]))
-	_fade_in()
 	_load_walker_models()
 	if not GameState.restaurant_name.is_empty():
 		_paint_sign(GameState.restaurant_name, Color(GameState.restaurant_color))
@@ -107,27 +108,12 @@ func _ready() -> void:
 		prompt_label.text = "Press E, Enter, or (A) to carry on with %s" % DayCycle.phase_name().to_lower()
 	# A few people already out walking, so the street isn't empty at first.
 	for i in 3:
-		_spawn_walker(randf_range(-WALKER_EDGE + 2.0, WALKER_EDGE - 2.0))
+		_spawn_walker((i - 1) * 8.0 + randf_range(-2.0, 2.0))
 
 
 # Today's already been and closed: going in for After Hours, not to open up.
 func _after_hours() -> bool:
 	return GameState.date == GameClock.today() and DayCycle.is_after_hours()
-
-
-# Comes in from black after the logo.
-func _fade_in() -> void:
-	var cover := ColorRect.new()
-	cover.color = IrisTransition.COLOR
-	cover.set_anchors_preset(Control.PRESET_FULL_RECT)
-	cover.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var layer := CanvasLayer.new()
-	layer.layer = 50
-	layer.add_child(cover)
-	add_child(layer)
-	var tween := create_tween()
-	tween.tween_property(cover, "color:a", 0.0, FADE_IN_SECONDS).set_trans(Tween.TRANS_SINE)
-	tween.tween_callback(layer.queue_free)
 
 
 # Morning 6-10, day 10-17, evening 17-19, night from 7pm.
@@ -147,6 +133,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		_apply_look(LOOK_ORDER[(LOOK_ORDER.find(_look_name) + 1) % LOOK_ORDER.size()])
 		return
 	if _setup != null or not _is_start_press(event):
+		return
+	if IrisTransition.is_busy():  # The wipe's still opening on this screen: too soon to start.
+		get_viewport().set_input_as_handled()
 		return
 	get_viewport().set_input_as_handled()
 	_take_over_player_one(InputSetup.device_of_interact_press(event))
@@ -231,7 +220,7 @@ func _play_opening() -> void:
 
 
 func _leave() -> void:
-	if _leaving:
+	if _leaving or IrisTransition.is_busy():
 		return
 	_leaving = true
 	Music.fade_out(WIPE_CLOSE_SECONDS)  # Sooner if the opening was skipped.
@@ -375,7 +364,7 @@ func _spawn_walker(x := INF) -> void:
 	var lane: Dictionary = WALKER_LANES.pick_random()
 	if is_inf(x):
 		x = -WALKER_EDGE * lane["direction"]
-	var speed := randf_range(0.9, 1.5)
+	var speed: float = lane["speed"]
 	var walker := Node3D.new()
 	walkers.add_child(walker)
 	var model: Node3D = _walker_models.pick_random().instantiate()

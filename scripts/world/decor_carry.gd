@@ -4,6 +4,7 @@
 # so it's easy to aim, green where it can go and red where it can't. Letting go drops it there, or back where it was.
 # While carrying, a flick of the right stick or a sideways swipe of the mouse
 # turns it a quarter turn. Wall decor goes to the free wall spot nearest the chef.
+# The store button puts what's carried, or the decor beside the chef, in storage.
 class_name DecorCarry
 extends Node
 
@@ -59,8 +60,15 @@ func speed_share() -> float:
 
 
 func _physics_process(delta: float) -> void:
+	var store_pressed := Input.is_action_just_pressed(InputSetup.action_name(chef.player_index, "decor_store"))
 	if carried.is_empty():
+		if store_pressed and not chef.movement_locked and not chef.in_conversation():
+			_store_nearest()
 		_watch(delta)
+		return
+	if store_pressed:
+		_announce_stored(String(carried["id"]))
+		_end_carry()  # It went into storage when it was lifted.
 		return
 	if not _holding():
 		_drop()
@@ -206,11 +214,31 @@ func _nearest_free_spot() -> int:
 	return best
 
 
+func _store_nearest() -> void:
+	var index := nearest()
+	var room := get_tree().get_first_node_in_group(DecorRoom.GROUP) as DecorRoom
+	if index < 0 or room == null:
+		return
+	var id := String(GameState.decor_placed[index]["id"])
+	GameState.decor_take_back(index)
+	room.refresh()
+	_announce_stored(id)
+	SaveGame.save_game()
+
+
+func _announce_stored(id: String) -> void:
+	GameEvents.announce("%s put in storage." % Decor.get_item(id).get("name", "Decor"))
+
+
 func _drop() -> void:
 	if _fits:
 		GameState.decor_place(String(carried["id"]), _point.x, _point.y, turn, _spot if _spot >= 0 else -1)
 	else:
 		_put_back()
+	_end_carry()
+
+
+func _end_carry() -> void:
 	carried = {}
 	_spot = -1
 	_ghost.queue_free()

@@ -25,6 +25,11 @@ static var _running := false  # One at a time: a second press can't start anothe
 var _material := ShaderMaterial.new()
 
 
+# A wipe is running: change_scene() would be ignored, so check this first.
+static func is_busy() -> bool:
+	return _running
+
+
 static func change_scene(tree: SceneTree, scene_path: String, close_seconds := 0.9, open_seconds := 1.0) -> void:
 	if _running:
 		return

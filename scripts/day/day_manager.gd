@@ -232,6 +232,8 @@ func start_decorating() -> void:
 func start_next_day() -> bool:
 	if not DayCycle.is_new_day_waiting():
 		return false
+	if IrisTransition.is_busy():
+		return true  # A wipe's still going: the next press will do it.
 	get_tree().paused = true  # Nothing moves while the wipe closes.
 	IrisTransition.change_scene(get_tree(), get_tree().current_scene.scene_file_path, 0.5, 0.7)
 	return true

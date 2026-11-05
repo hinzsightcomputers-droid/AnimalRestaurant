@@ -601,7 +601,7 @@ WE'RE OPEN"
 font_size = 50
 
 [node name="Chef" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 0.85)
 
 [node name="Model" type="Node3D" parent="Chef"]
 

@@ -264,6 +264,7 @@ func use() -> void:
 	if held.is_empty() or not can_place():
 		_lift()
 		return
+	_drag = {}  # Put down by hand: nothing left to drop when the button comes up.
 	_put_down()
 	if int(GameState.decor_stored.get(held, 0)) <= 0:
 		held = ""
@@ -319,17 +320,20 @@ func _put_back(from: Dictionary) -> void:
 	room.refresh()
 
 
-# Store: put back what's held (it's already in storage), or what's under the cursor.
+# Store: what's being dragged, or what's under the cursor, goes into storage.
+# Over nothing, it just empties the hand (what's in hand is in storage anyway).
 func store() -> void:
-	_drag = {}
-	if not held.is_empty():
+	var index := hovered()
+	if not _drag.is_empty():  # Already in storage, from when it was lifted.
+		_drag = {}
+		held = _hand_before if int(GameState.decor_stored.get(_hand_before, 0)) > 0 else ""
+		_show_ghost()
+	elif index >= 0:
+		GameState.decor_take_back(index)
+		room.refresh()
+	elif not held.is_empty():
 		held = ""
 		_show_ghost()
-	else:
-		var index := hovered()
-		if index >= 0:
-			GameState.decor_take_back(index)
-			room.refresh()
 	_refresh()
 
 
