@@ -285,7 +285,7 @@ sign_spot = NodePath("SignSpot")
 bell_spot = NodePath("BellSpot")
 
 [node name="SignSpot" type="Marker3D" parent="RewardDecorations"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.6, 2.6, -8.97)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8, 2.6, -11.27)
 
 [node name="BellSpot" type="Marker3D" parent="RewardDecorations"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 5)

@@ -12,6 +12,8 @@
 # through. Display only.
 extends Node3D
 
+const DONE_DOTS_SCALE := 3.0  # The "..." of someone done eating, big enough to spot across the room.
+
 @onready var customer: Customer = get_parent()
 @onready var bubble: Label3D = $Bubble
 @onready var name_tag: Label3D = $NameTag
@@ -65,6 +67,7 @@ func _on_state_changed(_customer: Customer) -> void:
 	var dish_name: String = customer.dish.get("name", "something")
 	meal.visible = customer.state == Customer.State.EATING
 	bubble.visible = true
+	bubble.scale = Vector3.ONE
 	if _look != null and not meal.visible:
 		_look.queue_free()
 		_look = null
@@ -102,6 +105,9 @@ func _on_state_changed(_customer: Customer) -> void:
 			if _look == null and customer.served_dish != null:  # The real thing, the way it was cooked.
 				_look = customer.served_dish.show_look(meal, Vector3(0.0, PLATE_TOP, 0.0), PLATE_RADIUS)
 			food.visible = _look == null
+		Customer.State.DONE_EATING:
+			bubble.text = "..."  # Come and chat: that's when they ask for the bill.
+			bubble.scale = Vector3.ONE * DONE_DOTS_SCALE
 		Customer.State.WANTS_BILL:
 			bubble.text = "Check, please!"
 		Customer.State.LEAVING:
@@ -195,6 +201,7 @@ func _update_table_things() -> void:
 func _on_spoke(_customer: Customer) -> void:
 	_speech_state = customer.state
 	bubble.visible = true
+	bubble.scale = Vector3.ONE
 	# In a conversation the dialogue box has the words; the bubble just shows they're talking.
 	bubble.text = "..." if customer.talking else _quoted(customer.speech, "")
 	_speech_timer.start(SPEECH_SECONDS)

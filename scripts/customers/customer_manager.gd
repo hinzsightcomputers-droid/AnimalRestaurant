@@ -12,7 +12,8 @@
 #      the ticket goes on the wheel. 6. The food is cooked and served.
 #   7. They eat. A regular lingers until someone chats with them (or about
 #      three minutes, saying they should get going first).
-#   8. They ask for the bill: a player prints it at the host stand and brings
+#   8. Done, they show "..." over their head. A player goes over to chat, and
+#      they ask for the bill: a player prints it at the host stand and brings
 #      it. They pay for the food and drink plus a tip by how happy they are, a
 #      regular says goodbye, and they leave a dirty table.
 # The lines townsfolk say at each step are in data/service.json; regulars use
@@ -41,7 +42,6 @@ const QUALITY_COLORS: Array[Color] = [Color(1.0, 0.85, 0.3), Color(0.55, 0.95, 0
 @export var view_manager: ViewManager  # To show dialogue boxes in the right player's view.
 @export var queue_spacing := 0.9    # Gap between customers waiting in line.
 @export_group("Order chat")
-@export var order_chat_seconds := 1.8         # How long the player and customer chat at each step.
 @export var order_chat_zoom: CameraZoomSettings  # The talking player's camera during the chat.
 @export_group("Serving moment")
 @export var serve_seconds := 1.5              # How long the server watches the customer start eating.
@@ -74,7 +74,7 @@ func _ready() -> void:
 	order_counter.used.connect(_on_order_counter_used)
 	order_counter.interactable.prompt_for_player = _counter_prompt
 	order_counter.add_child(bell)
-	bell.position = Vector3(-0.85, 1.06, -0.1)  # On the counter top, at the end away from the register.
+	bell.position = Vector3(-0.5, 0.65, -0.1)  # On the counter top, at the end away from the register.
 	bell.scale = Vector3.ONE * 1.8  # Big enough to spot from the usual camera.
 	_arrival_timer.timeout.connect(_try_spawn_customer)
 	add_child(_arrival_timer)
@@ -467,8 +467,7 @@ func _greet(player: Player, customer: Customer, lock_target: Interactable) -> vo
 		seating = await _regular_greets(player, customer, lock_target)
 	else:
 		customer.last_chef = Accounts.id_of(player.player_index)
-		customer.say(_townsfolk_line(customer, "host_stand"))
-		await _hold_with_zoom(player, _at_counter(player, customer), order_chat_zoom, order_chat_seconds, lock_target, customer)
+		await _talk_at(player, customer, _townsfolk_line(customer, "host_stand"), &"", _at_counter(player, customer), order_chat_zoom, lock_target)
 	_busy.erase(customer)
 	_greeting.erase(player.player_index)
 	if not is_instance_valid(customer) or customer.state != Customer.State.WAITING_TO_BE_SEATED:
@@ -769,8 +768,7 @@ func _give_drink(player: Player, customer: Customer, item: Drink) -> void:
 			customer.emote(&"happy" if right else &"neutral")
 	else:
 		customer.last_chef = Accounts.id_of(player.player_index)
-		customer.say(_townsfolk_line(customer, "drink_served" if right else "wrong_drink"))
-		customer.emote(&"happy" if right else &"neutral")
+		await _talk(player, customer, _townsfolk_line(customer, "drink_served" if right else "wrong_drink"), &"happy" if right else &"neutral")
 	_busy.erase(customer)
 
 
@@ -783,10 +781,15 @@ func _a(thing: String) -> String:
 # at the table (camera zoomed by `zoom`, or order_chat_zoom) and the meal's
 # timers paused. Nothing for an empty line.
 func _talk(player: Player, customer: Customer, text: String, emotion: StringName, zoom: CameraZoomSettings = null) -> void:
+	await _talk_at(player, customer, text, emotion, _at_table(customer), zoom if zoom != null else order_chat_zoom, customer.interactable)
+
+
+# The same anywhere: looking at `point`, with presses stuck to `lock_target`.
+func _talk_at(player: Player, customer: Customer, text: String, emotion: StringName, point: Vector3, zoom: CameraZoomSettings, lock_target: Interactable) -> void:
 	if text.is_empty():
 		return
 	customer.talking = true
-	_lock_player(player, _at_table(customer), zoom if zoom != null else order_chat_zoom, customer.interactable)
+	_lock_player(player, point, zoom, lock_target, customer)
 	var box := _open_box(player, customer)
 	await _say(box, customer, text, emotion)
 	box.close()
@@ -1069,6 +1072,9 @@ func _on_customer_interacted(player_index: int, customer: Customer) -> void:
 		Customer.State.EATING:
 			if held == null and customer.can_chat():
 				_eating_chat(player, customer)
+		Customer.State.DONE_EATING:
+			if held == null:
+				_ask_for_bill(player, customer)
 		Customer.State.WANTS_BILL:
 			if held is Receipt:
 				_settle_bill(player, customer)
@@ -1288,19 +1294,30 @@ func _on_customer_getting_going(customer: Customer) -> void:
 	customer.say(line if not line.is_empty() else String(GameData.service.get("regular_get_going", "I should get going soon.")))
 
 
-# Step 7 is over: they'd like the bill.
+# Step 7 is over: they wait with "..." over their head for someone to come over.
 func _on_customer_finished_eating(customer: Customer) -> void:
-	customer.want_bill()
+	customer.finish_eating()
+	GameEvents.announce("%s is done eating." % _who(customer).capitalize())
+
+
+# Step 8: `player` came over to chat, and they ask for the bill.
+func _ask_for_bill(player: Player, customer: Customer) -> void:
+	_busy.append(customer)
+	customer.last_chef = Accounts.id_of(player.player_index)
 	var line := ""
 	if customer.is_regular():
 		line = RegularMemory.say(GameState.regulars[customer.regular_id], "bill", _visit_context(customer, customer.served_by_account))
 	if line.is_empty():
 		line = _townsfolk_line(customer, "bill")
-	customer.say(line)
+	await _talk(player, customer, line, &"")
+	_busy.erase(customer)
+	if not is_instance_valid(customer) or customer.state != Customer.State.DONE_EATING:
+		return  # Sent home meanwhile.
+	customer.want_bill()
 	GameEvents.announce("%s would like the bill." % _who(customer).capitalize())
 
 
-# Step 8: `player` brings the bill. They work out how happy they are (the food,
+# Then `player` brings the bill. They work out how happy they are (the food,
 # how quickly it came, and the drink), pay for the food and drink plus a tip,
 # and walk out, leaving a dirty table. A regular says goodbye and remembers the
 # visit. On day 3 or later, before there's a phone, a townsfolk asks whether

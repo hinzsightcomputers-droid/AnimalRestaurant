@@ -27,7 +27,7 @@ material = SubResource("Mat_register")
 size = Vector3(0.4, 0.25, 0.3)
 
 [sub_resource type="BoxShape3D" id="Shape_counter"]
-size = Vector3(2.5, 1.06, 0.8)
+size = Vector3(1.5, 0.65, 0.8)
 
 [node name="OrderCounter" type="StaticBody3D"]
 script = ExtResource("1_station")
@@ -38,15 +38,15 @@ display_name = "Order Counter"
 [node name="Model" type="Node3D" parent="Visual"]
 script = ExtResource("m0_model_fitgd")
 model = ExtResource("m1_kitchencounter_s")
-size = Vector3(2.5, 1.06, 0.8)
+size = Vector3(1.5, 0.65, 0.8)
 stretch = true
 
 [node name="Register" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, 1.18, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0.775, 0)
 mesh = SubResource("Mesh_register")
 
 [node name="Collision" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.53, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.325, 0)
 shape = SubResource("Shape_counter")
 
 [node name="CustomerSpot" type="Marker3D" parent="."]
@@ -57,4 +57,4 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.9)
 script = ExtResource("2_interactable")
 prompt = "Take order"
 radius = 1.0
-prompt_height = 1.8
+prompt_height = 1.4
