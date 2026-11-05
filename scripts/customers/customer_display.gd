@@ -38,8 +38,10 @@ var _animations: AnimationPlayer = null
 var _clips := {}  # What this model calls walk, idle, talk...
 var _held_clips := []  # Its clips that are a single motion, not a loop.
 var _lean: LeanDamp = null  # Keeps its back straighter while it sits down and stands up.
-var _clip_parts := {}  # { "sit_down": [from, to] }: the seconds of a clip to use, for sitting down and standing up.
+var _clip_parts := {}  # { "sit_down": [from, to] }: the seconds of a clip to use, once, ending in that pose.
+var _part_end := 0.0   # Where the part playing stops, or 0 for a whole clip.
 var _sit_drop := 0.0  # How far down its sitting clip needs lowering, to be on the chair and not above it.
+var _sit_forward := 0.0  # How far forward its sit clip needs moving, to be on the seat and not in the chair's back.
 var _talk_turn := 0.0  # How far round its standing talk clip needs turning, to face who it's talking to.
 var _walk_time := 0.0
 var _body := Node3D.new()          # Holds the model: hops and droops with their feelings.
@@ -286,11 +288,12 @@ func _load_model() -> void:
 	if _clip_parts.has("stand_up"):
 		customer.stand_seconds = float(_clip_parts["stand_up"][1]) - float(_clip_parts["stand_up"][0])
 	_sit_drop = float(settings.get("sit_drop", 0.0))
+	_sit_forward = float(settings.get("sit_forward", 0.0))
 	_talk_turn = deg_to_rad(float(settings.get("talk_turn", 0.0)))
 	HeadTurn.attach(_model)  # Looks at a chef nearby.
 
 
-# { path, height, animations, hold, clip_parts, lean_keep, sit_drop, talk_turn }: the regular's (or named townsfolk's) own
+# { path, height, animations, hold, clip_parts, lean_keep, sit_drop, sit_forward, talk_turn }: the regular's (or named townsfolk's) own
 # model, or one of their species'. "animations" names its clips, if not as in
 # regular_settings.model_animations.
 func _model_settings() -> Dictionary:
@@ -321,8 +324,11 @@ func _process(delta: float) -> void:
 		_lean.active = customer.sitting_down or customer.standing_up
 	if _animations != null:
 		_model.position.y = move_toward(_model.position.y, -_sit_drop if seated else 0.0, SIT_DROP_SPEED * delta)
+		_model.position.z = move_toward(_model.position.z, _sit_forward if animation == "sit" else 0.0, SIT_DROP_SPEED * delta)
 		_model.rotation.y = lerp_angle(_model.rotation.y, _talk_turn if animation == "talk" else 0.0, 1.0 - exp(-RegularFigure.TALK_TURN_SPEED * delta))
 		_play(animation)
+		if _part_end > 0.0 and _animations.is_playing() and _animations.current_animation_position >= _part_end:
+			_animations.pause()  # Stays in that pose.
 		return
 	# No animations: a little waddle while walking, and sunk into the chair when seated.
 	if animation == "walk":
@@ -344,6 +350,7 @@ func _play(what: String) -> void:
 	var once: bool = animation_name in _held_clips or not part.is_empty()  # Played once, then stays in its last pose.
 	_animations.get_animation(animation_name).loop_mode = Animation.LOOP_NONE if once else Animation.LOOP_LINEAR
 	_animations.play(animation_name, 0.25)
+	_part_end = float(part[1]) if not part.is_empty() else 0.0
 	if not part.is_empty():
 		_animations.seek(float(part[0]), true)
 
