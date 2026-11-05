@@ -41,8 +41,8 @@ The window plays it through and closes by itself.
     `straight` and `rude`. `reaction` has to come next.
   - `reaction`: their reply to the choice. `emotion` replaces the one in their
     character file, and `hold` is how long it stays up once typed.
-  - `serve`: the chef fetches `dish` from the pass and brings it over, skipping
-    the cooking, at `quality` (0 to 1).
+  - `serve`: cuts to the chef arriving with `dish`, skipping the cooking and the
+    trip to the kitchen, at `quality` (0 to 1).
   - `wait`: nothing happens for `seconds`.
   - `end`: stops. Has to be the last beat.
 

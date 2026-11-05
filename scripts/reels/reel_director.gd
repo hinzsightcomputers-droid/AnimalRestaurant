@@ -13,6 +13,7 @@ signal finished(ok: bool)
 const CHEF_START := Vector3(5.0, 0.0, -4.3)  # At the pass, in from the kitchen.
 const BACK_LANE_Z := -3.0        # Where the chef walks along the back of the room.
 const BESIDE_CUSTOMER := Vector3(0.0, 0.0, 0.9)  # Where the chef stands to talk or serve.
+const ARRIVE_FROM := 2.5         # How far up the aisle the chef is when a serve cuts to them.
 const CHEF_ARRIVED := 0.15       # How close to a point counts as there.
 const LEG_SECONDS := 6.0         # A chef still walking one leg after this is stuck.
 const BEAT_SECONDS := 30.0       # The longest any beat should take.
@@ -151,15 +152,15 @@ func _finish_talking(hold: float) -> void:
 		await get_tree().process_frame
 
 
-# The chef goes to the pass, picks up the plate and brings it over.
+# A cut to the chef arriving with the plate: no trip to the kitchen and back.
 func _serve(beat: Dictionary) -> void:
 	var order := _customers.reel_order(customer, GameData.get_dish(beat["dish"]))
-	var way_back := _way_to_customer()
-	way_back.reverse()
-	way_back.append(CHEF_START)
-	await _walk_chef(way_back)
+	var way := _way_to_customer()
+	way.remove_at(0)
+	_chef.global_position = way[0] + Vector3(0.0, 0.0, -ARRIVE_FROM)
+	_chef.reset_physics_interpolation()
 	_chef.set_held_item(CookedDish.new(order, float(beat.get("quality", 1.0))))
-	await _walk_chef(_way_to_customer())
+	await _walk_chef(way)
 	_customers.reel_serve(_chef, customer, _chef.held_item)
 
 
