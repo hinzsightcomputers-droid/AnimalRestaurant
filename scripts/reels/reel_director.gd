@@ -13,7 +13,8 @@ signal finished(ok: bool)
 const CHEF_START := Vector3(5.0, 0.0, -4.3)  # At the pass, in from the kitchen.
 const BACK_LANE_Z := -3.0        # Where the chef walks along the back of the room.
 const BESIDE_CUSTOMER := Vector3(0.0, 0.0, 0.9)  # Where the chef stands to talk or serve.
-const ARRIVE_FROM := 2.5         # How far up the aisle the chef is when a serve cuts to them.
+const ARRIVE_FROM := Vector3(2.0, 0.0, 0.0)  # Where the chef is when a serve cuts to them, from...
+const ARRIVE_VIA := Vector3(0.9, 0.0, 0.5)   # ...this close to where they'll stand: in from the side of the shot.
 const CHEF_ARRIVED := 0.15       # How close to a point counts as there.
 const LEG_SECONDS := 6.0         # A chef still walking one leg after this is stuck.
 const BEAT_SECONDS := 30.0       # The longest any beat should take.
@@ -21,6 +22,8 @@ const READ_SECONDS := 1.0        # How long to look at the replies before moving
 const PICK_SECONDS := 0.6        # How long the highlight stays on a reply before picking it (choices "hold").
 const STEP_SECONDS := 0.2        # Per reply as the highlight moves.
 const REPLY_HOLD_SECONDS := 1.5  # How long a finished line stays up (line and reaction "hold").
+const WIDE_SECONDS := 2.0        # How long the opening shot of the room lasts ("wide_seconds").
+const BOX_BOTTOM_GAP := 170      # Keeps the dialogue box above the app's own buttons and caption.
 
 var scenario: Dictionary
 var main: Node
@@ -28,6 +31,7 @@ var customer: Customer  # The regular.
 
 var _customers: CustomerManager
 var _chef: Player
+var _camera: ReelCamera
 var _talking := false
 var _failed := false
 
@@ -37,6 +41,13 @@ func play() -> void:
 	while Player.find(get_tree(), 0) == null:
 		await get_tree().process_frame
 	_chef = Player.find(get_tree(), 0)
+	var views: ViewManager = main.get_node("Views")
+	while views.view_for(0) == null:
+		await get_tree().process_frame
+	_camera = ReelCamera.new()
+	_camera.view = views.view_for(0)
+	_camera.chef = _chef
+	add_child(_camera)
 	_set_the_scene()
 	var beats: Array = scenario["beats"]
 	for i in beats.size():
@@ -56,12 +67,20 @@ func _set_the_scene() -> void:
 		_customers.reel_extra(GameData.get_species(extra["species"]), GameData.get_dish(extra["dish"]), extra["table"])
 	_chef.global_position = CHEF_START
 	_chef.reset_physics_interpolation()
+	# Only the story on screen: no HUD, clock or hints, and no "[E] Chat" over things.
+	main.get_node("HUD").visible = false
+	_chef.get_node("InteractPrompt").layers = 0
+	_chef.get_node("HeldItemDisplay/Label").layers = 0
+	ConversationBox.bottom_gap = BOX_BOTTOM_GAP
+	ConversationBox.show_hint = false
 
 
 func _run(beat: Dictionary, index: int) -> void:
 	match beat["do"]:
 		"walk_in":
 			customer = _customers.reel_walk_in(scenario["regular"]["id"], beat["table"])
+			_camera.subject = customer
+			get_tree().create_timer(float(scenario.get("wide_seconds", WIDE_SECONDS))).timeout.connect(_camera.glide_to.bind(ReelCamera.Shot.FOLLOW))
 			await _until(func(): return customer.state == Customer.State.WAITING_DRINK_ORDER, "%s to sit down" % customer.display_name)
 			customer.serve_drink({}, 1.0)  # Straight to ordering.
 		"line":
@@ -79,6 +98,7 @@ func _run(beat: Dictionary, index: int) -> void:
 # The chef comes over and they say the line. A line with replies stops with
 # them on screen, for the choices beat; any other is said to the end.
 func _line(beat: Dictionary, index: int) -> void:
+	_camera.glide_to(ReelCamera.Shot.TABLE)
 	await _walk_chef(_way_to_customer())
 	var line := _line_for(beat, index)
 	_talking = true
@@ -155,9 +175,11 @@ func _finish_talking(hold: float) -> void:
 # A cut to the chef arriving with the plate: no trip to the kitchen and back.
 func _serve(beat: Dictionary) -> void:
 	var order := _customers.reel_order(customer, GameData.get_dish(beat["dish"]))
-	var way := _way_to_customer()
-	way.remove_at(0)
-	_chef.global_position = way[0] + Vector3(0.0, 0.0, -ARRIVE_FROM)
+	_camera.cut_to(ReelCamera.Shot.SERVE)
+	var stand := customer.global_position + BESIDE_CUSTOMER
+	stand.y = 0.0
+	var way: Array[Vector3] = [stand + ARRIVE_VIA, stand]
+	_chef.global_position = way[0] + ARRIVE_FROM
 	_chef.reset_physics_interpolation()
 	_chef.set_held_item(CookedDish.new(order, float(beat.get("quality", 1.0))))
 	await _walk_chef(way)

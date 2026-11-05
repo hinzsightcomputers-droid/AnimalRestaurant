@@ -9,6 +9,8 @@ extends Node
 signal director_ready(director: ReelDirector)
 
 const CHECK_ARG := "--check"
+const PREVIEW_WINDOW := Vector2i(450, 800)  # 9:16, small enough to fit on a screen.
+const VIDEO_SIZE := Vector2i(1080, 1920)    # What the reel renders at, whatever size the window is.
 
 var quit_when_done := true
 
@@ -39,6 +41,12 @@ func _ready() -> void:
 		_finish(true)
 		return
 	seed(scenario_name.hash())  # The same reel every time.
+	# Windows won't make a window taller than the screen, so the picture is its own size.
+	get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
+	get_window().content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	get_window().content_scale_size = VIDEO_SIZE
+	if not OS.has_feature("movie"):
+		DisplayServer.window_set_size(PREVIEW_WINDOW)
 	await get_tree().process_frame
 	var main: Node = load(ReelScenario.MAIN_SCENE).instantiate()
 	get_tree().root.add_child(main)

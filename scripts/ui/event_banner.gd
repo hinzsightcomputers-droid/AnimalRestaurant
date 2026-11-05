@@ -10,6 +10,8 @@ const FADE_SECONDS := 0.6
 
 # Show today's banner (one line per event), if there's anything today.
 static func show_today(host: Node) -> void:
+	if ReelSandbox.active():
+		return
 	var lines: Array = EventCalendar.events_on(GameClock.calendar_date()).map(func(e): return e["banner"])
 	if not lines.is_empty():
 		show_text(host, "\n".join(PackedStringArray(lines)))

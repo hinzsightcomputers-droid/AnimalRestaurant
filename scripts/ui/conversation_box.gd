@@ -29,6 +29,9 @@ signal chosen(index: int)
 signal continued
 signal letter_typed(letter: String, speed_scale: float)  # For voices: one per letter shown.
 
+static var bottom_gap := 64    # How far up the screen the box sits (a reel moves it up).
+static var show_hint := true   # The "[E] Continue" line (a reel has no use for it).
+
 const GROUP := "conversation_boxes"  # Every open box (the phone waits while anyone is talking).
 const LETTERS_PER_SECOND := 32.0
 const FAST_SCALE := 3.5          # How much faster text types while interact is held.
@@ -114,7 +117,7 @@ func _ready() -> void:
 	panel.anchor_top = 1.0
 	panel.anchor_bottom = 1.0
 	panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	panel.offset_bottom = -64  # Above the announcement line at the bottom of the screen.
+	panel.offset_bottom = -bottom_gap  # Above the announcement line at the bottom of the screen.
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(1.0, 0.97, 0.9, 0.96)
 	style.border_color = Color(0.55, 0.4, 0.28)
@@ -135,6 +138,7 @@ func _ready() -> void:
 	_hint.add_theme_font_size_override("font_size", 15)
 	_hint.add_theme_color_override("font_color", DIM_COLOR)
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_hint.visible = show_hint
 	for node in [_speaker, _line, _options, _hint]:
 		column.add_child(node)
 	add_child(_voice)

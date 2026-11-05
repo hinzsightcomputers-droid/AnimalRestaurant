@@ -21,6 +21,9 @@ The window plays it through and closes by itself.
 - `title`: a name for it.
 - `meal`: `breakfast`, `lunch` or `dinner` (`data/day.json`).
 - `lighting`: which meal's lighting to use. Leave it out to use the meal's own.
+- `wide_seconds`: how long the opening shot of the room lasts. Optional, 2 by
+  default. After it the camera follows the regular, moves in close at their
+  table for `line`, and cuts to a wider shot for `serve`.
 - `chef`, `restaurant`: the names used in lines. Optional.
 - `regular`: who it's about.
   - `id`: their file in `data/characters/`.
