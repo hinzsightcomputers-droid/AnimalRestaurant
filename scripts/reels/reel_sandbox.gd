@@ -30,11 +30,14 @@ static func active() -> bool:
 	return _active == 1
 
 
-# The scenario asked for on the command line, or the first in res://reels/.
-static func scenario_name() -> String:
+# The scenario asked for on the command line, else `preferred`, else the first
+# in res://reels/.
+static func scenario_name(preferred := "") -> String:
 	var asked := _scenario_arg()
 	if not asked.is_empty():
 		return asked
+	if not preferred.is_empty():
+		return preferred
 	var all := ReelScenario.names()
 	return all[0] if not all.is_empty() else ""
 

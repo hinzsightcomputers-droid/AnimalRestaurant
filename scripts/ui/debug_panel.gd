@@ -5,7 +5,8 @@
 # come in today, ring the phone for any caller or fill its voicemail, send a
 # regular to Gone and skip through winning them back, and play each big moment
 # scene at closing (or set up its trigger), and practice close-up recipes or
-# put only one dish on the menu, or wipe the save and every chef to start over.
+# put only one dish on the menu, play a reel scenario in its own window, or wipe
+# the save and every chef to start over.
 # The game pauses while it's open, and changes are saved when it closes. Built
 # in code, since it's only a tool.
 extends CanvasLayer
@@ -36,6 +37,8 @@ var _fishing_label: Label
 var _forage_label: Label
 var _car_label: Label
 var _houses_label: Label
+var _reel_picker: OptionButton
+var _reel_process := -1  # The preview window's process, so a second press doesn't open another.
 var _hour_picker: OptionButton
 var _fish_picker: OptionButton
 var _changed := false     # Something to save when the panel closes.
@@ -685,6 +688,14 @@ func _build() -> void:
 	_add_button(gone_row_2, "Close now", _close_now)
 	_gone_label = _add_label(box, "")
 
+	_add_label(box, "Reels", 18, true)
+	var reel_row := _add_row(box)
+	_reel_picker = OptionButton.new()
+	for reel in ReelScenario.names():
+		_reel_picker.add_item(reel)
+	reel_row.add_child(_reel_picker)
+	_add_button(reel_row, "Play reel scenario", _play_reel)
+
 	_add_label(box, "Scenes", 18, true)
 	for scene in GameData.scenes:
 		var scene_row := _add_row(box)
@@ -882,6 +893,13 @@ func _unlock_all_dishes() -> void:
 func _only_serve(dish_id: String) -> void:
 	GameState.forced_dish = dish_id
 	_kitchen_label.text = "Only %s on the menu (until you restart)." % GameData.get_dish(dish_id).get("name", dish_id) if not dish_id.is_empty() else "The whole menu again."
+
+
+# In its own window: nothing here is touched (see ReelPlayer.preview).
+func _play_reel() -> void:
+	if _reel_picker.item_count == 0 or (_reel_process > 0 and OS.is_process_running(_reel_process)):
+		return
+	_reel_process = ReelPlayer.preview(_reel_picker.get_item_text(_reel_picker.selected))
 
 
 func _add_label(parent: Control, text: String, font_size := 15, heading := false) -> Label:

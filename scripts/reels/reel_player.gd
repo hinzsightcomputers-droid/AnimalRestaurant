@@ -8,13 +8,26 @@ extends Node
 
 signal director_ready(director: ReelDirector)
 
+const SCENE := "res://reels/reel_player.tscn"
 const CHECK_ARG := "--check"
 const PREVIEW_WINDOW := Vector2i(450, 800)  # 9:16, small enough to fit on a screen.
 const VIDEO_SIZE := Vector2i(1080, 1920)    # What the reel renders at, whatever size the window is.
 
+# Which scenario to play when run from the editor (F6), where there's no command
+# line. Empty = the first in res://reels/.
+@export var preview_scenario := ""
+
 var quit_when_done := true
 
 var _before := {}
+
+
+# Plays a scenario in a window of its own, a whole separate launch of the game, so
+# the running game and its save have nothing to do with it. Returns its process
+# id, or -1 if it couldn't start.
+static func preview(scenario_name: String) -> int:
+	var args := ["--path", ProjectSettings.globalize_path("res://"), SCENE, "--", ReelSandbox.SCENARIO_ARG + scenario_name]
+	return OS.create_process(OS.get_executable_path(), args)
 
 
 func _ready() -> void:
@@ -23,7 +36,7 @@ func _ready() -> void:
 		get_tree().quit(1)
 		return
 	_before = ReelSandbox.fingerprint()
-	var scenario_name := ReelSandbox.scenario_name()
+	var scenario_name := ReelSandbox.scenario_name(preview_scenario)
 	var scenario := ReelScenario.read(scenario_name)
 	if scenario.is_empty():
 		get_tree().quit(1)

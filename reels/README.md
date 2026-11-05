@@ -17,6 +17,12 @@ It lists anything wrong with the file, or a summary of what it set up.
 A small tall window plays it through and closes by itself. Don't press anything
 while it plays: real key presses still reach the game.
 
+You can also pick one in the debug panel (F3, under Reels): it opens in its own
+window, a separate launch of the game, so the game you're in isn't touched.
+
+From the editor, open `reels/reel_player.tscn` and press F6. Its `Preview
+Scenario` field in the Inspector says which one to play (empty is the first).
+
 ## Recording one
 
     bash reels/record.sh stitches_patches
