@@ -31,12 +31,15 @@ extends Node3D
 
 const CUSTOMER_SCENE := preload("res://scenes/customers/customer.tscn")
 const SEAT_GROUP := "seats"
+const REEL_EXTRA_MEAL_SECONDS := 600.0  # Longer than any reel, so extras stay at the table.
+const REEL_FRONT_AISLE := 0.5           # How far in from the door a reel's regular turns along the room.
 const POP_OFFSET := Vector3(0.8, 1.5, 0.3)  # Where serving and paying pops float, beside a customer.
 const POP_FONT_SIZE := 56
 const QUALITY_COLORS: Array[Color] = [Color(1.0, 0.85, 0.3), Color(0.55, 0.95, 0.45), Color(1.0, 0.98, 0.92), Color(0.7, 0.72, 0.78)]  # Perfect, Great, Okay, Burnt.
 
 @export var order_counter: Station  # The host stand.
 @export var order_board: OrderBoard
+var reel_box: ConversationBox = null  # The box open in a reel, for ReelDirector.
 @export var spawn_point: Marker3D   # Outside the front door.
 @export var door_point: Marker3D    # Just inside the front door.
 @export var view_manager: ViewManager  # To show dialogue boxes in the right player's view.
@@ -614,6 +617,85 @@ func _on_seated(customer: Customer, table: DiningTable) -> void:
 	else:
 		customer.say(_townsfolk_line(customer, "seated"))
 	GameEvents.announce("%s sat down. Take their drink order!" % _who(customer).capitalize())
+
+
+# --- Reels (see ReelDirector) ----------------------------------------------------
+
+# Someone already at `spot`'s table, partway through a long meal.
+func reel_extra(species: Dictionary, dish: Dictionary, spot: String) -> Customer:
+	var customer: Customer = CUSTOMER_SCENE.instantiate()
+	customer.setup(species, dish, null)
+	customer.eat_duration = REEL_EXTRA_MEAL_SECONDS
+	add_child(customer)
+	var seat := _reel_seat(spot)
+	_seat_owners[seat] = customer
+	customer.seat = seat
+	customer.global_position = seat.seat_point.global_position
+	customer.rotation.y = seat.global_rotation.y
+	customer.reset_physics_interpolation()
+	customer.serve(1.0)
+	return customer
+
+
+# A regular comes in the front door and walks to `spot`'s table by themselves.
+func reel_walk_in(regular_id: String, spot: String) -> Customer:
+	var customer: Customer = CUSTOMER_SCENE.instantiate()
+	_setup_regular(customer, GameState.regulars[regular_id])
+	add_child(customer)
+	customer.global_position = spawn_point.global_position
+	customer.reset_physics_interpolation()
+	var seat := _reel_seat(spot)
+	_seat_owners[seat] = customer
+	var door := door_point.global_position
+	var approach := seat.approach_point.global_position
+	var path: Array[Vector3] = [
+		door,
+		Vector3(approach.x, 0.0, door.z - REEL_FRONT_AISLE),  # Along the front of the room...
+		approach,                                             # ...up the aisle behind the chair...
+		seat.seat_point.global_position,                      # ...and sit.
+	]
+	customer.seat_self(seat, path)
+	return customer
+
+
+# The free chair at `spot`'s table nearest the door.
+func _reel_seat(spot: String) -> Seat:
+	var seats := _free_seats().filter(func(s): return s.table != null and s.table.spot == spot)
+	var door := door_point.global_position
+	seats.sort_custom(func(a, b): return a.global_position.distance_to(door) < b.global_position.distance_to(door))
+	return seats[0]
+
+
+# `customer` says `line` to `player`, with its replies if it has any. The
+# director answers through reel_box.
+func reel_talk(player: Player, customer: Customer, line: Dictionary) -> void:
+	_lock_player(player, _at_table(customer), order_chat_zoom, customer.interactable)
+	customer.talking = true
+	reel_box = _open_box(player, customer)
+	if line.has("choices"):
+		customer.order_line = await _converse(reel_box, player, customer, line)
+	else:
+		await _say_line(reel_box, customer, line, _visit_context(customer, Accounts.id_of(player.player_index)))
+	reel_box.close()
+	reel_box = null
+	customer.talking = false
+	_unlock_player(player)
+
+
+# They've ordered `dish`.
+func reel_order(customer: Customer, dish: Dictionary) -> Order:
+	customer.dish = dish
+	customer.place_order()
+	return order_board.add_order(customer)
+
+
+# `player` puts `plate` down in front of them.
+func reel_serve(player: Player, customer: Customer, plate: CookedDish) -> void:
+	player.set_held_item(null)
+	order_board.remove_order(plate.order)
+	customer.served_by_account = Accounts.id_of(player.player_index)
+	customer.serve(plate.quality, plate)
+	_pop_serve(customer)
 
 
 # A free chair at `table`, or null.

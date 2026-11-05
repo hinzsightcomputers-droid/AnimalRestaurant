@@ -112,10 +112,14 @@ static func _check_beats(beats: Array, regular_id: String, spots: Array[String],
 	if beats.is_empty() or beats.back().get("do", "") != "end":
 		found.append("the last beat has to be \"end\"")
 	var line := {}  # The line last said, for the choices after it.
-	var chose := false
+	var walked_in := false
 	for i in beats.size():
 		var beat: Dictionary = beats[i]
 		var where := "beat %d (%s)" % [i + 1, beat.get("do", "?")]
+		var next: String = beats[i + 1].get("do", "") if i + 1 < beats.size() else ""
+		var last: String = beats[i - 1].get("do", "") if i > 0 else ""
+		if beat.get("do", "") in ["line", "serve"] and not walked_in:
+			found.append("%s: needs a walk_in beat before it" % where)
 		match beat.get("do", ""):
 			"walk_in":
 				var table: String = beat.get("table", "")
@@ -123,16 +127,20 @@ static func _check_beats(beats: Array, regular_id: String, spots: Array[String],
 					found.append("%s: table \"%s\" isn't one of: %s" % [where, table, ", ".join(spots)])
 				elif table in taken:
 					found.append("%s: an extra is already at the %s table" % [where, table])
+				walked_in = true
 			"line":
 				line = find_line(regular_id, beat.get("line", ""))
 				if line.is_empty():
 					found.append("%s: %s has no line \"%s\"" % [where, regular_id, beat.get("line", "")])
+				elif line.has("choices") and next != "choices":
+					found.append("%s: this line has replies, so a choices beat has to come next" % where)
 			"choices":
 				_check_choices(beat, line, where, found)
-				chose = true
+				if next != "reaction":
+					found.append("%s: a reaction beat has to come next" % where)
 			"reaction":
-				if not chose:
-					found.append("%s: needs a choices beat before it" % where)
+				if last != "choices":
+					found.append("%s: has to come straight after a choices beat" % where)
 			"serve":
 				if GameData.get_dish(beat.get("dish", "")).is_empty():
 					found.append("%s: dish \"%s\" doesn't exist" % [where, beat.get("dish", "")])

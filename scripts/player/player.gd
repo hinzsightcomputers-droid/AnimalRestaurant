@@ -19,6 +19,7 @@ signal camera_focus_released
 @export var turn_speed := 12.0    # How quickly the body turns to face the move direction.
 
 var movement_locked := false      # True while busy (e.g. cooking).
+var scripted_move := Vector2.ZERO # A reel steering the chef instead of a player (see ReelDirector).
 var decorating := false           # In Decorate mode: interact belongs to that, not the room.
 var hidden_from_own_view := false  # In a close-up: their own camera leaves them out.
 var has_acted := false            # Becomes true the first time this player moves or interacts.
@@ -109,6 +110,8 @@ func _exit_tree() -> void:
 func _physics_process(delta: float) -> void:
 	# The camera always looks toward -Z, so "up" on the stick is -Z in the world.
 	var input_vector := Vector2.ZERO if movement_locked else input.get_move_vector()
+	if scripted_move != Vector2.ZERO:
+		input_vector = scripted_move
 	var direction := Vector3(input_vector.x, 0.0, input_vector.y)
 
 	var target_velocity := direction * move_speed * decor_carry.speed_share()

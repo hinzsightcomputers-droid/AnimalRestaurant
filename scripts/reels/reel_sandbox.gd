@@ -85,6 +85,7 @@ static func _set_up_regular(wanted: Dictionary, chef_id: String) -> void:
 		record["times_visited"] = VISITS_BEFORE
 		record["last_seen"] = Time.get_datetime_string_from_unix_time(GameClock.now_unix() - DAYS_SINCE_VISIT * GameClock.SECONDS_PER_DAY)
 		record["known_players"] = [chef_id]
+		record["introduced"] = true
 	var memory: Dictionary = wanted.get("memory", {})
 	for field in memory:
 		record[field] = memory[field]

@@ -6,9 +6,15 @@ state lives in memory and is gone when it closes (see `ReelSandbox`).
 
 ## Checking a scenario
 
-    godot --path . --headless res://reels/reel_player.tscn -- --scenario=stitches_patches
+    godot --path . --headless res://reels/reel_player.tscn -- --scenario=stitches_patches --check
 
 It lists anything wrong with the file, or a summary of what it set up.
+
+## Watching one
+
+    godot --path . res://reels/reel_player.tscn -- --scenario=stitches_patches
+
+The window plays it through and closes by itself.
 
 ## The format
 
@@ -26,13 +32,17 @@ It lists anything wrong with the file, or a summary of what it set up.
 - `extras`: townsfolk already eating: `table`, `species` and `dish` each.
 - `beats`: what happens, in order. Each has a `do`:
   - `walk_in`: the regular comes in and sits at `table`.
-  - `line`: they say the line with this `line` id (from their character file).
-  - `choices`: shows the line's replies. `highlight` is a list of
-    `{ "tone", "hold" }` the cursor stops on (`hold` in seconds), then it moves
-    to `pick` and picks it. Tones are `warm`, `playful`, `straight` and `rude`.
+  - `line`: the chef comes over and they say the line with this `line` id (from
+    their character file). If it has replies, `choices` has to come next.
+    Otherwise `hold` is how long it stays up once typed, in seconds.
+  - `choices`: shows the line's replies. After `read` seconds the highlight
+    moves through `highlight`, a list of `{ "tone", "hold" }`, then to `pick`,
+    stays there for `hold` seconds and picks it. Tones are `warm`, `playful`,
+    `straight` and `rude`. `reaction` has to come next.
   - `reaction`: their reply to the choice. `emotion` replaces the one in their
-    character file.
-  - `serve`: a chef brings `dish`, skipping the cooking, at `quality` (0 to 1).
+    character file, and `hold` is how long it stays up once typed.
+  - `serve`: the chef fetches `dish` from the pass and brings it over, skipping
+    the cooking, at `quality` (0 to 1).
   - `wait`: nothing happens for `seconds`.
   - `end`: stops. Has to be the last beat.
 

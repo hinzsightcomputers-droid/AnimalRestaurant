@@ -244,6 +244,34 @@ func is_typing() -> bool:
 	return _mode == Mode.TYPING
 
 
+# For a reel (see ReelDirector), which does what a player's presses would.
+func is_choosing() -> bool:
+	return _mode == Mode.CHOOSING
+
+
+func is_waiting() -> bool:
+	return _mode == Mode.WAITING
+
+
+func highlighted() -> int:
+	return _selected
+
+
+func highlight(index: int) -> void:
+	_selected = index
+	_refresh_options()
+
+
+func pick() -> void:
+	_mode = Mode.IDLE
+	chosen.emit(_selected)
+
+
+func move_on() -> void:
+	_mode = Mode.IDLE
+	continued.emit()
+
+
 func _process(delta: float) -> void:
 	var interact := InputSetup.action_name(player_index, "interact")
 	var holding := Input.is_action_pressed(interact)
