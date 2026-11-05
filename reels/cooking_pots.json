@@ -1,0 +1,12 @@
+{
+	"title": "In the pot",
+	"meal": "lunch",
+	"regular": { "id": "cheddar", "relationship": 40, "first_visit": false },
+	"beats": [
+		{ "do": "cook", "recipe": "soup", "speed": 1.6, "fov": 40 },
+		{ "do": "cook", "recipe": "fire_noodles", "speed": 1.6, "fov": 40 },
+		{ "do": "cook", "recipe": "fish_stew", "speed": 1.6, "fov": 40 },
+		{ "do": "cook", "recipe": "four_cheese_mac", "speed": 1.6, "fov": 40 },
+		{ "do": "end" }
+	]
+}

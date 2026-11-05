@@ -47,6 +47,7 @@ var chef: Player
 var spot: FishingSpot  # Where the chef's fishing.
 var house: House       # Whose house they're visiting.
 var close_up := false : set = _set_close_up  # The game's own close-up camera is working, framed for a tall view.
+var close_up_fov := CLOSE_UP_FOV
 
 var _shot := Shot.WIDE
 var _position := WIDE_POSITION
@@ -87,7 +88,7 @@ func _set_close_up(on: bool) -> void:
 	var camera := view.rig.camera
 	view.rig.set_process(on)
 	camera.keep_aspect = Camera3D.KEEP_WIDTH if on else Camera3D.KEEP_HEIGHT
-	camera.fov = CLOSE_UP_FOV if on else FOV
+	camera.fov = close_up_fov if on else FOV
 
 
 # [where the camera goes, what it looks at] for the current shot.

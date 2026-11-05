@@ -89,7 +89,8 @@ only apply while recording. Godot writes an AVI; with `ffmpeg.exe` in
   - `cook`: a close-up of `recipe` (a file in `data/recipes/`) from start to finished
     plate, played well. Waiting on the heat goes 2.5 times as fast as usual. `station` is
     where, `stove` by default. `speed` plays the whole thing faster, e.g. 1.6 for a
-    montage. Several in a row cut straight from one to the next.
+    montage. `fov` is how wide the view is, 60 by default: less is closer. Several
+    in a row cut straight from one to the next.
   - `wait`: nothing happens for `seconds`.
   - `end`: stops. Has to be the last beat.
 

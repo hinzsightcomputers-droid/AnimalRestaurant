@@ -289,8 +289,10 @@ func _cook(beat: Dictionary) -> void:
 	var stations := main.find_children("*", "CookingStation", true, false).filter(func(s): return s.station_id == wanted)
 	var station: CookingStation = stations.front()
 	Engine.time_scale = float(beat.get("speed", 1.0))
+	_camera.close_up_fov = float(beat.get("fov", ReelCamera.CLOSE_UP_FOV))
 	_camera.close_up = true
-	station.reel_cook(_chef, load(ReelScenario.RECIPES + beat["recipe"] + ".tres"))
+	var dishes := GameData.dishes.filter(func(dish): return dish.get("recipe", "") == beat["recipe"])
+	station.reel_cook(_chef, load(ReelScenario.RECIPES + beat["recipe"] + ".tres"), dishes.front() if not dishes.is_empty() else {})
 	_camera.view.rig.snap()
 	await _until(func(): return station.session == null, "%s to be cooked" % beat["recipe"], COOK_SECONDS)
 	_camera.close_up = false

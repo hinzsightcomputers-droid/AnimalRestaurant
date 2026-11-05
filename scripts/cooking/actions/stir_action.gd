@@ -26,6 +26,8 @@ extends CookAction
 @export var lumps := 0                    # Lumps of flour that stir out.
 @export_enum("whisk", "spatula") var tool := "whisk"
 
+const SCRIPTED_TURNS := 1.3  # Turns a second for a reel's chef.
+
 var _whisk: Node3D
 var _swish: AudioStreamPlayer3D
 var _steam: CPUParticles3D
@@ -41,6 +43,7 @@ var _arrow: Node3D
 var _wrong_way := 99.0                    # Seconds since they last stirred clockwise.
 var _melting: Array[Node3D] = []           # Shrinking away as it's stirred (melt, lumps).
 var _from_color := Color.WHITE
+var _scripted_angle := 0.0
 
 
 func _begin() -> void:
@@ -178,6 +181,13 @@ func update(delta: float, input: CookInput) -> void:
 		var score := clampf(_good_time / maxf(_stir_time, 0.001) / full_marks, 0.0, 1.0)
 		session.pop_text("Smooth!" if score >= 0.8 else ("Stirred" if score >= 0.5 else "Lumpy!"), center, CookSession.mood_of(score))
 		finish(score)
+
+
+# Round and round the way the arrow goes, at an easy pace.
+func scripted_hold(delta: float, input: CookInput) -> bool:
+	_scripted_angle -= TAU * SCRIPTED_TURNS * delta
+	input.stick = Vector2.from_angle(_scripted_angle)
+	return false
 
 
 # Where it stirs: the pot's middle, at its liquid.

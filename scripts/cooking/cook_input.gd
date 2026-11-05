@@ -48,6 +48,7 @@ func _init(session: CookSession, player_index: int, view_manager: ViewManager) -
 func update(delta: float) -> void:
 	if scripted:
 		flick = Vector2.ZERO
+		stick = Vector2.ZERO
 		_press(_session.current != null and _session.current.scripted_hold(delta, self))
 		return
 	_time += delta
@@ -86,9 +87,9 @@ func update(delta: float) -> void:
 
 
 # For a step playing itself: the cursor heads for `point`. True once it's there.
-func move_to(point: Vector3, delta: float) -> bool:
+func move_to(point: Vector3, delta: float, speed := SCRIPTED_HAND_SPEED) -> bool:
 	var goal := Vector3(point.x, height, point.z)
-	cursor = cursor.move_toward(goal, SCRIPTED_HAND_SPEED * delta)
+	cursor = cursor.move_toward(goal, speed * delta)
 	return cursor.distance_to(goal) < 0.005
 
 

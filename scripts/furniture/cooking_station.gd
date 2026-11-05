@@ -152,9 +152,16 @@ func practice(player: Player, recipe: CookRecipe) -> void:
 	_open_closeup(player, recipe)
 
 
-# A reel's chef cooks a recipe by themselves, every step playing itself.
-func reel_cook(player: Player, recipe: CookRecipe) -> void:
-	practice(player, recipe)
+# A reel's chef cooks a recipe by themselves, every step playing itself, with
+# the ingredients of `dish` (if it's given) so it looks like that dish.
+func reel_cook(player: Player, recipe: CookRecipe, dish: Dictionary) -> void:
+	_cook = player
+	_order = null
+	var brought: Ingredients = null
+	if not dish.is_empty():
+		brought = Ingredients.new(Order.new(null, dish))
+		brought.chopped = true
+	_open_closeup(player, recipe, brought)
 	session.input.scripted = true
 	session.big_hint()
 

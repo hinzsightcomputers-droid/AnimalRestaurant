@@ -16,12 +16,16 @@ extends CookAction
 @export var meter_offset := Vector3(0.0, 0.02, 0.19)  # In front of the pot, lying flat.
 @export var meter_length := 0.32
 
+const SCRIPTED_SHAKE_EVERY := 0.22  # Seconds between a reel's shakes.
+const SCRIPTED_INTO_BAND := 0.05    # It stops this far into the green: a pinch more won't go past it.
+
 var _amount := 0.0
 var _idle := 0.0
 var _shakes := 0
 var _shaker: Node3D
 var _fill: MeshInstance3D
 var _meter := Node3D.new()
+var _scripted_wait := 0.0
 
 
 func uses_cursor() -> bool:
@@ -58,6 +62,18 @@ func update(delta: float, input: CookInput) -> void:
 		var score := _score()
 		session.pop_text(words if score < 1.0 else "Perfect!", pot.position, CookSession.mood_of(score))
 		finish(score)
+
+
+# Over the pot, shaking until the meter's in the green.
+func scripted_hold(delta: float, input: CookInput) -> bool:
+	_scripted_wait -= delta
+	var pot := session.surface(in_surface)
+	input.move_to(pot.position, delta)
+	var over_pot := pot.contains(Vector3(_shaker.position.x, pot.position.y, _shaker.position.z), -0.05)
+	if not over_pot or _amount >= band.x + SCRIPTED_INTO_BAND or _scripted_wait > 0.0:
+		return false
+	_scripted_wait = SCRIPTED_SHAKE_EVERY
+	return true
 
 
 func _shake(pot: CookSurface) -> void:

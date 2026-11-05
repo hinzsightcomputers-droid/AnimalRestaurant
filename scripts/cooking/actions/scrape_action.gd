@@ -8,6 +8,9 @@ extends CookAction
 
 enum Phase { CARRY, PLACING, SCRAPE, DONE }
 
+const SCRIPTED_PUSH := 0.3      # Meters a second a reel's chef pushes the knife: under splash_speed.
+const SCRIPTED_ARRIVED := 0.02  # How near the rim the board gets before it's let go.
+
 @export var from_surface := "Board"
 @export var into := "Pot"
 @export var pieces := 0                     # Bits of food; 0 = from the ingredients (their chops + 1: the pieces they were cut into).
@@ -35,6 +38,7 @@ var _knife: Node3D
 var _knife_u := 0.0                         # The knife along the board: bigger is nearer the pot.
 var _falling := 0
 var _scores: Array[float] = []
+var _scripted_u := 0.0                      # Where a reel's chef wants the knife.
 
 
 func _begin() -> void:
@@ -88,6 +92,29 @@ func update(delta: float, input: CookInput) -> void:
 	session.set_status("Pieces left: %d" % _on_board.size() if _phase == Phase.SCRAPE else "")
 
 
+# Takes the board to the pot, then sweeps the knife along it, gently, until it's clear.
+func scripted_hold(delta: float, input: CookInput) -> bool:
+	match _phase:
+		Phase.CARRY:
+			if not _carrying:
+				return input.move_to(_board.position, delta) and not input.held
+			var pot := session.surface(into)
+			var side := 1.0 if _home.x >= pot.position.x else -1.0
+			var goal := pot.position + Vector3(side * (pot.radius() + _board.size.x * 0.5), 0.0, 0.0)
+			input.move_to(goal, delta)
+			return Vector2(_board.position.x - goal.x, _board.position.z - goal.z).length() > SCRIPTED_ARRIVED
+		Phase.SCRAPE:
+			var half := _board.size.x * 0.5
+			if _scripted_u > half + 0.02:
+				_scripted_u = -half  # Back for what's left.
+				input.cursor.x = _board.position.x + half * _side * cos(_board.rotation.z)
+				return false
+			_scripted_u += SCRIPTED_PUSH * delta
+			input.cursor.x = _board.position.x - _scripted_u * _side * cos(_board.rotation.z)
+			return true
+	return false
+
+
 func _carry(delta: float, input: CookInput) -> void:
 	if not _carrying:
 		if input.just_pressed and _board.contains(input.cursor, grab_margin):
@@ -132,6 +159,7 @@ func _rest_on_rim(pot: CookSurface) -> void:
 		session.play_sound("plop", at, -4.0, 0.7)
 		_knife = _make_knife()
 		_knife_u = -_board.size.x * 0.5
+		_scripted_u = _knife_u
 		_phase = Phase.SCRAPE)
 
 
