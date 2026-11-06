@@ -72,6 +72,49 @@
 		{ "teller": "mabel", "about": "cheddar", "kind": "help", "priority": 200, "text": "Leave it to me, dear. I'll tell him I need help carrying groceries. He can never say no." },
 		{ "teller": "stitches", "about": "cheddar", "kind": "help", "priority": 200, "text": "I can try. He made me laugh when I really needed it. ...Maybe I can do that for him now." },
 		{ "teller": "cheddar", "about": "mabel", "kind": "help", "priority": 200, "text": "You want me to talk to Grandma? ...Fine. But I'm telling her it was your idea, and that you cried. Did you cry? Say you cried." },
-		{ "teller": "stitches", "about": "mabel", "kind": "help", "priority": 200, "text": "She said hello to me when nobody else would. I'll talk to her. ...I think she'd want to come back, really." }
+		{ "teller": "stitches", "about": "mabel", "kind": "help", "priority": 200, "text": "She said hello to me when nobody else would. I'll talk to her. ...I think she'd want to come back, really." },
+
+		{ "teller": "evaroo", "about": "zakk", "kind": "kind", "priority": 200, "text": "Zakk won't shut up about you. It's annoying. ...He says you're the reason he stayed. Don't make it weird." },
+		{ "teller": "evaroo", "about": "zakk", "kind": "rude", "priority": 210, "text": "Zakk told me you said \"[last_rude_line]\". He said 'no worries' like six times. That's how I know it got to him. You didn't mean it, did you?",
+			"choices": [
+				{ "tone": "warm", "text": "I didn't. I'll make it right.", "reply": "Good. He'd never ask you to. That's why you have to.", "change": 2, "others": { "zakk": 3 } },
+				{ "tone": "straight", "text": "He said no worries.", "reply": "He always says that. That's the problem.", "change": 0 },
+				{ "tone": "rude", "text": "Yeah, I meant it.", "reply": "...Wow. Okay.", "change": -10 }
+			]
+		},
+		{ "teller": "evaroo", "about": "zakk", "kind": "rude", "priority": 200, "text": "Zakk told me what you said. He said 'no worries' like six times. That's how I know it got to him. Not cool.",
+			"choices": [
+				{ "tone": "warm", "text": "I didn't. I'll make it right.", "reply": "Good. He'd never ask you to. That's why you have to.", "change": 2, "others": { "zakk": 3 } },
+				{ "tone": "straight", "text": "He said no worries.", "reply": "He always says that. That's the problem.", "change": 0 },
+				{ "tone": "rude", "text": "Yeah, I meant it.", "reply": "...Wow. Okay.", "change": -10 }
+			]
+		},
+		{ "teller": "evaroo", "about": "zakk", "kind": "help", "priority": 200, "text": "Ugh. Fine. I'll call him. He owes me a drum part anyway." },
+		{ "teller": "evaroo", "about": "stitches", "kind": "rude", "priority": 200, "text": "Did you say something to the bear? Because he's been sitting even smaller. ...I'm not asking. I'm telling you to fix it." },
+		{ "teller": "evaroo", "about": "cheddar", "kind": "kind", "priority": 200, "text": "Cheddar told me you laughed at his shark joke. That joke is terrible. You're a better person than me." },
+
+		{ "teller": "zakk", "about": "evaroo", "kind": "kind", "priority": 200, "text": "Roo smiled at band practice yesterday, dude. Like, a real one. Said it was 'nothing.' I think it was you." },
+		{ "teller": "zakk", "about": "evaroo", "kind": "rude", "priority": 210, "text": "Hey, man. Roo told me you said \"[last_rude_line]\". He said he didn't care. Then he wrote, like, four sad songs. You didn't mean it, did you?",
+			"choices": [
+				{ "tone": "warm", "text": "No. I'll apologize to him.", "reply": "Good. Bring sushi. He pretends sushi doesn't fix things. It does.", "change": 2, "others": { "evaroo": 3 } },
+				{ "tone": "straight", "text": "He's sarcastic. He can take it.", "reply": "That's his armor, dude. Armor still dents.", "change": 0 },
+				{ "tone": "rude", "text": "Yeah, I meant it.", "reply": "(He takes off his sunglasses.) ...Not cool, man. Not cool.", "change": -10 }
+			]
+		},
+		{ "teller": "zakk", "about": "evaroo", "kind": "rude", "priority": 200, "text": "Hey, man. Roo's been extra quiet. He doesn't do quiet. ...Did something happen?",
+			"choices": [
+				{ "tone": "warm", "text": "No. I'll apologize to him.", "reply": "Good. Bring sushi. He pretends sushi doesn't fix things. It does.", "change": 2, "others": { "evaroo": 3 } },
+				{ "tone": "straight", "text": "He's sarcastic. He can take it.", "reply": "That's his armor, dude. Armor still dents.", "change": 0 },
+				{ "tone": "rude", "text": "Yeah, I meant it.", "reply": "(He takes off his sunglasses.) ...Not cool, man. Not cool.", "change": -10 }
+			]
+		},
+		{ "teller": "zakk", "about": "evaroo", "kind": "help", "priority": 200, "text": "I'll talk to Roo, dude. He acts tough, but he's been sad-writing for like a week. Not a great sign." },
+		{ "teller": "zakk", "about": "evaroo", "kind": "gone", "priority": 200, "invented": true, "text": "The band played one of Roo's own songs, dude. First time ever. It was about a restaurant that used to feel like home." },
+		{ "teller": "zakk", "about": "cheddar", "kind": "kind", "priority": 200, "text": "Cheddar says you laughed at all his jokes yesterday. Even the shark one. Respect, dude." },
+		{ "teller": "zakk", "about": "stitches", "kind": "rude", "priority": 200, "text": "The bear with the patches seemed bummed, man. Not my business. But... be good to him, yeah?" },
+
+		{ "teller": "cheddar", "about": "zakk", "kind": "help", "priority": 200, "text": "I'll lure him back. I'll say the waves are huge here. They're not. He'll be furious. Then he'll stay." },
+		{ "teller": "cheddar", "about": "zakk", "kind": "gone", "priority": 200, "invented": true, "text": "The beach feels empty without that penguin." },
+		{ "teller": "mabel", "about": "zakk", "kind": "gone", "priority": 200, "invented": true, "text": "The floors have been suspiciously free of sand, dear." }
 	]
 }

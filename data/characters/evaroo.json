@@ -50,7 +50,7 @@
 		}
 	},
 	"memory": {
-		"friends": [],
+		"friends": ["zakk"],
 		"notebook_chat": false,
 		"bear_chat": false,
 		"scared_chat": false
@@ -201,6 +201,8 @@
 			]
 		},
 		{ "event": "eating_chat", "id": "evaroo_chat_bear", "priority": 200, "conditions": { "stage": 3 }, "set": { "bear_chat": true }, "text": "People are jerks to that bear with the patches. I sat next to him at the park yesterday. Didn't say anything. Just sat there. ...Don't tell anyone.", "emotion": "shy" },
+		{ "event": "eating_chat", "id": "evaroo_befriends_stitches", "priority": 230, "conditions": { "min_stage": 3, "regular_min_relationship": { "stitches": 50 }, "friends_with": { "stitches": false } }, "befriends": "stitches", "set": { "bear_chat": true }, "text": "People are jerks to that bear with the patches. I sat next to him at the park yesterday. Didn't say anything. Just sat there. ...Don't tell anyone.", "emotion": "shy" },
+		{ "event": "eating_chat", "id": "evaroo_befriends_cheddar", "priority": 230, "invented": true, "conditions": { "min_stage": 3, "regular_min_relationship": { "cheddar": 50 }, "friends_with": { "cheddar": false } }, "befriends": "cheddar", "text": "Cheddar told a joke today. I laughed. Once. He's acting like he won something.", "emotion": "shy" },
 		{ "event": "eating_chat", "id": "evaroo_chat_scared", "priority": 200, "conditions": { "stage": 3 }, "set": { "scared_chat": true }, "text": "You ever make something and get scared to show anyone? ...Forget I asked.", "emotion": "shy" },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "Hey. ...You're a ten. Don't make me say it twice.", "emotion": "shy" },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "I used to wear headphones everywhere so nobody would talk to me. Weird that I stopped here, huh?", "emotion": "shy" },

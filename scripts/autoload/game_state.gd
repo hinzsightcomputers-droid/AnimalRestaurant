@@ -520,6 +520,10 @@ func apply_save_data(data: Dictionary) -> void:
 			if not legacy_account_id in regulars[id]["known_players"]:
 				regulars[id]["known_players"].append(legacy_account_id)
 		_whole_number_counters(regulars[id])
+	# Friends from the start stay friends, even in a save from before they were.
+	for id in regulars:
+		for friend_id in GameData.characters.get(id, {}).get("memory", {}).get("friends", []):
+			Gossip.befriend(id, friend_id)
 	money_changed.emit(money)
 
 

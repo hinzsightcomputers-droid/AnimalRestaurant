@@ -12,6 +12,7 @@
 	"usual_table": "window",
 	"disliked_dish": "",
 	"referral_only": false,
+	"hears_about": ["stitches"],
 	"stage_names": {
 		"4": "Wave buddy", "3": "Crew", "2": "Local", "1": "Paddling out",
 		"-1": "Coasting", "-2": "Drifting", "-3": "Out of town", "-4": "Gone"
@@ -51,7 +52,7 @@
 		}
 	},
 	"memory": {
-		"friends": [],
+		"friends": ["evaroo"],
 		"hometown_chat": false,
 		"driftwood_chat": false,
 		"never_mad_chat": false
@@ -201,6 +202,9 @@
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "Funny thing about staying, dude. It doesn't feel heavy at all. Feels like floating.", "emotion": "happy" },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "You're the reason I unpacked. Like, actually unpacked. My stuff's in drawers now, man.", "emotion": "joyful" },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": -1 }, "text": "Just vibing today, man.", "emotion": "neutral" },
+
+		{ "event": "eating_chat", "id": "zakk_befriends_cheddar", "priority": 230, "invented": true, "conditions": { "min_stage": 3, "regular_min_relationship": { "cheddar": 50 }, "friends_with": { "cheddar": false } }, "befriends": "cheddar", "text": "Cheddar tried surfing with me today, dude. He was terrible. Like, historically terrible. Rad guy.", "emotion": "joyful" },
+		{ "event": "eating_chat", "id": "zakk_befriends_mabel", "priority": 230, "invented": true, "conditions": { "min_stage": 3, "regular_min_relationship": { "mabel": 50 }, "friends_with": { "mabel": false } }, "befriends": "mabel", "text": "I called Mabel 'dude' today. She said I can't call her that. She was kinda smiling though, man.", "emotion": "happy" },
 
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 1 }, "text": "Catch you on the next wave, dude.", "emotion": "happy" },
 		{ "event": "farewell", "id": "zakk_bye_shell", "priority": 200, "conditions": { "stage": 1 }, "text": "Catch you on the next wave, dude. (He leaves a seashell next to his tip.)", "emotion": "happy" },

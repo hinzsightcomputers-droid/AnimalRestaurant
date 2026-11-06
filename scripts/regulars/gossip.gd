@@ -25,9 +25,15 @@ static func befriend(a_id: String, b_id: String) -> bool:
 
 
 # Tell each of `record`'s friends something about them: "kind" or "rude" (with
-# the line to quote). Each friend keeps only the latest news about each regular.
+# the line to quote), and anyone who looks out for them without being a friend
+# (their file's "hears_about", like Zakk and Stitches). Each keeps only the
+# latest news about each regular.
 static func queue(record: Dictionary, kind: String, quote := "") -> void:
-	_tell(record.get("friends", []), record, kind, quote)
+	var listeners: Array = record.get("friends", []).duplicate()
+	for other: Dictionary in GameState.regulars.values():
+		if record["id"] in other.get("hears_about", []) and not other["id"] in listeners:
+			listeners.append(other["id"])
+	_tell(listeners, record, kind, quote)
 
 
 # Tell every other regular, friends or not.
