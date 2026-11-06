@@ -5,6 +5,7 @@
 #   - Mabel's brass bell, on a bracket over the front door. It swings and rings
 #     whenever a customer comes in (bell_sound in data/scenes.json, or a
 #     built-in chime until there's a real sound).
+#   - Zakk's driftwood board, high on the dining room's back wall.
 # (The patchwork apron is on the chefs: see PlayerVisual. Walter's Storm Soup
 # goes on the menu: see GameData.menu.)
 class_name RewardDecorations
@@ -12,15 +13,18 @@ extends Node3D
 
 const SIGN_REWARD := "best_chef_sign"
 const BELL_REWARD := "mabel_bell"
+const BOARD_REWARD := "driftwood_board"
 const SWING_DEGREES := 22.0
 
 @export var customer_manager: CustomerManager  # Its customers ring the bell coming in.
 @export var sign_spot: Marker3D                # Where the sign hangs.
 @export var bell_spot: Marker3D                # Where the bell hangs (just inside the door).
+@export var board_spot: Marker3D               # Where Zakk's board hangs.
 
 var _sign: Node3D
 var _bell: Node3D
 var _bell_swing: Node3D
+var _board: Node3D
 var _chime := AudioStreamPlayer3D.new()
 var _outside: Dictionary = {}  # Customer -> true while they're still outside the door.
 var _swing_time := -1.0        # Seconds since the bell was rung (-1 = still).
@@ -29,6 +33,7 @@ var _swing_time := -1.0        # Seconds since the bell was rung (-1 = still).
 func _ready() -> void:
 	_sign = _build_sign()
 	_bell = _build_bell()
+	_board = _build_board()
 	_chime.stream = chime_stream()
 	_chime.unit_size = 12.0
 	_bell_swing.add_child(_chime)
@@ -39,6 +44,7 @@ func _ready() -> void:
 func _refresh() -> void:
 	_sign.visible = SIGN_REWARD in GameState.unlocks
 	_bell.visible = BELL_REWARD in GameState.unlocks
+	_board.visible = BOARD_REWARD in GameState.unlocks
 
 
 func ring() -> void:
@@ -96,6 +102,35 @@ func _build_sign() -> Node3D:
 	label.position.z = 0.03
 	sign.add_child(label)
 	return sign
+
+
+# A battered, sun-bleached surfboard shape, hung lengthwise and a little crooked.
+func _build_board() -> Node3D:
+	var board := Node3D.new()
+	board_spot.add_child(board)
+	board.rotation.z = deg_to_rad(84.0)
+	var wood := StandardMaterial3D.new()
+	wood.albedo_color = Color(0.79, 0.71, 0.58)
+	wood.roughness = 0.95
+	var plank := MeshInstance3D.new()
+	var plank_mesh := CapsuleMesh.new()
+	plank_mesh.radius = 0.2
+	plank_mesh.height = 1.5
+	plank_mesh.material = wood
+	plank.mesh = plank_mesh
+	plank.scale.z = 0.12
+	board.add_child(plank)
+	var grain := StandardMaterial3D.new()
+	grain.albedo_color = Color(0.58, 0.48, 0.36)
+	for x in [-0.08, 0.05, 0.11]:  # Weathered lines down its length.
+		var line := MeshInstance3D.new()
+		var line_mesh := BoxMesh.new()
+		line_mesh.size = Vector3(0.012, 1.0 + x, 0.01)
+		line_mesh.material = grain
+		line.mesh = line_mesh
+		line.position = Vector3(x, x * 0.4, 0.026)
+		board.add_child(line)
+	return board
 
 
 # A bracket from the wall over the door, with the brass bell hanging from it.

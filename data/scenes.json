@@ -1,5 +1,5 @@
 {
-	"_about": "Big moment scenes. Each plays once (big moments, and smaller ones like Cheddar inviting you on beach trips), at closing after the last customer leaves, when its regular meets 'conditions' (the same conditions dialogue lines use). Steps run in order: 'narrate' (stage directions, no speaker), 'say' (the regular, optionally with 'choices': each { text, reply }), 'cook' (the co-cooking minigame at the stove: it can't fail). 'staging': dim (light multiplier), music (the scene's song; without one, music_db is how far the usual music drops), rain, flicker. 'done' sets memory fields and unlocks rewards (flags in GameState.unlocks for now).",
+	"_about": "Big moment scenes. Each plays once (big moments, and smaller ones like Cheddar inviting you on beach trips), at closing after the last customer leaves, when its regular meets 'conditions' (the same conditions dialogue lines use). Steps run in order: 'narrate' (stage directions, no speaker), 'say' (the regular, optionally with 'choices': each { text, reply }), 'cook' (the co-cooking minigame at the stove: it can't fail). 'staging': dim (light multiplier), sun_color (the light's color during the scene), music (the scene's song; without one, music_db is how far the usual music drops), rain, waves, flicker. 'done' sets memory fields and unlocks rewards (flags in GameState.unlocks for now).",
 	"settings": {
 		"staging_seconds": 1.5,
 		"bell_sound": "",
@@ -11,7 +11,8 @@
 			"cheddar_car": "Beach trips in Cheddar's car (after hours, out front)",
 			"mabel_house": "Visits to Mabel's house (after hours, knock)",
 			"stitches_house": "Visits to Stitches' house (after hours, knock)",
-			"cheddar_house": "Visits to Cheddar's house (after hours, knock)"
+			"cheddar_house": "Visits to Cheddar's house (after hours, knock)",
+			"driftwood_board": "Zakk's driftwood board"
 		}
 	},
 	"scenes": [
@@ -120,6 +121,37 @@
 				},
 				{ "say": "Now. We eat. Two bowls. And then I'm going home, because I'm ninety-one and it's past my bedtime.", "emotion": "tired" },
 				{ "narrate": "(You eat together at her window table while the rain slows down.)" }
+			]
+		},
+		{
+			"id": "zakk_driftwood",
+			"name": "Zakk's driftwood board",
+			"regular": "zakk",
+			"conditions": { "min_relationship": 85, "visits_at_stage": { "4": 3 }, "memory": { "big_moment_done": false, "hometown_chat": true, "driftwood_chat": true, "never_mad_chat": true } },
+			"staging": { "dim": 0.8, "sun_color": "#ffb066", "waves": true, "music": "res://design/sound/music/Dinner Time Main Theme.wav" },
+			"done": { "set": { "big_moment_done": true }, "unlock": ["driftwood_board"] },
+			"steps": [
+				{ "narrate": "(Zakk comes in carrying something long wrapped in an old beach towel.)" },
+				{ "say": "Hey, dude. Got a sec? Got a thing.", "emotion": "shy" },
+				{ "narrate": "(He unwraps it: a battered, sun-bleached piece of driftwood, carved roughly into the shape of a surfboard.)" },
+				{ "say": "First board I ever had. Found it on the beach back home when I was a kid. Everyone laughed. Penguin on a stick, they said.", "emotion": "happy" },
+				{ "say": "I've carried this thing to every beach I ever went to. Twenty-something beaches. Never hung it up anywhere. 'Cause I never knew if I was staying.", "emotion": "shy",
+					"choices": [
+						{ "text": "It's amazing, Zakk.", "reply": "It's a stick, dude. ...But thanks. It's a good stick.", "emotion": "happy" },
+						{ "text": "You surfed on THAT?", "reply": "Badly! For like a year! Then I got good.", "emotion": "joyful" },
+						{ "text": "Why show me now?", "reply": "'Cause I figured something out, man.", "emotion": "shy" }
+					]
+				},
+				{ "say": "Every place I've ever been, I kept one foot out the door. Made it easy to leave. Nothing heavy, you know?", "emotion": "neutral" },
+				{ "say": "But this place... You remember stuff about me. You notice when I'm quiet. You made me feel like it's okay to stick around.", "emotion": "shy" },
+				{ "say": "So I want this up on your wall. Then wherever I go, a part of me stays here. And honestly, dude? I'm not going anywhere.", "emotion": "happy",
+					"choices": [
+						{ "text": "It'll be the first thing everyone sees when they walk in.", "reply": "Perfect, man. Perfect.", "emotion": "joyful" },
+						{ "text": "Welcome home, Zakk.", "reply": "(He takes his sunglasses off. For once, he doesn't have a surf word for it.) ...Yeah. Home.", "emotion": "shy" },
+						{ "text": "Does this mean I get free surf lessons now?", "reply": "For life, dude. Payment in stew.", "emotion": "joyful" }
+					]
+				},
+				{ "narrate": "(The two of you hang the board on the wall together while the sun goes down.)" }
 			]
 		},
 		{

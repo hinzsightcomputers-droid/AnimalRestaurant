@@ -2,7 +2,7 @@
 # At closing, once the last customer has left, DayManager asks it to play
 # whatever is due. The regular walks in and the staging comes on: the lights
 # dim (and flicker, for Mabel's storm), the music drops, rain if the scene asks
-# for it, and the chef they know best has their camera moved in close. Then the
+# for it (or waves), and the chef they know best has their camera moved in close. Then the
 # steps play in one dialogue box: narration, lines, choices (each with its own
 # reply), and "cook", the co-cooking minigame at the stove, which can't fail.
 # A line or a choice can have an "emotion" for how the regular feels saying it
@@ -24,6 +24,7 @@ signal scene_finished(scene: Dictionary)
 var _playing := false
 var _played_this_shift := false
 var _rain := AudioStreamPlayer.new()
+var _waves := AudioStreamPlayer.new()
 var _staging: Tween
 
 
@@ -31,6 +32,8 @@ func _ready() -> void:
 	_rain.stream = _rain_stream()
 	_rain.volume_db = -14.0
 	add_child(_rain)
+	_waves.volume_db = -16.0
+	add_child(_waves)
 
 
 func is_playing() -> bool:
@@ -174,11 +177,20 @@ func _stage(staging: Dictionary, on: bool) -> void:
 		if not sun.has_meta("base_energy"):
 			sun.set_meta("base_energy", sun.light_energy)
 		_staging.tween_property(sun, "light_energy", float(sun.get_meta("base_energy")) * dim, seconds)
+		if staging.has("sun_color"):
+			if on:
+				sun.set_meta("base_color", sun.light_color)
+			_staging.tween_property(sun, "light_color", Color(staging["sun_color"]) if on else sun.get_meta("base_color", sun.light_color), seconds)
 	var environment: Environment = world_environment.environment if world_environment != null else null
 	if environment != null:
 		if not world_environment.has_meta("base_ambient"):
 			world_environment.set_meta("base_ambient", environment.ambient_light_energy)
 		_staging.tween_property(environment, "ambient_light_energy", float(world_environment.get_meta("base_ambient")) * dim, seconds)
+		if staging.has("sun_color"):  # The room's own light does most of the work, so it has to change too.
+			if on:
+				world_environment.set_meta("base_ambient_color", environment.ambient_light_color)
+			var ambient: Color = world_environment.get_meta("base_ambient_color", environment.ambient_light_color)
+			_staging.tween_property(environment, "ambient_light_color", Color(staging["sun_color"]) if on else ambient, seconds)
 	if on and staging.get("flicker", false) and sun != null:  # Once, after the lights go down.
 		var low: float = float(sun.get_meta("base_energy")) * dim
 		_staging.chain().tween_property(sun, "light_energy", low * 0.15, 0.06)
@@ -189,6 +201,12 @@ func _stage(staging: Dictionary, on: bool) -> void:
 		_rain.play()
 	elif not on:
 		_rain.stop()
+	if on and staging.get("waves", false):
+		if _waves.stream == null:
+			_waves.stream = _wave_stream()
+		_waves.play()
+	elif not on:
+		_waves.stop()
 	var music: String = staging.get("music", "")
 	if music.is_empty():
 		Music.dip(staging.get("music_db", 0.0) if on else 0.0, seconds)
@@ -201,6 +219,26 @@ func _stage(staging: Dictionary, on: bool) -> void:
 		Music.play(music, seconds)
 	else:
 		Music.play_hour_themes()
+
+
+# Placeholder waves: low noise that swells and falls, looping (until a real sound is added).
+func _wave_stream() -> AudioStreamWAV:
+	var rate := 22050
+	var total := rate * 8
+	var data := PackedByteArray()
+	data.resize(total * 2)
+	var smooth := 0.0
+	for i in total:
+		smooth = lerpf(smooth, randf_range(-1.0, 1.0), 0.08)
+		var swell := pow(sin(PI * 2.0 * float(i) / total), 2.0)  # Two waves a loop, silent at the seam.
+		data.encode_s16(i * 2, int(clampf(smooth * swell * 1.6, -1.0, 1.0) * 32767.0))
+	var wav := AudioStreamWAV.new()
+	wav.format = AudioStreamWAV.FORMAT_16_BITS
+	wav.mix_rate = rate
+	wav.data = data
+	wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	wav.loop_end = total
+	return wav
 
 
 # Placeholder rain: soft filtered noise, looping (until a real sound is added).

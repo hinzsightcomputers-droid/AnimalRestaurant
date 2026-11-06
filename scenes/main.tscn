@@ -278,17 +278,21 @@ layer = -1
 script = ExtResource("3_views")
 player_manager = NodePath("../PlayerManager")
 
-[node name="RewardDecorations" type="Node3D" parent="." node_paths=PackedStringArray("customer_manager", "sign_spot", "bell_spot")]
+[node name="RewardDecorations" type="Node3D" parent="." node_paths=PackedStringArray("customer_manager", "sign_spot", "bell_spot", "board_spot")]
 script = ExtResource("22_rewards")
 customer_manager = NodePath("../CustomerManager")
 sign_spot = NodePath("SignSpot")
 bell_spot = NodePath("BellSpot")
+board_spot = NodePath("BoardSpot")
 
 [node name="SignSpot" type="Marker3D" parent="RewardDecorations"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8, 2.6, -11.27)
 
 [node name="BellSpot" type="Marker3D" parent="RewardDecorations"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 5)
+
+[node name="BoardSpot" type="Marker3D" parent="RewardDecorations"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.9, 2.6, -4.94)
 
 [node name="ScenePlayer" type="Node" parent="." node_paths=PackedStringArray("customer_manager", "view_manager", "cooking_station", "sun", "world_environment")]
 script = ExtResource("21_scenes")

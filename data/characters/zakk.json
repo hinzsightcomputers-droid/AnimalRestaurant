@@ -199,6 +199,15 @@
 		},
 		{ "event": "eating_chat", "id": "zakk_chat_driftwood", "priority": 200, "conditions": { "stage": 3 }, "set": { "driftwood_chat": true }, "text": "First board I ever had was a piece of driftwood. Still got it, actually. Carried it to every beach.", "emotion": "happy" },
 		{ "event": "eating_chat", "id": "zakk_chat_never_mad", "priority": 200, "conditions": { "stage": 3 }, "set": { "never_mad_chat": true }, "text": "People think I never get mad 'cause nothing bugs me. Nah. I just figured out holding on to stuff makes you sink.", "emotion": "neutral" },
+		{ "event": "eating_chat", "id": "zakk_chat_hometown_late", "priority": 205, "conditions": { "stage": 4, "memory": { "hometown_chat": false } }, "set": { "hometown_chat": true }, "text": "Grew up in this tiny cold town. Everybody fished. Nobody surfed. Penguins swim, man, we don't surf. That's what they all said.", "emotion": "neutral",
+			"choices": [
+				{ "tone": "warm", "text": "And you proved them all wrong.", "reply": "...Never thought of it like that. Thanks, dude.", "emotion": "shy", "change": 3 },
+				{ "tone": "playful", "text": "Their loss. Bet you surf better than all of them fish.", "reply": "Ha! That's not hard, man.", "emotion": "joyful", "change": 3 },
+				{ "tone": "rude", "text": "Maybe they had a point.", "reply": "Ha. Yeah. Maybe.", "emotion": "neutral", "change": -8 }
+			]
+		},
+		{ "event": "eating_chat", "id": "zakk_chat_driftwood_late", "priority": 205, "conditions": { "stage": 4, "memory": { "driftwood_chat": false } }, "set": { "driftwood_chat": true }, "text": "First board I ever had was a piece of driftwood. Still got it, actually. Carried it to every beach.", "emotion": "happy" },
+		{ "event": "eating_chat", "id": "zakk_chat_never_mad_late", "priority": 205, "conditions": { "stage": 4, "memory": { "never_mad_chat": false } }, "set": { "never_mad_chat": true }, "text": "People think I never get mad 'cause nothing bugs me. Nah. I just figured out holding on to stuff makes you sink.", "emotion": "neutral" },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "Funny thing about staying, dude. It doesn't feel heavy at all. Feels like floating.", "emotion": "happy" },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "You're the reason I unpacked. Like, actually unpacked. My stuff's in drawers now, man.", "emotion": "joyful" },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": -1 }, "text": "Just vibing today, man.", "emotion": "neutral" },
@@ -211,6 +220,9 @@
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 2 }, "text": "Later, [name]. Same wave, same time.", "emotion": "happy" },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 3 }, "text": "See you tomorrow, [name]. ...Huh. 'Tomorrow.' I never used to know where I'd be tomorrow.", "emotion": "happy" },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 4 }, "text": "Later, dude. I'll be here tomorrow. And the day after. Get used to it.", "emotion": "joyful" },
+
+		{ "event": "arrival", "id": "zakk_taps_board", "priority": 200, "conditions": { "unlocked": "driftwood_board" }, "text": "(He taps the driftwood board for luck on his way in.)" },
+		{ "event": "arrival", "id": "zakk_walks_past_board", "priority": 200, "conditions": { "unlocked": "driftwood_board" }, "text": "" },
 
 		{ "event": "phone_greeting", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "text": "Hey, it's Zakk." },
 		{ "event": "phone_order", "priority": 250, "conditions": { "min_stage": -4, "max_stage": -3, "memory": { "last_note": "warm" } }, "set": { "last_note": "" }, "dish": "favorite", "text": "...I might, dude. Might." },
