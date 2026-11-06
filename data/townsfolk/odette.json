@@ -1,0 +1,13 @@
+{
+	"id": "odette",
+	"name": "Odette",
+	"species": "heron",
+	"name_color": "#5a6f8a",
+	"personality": "Odette the Heron, the food critic. Elegant, precise, a little intimidating; judges every plate in silence, then turns out to be secretly sweet. Stands perfectly still while deciding, then taps her notebook once with her pen. She's the critic who visits to award stars, and drops in for normal meals now and then. Travels to review restaurants.",
+	"resident": false,
+	"favorite_dish": "croissant",
+	"favorite_drink": "black_tea",
+	"seating": "booth",
+	"pairs": ["miles"],
+	"lines": {}
+}

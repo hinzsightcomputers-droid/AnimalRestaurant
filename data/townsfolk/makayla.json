@@ -1,0 +1,14 @@
+{
+	"id": "makayla",
+	"name": "Makayla",
+	"species": "mallard",
+	"color": "#b9984f",
+	"name_color": "#9a7a2e",
+	"personality": "Makayla the Mallard. Yellowish-brown with speckles (Delivery Duck is the green-headed mallard). Very high-pitched voice. Very friendly, finds everything funny, lots of funny faces, but reserved and straight-faced until you get to know her. Sporty and competitive, and so straight-faced when competing you can't tell she's having fun (she is). Covers her eyes with her hand in a funny, cute way when she messes up. Lives out of the city and drives in (pulls up in her own car). Features: warms up after her first few visits (then funny faces and laughing); cover-eyes emote when something goes wrong near her; After Hours she challenges a chef to a deadpan contest (biggest fish at the pond or beach), then says \"That was so fun\" flatly.",
+	"resident": true,
+	"favorite_dish": "omurice",
+	"favorite_drink": "red_gull",
+	"seating": "",
+	"pairs": ["amy", "seth"],
+	"lines": {}
+}

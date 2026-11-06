@@ -1,0 +1,13 @@
+{
+	"id": "penny",
+	"name": "Penny",
+	"species": "penguin",
+	"name_color": "#34405c",
+	"personality": "Penny the Penguin. Very kind, shy bookworm; quiet but lights up talking about books. Scared of water and won't swim, but loves being near it. Always tells you about the book she's reading. Features: her current book changes every week or so (made-up titles, e.g. \"The Walrus Who Knew Too Much\"); sometimes gives you a finished book for a shelf (decor). Story: Zakk the Penguin's (regular) love interest. Partway through his storyline the player helps set them up, Zakk helps her get over her fear of water, and his story ends with their wedding, with the player as his best man. She needs extra lines for his arc (meeting, setup, dating, engagement, wedding). Wedding ideas: bake the wedding cake as a close-up; reward a framed wedding photo; Miles as the photographer.",
+	"resident": true,
+	"favorite_dish": "fish_stew",
+	"favorite_drink": "matcha_latte",
+	"seating": "patio",
+	"pairs": ["luna"],
+	"lines": {}
+}

@@ -3,7 +3,7 @@
 
 	"id": "rosie",
 	"name": "Rosie",
-	"_species": "One of data/species.json. Only townsfolk with a model walk in: their own \"model\", or their species' (songbird, rabbit, cow, deer, pig, terrier, wolf have one). Without either they can still phone in.",
+	"_species": "One of data/species.json. They look like their own \"model\", or their species' (songbird, rabbit, cow, deer, pig, terrier, wolf have one). Without either they're a plain body in \"color\", or their species' color.",
 	"species": "rabbit",
 	"_model": "Optional: their own look, like a regular's: { \"path\": \"res://design/characters/...glb\", \"height\": 1.0 }. Leave it out to use their species' model.",
 	"_color": "Optional: their own tint for the placeholder body, e.g. \"#e9c4d4\".",
@@ -16,6 +16,8 @@
 	"favorite_drink": "",
 	"_seating": "Not used yet (seating types are still to come). E.g. \"window\", \"booth\", \"bar\".",
 	"seating": "",
+	"_pairs": "Not used yet (pair visits are still to come). The ids of townsfolk they sometimes come in with. List each pair in both files.",
+	"pairs": [],
 
 	"_lines": "Lists of lines for each step of a visit, one picked at random. {dish} and {drink} fill in; {chef} is the name of the chef they're talking to, and a line with {chef} is only said once they've met that chef (been served by them before). Steps: host_stand, seated, drink_order, drink_served, wrong_drink, food_order, served (or served_perfect / served_great / served_okay / served_burnt), bill, farewell (as they pay). \"eating\" is one bubble per tier: { \"perfect\": ..., \"great\": ..., \"okay\": ..., \"burnt\": ... }. \"seasonal\" has the same steps for \"spring\", \"summer\", \"autumn\" or \"winter\": in that season they're said instead, half the time.",
 	"lines": {

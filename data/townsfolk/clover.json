@@ -1,0 +1,13 @@
+{
+	"id": "clover",
+	"name": "Clover",
+	"species": "gecko",
+	"name_color": "#3f9a4e",
+	"personality": "Clover the Gecko, a kid of about 8. Green gecko. Curious and excitable, asks endless questions (\"Why is the stove hot? Can I flip one?\"). Draws pictures of the chefs and leaves them on the table. Kneels on the booth seat. Visits family in town on school holidays.",
+	"resident": false,
+	"favorite_dish": "mochi",
+	"favorite_drink": "banana_milk",
+	"seating": "booth",
+	"pairs": ["kyle"],
+	"lines": {}
+}

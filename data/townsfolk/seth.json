@@ -1,0 +1,13 @@
+{
+	"id": "seth",
+	"name": "Seth",
+	"species": "retriever",
+	"name_color": "#8a8270",
+	"personality": "Seth the White Retriever. Super sporty, super genuine, unbelievable intuition; takes things very personally. Always rushing off to his next game (football, baseball, volleyball), in a different kit depending on the day. Features: intuition (once he likes you, he notices how things are going, e.g. \"Rough day? You seem off.\" after a day with unhappy customers, or senses when a regular is drifting away); never forgets rudeness (if a chef picks a rude reply, he stays a bit cold to them from then on, unless they apologise later through a special reply option). Fun contrast: Rush is always late, Seth always rushing to leave.",
+	"resident": false,
+	"favorite_dish": "big_breakfast",
+	"favorite_drink": "gator_goo",
+	"seating": "bar",
+	"pairs": ["makayla"],
+	"lines": {}
+}

@@ -1,0 +1,13 @@
+{
+	"id": "juno",
+	"name": "Juno",
+	"species": "otter",
+	"name_color": "#8a5a34",
+	"personality": "Juno the Otter, a staff helper. Eager, hardworking, a bit clumsy; a college student always asking if you're hiring. Juggles anything in her hands and drops it half the time. One of the hireable helpers once staff unlock. In town for summer and holidays.",
+	"resident": false,
+	"favorite_dish": "pork_dumplings",
+	"favorite_drink": "koala_cola",
+	"seating": "bar",
+	"pairs": ["hazel"],
+	"lines": {}
+}

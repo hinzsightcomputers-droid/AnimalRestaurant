@@ -1,0 +1,13 @@
+{
+	"id": "yaniv",
+	"name": "Yaniv",
+	"species": "yak",
+	"name_color": "#7a5230",
+	"personality": "Yaniv the Yak. Loud, always has a story; works in sales, so he can talk to anyone; loves video games and stays up all night. Shaggy hair doubles as his beard. He talks about lucky streaks and card nights, but there's no gambling in the game. Mostly visits at dinner and during the night shift; his stories can run across visits.",
+	"resident": false,
+	"favorite_dish": "fire_noodles",
+	"favorite_drink": "moose_tain_dew",
+	"seating": "bar",
+	"pairs": ["cody"],
+	"lines": {}
+}

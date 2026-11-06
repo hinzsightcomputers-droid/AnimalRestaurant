@@ -1,0 +1,14 @@
+{
+	"id": "jessie",
+	"name": "Jessie",
+	"species": "cat",
+	"model": { "path": "res://design/characters/Stitches/maple-the-cat.glb", "height": 1.0 },
+	"name_color": "#d0567e",
+	"personality": "Jessie the Cat. Big eyes, hip and trendy outfits. Super energetic and friendly but also super chill; jokes a lot; references old funny memes (animal-world versions, not real memes). Reacts to everything with big, genuinely surprised gasps (\"OHH!\", \"WOOWW!\", \"AAHH!\"). Features: gasp emote and sound; comments on the restaurant's decor and what's trendy (ties into the star rating's decor score); outfits change with the seasons.",
+	"resident": true,
+	"favorite_dish": "cloud_foam_salad",
+	"favorite_drink": "mr_dibs",
+	"seating": "",
+	"pairs": ["amy"],
+	"lines": {}
+}

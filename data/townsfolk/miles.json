@@ -1,0 +1,13 @@
+{
+	"id": "miles",
+	"name": "Miles",
+	"species": "mole",
+	"name_color": "#6a5140",
+	"personality": "Miles the Mole. Kind, always happy, energetic, laughs a lot, tells cringey bad jokes. A photographer, always snapping pictures. Goes on trips and always comes back. Feature: when he returns from a trip he gives a framed photo from where he went (wall decor).",
+	"resident": false,
+	"favorite_dish": "acorn_cookies",
+	"favorite_drink": "apple_cider",
+	"seating": "patio",
+	"pairs": ["odette"],
+	"lines": {}
+}

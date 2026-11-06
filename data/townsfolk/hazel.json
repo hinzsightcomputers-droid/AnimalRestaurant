@@ -1,0 +1,14 @@
+{
+	"id": "hazel",
+	"name": "Hazel",
+	"species": "cow",
+	"model": { "path": "res://design/characters/Extras/una-the-cow.glb", "height": 1.12 },
+	"name_color": "#a0564a",
+	"personality": "Hazel the Cow, a grandma. Warm, gentle, retired baker; kindly but honestly critiques your pastries (\"Lovely, dear, but a touch less sugar\"). Always knitting; gives a knitted gift now and then (decor).",
+	"resident": true,
+	"favorite_dish": "cherry_pie",
+	"favorite_drink": "lemonade",
+	"seating": "table",
+	"pairs": ["juno"],
+	"lines": {}
+}

@@ -10,7 +10,7 @@
 	],
 	"_critic": "Who visits. townsfolk: the id of a file in data/townsfolk/ to use as the critic (they then say that file's lines). Left empty, an unnamed critic comes with the name and species here and says the generic townsfolk lines. PLACEHOLDER wording below, along with award_lines.",
 	"critic": {
-		"townsfolk": "",
+		"townsfolk": "odette",
 		"name": "Food Critic",
 		"species": "deer",
 		"pass_satisfaction": 0.6,

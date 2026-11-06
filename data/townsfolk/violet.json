@@ -1,0 +1,14 @@
+{
+	"id": "violet",
+	"name": "Violet",
+	"species": "frog",
+	"model": { "path": "res://design/characters/Mabel/clyde-the-frog.glb", "height": 0.98 },
+	"name_color": "#7a4fb0",
+	"personality": "Violet the Frog. Purple frog. Not shy, just uses as few words as possible; blunt, efficient, would rather listen than talk; loves peace, quiet and familiarity; watches the restaurant around her. Most lines are a couple of words (\"Haha, nice.\", \"Ok.\", \"Thanks.\"). Her corner table is the same spot as Stitches'; if he's there, she takes another seat. Features: the rare longer line, a sharp observation about the restaurant (\"Table three's been dirty a while.\") that can hint at the star rating; efficient visits (orders straight away, eats a little faster); orders her favourite almost every time.",
+	"resident": true,
+	"favorite_dish": "egg_tarts",
+	"favorite_drink": "water",
+	"seating": "corner",
+	"pairs": ["hezzy"],
+	"lines": {}
+}

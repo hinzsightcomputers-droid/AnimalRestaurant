@@ -11,6 +11,22 @@
 		{ "id": "deer", "name": "Deer", "color": "#c98a4e", "models": ["res://design/characters/Extras/hazel-the-deer.glb"], "height": [1.0, 1.15] },
 		{ "id": "pig", "name": "Pig", "color": "#f2a8b0", "models": ["res://design/characters/Extras/juniper-the-pig.glb"], "height": [0.95, 1.1] },
 		{ "id": "terrier", "name": "Terrier", "color": "#d8c3a0", "models": ["res://design/characters/Extras/ollie-the-terrier.glb"], "height": [0.9, 1.05] },
-		{ "id": "wolf", "name": "Wolf", "color": "#8e939c", "models": ["res://design/characters/Extras/ziggy-the-wolf.glb"], "height": [1.05, 1.2] }
+		{ "id": "wolf", "name": "Wolf", "color": "#8e939c", "models": ["res://design/characters/Extras/ziggy-the-wolf.glb"], "height": [1.05, 1.2] },
+		{ "id": "alligator", "name": "Alligator", "color": "#5f9a52" },
+		{ "id": "mole", "name": "Mole", "color": "#7d6250" },
+		{ "id": "raccoon", "name": "Raccoon", "color": "#7b7f88" },
+		{ "id": "hamster", "name": "Hamster", "color": "#dba35c" },
+		{ "id": "penguin", "name": "Penguin", "color": "#3a4254" },
+		{ "id": "mallard", "name": "Mallard", "color": "#b9984f" },
+		{ "id": "heron", "name": "Heron", "color": "#a9b8c9" },
+		{ "id": "gecko", "name": "Gecko", "color": "#6cc46a" },
+		{ "id": "otter", "name": "Otter", "color": "#9c6b42" },
+		{ "id": "owl", "name": "Owl", "color": "#a58a68" },
+		{ "id": "hedgehog", "name": "Hedgehog", "color": "#94745a" },
+		{ "id": "crocodile", "name": "Crocodile", "color": "#3f7f62" },
+		{ "id": "yak", "name": "Yak", "color": "#8f6640" },
+		{ "id": "coyote", "name": "Coyote", "color": "#c09560" },
+		{ "id": "bison", "name": "Bison", "color": "#6e4830" },
+		{ "id": "retriever", "name": "White Retriever", "color": "#f4efe4" }
 	]
 }

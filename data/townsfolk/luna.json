@@ -1,0 +1,13 @@
+{
+	"id": "luna",
+	"name": "Luna",
+	"species": "owl",
+	"name_color": "#5f4f9a",
+	"personality": "Luna the Owl. Sleepy, dreamy artist; always comes in tired, always orders coffee; wide awake at night. Sketches the restaurant while she eats. Mostly visits at dinner and during the night shift. Feature: paints the town's seasonal mural that appears on a wall.",
+	"resident": true,
+	"favorite_dish": "hotteok",
+	"favorite_drink": "coffee",
+	"seating": "booth",
+	"pairs": ["penny"],
+	"lines": {}
+}

@@ -1,0 +1,13 @@
+{
+	"id": "kyle",
+	"name": "Kyle",
+	"species": "crocodile",
+	"name_color": "#2f6a50",
+	"personality": "Kyle the Crocodile. Large, tall croc with glasses. Shy, awkward, very smart, great sense of humour; opens up quickly if you're kind but always stays a bit awkward. Everyone assumes he'll be mean because he looks scary, and he's the complete opposite. Feature: on his first visit, nearby customers look nervous and a chat choice is nervous (\"Uh… table for… one, sir?\"); he answers in the softest, most awkward way.",
+	"resident": true,
+	"favorite_dish": "vegetable_soup",
+	"favorite_drink": "hot_chocolate",
+	"seating": "booth",
+	"pairs": ["chompy", "clover"],
+	"lines": {}
+}

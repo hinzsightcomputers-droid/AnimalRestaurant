@@ -1,0 +1,13 @@
+{
+	"id": "hezzy",
+	"name": "Hezzy",
+	"species": "hedgehog",
+	"name_color": "#7f5f45",
+	"personality": "Hezzy the Hedgehog. Straight-faced and reserved at first; very funny and loyal once he knows you. Randomly bursts into song or makes a funny noise you'd never expect. Feature: a rare surprise emote (singing bubble or weird sound effect).",
+	"resident": true,
+	"favorite_dish": "apple_strudel",
+	"favorite_drink": "dr_salt",
+	"seating": "table",
+	"pairs": ["violet"],
+	"lines": {}
+}

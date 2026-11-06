@@ -3,8 +3,8 @@
 # their own lines for each step of a visit, a favorite dish and drink, and
 # remember each chef who's served them. They come and go: about in_town of them
 # live here at once, each for a few weeks before moving away for a while, and
-# someone else moves in (data/service.json "semi_regulars"). Residents (the
-# phone callers) never leave.
+# someone else moves in (data/service.json "semi_regulars"). Residents never
+# leave. Anyone without a model walks in as the plain placeholder body.
 # What changes is in GameState.townsfolk, by id: { in_town, until (the day they
 # move away, or can come back), met: [account ids], visits, last_visit (the
 # day they last walked in) }.
@@ -58,25 +58,18 @@ static func is_in_town(townsfolk_id: String) -> bool:
 	return bool(GameState.townsfolk.get(townsfolk_id, {}).get("in_town", false))
 
 
-# Who walks in next: someone in town with a look of their own (or their
-# species') who hasn't been in yet today. {} if nobody.
+# Who walks in next: someone in town who hasn't been in yet today. {} if nobody.
 static func pick_walk_in() -> Dictionary:
 	if GameState.townsfolk.is_empty():
 		rotate(GameState.day_number)  # A save from before townsfolk: they move in now.
 	var free := GameData.townsfolk.filter(func(p):
 		var state: Dictionary = GameState.townsfolk.get(p["id"], {})
-		return state.get("in_town", false) and has_model(p) and int(state.get("last_visit", 0)) != GameState.day_number)
+		return state.get("in_town", false) and int(state.get("last_visit", 0)) != GameState.day_number)
 	if free.is_empty():
 		return {}
 	var person: Dictionary = free.pick_random()
 	GameState.townsfolk[person["id"]]["last_visit"] = GameState.day_number
 	return person
-
-
-static func has_model(person: Dictionary) -> bool:
-	if not person.get("model", {}).is_empty():
-		return true
-	return not GameData.get_species(person.get("species", "")).get("models", []).is_empty()
 
 
 # Their favorite (when it can be had) favorite_chance of the time, else `fallback`.

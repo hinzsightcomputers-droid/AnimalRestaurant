@@ -1,0 +1,13 @@
+{
+	"id": "iddy",
+	"name": "Iddy",
+	"species": "hamster",
+	"name_color": "#b5752e",
+	"personality": "Iddy the Hamster. Short, super funny, outgoing, loud, loves attention, very kind; observational humour (different from Cheddar's showman style). Curly hair. Jokingly complains about his soon-to-be wife, Amy. Loves volleyball and video games.",
+	"resident": true,
+	"favorite_dish": "four_cheese_mac",
+	"favorite_drink": "hamster_energy",
+	"seating": "",
+	"pairs": ["amy"],
+	"lines": {}
+}

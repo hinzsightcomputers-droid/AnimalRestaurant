@@ -1,0 +1,13 @@
+{
+	"id": "brandon",
+	"name": "Brandon",
+	"species": "bison",
+	"name_color": "#5c3a26",
+	"personality": "Brandon the Bison. Very calm and laid back; straight at first, then playful and teasing once he knows you. Loves superheroes, movies and shows, and is always hyped for the next release. Feature: the town has its own made-up superhero franchise he's obsessed with (e.g. \"Captain Carrot 3 comes out Friday!\"), with no real Marvel/DC names.",
+	"resident": true,
+	"favorite_dish": "soft_pretzel",
+	"favorite_drink": "pupsi",
+	"seating": "booth",
+	"pairs": ["rush"],
+	"lines": {}
+}

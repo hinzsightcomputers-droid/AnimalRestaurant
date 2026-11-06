@@ -1,0 +1,13 @@
+{
+	"id": "rush",
+	"name": "Rush",
+	"species": "raccoon",
+	"name_color": "#55585f",
+	"personality": "Rush the Raccoon. Super cool, charismatic, says things straight with no sugar-coating, funny from how he reacts, extremely loyal (the name is ironic). Loves basketball and relaxing; a homebody, so visits less often. Features: always late (arrives later in the meal than his slot, sometimes right before the bell; sometimes doesn't show and comes the next day with an excuse); laugh chain (the goofiest laugh in the city; when he laughs, nearby customers start laughing too, with laugh emotes rippling across the room).",
+	"resident": true,
+	"favorite_dish": "soft_pretzel",
+	"favorite_drink": "root_bear",
+	"seating": "bar",
+	"pairs": ["brandon"],
+	"lines": {}
+}

@@ -19,6 +19,7 @@
     { "id": "moose_tain_dew", "name": "Moose-tain Dew", "type": "soda", "description": "Neon green, loud, and packed with sugar.", "prep": "grab", "temperature": "cold", "base_price": 3, "tags": ["cold", "soda", "sweet", "bold"], "unlock": "upgrade", "unlock_cost": 30 },
     { "id": "root_bear", "name": "Root Bear", "type": "soda", "description": "Creamy, old-fashioned root beer.", "prep": "grab", "temperature": "cold", "base_price": 3, "tags": ["cold", "soda", "classic"], "unlock": "upgrade", "unlock_cost": 30 },
     { "id": "gander_ale", "name": "Gander Ale", "type": "soda", "description": "Crisp ginger ale. Settles the stomach.", "prep": "grab", "temperature": "cold", "base_price": 3, "tags": ["cold", "soda", "light"], "unlock": "upgrade", "unlock_cost": 30 },
+    { "id": "gator_goo", "name": "Gator Goo", "type": "soda", "description": "Thick, green and proud of it.", "prep": "grab", "temperature": "cold", "base_price": 3, "tags": ["cold", "soda", "bold"], "unlock": "upgrade", "unlock_cost": 30 },
     { "id": "hamster_energy", "name": "Hamster Energy", "type": "soda", "description": "Makes you want to run on a wheel for six hours.", "prep": "grab", "temperature": "cold", "base_price": 4, "tags": ["cold", "soda", "bold"], "unlock": "upgrade", "unlock_cost": 40 },
     { "id": "red_gull", "name": "Red Gull", "type": "soda", "description": "Gives you wings. Well, you probably already had them.", "prep": "grab", "temperature": "cold", "base_price": 4, "tags": ["cold", "soda", "bold"], "unlock": "upgrade", "unlock_cost": 40 }
   ]

@@ -1,0 +1,13 @@
+{
+	"id": "cody",
+	"name": "Cody",
+	"species": "coyote",
+	"name_color": "#a8743a",
+	"personality": "Cody the Coyote. Laid back and chill; takes a long time to warm up, but then you're friends for life. Loves cars, video games and talking by the fire. Features: his car is parked out front and changes over time (spoiler, rims, paint), and he tells you about each upgrade and funny stories of fixing it; sometimes found by the beach campfire or the back-garden lantern After Hours.",
+	"resident": true,
+	"favorite_dish": "honey_pancakes",
+	"favorite_drink": "gander_ale",
+	"seating": "patio",
+	"pairs": ["yaniv"],
+	"lines": {}
+}

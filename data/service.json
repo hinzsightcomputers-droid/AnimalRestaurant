@@ -24,9 +24,9 @@
 		"bill": ["Could I get the check?", "I'm all done. The bill, please!", "Check, please!"],
 		"get_going": ["I should get going soon..."]
 	},
-	"_semi_regulars": "Named townsfolk (data/townsfolk/, see Townsfolk): who walks in is one of those in town (with a model, not inside already, not been yet today), else an unnamed walk-in. in_town: how many non-residents live here at once; stay_days and away_days: [min, max] days one stays before moving away, and is away before they can come back. favorite_chance: how often they order their favorite dish or drink when it can be had. moved_in and moved_away are the morning news ({name}).",
+	"_semi_regulars": "Named townsfolk (data/townsfolk/, see Townsfolk): who walks in is one of those in town (not been yet today), else an unnamed walk-in. Anyone with no model is a plain body in their color. in_town: how many non-residents live here at once; stay_days and away_days: [min, max] days one stays before moving away, and is away before they can come back. favorite_chance: how often they order their favorite dish or drink when it can be had. moved_in and moved_away are the morning news ({name}).",
 	"semi_regulars": {
-		"in_town": 12,
+		"in_town": 3,
 		"stay_days": [14, 35],
 		"away_days": [14, 40],
 		"favorite_chance": 0.5,

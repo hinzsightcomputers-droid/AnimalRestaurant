@@ -395,7 +395,7 @@ Chef birthdays: %s" % [GameClock.now_string().left(10),
 	var in_town := PackedStringArray()
 	for person in GameData.townsfolk:
 		if Townsfolk.is_in_town(person["id"]):
-			in_town.append("%s%s" % [person["name"], "" if Townsfolk.has_model(person) else " (phone only)"])
+			in_town.append(person["name"])
 	meals.append("In town: %s" % (", ".join(in_town) if not in_town.is_empty() else "nobody named yet"))
 	_schedule_label.text = "Day %d, %s (%s)
 %s" % [GameState.day_number, GameClock.describe_date(GameState.date), state, "

@@ -1,0 +1,13 @@
+{
+	"id": "chompy",
+	"name": "Chompy",
+	"species": "alligator",
+	"name_color": "#3f7a3a",
+	"personality": "Chompy the Alligator. Dim, lazy, loves football. Always wears a football jersey.",
+	"resident": true,
+	"favorite_dish": "big_breakfast",
+	"favorite_drink": "gator_goo",
+	"seating": "patio",
+	"pairs": ["kyle"],
+	"lines": {}
+}

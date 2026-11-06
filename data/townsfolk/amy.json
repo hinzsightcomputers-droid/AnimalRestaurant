@@ -1,0 +1,13 @@
+{
+	"id": "amy",
+	"name": "Amy",
+	"species": "songbird",
+	"name_color": "#b8921a",
+	"personality": "Amy the Songbird. Extremely bubbly, outgoing, instantly your best friend; loud, always laughing; honest and straight up; loves hearing drama but never causes it. Features: fast talking (some lines type out very fast, with a \"Wait, what?\" reply where she repeats it slower, or doesn't); crash-out (if a chef picks a rude reply, she goes off in a dramatic line with an angry emote and is cold to that chef for the rest of the day, back to normal the next day); town news source (passes on what other semi-regulars are up to).",
+	"resident": true,
+	"favorite_dish": "churros",
+	"favorite_drink": "fawnta",
+	"seating": "",
+	"pairs": ["iddy", "jessie", "makayla"],
+	"lines": {}
+}
