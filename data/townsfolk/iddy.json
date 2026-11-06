@@ -9,5 +9,78 @@
 	"favorite_drink": "hamster_energy",
 	"seating": "",
 	"pairs": ["amy"],
-	"lines": {}
+	"lines": {},
+
+	"talk": {
+		"arrival": [
+			{ "when": "first", "text": "HELLO, restaurant! Okay. Okay okay okay. Nice place. Who's in charge? You? What's your name? [name]. [name]! I like it. Short. Like me." },
+			{ "text": "I'M HERE. Everybody relax. [name], you good?" },
+			{ "text": "Can we talk about the guy outside walking a duck on a leash? The duck was walking HIM." },
+			{ "text": "New seat today. I'm feeling a window. No, a booth. No. Surprise me." },
+			{ "text": "Amy says hi. Actually she said 'Don't bother them.' I'm translating." },
+			{ "when": "last_great", "fav": true, "text": "I told everyone about your mac. EVERYONE. My mailman knows." },
+			{ "when": "last_burnt", "fav": true, "text": "Last time the mac had a crust on it like a pie. I'm not complaining. I'm reporting." },
+			{ "when": "away", "text": "You were CLOSED? I stood outside like a lost puppy. A lost hamster. Which is smaller and sadder." }
+		],
+		"order": [
+			{ "fav": true, "text": "Okay, am I crazy, or does every menu say 'chef's special' and it's just... the regular thing but they said it louder?", "choices": [
+				{ "tone": "warm", "text": "For you, everything's the chef's special.", "reply": "STOP. You're gonna make me cry in front of everybody. The [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "MAC AND CHEESE. See? Now it's special.", "reply": "(Cracks up.) See, THAT'S how you do it! You get it!", "mood": 0.05 },
+				{ "tone": "straight", "text": "What can I get you?", "reply": "Straight to business. Okay. You good, though? ...Okay. The [dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Can you not do a whole bit right now?", "reply": "...Wow. Okay. That's going in the act. (He orders quietly.)", "mood": -0.05 }
+			] },
+			{ "fav": true, "text": "So Amy wants me to 'eat more vegetables.' I said I'm a hamster, I eat seeds and cheese. She said that's not a food group. She's out of control.", "choices": [
+				{ "tone": "warm", "text": "She sounds like she really cares about you.", "reply": "...Yeah. She does. Don't tell her I said that. Mac, please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Want me to hide a vegetable in your mac?", "reply": "You WOULDN'T. ...You would. Don't. ...Okay, a tiny one.", "mood": 0.05 },
+				{ "tone": "straight", "text": "So, mac and cheese?", "reply": "Obviously. Mac and cheese.", "mood": 0 },
+				{ "tone": "rude", "text": "Maybe she's right and you're just annoying.", "reply": "Ha! ...Ha. Yeah. (He laughs, but his ears droop.)", "mood": -0.05 }
+			] },
+			{ "fav": true, "text": "I stayed up till 3 playing games. I'm running on Hamster Energy and spite.", "choices": [
+				{ "tone": "warm", "text": "Sounds like you need a good meal. I've got you.", "reply": "You've GOT me. Okay. I'm safe now. Mac, please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Did you at least win?", "reply": "WIN? I was carrying the whole team. On my tiny back.", "mood": 0.05 },
+				{ "tone": "straight", "text": "What can I get you?", "reply": "Mac. And a Hamster Energy. Please. Urgently.", "mood": 0 },
+				{ "tone": "rude", "text": "That's not my problem.", "reply": "Tough crowd. Tough, tough crowd.", "mood": -0.05 }
+			] }
+		],
+		"drink": {
+			"fallback": "No Hamster Energy?! I'm loyal to the brand! ...Fine. Coffee. Big.",
+			"fallback_drink": "coffee",
+			"favourite": ["Hamster Energy. It has my face on it. Not literally. Basically."],
+			"other": "Whatever has the most sugar. Don't tell Amy."
+		},
+		"served": {
+			"perfect": { "text": "(Stands on his chair.) EVERYBODY. Look at this. LOOK AT IT." },
+			"great": { "fav": true, "text": "Okay, that's beautiful. I'd marry this mac. Don't tell Amy." },
+			"okay": { "fav": true, "text": "Good mac. Solid mac. A mac you can trust. You good? You look tired. Eat something." },
+			"burnt": { "fav": true, "text": "Is this mac... or is this mac's ghost? I'm eating it. I'm just asking." }
+		},
+		"eating": [
+			{ "text": "Can we talk about how the guy at table two eats soup? It's like he's mad at it. ...You good, by the way?" },
+			{ "text": "Do you ever notice that every chair here is a little too tall for me? I'm not mad. I'm just noticing." },
+			{ "text": "Amy's planning the wedding. She asked my opinion on flowers. I said 'yes.' Wrong answer apparently." },
+			{ "text": "I'm getting really good at volleyball. I'm terrible at spiking. But I'm REALLY good at diving. Because I'm already on the ground." },
+			{ "fav": true, "text": "This mac is the only thing in my life that's never let me down. Besides Amy. Mostly besides Amy." }
+		],
+		"eating_chat": [
+			{ "fav": true, "text": "Okay, honest opinion. Should I write my own wedding vows, or just read the funniest ones off the internet?", "choices": [
+				{ "tone": "warm", "text": "Write them yourself. She'll love hearing it from you.", "reply": "(Long pause.) ...Yeah. Yeah, okay. You're right. I hate that you're right.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Just do a ten-minute stand-up set.", "reply": "Oh, she would END me. ...I'm doing it.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Either works.", "reply": "Thanks, very helpful, [name]. I'll put that in the vows.", "mood": 0 },
+				{ "tone": "rude", "text": "Nobody cares about your vows.", "reply": "...Amy does. (He says it quietly and eats the rest of his mac.)", "mood": -0.05 }
+			] }
+		],
+		"leaving": [
+			{ "text": "THANK you, [name]! You good? Good. Good night, restaurant!" },
+			{ "text": "I gotta go. Amy texted 'where are you.' No emoji. That's bad." },
+			{ "fav": true, "text": "Best mac in the city. I'm not just saying that. I'm also saying it loud." }
+		],
+		"seasons": {
+			"chef_birthday": "HAPPY BIRTHDAY, [name]! EVERYBODY SING! ...Okay, just me then.",
+			"christmas": "Amy wants matching sweaters. I said no. We're wearing matching sweaters.",
+			"halloween": "I came as a tiny lion. Amy said I look like a dandelion. She's not wrong.",
+			"new_year": "My resolution is to be quieter. ...WAS that quieter?",
+			"summer": "Volleyball season! I'm undefeated. I've played zero games. Still counts.",
+			"winter": "It's cold. My curls are frizzing. Look at this. This is a crisis."
+		}
+	}
 }

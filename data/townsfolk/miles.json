@@ -9,5 +9,78 @@
 	"favorite_drink": "apple_cider",
 	"seating": "patio",
 	"pairs": ["odette"],
-	"lines": {}
+	"lines": {},
+
+	"talk": {
+		"arrival": [
+			{ "when": "first", "text": "Uh, hi hi hi! I'm Miles! Mind if I snap a photo? Of the restaurant, I mean. And you, if you want! What's your name? ...[name]! Great name. Very photogenic." },
+			{ "text": "Uh, [name]! I dug my way over here. Not literally. ...Okay, a little literally. Ha!" },
+			{ "text": "Uh, is the patio open? I love the patio. Fresh air, nice light, great for photos." },
+			{ "text": "Uh, hello! I'm here! I'd say I'm on a roll, but I'm more of a hole guy. Ha! Get it?" },
+			{ "text": "Uh, the light out front today is gorgeous. I took eleven photos of your door." },
+			{ "when": "back", "text": "Uh, [name]! I'm back! I just got home from [trip] and came straight here. Well, I dropped my bags first. Okay, I came here second." },
+			{ "when": "last_great", "text": "Uh, I showed everyone the photo of my last meal here. Everyone. Even a pigeon." },
+			{ "when": "last_burnt", "text": "Uh, last time was a bit toasty! Very artistic, though. Moody lighting." }
+		],
+		"order": [
+			{ "text": "Uh, okay, before I order: why did the mole get a job at the bank? ...Because he was great at digging up money! Ha!", "choices": [
+				{ "tone": "warm", "text": "That's terrible, Miles. I love it.", "reply": "Uh, terrible is my speciality! I'll have the [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "I'd laugh, but I'm too busy digging that joke a grave.", "reply": "(Gasps.) [name]! That was GOOD. I'm stealing that.", "mood": 0.05 },
+				{ "tone": "straight", "text": "What can I get you?", "reply": "Uh, straight to business! Respect. The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Please stop with the jokes.", "reply": "(Nervous laugh.) Ha... ha. Right. Sorry. The [dish].", "mood": -0.05 }
+			] },
+			{ "fav": true, "text": "Uh, can I get the cookies? The acorn ones? I collect acorns too, you know. Not to eat. Just to have.", "choices": [
+				{ "tone": "warm", "text": "Coming right up. I'll make them extra nice.", "reply": "Uh, extra nice! I'll take a photo of them. Before and after.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Just to have? That's a little nuts.", "reply": "(Laughs so hard he snorts.) NUTS. Ha! Oh, you got me.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Sure. Anything to drink?", "reply": "Uh, ooh, yes! Hang on, let me think.", "mood": 0 },
+				{ "tone": "rude", "text": "Collecting acorns is weird.", "reply": "Oh. Ha. Yeah, maybe a little. (He tucks one back into his vest.)", "mood": -0.05 }
+			] },
+			{ "text": "Uh, hold still! ...Got it. You were mid-blink. It's a great photo anyway.", "choices": [
+				{ "tone": "warm", "text": "Can I see? You're really good at this.", "reply": "(Shows you proudly.) Uh, see how the light hits the counter? That's the good stuff. The [dish], please!", "mood": 0.05 },
+				{ "tone": "playful", "text": "I'll need to see my agent before you publish that.", "reply": "Uh, ha! Your agent said yes. I asked him earlier.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Ready to order?", "reply": "Uh, yes! Sorry. The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Don't take pictures of me.", "reply": "Oh! Sorry, sorry. Deleting it. (He looks a little deflated.)", "mood": -0.05 }
+			] }
+		],
+		"drink": {
+			"fallback": "Uh, no cider? That's okay. Lemonade! It's like cider's summer cousin.",
+			"fallback_drink": "lemonade",
+			"favourite": ["Uh, apple cider, please! It tastes like autumn. Even in summer!"],
+			"other": "Uh, whatever's the most photogenic!"
+		},
+		"served": {
+			"perfect": { "text": "Uh, hold on, hold on. Nobody touch it. (Click.) Okay. That's going on my wall." },
+			"great": { "text": "Uh, oh, that looks wonderful! The colours! The steam!" },
+			"okay": { "text": "Uh, yum! A classic. Simple, honest, delicious." },
+			"burnt": { "text": "Uh, ooh, that's got character! Very dramatic. I'm calling this one 'Charcoal Dreams.' Ha!" }
+		},
+		"eating": [
+			{ "text": "Uh, what do you call a mole who tells jokes? A comedig-an! ...I'm workshopping that one." },
+			{ "text": "Uh, I photographed a beetle on the way here. It was so shiny. Do you want to see? You want to see." },
+			{ "text": "Uh, the best part of any trip is coming home. And coming here. Which is basically home." },
+			{ "text": "Uh, did you know moles can dig a tunnel eighteen feet long in an hour? I can't. But I know it." },
+			{ "text": "(He's quietly photographing the dining room from his seat.)" }
+		],
+		"eating_chat": [
+			{ "text": "Uh, if you could go anywhere in the world, where would you go?", "choices": [
+				{ "tone": "warm", "text": "Wherever you're going next. Your trips sound amazing.", "reply": "Uh, you'd come? Okay, I'm bringing you back so many photos.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Somewhere with no bad puns.", "reply": "Ha! Then you'd have to leave me behind! ...Don't leave me behind.", "mood": 0.05 },
+				{ "tone": "straight", "text": "I'm happy right here.", "reply": "Uh, that's a good answer, honestly. Home's the best destination.", "mood": 0 },
+				{ "tone": "rude", "text": "Somewhere you're not.", "reply": "(Laughs, unsure.) Ha... oof. Okay. (He eats quietly.)", "mood": -0.05 }
+			] }
+		],
+		"leaving": [
+			{ "text": "Uh, thanks, [name]! I'll see you soon. Or I'll see you through a lens!" },
+			{ "text": "Uh, okay, I'm off! Gotta hole up at home. Ha! Bye!" },
+			{ "text": "Uh, that was delightful. I'm going to go photograph a cloud now." }
+		],
+		"seasons": {
+			"autumn": "Uh, leaves! Acorns! Cider! It's my season, [name]. It's officially my season.",
+			"christmas": "Uh, I made everyone calendars with my photos. Here's yours! January is a very nice rock.",
+			"halloween": "Uh, I dressed up as a ghost. A ghost photographer. Boo! ...Say cheese!",
+			"spring": "Uh, everything's blooming! My camera roll is ninety percent flowers right now.",
+			"summer": "Uh, the patio at sunset! The light is unbeatable this time of year.",
+			"winter": "Uh, snow makes every photo look magical. Even my boring photos. Especially my boring photos."
+		}
+	}
 }

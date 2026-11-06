@@ -9,5 +9,78 @@
 	"favorite_drink": "banana_milk",
 	"seating": "booth",
 	"pairs": ["kyle"],
-	"lines": {}
+	"lines": {},
+
+	"talk": {
+		"arrival": [
+			{ "when": "first", "text": "Hi! I'm Clover! I'm eight! Are you the chef? Do you have a chef name? What's your name? ...[name]! That's a good chef name!" },
+			{ "text": "[name]! I'm back! It's holidays!" },
+			{ "text": "Can I sit in the booth? The squishy one? Please?" },
+			{ "text": "Guess what! I lost a tooth! ...Geckos grow new ones. It's fine." },
+			{ "text": "I drew you something already. I'll give it to you after. It's a surprise. It's you." },
+			{ "when": "back", "text": "School's OUT! I counted the days. It was a lot of days." },
+			{ "when": "last_great", "fav": true, "text": "The mochi last time was SO good. I told my whole class. My teacher wants some." },
+			{ "when": "last_burnt", "text": "Last time it was a little bit black. That's okay! My mum burns stuff too." }
+		],
+		"order": [
+			{ "fav": true, "text": "Can I have the green mochi? Because I'm green! And it's green! We match!", "choices": [
+				{ "tone": "warm", "text": "Of course. Green mochi for a green friend.", "reply": "YAY! Thank you! ...Please! I mean please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Hmm. Are you sure you're not a mochi?", "reply": "(Giggles.) I'm not a MOCHI! ...Am I?", "mood": 0.05 },
+				{ "tone": "straight", "text": "One mochi, coming up.", "reply": "Okay! Thank you!", "mood": 0 },
+				{ "tone": "rude", "text": "Sit down properly.", "reply": "(Eyes go big.) ...okay. (She sits very still.)", "mood": -0.05 }
+			] },
+			{ "fav": true, "text": "Why is the stove hot? Does it hurt it? Can I touch it? I won't touch it. Can I look at it?", "choices": [
+				{ "tone": "warm", "text": "It's hot so it can cook your food. You can watch from the window.", "reply": "WHOA. Okay. I'm gonna watch the whole time.", "mood": 0.05 },
+				{ "tone": "playful", "text": "The stove's just grumpy. It needs a hug, but don't give it one.", "reply": "A grumpy stove! Ha! I won't hug it. Promise.", "mood": 0.05 },
+				{ "tone": "straight", "text": "It's hot so it can cook. What would you like?", "reply": "Oh! Mochi, please!", "mood": 0 },
+				{ "tone": "rude", "text": "Too many questions.", "reply": "...sorry. (She stops asking for the rest of the visit.)", "mood": -0.05 }
+			] },
+			{ "text": "When I grow up I'm gonna be a chef. Like you! Is it hard?", "choices": [
+				{ "tone": "warm", "text": "Sometimes. But you'd be a great chef.", "reply": "(Gasps.) Really? Okay. I'm gonna be the BEST one. After you.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Very hard. You have to taste everything. All day.", "reply": "That's not hard! That's the best job!", "mood": 0.05 },
+				{ "tone": "straight", "text": "It's a lot of work.", "reply": "I can do work! I do homework.", "mood": 0 },
+				{ "tone": "rude", "text": "You'd never manage it.", "reply": "(Her face falls.) ...oh.", "mood": -0.05 }
+			] }
+		],
+		"drink": {
+			"fallback": "Do you have banana milk? No? ...Hot chocolate! With marshmallows! You don't have marshmallows. That's okay!",
+			"fallback_drink": "hot_chocolate",
+			"favourite": ["Banana milk, please! The yellow one!"],
+			"other": "Something sweet! Not coffee. Coffee's yucky."
+		},
+		"served": {
+			"perfect": { "text": "WHOAAA. It's SO pretty. I don't wanna eat it. ...I'm gonna eat it." },
+			"great": { "text": "Yummy! Thank you!" },
+			"okay": { "text": "Thank you! (She eats it all and licks the plate.)" },
+			"burnt": { "text": "It's a little bit crunchy. That's okay! I like crunchy!" }
+		},
+		"eating": [
+			{ "text": "Do you have a dog? I want a dog. My mum says no. Do YOU have a dog?" },
+			{ "text": "I'm drawing you right now. Don't move. ...Okay, you can move. I'll make it up." },
+			{ "text": "Why does that customer have so many patches? ...Oh, they're nice. I like them.", "later": "If Stitches is in" },
+			{ "text": "The big crocodile is my friend now! His name is Kyle! He's not scary. He's nice. He likes soup." },
+			{ "text": "How many dishes have you washed? Like, ever? A hundred? A MILLION?" }
+		],
+		"eating_chat": [
+			{ "text": "Can I help? I'm really good at helping. I helped my grandma make cookies once. I only ate some.", "choices": [
+				{ "tone": "warm", "text": "You can be my official taste- tester today.", "reply": "YESSS. I'm the official taste-tester! I need a badge!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Only if you can reach the counter.", "reply": "(She stands on tiptoes.) ...I'll grow!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Not right now, but thank you.", "reply": "Okay! Maybe when I'm nine.", "mood": 0 },
+				{ "tone": "rude", "text": "Kids aren't allowed back there. Stay put.", "reply": "...okay. (She colours quietly.)", "mood": -0.05 }
+			] }
+		],
+		"leaving": [
+			{ "text": "Bye bye! I left you a drawing! Don't look until I'm gone! ...You can look now." },
+			{ "text": "Thank you! I'm gonna come back tomorrow! If my mum says yes!" },
+			{ "text": "Bye, [name]! Bye, stove! Bye, booth!" },
+			{ "when": "leaving_town", "text": "School starts tomorrow. I don't wanna go. Will you still be here? ...Okay. Promise?" }
+		],
+		"seasons": {
+			"chef_birthday": "It's your BIRTHDAY? How old are you? A hundred?",
+			"christmas": "I made you a card! It has glitter! It's gonna get everywhere. Sorry.",
+			"halloween": "I'm a dinosaur! RAWR! ...Did I scare you? Say I scared you.",
+			"spring": "It's spring break! I found three worms! I didn't bring them. My mum said no.",
+			"summer": "It's SUMMER! I'm here for ALL of summer! Every day! Maybe!"
+		}
+	}
 }

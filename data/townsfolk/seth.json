@@ -9,5 +9,81 @@
 	"favorite_drink": "gator_goo",
 	"seating": "bar",
 	"pairs": ["makayla"],
-	"lines": {}
+	"lines": {},
+
+	"talk": {
+		"arrival": [
+			{ "when": "first", "text": "Hey! I'm Seth! Sorry, I've only got twenty minutes, I've got a game. What's your name? [name]! Awesome. Okay, I'll remember that. I always remember." },
+			{ "text": "Hey, buddy! Gotta be quick today. Game at six!" },
+			{ "text": "[name]! What's up! Bar seat? Perfect. In and out." },
+			{ "text": "Football today. I'm gonna run so much. I need fuel." },
+			{ "text": "Baseball today! I'm pitching. Nervous. Excited. Mostly excited." },
+			{ "text": "Volleyball later. Iddy's on the other team. I'm gonna go easy on him. I'm not gonna go easy on him." },
+			{ "when": "back", "text": "I'm back! We came second! Second's great! It's not first. But it's great!" },
+			{ "when": "last_great", "fav": true, "text": "Your breakfast last time? Best game I've ever played. Coincidence? No." },
+			{ "when": "last_burnt", "text": "Last time was a little burnt, buddy. All good. I still scored." },
+			{ "text": "Hey. ((No.) buddy. (He doesn't look at that chef.).)", "later": "With a grudge" }
+		],
+		"order": [
+			{ "fav": true, "text": "Big Breakfast, please! Fast as you can! No pressure! Some pressure.", "choices": [
+				{ "tone": "warm", "text": "I'll have it out in record time. Good luck at your game.", "reply": "You're the best, buddy! I'm gonna win this one for you.", "mood": 0.05 },
+				{ "tone": "playful", "text": "I'll cook it while you warm up. Stretch at the bar.", "reply": "(He actually starts stretching.) Okay! Hamstrings!", "mood": 0.05 },
+				{ "tone": "straight", "text": "One Big Breakfast.", "reply": "Thanks, [name]!", "mood": 0 },
+				{ "tone": "rude", "text": "Then go somewhere faster.", "reply": "(His tail stops.) ...Okay.", "mood": -0.05, "grudge": true }
+			] },
+			{ "fav": true, "text": "Hey. You okay? You seem a bit off today.", "choices": [
+				{ "tone": "warm", "text": "Long day. Thanks for noticing.", "reply": "I always notice. Take a breather after this, okay? Big Breakfast, please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "How do you DO that?", "reply": "It's a gift! And a curse. Mostly a gift.", "mood": 0.05 },
+				{ "tone": "straight", "text": "I'm fine. What can I get you?", "reply": "Okay. If you say so. Big Breakfast. (He doesn't quite believe you.)", "mood": 0 },
+				{ "tone": "rude", "text": "Stay out of my business.", "reply": "(Quietly.) Sorry. Just checking.", "mood": -0.05, "grudge": true }
+			] },
+			{ "only": "grudge", "fav": true, "text": "Big Breakfast. Thanks.", "choices": [
+				{ "tone": "warm", "text": "Seth, about what I said last time. I'm sorry. I didn't mean it.", "reply": "(Long pause. His tail starts wagging slowly.) ...Thanks for saying that. Really. We're good, buddy.", "mood": 0.05, "apology": true },
+				{ "tone": "playful", "text": "Cheer up! It's game day!", "reply": "Yeah. (He's still cold.)", "mood": 0 },
+				{ "tone": "straight", "text": "One Big Breakfast.", "reply": "Thanks.", "mood": 0 },
+				{ "tone": "rude", "text": "Still sulking?", "reply": "I remember what you said. \"[last_rude_line]\". (He doesn't say anything else.)", "mood": -0.05 }
+			] }
+		],
+		"drink": {
+			"fallback": "No Gator Goo? Water, then. Lots of water. All the water.",
+			"fallback_drink": "water",
+			"favourite": ["Gator Goo! Hydrate or die-drate!"],
+			"other": "Anything with electrolytes!"
+		},
+		"served": {
+			"perfect": { "fav": true, "text": "BUDDY. That's a championship breakfast. I'm unstoppable now." },
+			"great": { "text": "Yes! Perfect fuel. Thanks, [name]!" },
+			"okay": { "text": "Thanks! I'll eat it on the way!" },
+			"burnt": { "text": "Little crispy! All good, I need the carbs!" }
+		},
+		"eating": [
+			{ "text": "(He's eating very fast.) Mmf. Sorry. Game. Mmf." },
+			{ "text": "Makayla says she can beat me at anything. She's right about most things. Not darts." },
+			{ "text": "Rush is always late and I'm always early. We should average out." },
+			{ "text": "I could tell something good happened before I walked in. Did something good happen?" },
+			{ "fav": true, "text": "My coach says I need to eat more protein. I told him about this breakfast. He's coming next week." }
+		],
+		"eating_chat": [
+			{ "text": "Can I tell you something? Mabel's been a bit quiet lately. I can tell. Can you check on her?", "choices": [
+				{ "tone": "warm", "text": "I will. Thanks for looking out for her.", "reply": "Of course. That's what friends do. Even friends of friends.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Are you a retriever or a detective?", "reply": "Both! Retriever-detective. Retrective.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Okay. I'll keep an eye out.", "reply": "Thanks, buddy.", "mood": 0 },
+				{ "tone": "rude", "text": "Not my problem.", "reply": "...Okay.", "mood": -0.05, "grudge": true }
+			] }
+		],
+		"leaving": [
+			{ "text": "Gotta go! Game time! Thanks, [name]! (He's out the door before the bill's even printed. (He's already left the money.).)" },
+			{ "text": "Wish me luck! Or don't, I'm gonna win anyway! Kidding! Wish me luck!" },
+			{ "when": "leaving_town", "text": "Tournament this week! I'll be gone a few days. Don't miss me too much!" },
+			{ "text": "Bye.", "later": "With a grudge" }
+		],
+		"seasons": {
+			"autumn": "Football season! Also the best season!",
+			"christmas": "I got you a sweatband! For the kitchen! Makayla had the same idea. Now you have two.",
+			"halloween": "I'm a referee! (Makayla is also a referee. They didn't plan it.)",
+			"spring": "Baseball season! Best season!",
+			"summer": "Beach volleyball! Every weekend! I'm so tan. Under the fur. You can't see it.",
+			"winter": "Indoor volleyball. Still the best season. They're all the best season."
+		}
+	}
 }

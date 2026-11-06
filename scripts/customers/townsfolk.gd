@@ -4,7 +4,9 @@
 # remember each chef who's served them. They come and go: about in_town of them
 # live here at once, each for a few weeks before moving away for a while, and
 # someone else moves in (data/service.json "semi_regulars"). Residents never
-# leave. Anyone without a model walks in as the plain placeholder body.
+# leave. Anyone without a model walks in as the plain placeholder body. Those
+# with a "talk" block in their file speak through TownsfolkTalk instead of the
+# per-step lines here.
 # What changes is in GameState.townsfolk, by id: { in_town, until (the day they
 # move away, or can come back), met: [account ids], visits, last_visit (the
 # day they last walked in) }.
@@ -41,6 +43,7 @@ static func rotate(day: int) -> Array[String]:
 		var person: Dictionary = away.pop_back()
 		var state: Dictionary = states[person["id"]]
 		state["in_town"] = true
+		state["just_back"] = int(state.get("visits", 0)) > 0
 		var stay := _days("stay_days", [14, 35])
 		state["until"] = day + (randi_range(1, stay) if first else stay)  # The first lot leave at different times.
 		here += 1
@@ -76,7 +79,8 @@ static func pick_walk_in() -> Dictionary:
 static func choose(person: Dictionary, favorite_key: String, can_have: Array, fallback: Dictionary) -> Dictionary:
 	var favorite := String(person.get(favorite_key, ""))
 	var found := can_have.filter(func(item): return item["id"] == favorite)
-	if not found.is_empty() and randf() < float(settings().get("favorite_chance", 0.5)):
+	var chance: float = person.get("talk", {}).get("favorite_chance", settings().get("favorite_chance", 0.7))
+	if not found.is_empty() and randf() < chance:
 		return found[0]
 	return fallback
 

@@ -10,5 +10,78 @@
 	"favorite_drink": "mr_dibs",
 	"seating": "",
 	"pairs": ["amy"],
-	"lines": {}
+	"lines": {},
+
+	"talk": {
+		"arrival": [
+			{ "when": "first", "text": "Heyyy. Nice place. Very cosy. ...Wait, is that a fireplace? OHH. What's your name? [name]? WOOWW, cute name. I'm Jessie." },
+			{ "text": "Heyyy, [name]. What's good?" },
+			{ "text": "Yo. Vibes in here are immaculate today." },
+			{ "text": "I walked past and smelled something and went 'OHH' out loud. A lady looked at me. Worth it." },
+			{ "text": "Wait. WAIT. Something's different. ...The rug! AAHH, I love it.", "later": "New decor since last visit" },
+			{ "when": "last_great", "fav": true, "text": "Your salad last time? Still thinking about it. It lives in my head rent-free." },
+			{ "when": "last_burnt", "text": "Last time it was a little crunchy. Not the vibe. But you're still the vibe." },
+			{ "when": "away", "text": "You were CLOSED? I stood outside like the 'waiting skeleton' meme. Bones and everything." }
+		],
+		"order": [
+			{ "fav": true, "text": "Okay, what's new? Like, what's the move today?", "choices": [
+				{ "tone": "warm", "text": "For you? The Cloud Foam Salad. I'll make it look extra nice.", "reply": "OHH, extra nice? Okay, I'm obsessed already.", "mood": 0.05 },
+				{ "tone": "playful", "text": "The move is: you sit, I cook, we both win.", "reply": "WOOWW. That's a business plan. I'll have the salad.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Same as usual?", "reply": "Yeahhh. The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Just look at the menu.", "reply": "...Wow. Okay. (No gasp.) The [dish].", "mood": -0.05 }
+			] },
+			{ "fav": true, "text": "Rate my fit. Be honest.", "choices": [
+				{ "tone": "warm", "text": "Ten out of ten. You always look amazing.", "reply": "AAHH, stop! ...No, keep going. Kidding. Salad, please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Eleven out of ten. You broke the scale.", "reply": "OHH, the scale is BROKEN? Iconic.", "mood": 0.05 },
+				{ "tone": "straight", "text": "It's nice. What can I get you?", "reply": "Nice. I'll take it. The [dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Bit much, honestly.", "reply": "...Wow. Okay. (She pulls her hat down.)", "mood": -0.05 }
+			] },
+			{ "fav": true, "text": "Me looking at the menu like the 'confused raccoon doing maths' meme. You know the one.", "choices": [
+				{ "tone": "warm", "text": "Let me help. You'll love the salad.", "reply": "OHH, a guided tour. Love that. Salad.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Classic. That raccoon's still my favourite.", "reply": "WOOWW. You KNOW the raccoon? We're best friends now.", "mood": 0.05 },
+				{ "tone": "straight", "text": "I don't know that one.", "reply": "Tragic. Okay, the [dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Memes are cringe.", "reply": "...Wow. Okay.", "mood": -0.05 }
+			] }
+		],
+		"drink": {
+			"fallback": "No Mr Dibs? AAHH. Okay. Koala-Cola, I guess.",
+			"fallback_drink": "koala_cola",
+			"favourite": ["Mr Dibs, please. It's a classic. Like me."],
+			"other": "Whatever's cutest."
+		},
+		"served": {
+			"perfect": { "text": "OHHH. [name]. Look at it. I need a photo. Where's Miles when you need him?" },
+			"great": { "text": "WOOWW. That looks so good." },
+			"okay": { "text": "Nice! Thank you!" },
+			"burnt": { "text": "AAHH, it's a little crispy. That's okay. Crispy is a vibe sometimes." }
+		},
+		"eating": [
+			{ "fav": true, "text": "This salad is so fluffy. Like eating a cloud. Like the 'cat in a cloud' meme. Peak." },
+			{ "text": "Amy told me something earlier and I gasped so loud I scared a pigeon." },
+			{ "text": "Okay, your wall art is giving 'cosy cabin.' I respect it." },
+			{ "text": "I'm just vibing. Don't mind me. I'm vibing so hard right now." },
+			{ "text": "Did you know Makayla drives an HOUR to come here? OHH, that's dedication." }
+		],
+		"eating_chat": [
+			{ "text": "Okay, I'm thinking about dyeing my fur. Like, a tiny streak. Blue? Pink?", "choices": [
+				{ "tone": "warm", "text": "Either would look amazing on you.", "reply": "OHH, you think? Okay, I'm doing both.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Rainbow. Go big or go home.", "reply": "AAHH. RAINBOW. That's insane. I love it.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Blue, maybe.", "reply": "Blue. Nice. Noted.", "mood": 0 },
+				{ "tone": "rude", "text": "That'd look ridiculous.", "reply": "...Wow. Okay. (She eats in silence.)", "mood": -0.05 }
+			] }
+		],
+		"leaving": [
+			{ "text": "Byeee. Ten out of ten visit." },
+			{ "text": "Okay, I'm gonna go. Amy's waiting. She's going to tell me something and I'm going to gasp." },
+			{ "text": "Thanks, [name]! Stay iconic." }
+		],
+		"seasons": {
+			"autumn": "Cardigan weather! AAHH, it's finally here.",
+			"christmas": "I got you socks. Fun socks. OHH, I hope you like them!",
+			"halloween": "I dressed up as the 'surprised cat' meme. ...It's just me gasping. Very easy costume.",
+			"spring": "New season, new fit. OHH, I'm so excited.",
+			"summer": "Bucket hat season. My favourite season.",
+			"winter": "I'm wearing four layers. I look like a marshmallow. A stylish marshmallow."
+		}
+	}
 }

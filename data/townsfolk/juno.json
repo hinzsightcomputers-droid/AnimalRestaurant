@@ -9,5 +9,75 @@
 	"favorite_drink": "koala_cola",
 	"seating": "bar",
 	"pairs": ["hazel"],
-	"lines": {}
+	"lines": {},
+
+	"talk": {
+		"arrival": [
+			{ "when": "first", "text": "Hi! I'm Juno! Oh, this place is so cool. Are you hiring? Sorry. Hi first. What's your name? [name]! Hi, [name]! Are you hiring?" },
+			{ "text": "[name]! Hi! I'm back! Did you miss me? I missed this place!" },
+			{ "text": "Oops! (She drops her keys on the way in.) I'm fine! Everything's fine!" },
+			{ "text": "Bar seat? I like watching the kitchen. I'm learning. By watching. That counts, right?" },
+			{ "when": "back", "text": "Summer break! Three whole months! Do you need help? I'm free for three whole months!" },
+			{ "when": "last_great", "fav": true, "text": "Your dumplings last time? I tried to make them at home. I set off the smoke alarm. Yours are better." },
+			{ "when": "last_burnt", "text": "Last time was a little crispy! I'm not judging. I literally set things on fire weekly." }
+		],
+		"order": [
+			{ "fav": true, "text": "So, totally unrelated, but are you hiring? I can wash dishes. I can chop. I can... mostly chop.", "choices": [
+				{ "tone": "warm", "text": "Not yet, but you'll be first on my list.", "reply": "FIRST? Okay. Okay! I'm going to be so ready. Dumplings, please!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Can you juggle plates?", "reply": "Yes! (She tries with two salt shakers. Drops both.) ...Not yet!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Not right now. What can I get you?", "reply": "That's okay! Dumplings, please.", "mood": 0 },
+				{ "tone": "rude", "text": "I'd never hire you.", "reply": "Oh! Okay! Noted! (She smiles a bit too hard.) Dumplings.", "mood": -0.05 }
+			] },
+			{ "fav": true, "text": "I have an exam on marine biology next week. I'm an otter. You'd think I'd know this stuff already.", "choices": [
+				{ "tone": "warm", "text": "You're going to do great. You work so hard.", "reply": "You think so? Okay. I'm putting that in my brain for exam day.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Just tell them you're a professional otter.", "reply": "Ha! 'Field experience.' I'm writing that on the test.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Good luck. What are you having?", "reply": "Thanks! Dumplings, please!", "mood": 0 },
+				{ "tone": "rude", "text": "Sounds like you'll fail.", "reply": "Ha! Maybe! (She laughs it off, but she's quiet after.)", "mood": -0.05 }
+			] },
+			{ "fav": true, "text": "I noticed table two has a spill. Want me to get it? I'm already standing. I mean, I'm sitting. But I could stand.", "choices": [
+				{ "tone": "warm", "text": "That's so kind. I've got it, but thank you.", "reply": "Okay! But if you ever need a hand, I've got two!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Careful, or I'll start charging you rent for that stool.", "reply": "I'd pay it! In dish washing!", "mood": 0.05 },
+				{ "tone": "straight", "text": "I've got it. What can I get you?", "reply": "Dumplings! Please!", "mood": 0 },
+				{ "tone": "rude", "text": "Mind your own business.", "reply": "Oh. Right. Sorry! (She sits on her paws.)", "mood": -0.05 }
+			] }
+		],
+		"drink": {
+			"favourite": ["Koala-Cola, please! Student budget. Also it's delicious."],
+			"other": "Whatever's cheapest! Kidding. Kind of."
+		},
+		"served": {
+			"perfect": { "text": "WHOA. How do you DO that? Teach me. Please. I'll pay you. In enthusiasm." },
+			"great": { "fav": true, "text": "Yesss, dumplings! Thank you!" },
+			"okay": { "text": "Thank you! These are great!" },
+			"burnt": { "text": "Ooh, extra crispy! That's how I make them every time. Accidentally." }
+		},
+		"eating": [
+			{ "fav": true, "text": "(She's juggling three dumplings. One lands in her mouth.) I MEANT to do that." },
+			{ "text": "Hazel's teaching me to bake on Sundays. I've only set one thing on fire. ...Two." },
+			{ "fav": true, "text": "My roommate thinks I'm weird for eating here every day. I think my roommate's never had your dumplings." },
+			{ "text": "I'm watching how you plate things. For research. Pretend I'm not here." },
+			{ "text": "Do you need anyone to taste-test anything? I'm available. Constantly." }
+		],
+		"eating_chat": [
+			{ "text": "Can I ask you something? How did you learn to cook? Like, how did you get good?", "choices": [
+				{ "tone": "warm", "text": "Lots of mistakes. You're already doing it right.", "reply": "Mistakes I can do! I'm an expert at mistakes!", "mood": 0.05 },
+				{ "tone": "playful", "text": "I was born holding a spatula.", "reply": "That's so painful for your mum. Ha!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Practice.", "reply": "Practice. Okay. Writing that down.", "mood": 0 },
+				{ "tone": "rude", "text": "Some people just have it. You don't.", "reply": "Oh. Okay. I'll just... practice more, then.", "mood": -0.05 }
+			] }
+		],
+		"leaving": [
+			{ "text": "Bye, [name]! Thanks for the food! And the life lessons!" },
+			{ "text": "I'm gonna go study. Or nap. Probably nap." },
+			{ "text": "See you tomorrow! If I'm not working. I'm never working. See you tomorrow!" },
+			{ "when": "leaving_town", "text": "Back to college tomorrow. I'll miss this place so much. Save me a bar stool?" }
+		],
+		"seasons": {
+			"autumn": "School's starting soon. I'm going to miss the dumplings more than my family. Don't tell them.",
+			"halloween": "I'm a chef! See? ...It's your outfit. Is that weird? That's a little weird.",
+			"new_year": "My resolution is to drop things less. Starting... now. (She drops her napkin.)",
+			"summer": "Summer! I'm home! I have nothing to do except eat here and ask for a job!",
+			"winter": "Home for the holidays! I brought you something. It's a mug from my college. It's a bit chipped. I dropped it."
+		}
+	}
 }

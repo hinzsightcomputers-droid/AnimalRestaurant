@@ -9,5 +9,80 @@
 	"favorite_drink": "dr_salt",
 	"seating": "table",
 	"pairs": ["violet"],
-	"lines": {}
+	"lines": {},
+
+	"talk": {
+		"familiar_after": 5,
+		"arrival": [
+			{ "when": "first", "voice": "before", "text": "Hi. Hezzy. Table for one. ...Your name? [name]. Okay. Thanks." },
+			{ "voice": "before", "text": "Hello." },
+			{ "voice": "before", "text": "Table, please." },
+			{ "voice": "before", "text": "Hi again. It's good here." },
+			{ "when": "familiar_moment", "voice": "familiar", "fav": true, "text": "(He sits down, looks at you seriously, and sings one dramatic line.) ♪ I'm here for the strudel ♪ (Then, completely normal.) Hi, [name]." },
+			{ "voice": "familiar", "text": "Hey, [name]. (Long, quiet honk.) ...Table, please." },
+			{ "voice": "familiar", "text": "Good to see you. (He means it. You can tell because he nods twice.)" },
+			{ "voice": "familiar", "text": "(He walks in making a quiet whale noise, stops at the host stand.) Hi." },
+			{ "when": "last_great", "voice": "familiar", "fav": true, "text": "Your strudel last time. I've been thinking about it. (Bwaaa.) A lot." },
+			{ "when": "last_burnt", "voice": "familiar", "text": "Last time was burnt. I'm not mad. I'm just remembering." }
+		],
+		"order": [
+			{ "fav": true, "text": "Strudel, please.", "choices": [
+				{ "tone": "warm", "text": "Coming right up. Always good to see you.", "reply": "Thanks.", "mood": 0.05, "familiar": { "reply": "♪ Always good to see you too ♪ (Then silence.)", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Just strudel? No speech, no song?", "reply": "(A polite nod.)", "mood": 0, "familiar": { "reply": "(He takes a deep breath. Then just.) Strudel.", "mood": 0.05 } },
+				{ "tone": "straight", "text": "One strudel.", "reply": "Yes.", "mood": 0.05 },
+				{ "tone": "rude", "text": "You're very boring, you know that?", "reply": "Hm.", "mood": -0.05 }
+			] },
+			{ "fav": true, "text": "Is the Dr Salt cold today?", "choices": [
+				{ "tone": "warm", "text": "I'll get you the coldest one in the fridge.", "reply": "Thank you.", "mood": 0.05, "familiar": { "reply": "You're a good person, [name]. (Then, quietly: ding.)", "mood": 0.05 } },
+				{ "tone": "playful", "text": "It's so cold it has its own weather.", "reply": "Ha. Okay.", "mood": 0, "familiar": { "reply": "(A low, impressed whistle.)", "mood": 0.05 } },
+				{ "tone": "straight", "text": "Yes.", "reply": "Good. Strudel too.", "mood": 0.05 },
+				{ "tone": "rude", "text": "It's a fridge. Obviously.", "reply": "Right.", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "fav": true, "text": "I've been working on a new noise. Want to hear it?", "choices": [
+				{ "tone": "warm", "text": "Absolutely. I'm honoured.", "reply": "(He makes the strangest noise you've ever heard (a dial-up modem, a kettle, a goose). Then.) Strudel, please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Only if I can rate it out of ten.", "reply": "(He does it.) Score? (Whatever you'd say, he nods.) Fair.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Maybe after your order.", "reply": "Fair. Strudel. (He does it on the way out instead.)", "mood": 0.05 },
+				{ "tone": "rude", "text": "Please don't.", "reply": "Okay. (He looks very slightly sad.)", "mood": -0.05 }
+			] }
+		],
+		"drink": {
+			"fallback": "No Dr Salt? Hm. Koala-Cola.",
+			"fallback_drink": "koala_cola",
+			"favourite": ["Dr Salt. Cold."],
+			"other": "Whatever's cold."
+		},
+		"served": {
+			"perfect": { "text": "...That's very good.", "familiar": "(He stands up, sings one triumphant note, sits back down.) Thank you." },
+			"great": { "text": "Looks good. Thanks." },
+			"okay": { "text": "Thanks." },
+			"burnt": { "text": "Burnt.", "familiar": "(Sad trombone noise.) I'll eat it." }
+		},
+		"eating": [
+			{ "voice": "before", "text": "It's good. Thanks." },
+			{ "voice": "before", "text": "Nice place." },
+			{ "voice": "familiar", "text": "I sang in the shower for two hours this morning. My neighbour knocked. He wanted a song too." },
+			{ "voice": "familiar", "text": "(He's eating in complete silence. Then, without looking up: honk. Then nothing.)" },
+			{ "voice": "familiar", "text": "People think I'm serious. I'm not. I'm just tired of my face asking." }
+		],
+		"eating_chat": [
+			{ "text": "Can I ask you something? Do I look like I'm having a good time?", "choices": [
+				{ "tone": "warm", "text": "Honestly? I can tell you are.", "reply": "Good. Because I am. (Little happy whistle.)", "mood": 0.05 },
+				{ "tone": "playful", "text": "You look like you're doing taxes.", "reply": "...Fair.", "mood": 0, "familiar": { "reply": "(He laughs out loud for the first time. It's a honk.)", "mood": 0.05 } },
+				{ "tone": "straight", "text": "Not really.", "reply": "Yeah. I am, though.", "mood": 0.05 },
+				{ "tone": "rude", "text": "You look like you hate everything.", "reply": "Hm. I don't.", "mood": -0.05 }
+			] }
+		],
+		"leaving": [
+			{ "voice": "before", "text": "Thanks. Bye." },
+			{ "voice": "familiar", "text": "See you, [name]. (On his way out the door.) ♪ Goodbye, restaurant ♪" },
+			{ "voice": "familiar", "text": "Good food. Good people. (Nods twice. Leaves.)" }
+		],
+		"seasons": {
+			"christmas": "(He sings an entire carol at the host stand, solemnly, then orders.)",
+			"halloween": "I'm a cactus. (He is just a hedgehog.) Very convincing.",
+			"spring": "Birds are singing. (Pause.) Competition.",
+			"summer": "Too hot for spines.",
+			"winter": "I'm wearing a scarf. Hazel made it. Don't tell anyone it's pink."
+		}
+	}
 }

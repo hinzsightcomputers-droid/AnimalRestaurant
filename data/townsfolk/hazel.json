@@ -10,5 +10,75 @@
 	"favorite_drink": "lemonade",
 	"seating": "table",
 	"pairs": ["juno"],
-	"lines": {}
+	"lines": {},
+
+	"talk": {
+		"arrival": [
+			{ "when": "first", "text": "Hello, dear. Oh, isn't this lovely. I'm Hazel. I used to run a bakery, a long time ago now. And what's your name, sweetheart? [name]. What a good, strong name." },
+			{ "text": "Hello, [name], dear. Is there a table? My knees prefer a table." },
+			{ "text": "Oh, it smells like butter in here. That's how you know." },
+			{ "text": "I brought my knitting. Don't mind me, dear." },
+			{ "when": "last_great", "fav": true, "text": "Your pie last time reminded me of my own. That doesn't happen often, dear." },
+			{ "when": "last_burnt", "text": "Last time was a little overdone, sweetheart. It happens to everyone. Even me, once. In 1987." },
+			{ "when": "away", "text": "Oh, you were closed! I was worried you'd caught a cold. Are you eating properly?" }
+		],
+		"order": [
+			{ "fav": true, "text": "The cherry pie, please, dear. Do you make your own crust?", "choices": [
+				{ "tone": "warm", "text": "I do. Any tips for me?", "reply": "(Lights up.) Cold butter, dear. Always cold butter. Cherry pie, please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "I do. It's a family secret. My family is a cookbook.", "reply": "(Chuckles.) Oh, you rascal. Cherry pie, please.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Yes. Cherry pie coming up.", "reply": "Thank you, dear.", "mood": 0 },
+				{ "tone": "rude", "text": "Does it matter?", "reply": "Oh, sweetheart. It always matters. (She sighs gently.)", "mood": -0.05 }
+			] },
+			{ "text": "I'm knitting a scarf. I haven't decided who it's for yet. I'll know when it's done.", "choices": [
+				{ "tone": "warm", "text": "It's beautiful. Whoever gets it is lucky.", "reply": "Well, aren't you sweet. ...We'll see who it's for, won't we.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Can I put in a request? Something chef-coloured.", "reply": "(Laughs.) What colour is a chef, dear? Flour white?", "mood": 0.05 },
+				{ "tone": "straight", "text": "What can I get you?", "reply": "The [dish], please, dear.", "mood": 0 },
+				{ "tone": "rude", "text": "Knitting's so old-fashioned.", "reply": "So am I, sweetheart. (She keeps knitting, a little faster.)", "mood": -0.05 }
+			] },
+			{ "text": "My bakery was just down the road. Forty years. Every morning at four.", "choices": [
+				{ "tone": "warm", "text": "I'd have loved to try your baking.", "reply": "Oh, dear. Come by my house sometime. I still bake on Sundays.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Four AM? I'm barely awake at noon.", "reply": "That's young people for you! (She pats your hand.)", "mood": 0.05 },
+				{ "tone": "straight", "text": "That's impressive. What are you having?", "reply": "The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Well, it's not there anymore.", "reply": "(Quietly.) No. It isn't.", "mood": -0.05 }
+			] }
+		],
+		"drink": {
+			"favourite": ["Lemonade, please, dear. Not too sweet. I'll know."],
+			"other": "Just a cup of something warm, sweetheart."
+		},
+		"served": {
+			"perfect": { "text": "Oh. Oh, dear. That's as good as mine. Maybe better. Don't tell anyone I said that." },
+			"great": { "text": "Lovely, dear. Just a touch less sugar next time, and it'll be perfect." },
+			"okay": { "fav": true, "text": "Very nice, sweetheart. The crust needs a little more time. You'll get there." },
+			"burnt": { "text": "Oh, dear. A bit too long in the oven. That's alright. We learn from the burnt ones." }
+		},
+		"eating": [
+			{ "text": "In my day, we didn't have these fancy ovens. We had one oven and a prayer." },
+			{ "fav": true, "text": "Are you eating properly, dear? You look thin. Have a bite of pie." },
+			{ "text": "That young otter, Juno, came by my house yesterday. She dropped a whole tray of scones. Then she helped me make more. Good girl." },
+			{ "text": "I'm knitting Clover a little hat. Don't tell her. It's a surprise." },
+			{ "text": "(She's knitting quietly and humming an old song.)" }
+		],
+		"eating_chat": [
+			{ "fav": true, "text": "Can I tell you my secret to a good pie crust, dear? Nobody ever asks anymore.", "choices": [
+				{ "tone": "warm", "text": "Please. I'd love to know.", "reply": "Cold butter, cold hands, and patience. And a little love. Don't laugh, it's true.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Is the secret... butter?", "reply": "Well. Yes. Mostly butter. (She laughs.) But also patience.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Sure, quickly.", "reply": "Cold butter. That's it. Off you go, dear.", "mood": 0 },
+				{ "tone": "rude", "text": "I've got it handled, thanks.", "reply": "Of course you do, sweetheart. (She doesn't offer again this visit.)", "mood": -0.05 }
+			] }
+		],
+		"leaving": [
+			{ "text": "Thank you, dear. Wrap up warm." },
+			{ "text": "That was lovely. You remind me of myself at your age. That's a compliment." },
+			{ "text": "Off I go. Eat something yourself, [name]. You work too hard." }
+		],
+		"seasons": {
+			"autumn": "Apple season. My favourite. Nothing beats an autumn pie.",
+			"christmas": "For you, dear. (A hand-knitted sweater with a little whisk on the front.)",
+			"halloween": "I'm handing out cookies, not sweets. The children are very disappointed and very full.",
+			"spring": "Rhubarb season soon. Do you bake with rhubarb, dear? You should.",
+			"summer": "Too hot for knitting. I'm knitting anyway.",
+			"winter": "I knitted mittens for half the town this year. My fingers are tired. Worth it."
+		}
+	}
 }

@@ -9,5 +9,76 @@
 	"favorite_drink": "hot_chocolate",
 	"seating": "booth",
 	"pairs": ["chompy", "clover"],
-	"lines": {}
+	"lines": {},
+
+	"talk": {
+		"warm_choices_to_open": 2,
+		"arrival": [
+			{ "when": "first", "text": "Oh. Um. Yes, please. Sorry. I'm Kyle. I know I look... I'm very gentle. What's your name? [name]. Nice to meet you, [name]." },
+			{ "text": "Hi, [name]. Um. Is the booth free? I fit better in the booth." },
+			{ "text": "Hello. Sorry. Hi. (He pushes up his glasses.)" },
+			{ "text": "I read on the way here and walked into a lamppost. The lamppost is fine." },
+			{ "voice": "familiar", "text": "[name]! Hi. I mean. Hi. I was looking forward to this. Is that weird? That's fine." },
+			{ "when": "last_great", "fav": true, "text": "Your soup last time was, um, statistically the best soup I've had. I've had a lot of soup." },
+			{ "when": "last_burnt", "text": "Last time was a little... charred. It's okay. Char has antioxidants. Probably." },
+			{ "when": "rude_last_time", "text": "Um. Hi. (He doesn't make eye contact.)" }
+		],
+		"order": [
+			{ "fav": true, "text": "Could I get the vegetable soup? People always expect me to order something... with teeth in it.", "choices": [
+				{ "tone": "warm", "text": "Soup's a great choice. I'll make it extra hearty for you.", "reply": "Oh. Thank you. That's... really nice. (He relaxes his shoulders.)", "mood": 0.05 },
+				{ "tone": "playful", "text": "I'll keep the teeth out of it, promise.", "reply": "(A nervous laugh.)", "mood": 0, "familiar": { "reply": "Thank you. I have enough of my own.", "mood": 0.05 } },
+				{ "tone": "straight", "text": "One vegetable soup.", "reply": "Yes, please. Thank you.", "mood": 0 },
+				{ "tone": "rude", "text": "Bit of a weird order for a croc.", "reply": "...Yeah. I know. (He shrinks into the booth.)", "mood": -0.05 }
+			] },
+			{ "fav": true, "text": "Did you know crocodiles can't stick out their tongues? Sorry. I just think about that a lot.", "choices": [
+				{ "tone": "warm", "text": "I didn't know that! Tell me more facts anytime.", "reply": "Really? Okay. I have... a lot. I'll ration them.", "mood": 0.05 },
+				{ "tone": "playful", "text": "That explains why you never make faces at me.", "reply": "(A nervous laugh.)", "mood": 0, "familiar": { "reply": "(He tries. He can't.) See? Tragic.", "mood": 0.05 } },
+				{ "tone": "straight", "text": "Interesting. What can I get you?", "reply": "The soup, please. And hot chocolate.", "mood": 0 },
+				{ "tone": "rude", "text": "Nobody asked.", "reply": "Right. Sorry. (He doesn't share another fact this visit.)", "mood": -0.05 }
+			] },
+			{ "fav": true, "text": "Sorry. I know I take up a lot of the booth.", "choices": [
+				{ "tone": "warm", "text": "The booth's yours. Take all the space you need.", "reply": "(Long pause.) ...Nobody says that.", "mood": 0.05 },
+				{ "tone": "playful", "text": "That's why we built it. Kyle- sized.", "reply": "Oh. Ha.", "mood": 0, "familiar": { "reply": "Kyle- sized. I'll put that on my tombstone.", "mood": 0.05 } },
+				{ "tone": "straight", "text": "You're fine. What can I get you?", "reply": "The soup, please.", "mood": 0 },
+				{ "tone": "rude", "text": "Yeah, you kind of do.", "reply": "...Sorry. (He hunches even smaller.)", "mood": -0.05 }
+			] }
+		],
+		"drink": {
+			"favourite": ["Hot chocolate, please. With... if you have... no, that's fine. Just hot chocolate."],
+			"other": "Something warm, please. I get cold. Cold-blooded. Ha. Sorry."
+		},
+		"served": {
+			"perfect": { "text": "Oh. Oh, wow. That's... that's really beautiful. Thank you." },
+			"great": { "text": "Thank you so much, [name]." },
+			"okay": { "text": "Thank you. It smells nice." },
+			"burnt": { "text": "It's okay. Really. I'll eat it. It's good. Thank you. (He eats every bite.)" }
+		},
+		"eating": [
+			{ "fav": true, "text": "Did you know the word 'soup' comes from an old word for bread soaked in broth? Sorry. I'll stop." },
+			{ "text": "Chompy's my cousin. He's... not a reader. He's very happy, though. I'm a little jealous." },
+			{ "text": "A little gecko girl hid from me last week. I don't blame her. I'd hide from me.", "later": "Before Clover befriends him" },
+			{ "voice": "familiar", "text": "I'm reading three books at once right now. It's a problem. A good problem." },
+			{ "voice": "familiar", "text": "I don't usually talk this much. You're easy to talk to. Sorry. That was a lot." }
+		],
+		"eating_chat": [
+			{ "fav": true, "text": "Can I ask you something? Do I seem scary to you?", "choices": [
+				{ "tone": "warm", "text": "Not even a little. You're one of the kindest people who comes in here.", "reply": "(He takes his glasses off and wipes them for a long time.) ...Thank you, [name].", "mood": 0.05 },
+				{ "tone": "playful", "text": "Only when you tell me facts before I've had coffee.", "reply": "(A nervous laugh.)", "mood": 0, "familiar": { "reply": "That's fair. They're very scary facts.", "mood": 0.05 } },
+				{ "tone": "straight", "text": "You did at first. Not anymore.", "reply": "That's... honest. I'll take that.", "mood": 0 },
+				{ "tone": "rude", "text": "Kind of, yeah.", "reply": "...Right. (He finishes his soup quickly and quietly.)", "mood": -0.05 }
+			] }
+		],
+		"leaving": [
+			{ "text": "Thank you, [name]. I'll, um. See you. Bye." },
+			{ "fav": true, "text": "That was really nice. The soup. And talking. Both. (He waves awkwardly and bumps the door frame.)" },
+			{ "voice": "familiar", "text": "See you next time. I'll bring a new fact. A good one." }
+		],
+		"seasons": {
+			"christmas": "(He gives you a book, carefully wrapped.) It's about the history of soup. I thought... you'd like it?",
+			"halloween": "Everyone thinks I'm wearing a costume. I'm not. This is just me.",
+			"spring": "Spring. Lots of pollen. My glasses get very yellow.",
+			"summer": "I love summer. Cold-blooded. This is the only time I feel awake.",
+			"winter": "It's very cold. I'm wearing three sweater vests. Please don't count them."
+		}
+	}
 }

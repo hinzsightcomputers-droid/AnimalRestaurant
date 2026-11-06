@@ -470,7 +470,10 @@ func _greet(player: Player, customer: Customer, lock_target: Interactable) -> vo
 		seating = await _regular_greets(player, customer, lock_target)
 	else:
 		customer.last_chef = Accounts.id_of(player.player_index)
-		await _talk_at(player, customer, _townsfolk_line(customer, "host_stand"), &"", _at_counter(player, customer), order_chat_zoom, lock_target)
+		var hello := TownsfolkTalk.arrival(customer.townsfolk_id, customer.last_chef) if _has_talk(customer) else ""
+		if hello.is_empty():
+			hello = _townsfolk_line(customer, "host_stand")
+		await _talk_at(player, customer, hello, &"", _at_counter(player, customer), order_chat_zoom, lock_target)
 	_busy.erase(customer)
 	_greeting.erase(player.player_index)
 	if not is_instance_valid(customer) or customer.state != Customer.State.WAITING_TO_BE_SEATED:
@@ -718,7 +721,14 @@ func _take_drink_order(player: Player, customer: Customer) -> void:
 		drink = await _regular_orders_drink(player, customer, drink)
 	else:
 		customer.last_chef = Accounts.id_of(player.player_index)
-		await _talk(player, customer, _townsfolk_line(customer, "drink_order", { "drink": drink.get("name", "drink") }), &"")
+		var asked := ""
+		if _has_talk(customer):
+			var order := TownsfolkTalk.drink_order(customer.townsfolk_id, customer.last_chef)
+			drink = order["drink"]
+			asked = order["text"]
+		if asked.is_empty():
+			asked = _townsfolk_line(customer, "drink_order", { "drink": drink.get("name", "drink") })
+		await _talk(player, customer, asked, &"")
 	_busy.erase(customer)
 	if not is_instance_valid(customer) or customer.state != Customer.State.WAITING_DRINK_ORDER:
 		return  # Sent home meanwhile.
@@ -890,17 +900,59 @@ func _take_food_order(player: Player, customer: Customer) -> void:
 		GameEvents.announce("The ticket wheel is full! Finish an order first.")
 		return
 	_busy.append(customer)
+	var conversed := false
 	if customer.is_regular():
 		await _regular_orders(player, customer)  # May change what they order.
+	elif _has_talk(customer):
+		conversed = await _townsfolk_orders(player, customer)  # So may this.
 	customer.place_order()
 	var order := order_board.add_order(customer)
 	GameEvents.announce("%s took an order: %s wants %s." % [
 		Accounts.name_of(player.player_index), customer.display_name, customer.dish.get("name", "?")])
-	if not customer.is_regular():
+	if not customer.is_regular() and not conversed:
 		customer.last_chef = Accounts.id_of(player.player_index)
 		await _talk(player, customer, _townsfolk_line(customer, "food_order", { "dish": customer.dish.get("name", "special") }), &"")
 	await TicketPopup.write(view_manager, player, order)
 	_busy.erase(customer)
+
+
+# Whether this walk-in speaks through TownsfolkTalk.
+func _has_talk(customer: Customer) -> bool:
+	return customer.is_townsfolk() and TownsfolkTalk.has_talk(customer.townsfolk_id)
+
+
+# A semi-regular's ordering conversation, in a dialogue box. One that's about
+# their favorite dish has them order it. Returns whether they had one to have.
+func _townsfolk_orders(player: Player, customer: Customer) -> bool:
+	customer.last_chef = Accounts.id_of(player.player_index)
+	var line := TownsfolkTalk.pick_order(customer.townsfolk_id, customer.last_chef)
+	if line.is_empty():
+		return false
+	if line.get("fav", false):
+		_order_dish(customer, GameData.get_dish(GameData.get_townsfolk(customer.townsfolk_id).get("favorite_dish", "")))
+	_lock_player(player, _at_table(customer), order_chat_zoom, customer.interactable)
+	customer.talking = true
+	var box := _open_box(player, customer)
+	await _townsfolk_converse(box, customer, line)
+	box.close()
+	customer.talking = false
+	_unlock_player(player)
+	return true
+
+
+# A semi-regular's `line` with choices: the reply changes their mood this visit.
+func _townsfolk_converse(box: ConversationBox, customer: Customer, line: Dictionary) -> void:
+	var words := TownsfolkTalk.context(customer.townsfolk_id, customer.last_chef, customer.dish, customer.drink)
+	var opening := TownsfolkTalk.fill(line["text"], words)
+	customer.say(opening)
+	var choices := Conversation.choices_of(line)
+	var options := choices.map(func(choice): return TownsfolkTalk.fill(choice["text"], words))
+	var picked := await box.ask(customer.display_name, opening, options)
+	var result := TownsfolkTalk.answer(customer.townsfolk_id, customer.last_chef, choices[picked])
+	customer.visit_mood += result["mood"]
+	var reply := TownsfolkTalk.fill(result["reply"], TownsfolkTalk.context(customer.townsfolk_id, customer.last_chef, customer.dish, customer.drink))
+	if not reply.is_empty():
+		await _say(box, customer, reply, result["emotion"])
 
 
 # A regular orders, in a dialogue box: usually the ordering conversation from
@@ -1190,7 +1242,11 @@ func _serve(player: Player, customer: Customer) -> void:
 		var quality := customer.served_quality
 		var tier := "served_" + CookingMinigame.quality_label(quality).to_lower()  # How it looks to them.
 		customer.last_chef = customer.served_by_account
-		var said := _townsfolk_line(customer, tier, { "dish": plate.dish_name() })
+		var said := ""
+		if _has_talk(customer):
+			said = TownsfolkTalk.served(customer.townsfolk_id, customer.last_chef, tier.trim_prefix("served_"), customer.dish)
+		if said.is_empty():
+			said = _townsfolk_line(customer, tier, { "dish": plate.dish_name() })
 		if said.is_empty():
 			said = _townsfolk_line(customer, "served", { "dish": plate.dish_name() })
 		await _talk(player, customer, said,
@@ -1215,6 +1271,9 @@ func _serve(player: Player, customer: Customer) -> void:
 # know you, sometimes with replies to choose from. Once per visit; the player
 # stays put and the meal waits while they talk.
 func _eating_chat(player: Player, customer: Customer) -> void:
+	if customer.is_townsfolk():
+		await _townsfolk_eating_chat(player, customer)
+		return
 	var record: Dictionary = GameState.regulars[customer.regular_id]
 	var context := _visit_context(customer, Accounts.id_of(player.player_index))
 	var line := RegularMemory.pick_line(record, "eating_chat", context)
@@ -1235,6 +1294,25 @@ func _eating_chat(player: Player, customer: Customer) -> void:
 		if not line.is_empty():
 			_after_line(customer, line, Accounts.id_of(player.player_index))
 	await _ask_about_gone(box, player, customer)
+	box.close()
+	_unlock_player(player)
+	customer.talking = false
+
+
+# Walking up to a semi-regular mid-meal: a line, or a chat with choices.
+func _townsfolk_eating_chat(player: Player, customer: Customer) -> void:
+	customer.last_chef = Accounts.id_of(player.player_index)
+	var line := TownsfolkTalk.eating(customer.townsfolk_id, customer.last_chef, customer.dish)
+	GameEvents.announce("%s chatted with %s." % [Accounts.name_of(player.player_index), customer.display_name])
+	customer.chat("")  # Uses up the chat; the dialogue box says the lines.
+	customer.talking = true
+	_lock_player(player, _at_table(customer), eating_chat_zoom if eating_chat_zoom != null else order_chat_zoom, customer.interactable)
+	var box := _open_box(player, customer)
+	if line.has("choices"):
+		await _townsfolk_converse(box, customer, line)
+	else:
+		var words := TownsfolkTalk.context(customer.townsfolk_id, customer.last_chef, customer.dish, customer.drink)
+		await _say(box, customer, TownsfolkTalk.fill(String(line.get("text", "Mm. It's good.")), words))
 	box.close()
 	_unlock_player(player)
 	customer.talking = false
@@ -1409,7 +1487,7 @@ func _settle_bill(player: Player, customer: Customer) -> void:
 	_busy.append(customer)
 	player.set_held_item(null)
 	var satisfaction := Satisfaction.calculate(customer.served_quality, customer.wait_seconds)
-	satisfaction = clampf(satisfaction + Satisfaction.drink_mood(customer.drink, customer.served_drink), 0.0, 1.0)
+	satisfaction = clampf(satisfaction + Satisfaction.drink_mood(customer.drink, customer.served_drink) + customer.visit_mood, 0.0, 1.0)
 	var reaction := Satisfaction.reaction_for(satisfaction)
 	var streak_percent := ServiceStreak.tip_percent(customer.streak)
 	var save_percent := float(ServiceStreak.settings().get("just_in_time_tip_percent", 10)) if customer.just_in_time else 0.0
@@ -1425,6 +1503,9 @@ func _settle_bill(player: Player, customer: Customer) -> void:
 	elif customer.is_townsfolk():
 		customer.last_chef = Accounts.id_of(player.player_index)
 		var farewell := Townsfolk.line(customer.townsfolk_id, "farewell", {}, customer.last_chef)
+		if _has_talk(customer):
+			farewell = TownsfolkTalk.leaving(customer.townsfolk_id, customer.last_chef, customer.dish)
+			TownsfolkTalk.after_visit(customer.townsfolk_id, customer.dish, customer.served_quality)
 		line = farewell if not farewell.is_empty() else line
 		Townsfolk.record_visit(customer.townsfolk_id, customer.served_by_account)  # They know who served them now.
 	if not customer.is_regular() and _asks_about_delivery():

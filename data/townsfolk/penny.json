@@ -9,5 +9,78 @@
 	"favorite_drink": "matcha_latte",
 	"seating": "patio",
 	"pairs": ["luna"],
-	"lines": {}
+	"lines": {},
+
+	"talk": {
+		"arrival": [
+			{ "when": "first", "text": "Oh, um, hello. I'm Penny. Is it alright if I sit outside? By the water? ...Not too close. What's your name? [name]. That's a nice name. It sounds like a character in a book." },
+			{ "text": "Hi, [name]. Is the patio free? I brought my book." },
+			{ "text": "Hello. It's a good reading day, I think. Quiet." },
+			{ "text": "I finished my last book on the walk here. I bumped into a lamp post. It was worth it." },
+			{ "text": "Could I sit by the window? I can see the pond from there.", "later": "Before the patio unlocks" },
+			{ "when": "last_great", "fav": true, "text": "I kept thinking about your fish stew. I even dog-eared a recipe in a novel about it. It's not the same." },
+			{ "when": "last_burnt", "text": "Last time was a little smoky. It's okay. The book I was reading had a fire in it too. It felt themed." },
+			{ "text": "It's raining. I don't mind rain. It's water I can't fall into.", "later": "Rainy day" }
+		],
+		"order": [
+			{ "fav": true, "text": "I just started a new book. It's called [book]. It's about... oh, sorry, you're working.", "choices": [
+				{ "tone": "warm", "text": "No, tell me. What's it about?", "reply": "(She lights up and explains the whole first chapter.) ...So anyway, the fish stew, please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "No spoilers. I'm on chapter zero.", "reply": "(Giggles.) Chapter zero. I like that. I'll save the twist for you.", "mood": 0.05 },
+				{ "tone": "straight", "text": "What can I get you?", "reply": "Oh, sorry. The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Nobody asked.", "reply": "(She closes the book and holds it tight.) ...The [dish].", "mood": -0.05 }
+			] },
+			{ "fav": true, "text": "Everyone thinks penguins love swimming. I've never liked it. Is that strange?", "choices": [
+				{ "tone": "warm", "text": "Not at all. You like what you like.", "reply": "...Thank you. People usually laugh. The fish stew, please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Same. I'm a chef who's scared of soup.", "reply": "You are not! (She laughs.) ...Are you?", "mood": 0.05 },
+				{ "tone": "straight", "text": "A little. What are you having?", "reply": "I suppose it is. The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Yeah, that's weird for a penguin.", "reply": "...I know. (She looks out at the water and doesn't say much else.)", "mood": -0.05 }
+			] },
+			{ "text": "Do you read? You don't have to. I just like knowing what people like.", "choices": [
+				{ "tone": "warm", "text": "Not much. Got a book you'd recommend?", "reply": "Oh! Yes! I'll bring you one. You'll love it. I'll bring two.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Only menus. I'm very well read in soups.", "reply": "That's a genre! A short one.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Sometimes.", "reply": "That's nice. The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Reading's boring.", "reply": "Oh. (She tucks her book away.) The [dish], please.", "mood": -0.05 }
+			] }
+		],
+		"drink": {
+			"fallback": "No matcha? Then black tea, please. Like in old novels.",
+			"fallback_drink": "black_tea",
+			"favourite": ["A matcha latte, please. It's good for long chapters."],
+			"other": "Something warm, please. To hold while I read."
+		},
+		"served": {
+			"perfect": { "text": "Oh... it's beautiful. It's like something described on the very best page." },
+			"great": { "text": "Thank you, [name]. It smells lovely." },
+			"okay": { "text": "Thank you. This will be perfect with my book." },
+			"burnt": { "text": "It's a little dark. I don't mind. It matches the chapter I'm on." }
+		},
+		"eating": [
+			{ "text": "(She's reading and doesn't notice you at first.) Oh! Sorry. I was in the book. What happened? Nothing happened? Okay." },
+			{ "text": "The main character in [book] is so brave. I always wonder if I'd be brave like that." },
+			{ "text": "The pond is so pretty from here. I like looking at it. From here." },
+			{ "text": "Luna's drawing me a cover for a story I'm writing. Don't tell anyone I'm writing a story." },
+			{ "text": "I read that some penguins can hold their breath for twenty minutes. I can hold mine for about four seconds." }
+		],
+		"eating_chat": [
+			{ "text": "Can I tell you a secret? I wish I could swim. I just get so scared when the water's deep.", "choices": [
+				{ "tone": "warm", "text": "You'll get there when you're ready. No rush.", "reply": "...You really think so? That's the nicest thing anyone's said about it.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Start with a puddle. Work up to a bath.", "reply": "(She laughs.) A puddle. Okay. Puddle first.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Lots of people can't swim.", "reply": "That's true. Thank you.", "mood": 0 },
+				{ "tone": "rude", "text": "Just jump in. It's not hard.", "reply": "(She goes quiet and opens her book again.)", "mood": -0.05 }
+			] }
+		],
+		"leaving": [
+			{ "text": "Thank you, [name]. I'll tell you how the book ends." },
+			{ "text": "I should go. I want to finish this chapter before it gets dark." },
+			{ "text": "Bye. This is my favourite place to read. Don't tell the library." }
+		],
+		"seasons": {
+			"autumn": "Rainy days, warm tea, a long book. This is my whole personality.",
+			"christmas": "I wrapped books for everyone. Yours is the blue one. You'll love it.",
+			"halloween": "I dressed up as a character from [book]. Nobody's guessed who. That's okay. I know.",
+			"spring": "Spring is my favourite reading season. Everything feels like a new chapter.",
+			"summer": "Everyone's going swimming. I'm going reading.",
+			"winter": "The pond freezes in winter. It's the only time I'm brave enough to stand on it."
+		}
+	}
 }

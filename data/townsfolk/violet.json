@@ -10,5 +10,79 @@
 	"favorite_drink": "water",
 	"seating": "corner",
 	"pairs": ["hezzy"],
-	"lines": {}
+	"lines": {},
+
+	"talk": {
+		"favorite_chance": 0.95,
+		"arrival": [
+			{ "when": "first", "text": "Hi. Violet. Corner table, please. ...Your name? [name]. Ok." },
+			{ "text": "Hi, [name]." },
+			{ "text": "Corner, please." },
+			{ "text": "Hello." },
+			{ "text": "Oh. Somewhere quiet, then.", "later": "Stitches is in the corner" },
+			{ "when": "last_great", "text": "Last time was good." },
+			{ "when": "last_burnt", "text": "Last time was burnt. Today won't be. (It isn't a threat. It might be a threat.)" },
+			{ "when": "away", "text": "You were closed. I noticed." }
+		],
+		"order": [
+			{ "fav": true, "text": "Tarts. Water. Thanks.", "choices": [
+				{ "tone": "warm", "text": "Coming right up. Lovely to see you.", "reply": "Thanks. (A tiny smile.)", "mood": 0.05 },
+				{ "tone": "playful", "text": "Wow. That's the most you've ever said.", "reply": "Haha, nice.", "mood": 0 },
+				{ "tone": "straight", "text": "Got it.", "reply": "Good.", "mood": 0.05 },
+				{ "tone": "rude", "text": "Could you be any less chatty?", "reply": "Ok.", "mood": -0.05 }
+			] },
+			{ "fav": true, "text": "Same as always.", "choices": [
+				{ "tone": "warm", "text": "I love that you know exactly what you like.", "reply": "I do.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Want to live dangerously and try something new?", "reply": "(Long pause.) No.", "mood": 0 },
+				{ "tone": "straight", "text": "Egg tarts and water.", "reply": "Yes.", "mood": 0.05 },
+				{ "tone": "rude", "text": "Boring.", "reply": "Ok.", "mood": -0.05 }
+			] },
+			{ "fav": true, "text": "How's your day. (Not quite a question. She means it, though.)", "choices": [
+				{ "tone": "warm", "text": "Better now. Thanks for asking.", "reply": "Good. (She actually looks pleased.)", "mood": 0.05 },
+				{ "tone": "playful", "text": "Busy. Want to wash dishes?", "reply": "Haha, nice. No.", "mood": 0 },
+				{ "tone": "straight", "text": "Busy. What can I get you?", "reply": "Tarts. Water.", "mood": 0.05 },
+				{ "tone": "rude", "text": "Why do you care?", "reply": "Ok.", "mood": -0.05 }
+			] }
+		],
+		"drink": {
+			"favourite": ["Water."],
+			"other": "Tea.",
+			"other_drink": "black_tea"
+		},
+		"served": {
+			"perfect": { "text": "...Wow. (The most emotion she shows all game.)" },
+			"great": { "text": "Good." },
+			"okay": { "text": "Thanks." },
+			"burnt": { "text": "Burnt. (She eats it anyway.)" }
+		},
+		"eating": [
+			{ "text": "Hi." },
+			{ "text": "Busy today." },
+			{ "fav": true, "text": "Good tarts." },
+			{ "text": "(She's watching the room. She nods at you and keeps watching.)" },
+			{ "text": "(She listens with obvious enjoyment, says nothing.)", "later": "When someone nearby is talking loudly" }
+		],
+		"eating_chat": [
+			{ "text": "You can sit. If you want.", "choices": [
+				{ "tone": "warm", "text": "I'd like that.", "reply": "(You sit together in comfortable silence for a moment.) Nice.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Are we going to talk, or just stare at the room?", "reply": "Stare.", "mood": 0 },
+				{ "tone": "straight", "text": "Can't right now. Busy.", "reply": "Ok. Next time.", "mood": 0.05 },
+				{ "tone": "rude", "text": "Why would I?", "reply": "Ok.", "mood": -0.05 }
+			] }
+		],
+		"leaving": [
+			{ "text": "Thanks." },
+			{ "text": "Bye." },
+			{ "text": "Good. (She leaves exact change and a small tip, lined up neatly.)" }
+		],
+		"seasons": {
+			"autumn": "Leaves.",
+			"christmas": "(She hands you a small, perfectly wrapped box.) For you. (It's a really nice pen.)",
+			"halloween": "Costume? (She points at herself.) Frog.",
+			"new_year": "Same as last year. Good year.",
+			"spring": "Rain. Good.",
+			"summer": "Hot.",
+			"winter": "Quiet season. Nice."
+		}
+	}
 }

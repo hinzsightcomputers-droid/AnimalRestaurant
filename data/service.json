@@ -24,12 +24,17 @@
 		"bill": ["Could I get the check?", "I'm all done. The bill, please!", "Check, please!"],
 		"get_going": ["I should get going soon..."]
 	},
-	"_semi_regulars": "Named townsfolk (data/townsfolk/, see Townsfolk): who walks in is one of those in town (not been yet today), else an unnamed walk-in. Anyone with no model is a plain body in their color. in_town: how many non-residents live here at once; stay_days and away_days: [min, max] days one stays before moving away, and is away before they can come back. favorite_chance: how often they order their favorite dish or drink when it can be had. moved_in and moved_away are the morning news ({name}).",
+	"_semi_regulars": "Named townsfolk (data/townsfolk/, see Townsfolk and TownsfolkTalk). season_line_chance, last_meal_line_chance and eating_choice_chance are how often those lines come up; playful_miss_chance is how often a gamble like Odette's misses; away_real_days is how long before they mention you being closed. Who walks in is one of those in town (not been yet today), else an unnamed walk-in. Anyone with no model is a plain body in their color. in_town: how many non-residents live here at once; stay_days and away_days: [min, max] days one stays before moving away, and is away before they can come back. favorite_chance: how often they order their favorite dish or drink when it can be had. moved_in and moved_away are the morning news ({name}).",
 	"semi_regulars": {
 		"in_town": 3,
 		"stay_days": [14, 35],
 		"away_days": [14, 40],
-		"favorite_chance": 0.5,
+		"favorite_chance": 0.7,
+		"season_line_chance": 0.25,
+		"last_meal_line_chance": 0.5,
+		"eating_choice_chance": 0.35,
+		"playful_miss_chance": 0.5,
+		"away_real_days": 3,
 		"moved_in": "{name} just moved to town.",
 		"moved_away": "{name} moved away. Bye, {name}!"
 	},

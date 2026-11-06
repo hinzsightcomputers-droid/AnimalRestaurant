@@ -9,5 +9,78 @@
 	"favorite_drink": "gator_goo",
 	"seating": "patio",
 	"pairs": ["kyle"],
-	"lines": {}
+	"lines": {},
+
+	"talk": {
+		"arrival": [
+			{ "when": "first", "text": "Uhh, hi. Is this the restaurant? ...It is? Nice. I'm Chompy. What's your name? ...[name]. Cool. I'll try to remember that." },
+			{ "text": "Hey, [name]! Wait. It's [name], right? Yeah. I knew that." },
+			{ "text": "Yo! Is the patio open? I like the patio. It's like outside but with food." },
+			{ "text": "I walked here. It took forever. Like, five whole minutes." },
+			{ "text": "Game's on later. Gotta fuel up. That's what the pros say. I think." },
+			{ "text": "Can I sit by the window? I'll just pretend it's the patio.", "later": "Before the patio unlocks" },
+			{ "when": "last_great", "fav": true, "text": "I dreamed about your breakfast last night. Then I woke up and I was hungry. True story." },
+			{ "when": "last_burnt", "text": "Last time it was kinda crunchy. I like crunchy though. I think." },
+			{ "when": "weekend", "text": "It's GAME DAY, [name]! ...Every day is game day if you think about it." }
+		],
+		"order": [
+			{ "fav": true, "text": "Uhh. Okay. I'm gonna read the whole menu. ...Okay, I read the first part.", "choices": [
+				{ "tone": "warm", "text": "Take your time, Chompy. No rush.", "reply": "Thanks, [name]. You're like a good coach. Big Breakfast, please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Want me to read it to you like a bedtime story?", "reply": "(Laughs.) Ha! Yeah! ...Wait, would you actually do that?", "mood": 0.05 },
+				{ "tone": "straight", "text": "What can I get you?", "reply": "The [dish]. It's always the [dish].", "mood": 0 },
+				{ "tone": "rude", "text": "It's not that long. Just pick.", "reply": "Huh? ...Oh. Ohh. Okay. The [dish]. (He doesn't look up.)", "mood": -0.05 }
+			] },
+			{ "fav": true, "text": "Do you have a football special? Like, food shaped like a football?", "choices": [
+				{ "tone": "warm", "text": "Not yet, but I'll think about it, just for you.", "reply": "For real? You're the best. I'll get the [dish] for now.", "mood": 0.05 },
+				{ "tone": "playful", "text": "The pancakes are round. That's half a football.", "reply": "...Whoa. That's true. You're smart, [name].", "mood": 0.05 },
+				{ "tone": "straight", "text": "No, but the [fav_dish] is good.", "reply": "Yeah, that's the one. That's my play.", "mood": 0 },
+				{ "tone": "rude", "text": "That's a dumb question.", "reply": "(He thinks about it for a long time.) ...Yeah. Probably.", "mood": -0.05 }
+			] },
+			{ "text": "You like my jersey? I got a new one. It's the same as the old one but new.", "choices": [
+				{ "tone": "warm", "text": "Looks great on you. Very you.", "reply": "(Puffs his chest out.) Thanks! I wear it to sleep too.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Do you even own a shirt without a number?", "reply": "...Huh. No. Wait, do people do that?", "mood": 0.05 },
+				{ "tone": "straight", "text": "Nice. What are you having?", "reply": "The [dish]. Same as always. Like my jersey.", "mood": 0 },
+				{ "tone": "rude", "text": "Ever thought about washing it?", "reply": "(He sniffs his sleeve.) ...Oh. Okay.", "mood": -0.05 }
+			] }
+		],
+		"drink": {
+			"fallback": "Do you have Gator Goo? No? Uhh... whatever's green.",
+			"favourite": ["Gator Goo, please. It's got electrolytes. I don't know what those are but I need them."],
+			"other": "Surprise me. Not too surprising though."
+		},
+		"served": {
+			"perfect": { "text": "WHOA. Touchdown! That's a touchdown plate, [name]." },
+			"great": { "fav": true, "text": "Yesss. Big breakfast, big day." },
+			"okay": { "text": "Cool. Food. I love food." },
+			"burnt": { "text": "It's kinda black. That's the team colour though, so it's fine." }
+		},
+		"eating": [
+			{ "text": "Mmmf. Sorry. Mouth full. ...Still full. Okay, what's up?" },
+			{ "fav": true, "text": "You ever think about how eggs are just chickens that didn't happen? ...Wait, don't tell me. I don't wanna know." },
+			{ "text": "If I eat really slow, I can stay longer. That's strategy." },
+			{ "text": "I'm gonna nap after this. Not here. Probably." },
+			{ "text": "(His head nods, then snaps up.) I'm up! I'm up." }
+		],
+		"eating_chat": [
+			{ "text": "Hey [name], who's your team? Like, football team.", "choices": [
+				{ "tone": "warm", "text": "Whoever you're cheering for.", "reply": "Yesss! We're a team now. Team Chompy.", "mood": 0.05 },
+				{ "tone": "playful", "text": "The kitchen team. We're undefeated.", "reply": "(Laughs way too hard.) Undefeated! Ha! ...Wait, who do you play?", "mood": 0.05 },
+				{ "tone": "straight", "text": "I don't really watch football.", "reply": "That's okay. More football for me.", "mood": 0 },
+				{ "tone": "rude", "text": "Football's boring.", "reply": "(He stares at his plate.) ...You take that back. ...Please.", "mood": -0.05 }
+			] }
+		],
+		"leaving": [
+			{ "text": "That was a win. Big win. See ya, [name]." },
+			{ "text": "Okay, I gotta go do... nothing. It's a lot of work." },
+			{ "text": "Bye! Wait, did I pay? ...I paid. Okay. Bye!" }
+		],
+		"seasons": {
+			"autumn": "It's football season! It's always football season but now it's REALLY football season.",
+			"christmas": "I asked for a new jersey. I'm gonna get a jersey. I can feel it.",
+			"halloween": "I dressed up as a football player. (He's wearing his usual jersey.)",
+			"new_year": "My resolution is to do less. Wait, is that possible?",
+			"summer": "Patio season, baby. I'm gonna live out here.",
+			"winter": "It's cold. Alligators don't like cold. I'm wearing two jerseys."
+		}
+	}
 }

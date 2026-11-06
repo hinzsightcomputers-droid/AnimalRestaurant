@@ -10,5 +10,81 @@
 	"favorite_drink": "red_gull",
 	"seating": "",
 	"pairs": ["amy", "seth"],
-	"lines": {}
+	"lines": {},
+
+	"talk": {
+		"familiar_after": 4,
+		"arrival": [
+			{ "when": "first", "voice": "before", "text": "Hello. I'm Makayla. I drove in. ...What's your name? [name]. Thank you, [name]." },
+			{ "voice": "before", "text": "Hello. Table for one, please. Thank you." },
+			{ "voice": "before", "text": "Hi. Traffic was bad. Perhaps I should leave earlier. I'm here now." },
+			{ "voice": "before", "text": "Hello again. I like this place. Perhaps a bit too much. ...That's a compliment." },
+			{ "when": "familiar_moment", "voice": "familiar", "text": "Okay, I'm just gonna say it. I love it here. I've been holding that in. (She makes a silly face for the first time.)" },
+			{ "voice": "familiar", "fav": true, "text": "[name]! Hi! I drove an hour. For OMURICE. Worth it." },
+			{ "voice": "familiar", "text": "(She walks in, sees you, and crosses her eyes at you.) Hi." },
+			{ "voice": "familiar", "text": "I got lost on the way. I've been here like twenty times. I don't know how. (Covers her eyes.)" },
+			{ "voice": "familiar", "text": "Traffic was awful. I sang the whole way. Badly." },
+			{ "when": "last_great", "voice": "familiar", "fav": true, "text": "I told my whole team about your omurice. They don't believe me. I'm bringing proof." },
+			{ "when": "last_burnt", "voice": "familiar", "text": "Last time was a little burnt. (Laughs.) I ate it all, though. I always win." }
+		],
+		"order": [
+			{ "fav": true, "text": "Omurice, please. With a ketchup squiggle.", "choices": [
+				{ "tone": "warm", "text": "Always okay. I'll draw you a good one.", "reply": "Thank you.", "mood": 0.05, "familiar": { "reply": "A GOOD one? Okay, now I'm excited.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "I'll draw your face on it. Very serious face.", "reply": "Ha. Okay.", "mood": 0, "familiar": { "reply": "Ooh, good one, [name]. (She makes her most serious face.) Like this? (Then cracks up.)", "mood": 0.05 } },
+				{ "tone": "straight", "text": "One omurice. Coming up.", "reply": "Thank you.", "mood": 0 },
+				{ "tone": "rude", "text": "Ketchup's ketchup. Relax.", "reply": "(Covers her eyes.) ...Okay.", "mood": -0.05 }
+			] },
+			{ "text": "It's an hour drive from my place. I come anyway.", "choices": [
+				{ "tone": "warm", "text": "That means a lot. I'll make it worth it.", "reply": "You do. Every time.", "mood": 0.05, "familiar": { "reply": "You'd better! ...Kidding. You always do.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Want me to just deliver to you? Delivery Duck's your cousin, right?", "reply": "...He is not.", "mood": 0, "familiar": { "reply": "He is NOT my cousin! ...Perhaps he is. I don't know.", "mood": 0.05 } },
+				{ "tone": "straight", "text": "What can I get you?", "reply": "The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Seems like a waste of gas.", "reply": "(Covers her eyes.) ...I like it here, though.", "mood": -0.05 }
+			] },
+			{ "fav": true, "text": "Seth says he can eat a Big Breakfast faster than me. He can't.", "choices": [
+				{ "tone": "warm", "text": "My money's on you.", "reply": "(Completely flat.) Correct. (She's thrilled.)", "mood": 0.05 },
+				{ "tone": "playful", "text": "Want me to time you?", "reply": "Yes. Perhaps start now.", "mood": 0, "familiar": { "reply": "(She bursts out laughing.) Ooh, good one, [name].", "mood": 0.05 } },
+				{ "tone": "straight", "text": "Same order as usual?", "reply": "Yes. Omurice.", "mood": 0 },
+				{ "tone": "rude", "text": "Eating fast isn't a sport.", "reply": "(Covers her eyes.) ...It is to me.", "mood": -0.05 }
+			] }
+		],
+		"drink": {
+			"fallback": "No Red Gull? Water's fine. Hydration.",
+			"fallback_drink": "water",
+			"favourite": ["Red Gull, please. I have practice later."],
+			"other": "Something with electrolytes. Or perhaps not. Whatever."
+		},
+		"served": {
+			"perfect": { "text": "...Thank you. It's very nice.", "familiar": "(She gasps, then covers her mouth.) [name]. It's PERFECT." },
+			"great": { "fav": true, "text": "Thank you. Looks good.", "familiar": "Yesss. Look at that squiggle." },
+			"okay": { "text": "Thank you." },
+			"burnt": { "text": "(She covers her eyes. Peeks.) ...I'm still eating it." }
+		},
+		"eating": [
+			{ "voice": "before", "text": "It's good. Thank you." },
+			{ "voice": "before", "text": "Your restaurant is very clean. I noticed." },
+			{ "voice": "familiar", "text": "I just made a face at Seth through the window. He didn't see. I'm doing it again." },
+			{ "voice": "familiar", "text": "I knocked my drink over earlier. Nobody saw. (Covers her eyes.) You saw." },
+			{ "voice": "familiar", "text": "Amy talks so fast. I nod a lot. I catch perhaps half. It's still fun." }
+		],
+		"eating_chat": [
+			{ "text": "Do you play any sports? Honest answer.", "choices": [
+				{ "tone": "warm", "text": "Not really, but I'd come watch you play.", "reply": "...That's nice.", "mood": 0.05, "familiar": { "reply": "You'd come? Okay. I'll win for you.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Competitive omelette flipping. I'm undefeated.", "reply": "(Flat stare.) Ooh, good one, [name]. ...I challenge you. (She's delighted.)", "mood": 0, "familiar": { "reply": "(Flat stare.) Ooh, good one, [name]. ...I challenge you. (She's delighted.)", "mood": 0.05 } },
+				{ "tone": "straight", "text": "No, I'm always here.", "reply": "That makes sense.", "mood": 0 },
+				{ "tone": "rude", "text": "Sports are pointless.", "reply": "(Covers her eyes. Long pause.) ...Okay.", "mood": -0.05 }
+			] }
+		],
+		"leaving": [
+			{ "voice": "before", "text": "Thank you. Goodbye." },
+			{ "voice": "familiar", "text": "Okay, long drive home. Worth it. Bye, [name]!" },
+			{ "voice": "familiar", "text": "See you next time. I'll beat traffic. Perhaps. I never beat traffic." }
+		],
+		"seasons": {
+			"christmas": "I got you a sweatband. For the kitchen. You sweat a lot. ...That's a compliment.",
+			"halloween": "I came as a referee. (She blows a whistle at you. Completely flat.)",
+			"spring": "Season's starting. I'm going to win everything. Calmly.",
+			"summer": "It's so hot in my car. My seat burned me. (She covers her eyes.)",
+			"winter": "The roads were icy. I drove at, like, four kilometres an hour. Still came."
+		}
+	}
 }

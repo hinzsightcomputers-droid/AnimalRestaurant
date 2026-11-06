@@ -9,5 +9,82 @@
 	"favorite_drink": "gander_ale",
 	"seating": "patio",
 	"pairs": ["yaniv"],
-	"lines": {}
+	"lines": {},
+
+	"talk": {
+		"familiar_after": 8,
+		"rude_sets_back": 2,
+		"arrival": [
+			{ "when": "first", "voice": "before", "text": "(A nod.) Hey. Cody. Patio open? ...Cool. What's your name? [name]. Cool." },
+			{ "voice": "before", "text": "(A nod.) Hey." },
+			{ "voice": "before", "text": "Patio, if it's open." },
+			{ "voice": "before", "text": "Not bad in here." },
+			{ "when": "familiar_moment", "voice": "familiar", "text": "Hey, [name]. ...You know, I like coming here. Feels good. Anyway. Patio?" },
+			{ "voice": "familiar", "text": "[name]. What's up. You see the car? Go look at the car. I'll wait." },
+			{ "voice": "familiar", "fav": true, "text": "Yo. Long day. Pancakes are gonna fix it." },
+			{ "voice": "familiar", "text": "Good to see you, man. (He means it.)" },
+			{ "when": "last_great", "voice": "familiar", "fav": true, "text": "Your pancakes last time. I ate them slow on purpose. Didn't want them to end." },
+			{ "when": "last_burnt", "voice": "familiar", "text": "Last time was a little black. All good. I'm used to burnt. You should see my exhaust." }
+		],
+		"order": [
+			{ "fav": true, "text": "Pancakes. Honey.", "choices": [
+				{ "tone": "warm", "text": "Coming up. Good to see you, Cody.", "reply": "Cool. You too.", "mood": 0.05, "familiar": { "reply": "Always good to be here, [name].", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Want them stacked like a car jack?", "reply": "...Cool.", "mood": 0, "familiar": { "reply": "(A slow grin.) Now you're speaking my language.", "mood": 0.05 } },
+				{ "tone": "straight", "text": "Pancakes, honey. Got it.", "reply": "Thanks.", "mood": 0 },
+				{ "tone": "rude", "text": "You always order the same thing.", "reply": "(A shrug.) Okay.", "mood": -0.05 }
+			] },
+			{ "fav": true, "text": "Put new rims on the car this week.", "choices": [
+				{ "tone": "warm", "text": "I saw! They look amazing.", "reply": "Thanks. Yeah. (A small smile.)", "mood": 0.05, "familiar": { "reply": "You NOTICED? Okay, let me tell you about these rims.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Does it go faster now, or just look faster?", "reply": "Looks faster.", "mood": 0, "familiar": { "reply": "Both. Mostly looks. Okay, just looks.", "mood": 0.05 } },
+				{ "tone": "straight", "text": "Nice. What can I get you?", "reply": "Pancakes.", "mood": 0 },
+				{ "tone": "rude", "text": "Nobody cares about your car.", "reply": "I do. (He looks out the window at it.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "fav": true, "text": "You ever just sit by a fire and talk? No phone, no games. Just talk.", "choices": [
+				{ "tone": "warm", "text": "Not enough. Sounds perfect.", "reply": "Come down to the beach fire sometime after close. I'll be there.", "mood": 0.05 },
+				{ "tone": "playful", "text": "I work next to a stove all day. I've had enough fire.", "reply": "(Laughs.) Fair. Okay, fair.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Sometimes. Pancakes?", "reply": "Pancakes.", "mood": 0 },
+				{ "tone": "rude", "text": "Sounds boring.", "reply": "...Yeah. Maybe. (He goes quiet.)", "mood": -0.05 }
+			] }
+		],
+		"drink": {
+			"fallback": "No Gander Ale? Root Bear, I guess.",
+			"fallback_drink": "root_bear",
+			"favourite": ["Gander Ale. Cold."],
+			"other": "Whatever's cold."
+		},
+		"served": {
+			"perfect": { "fav": true, "text": "...That's really good.", "familiar": "Okay. That's the best stack I've ever seen. And I've seen a lot of stacks." },
+			"great": { "text": "Nice. Thanks." },
+			"okay": { "text": "Cool. Thanks." },
+			"burnt": { "text": "Little burnt. All good." }
+		},
+		"eating": [
+			{ "voice": "before", "text": "(He nods while chewing.)" },
+			{ "voice": "before", "text": "It's good." },
+			{ "voice": "familiar", "text": "I was fixing the car last night and the bumper just fell off. In my hands. I stood there holding a bumper for like five minutes." },
+			{ "voice": "familiar", "text": "Yaniv kept me up gaming till sunrise again. He talks the whole time. I just win." },
+			{ "voice": "familiar", "fav": true, "text": "This is a good spot. Patio, string lights, pancakes. Don't need much else." }
+		],
+		"eating_chat": [
+			{ "text": "Can I ask you something? You ever feel like you're doing too much?", "choices": [
+				{ "tone": "warm", "text": "All the time. It's nice to have someone ask.", "reply": "(A slow nod.) Take a break sometime.", "mood": 0.05, "familiar": { "reply": "Take a night off. Come to the fire. I mean it.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Only when Yaniv tells his stories.", "reply": "...Ha.", "mood": 0, "familiar": { "reply": "(He laughs properly.) Same, man. Same.", "mood": 0.05 } },
+				{ "tone": "straight", "text": "Sometimes.", "reply": "Yeah.", "mood": 0 },
+				{ "tone": "rude", "text": "Mind your own business.", "reply": "Okay. (He shrugs.)", "mood": -0.05 }
+			] }
+		],
+		"leaving": [
+			{ "voice": "before", "text": "(A nod.) See you." },
+			{ "voice": "familiar", "text": "Thanks, man. Good night." },
+			{ "voice": "familiar", "text": "Gonna go work on the car. Or sit in it. Probably sit in it." }
+		],
+		"seasons": {
+			"autumn": "Bonfire season. Finally.",
+			"christmas": "Got you an air freshener. For your car. You don't have a car? ...Hang it in the kitchen.",
+			"halloween": "I'm a mechanic. (He is wearing his usual clothes, with extra grease.)",
+			"spring": "Spring cleaning. For the car. Not the house.",
+			"summer": "Windows down weather. Best time of the year.",
+			"winter": "Car won't start in the cold. I'm walking everywhere. It's tragic."
+		}
+	}
 }

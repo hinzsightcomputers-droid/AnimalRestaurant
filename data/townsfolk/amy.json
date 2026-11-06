@@ -9,5 +9,83 @@
 	"favorite_drink": "fawnta",
 	"seating": "",
 	"pairs": ["iddy", "jessie", "makayla"],
-	"lines": {}
+	"lines": {},
+
+	"talk": {
+		"arrival": [
+			{ "when": "first", "text": "Hi! Oh my gosh, hi! I'm Amy! I've heard SO much about this place, okay, not that much, but some, and it's even cuter in person! What's your name? [name]? I love that! We're friends now. That's just how it is.", "fast": true },
+			{ "text": "[name]! Hi hi hi! Okay, I have SO much to tell you." },
+			{ "text": "Oh my gosh, it smells amazing in here. What did you DO?" },
+			{ "text": "Okay so you will NOT believe what happened on the way here, there was a squirrel and a cat and a bicycle and nobody got hurt but it was SO close!", "fast": true },
+			{ "text": "I'm here! Iddy says hi. Actually he said 'don't tell them I said hi.' Hi from Iddy!" },
+			{ "when": "last_great", "fav": true, "text": "I've been telling EVERYONE about your churros. Like, strangers. On the bus." },
+			{ "when": "last_burnt", "text": "Okay, honest? Last time was a little crispy. But I still love you!" },
+			{ "when": "away", "text": "Where WERE you? I came by and it was closed and I was SO worried!" },
+			{ "text": "Hi, [name]! ...We're good. Fresh start. Don't make me do that again.", "later": "After a crash-out yesterday" }
+		],
+		"order": [
+			{ "fav": true, "text": "Okay so I want churros, obviously, but I also want to try something new, but I always want churros, so maybe churros and then something new next time?", "fast": true, "choices": [
+				{ "tone": "warm", "text": "Churros it is. I'll make them extra good.", "reply": "Extra good! You're the BEST. Okay, churros!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Wait, wait. Say that again, slower.", "reply": "(Laughs.) Churros. Please. ...I talk fast, I know, Iddy says it all the time!", "mood": 0.05 },
+				{ "tone": "straight", "text": "So, churros?", "reply": "Yes! Churros!", "mood": 0 },
+				{ "tone": "rude", "text": "Ugh. Just pick something.", "reply": "", "mood": -0.05, "crash_out": true }
+			] },
+			{ "fav": true, "text": "Okay so did you hear? Miles is off on another trip, and Juno's back from college, and Odette was seen at the bakery downtown and she DIDN'T EVEN FINISH HER CROISSANT.", "choices": [
+				{ "tone": "warm", "text": "How do you know everything? Tell me more.", "reply": "People just tell me things! I'm a good listener. Okay, churros, and THEN more.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Gasp. Not the croissant.", "reply": "I KNOW! It was a whole scandal! ...It was a medium scandal.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Interesting. What can I get you?", "reply": "Churros! And I'll tell you the rest later.", "mood": 0 },
+				{ "tone": "rude", "text": "I don't care about gossip.", "reply": "", "mood": -0.05, "crash_out": true }
+			] },
+			{ "fav": true, "text": "Iddy and I are doing a cake tasting next week! He says he wants to 'be involved.' He means eat.", "choices": [
+				{ "tone": "warm", "text": "You two are so cute together.", "reply": "Stop! We ARE, though. Don't tell him I said that.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Want me to bake the cake? I'll make it hamster-sized.", "reply": "(Shrieks with laughter.) He would be SO offended! Do it!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Congrats. What are you having?", "reply": "Thank you! Churros, please!", "mood": 0 },
+				{ "tone": "rude", "text": "Good luck putting up with him.", "reply": "", "mood": -0.05, "crash_out": true }
+			] }
+		],
+		"drink": {
+			"fallback": "No Fawnta? That's okay! Lemonade! Pink if you have it! You don't. That's okay!",
+			"fallback_drink": "lemonade",
+			"favourite": ["Fawnta! It's bubbly. Like me!"],
+			"other": "Something fun! Surprise me!"
+		},
+		"served": {
+			"perfect": { "text": "OH MY GOSH. [name]. This is ART. I'm crying. I'm not crying. I'm a little crying." },
+			"great": { "fav": true, "text": "Yay! Look at them! They're perfect little churros!" },
+			"okay": { "text": "Yum! Thank you so much!" },
+			"burnt": { "text": "Okay, honest? A tiny bit burnt. But I love them anyway! Like Iddy!" }
+		},
+		"eating": [
+			{ "text": "Okay so Jessie and I are going shopping this weekend and she's going to make me buy something weird and I'm going to love it.", "fast": true },
+			{ "text": "Did you know Hazel knits sweaters for everyone in town? She asked my size! I'm SO excited." },
+			{ "text": "I love it here. Everyone's so nice. Well, MOST people." },
+			{ "text": "Seth said he could tell I was happy before I even walked in. How does he DO that?" },
+			{ "text": "Wait wait wait, is that a new decoration? It's so cute! Did you pick it? You have such good taste!", "fast": true }
+		],
+		"eating_chat": [
+			{ "text": "Okay so the thing is Iddy wants a volleyball-themed wedding and I want flowers and he said what about volleyballs WITH flowers and I said no and he said what about flowers shaped like volleyballs and I said absolutely not!", "fast": true, "choices": [
+				{ "tone": "warm", "text": "Flowers. Definitely flowers. It's your day too.", "reply": "THANK you! I knew you'd get it!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Wait, what?", "reply": "(Repeats it slowly.) He. Wants. Volleyballs. (Then she bursts out laughing.)", "mood": 0.05 },
+				{ "tone": "straight", "text": "Volleyball flowers sounds kind of fun.", "reply": "Don't you DARE tell him that!", "mood": 0 },
+				{ "tone": "rude", "text": "That's a lot of words.", "reply": "", "mood": -0.05, "crash_out": true }
+			] }
+		],
+		"leaving": [
+			{ "text": "Bye bye bye! Love you! Not in a weird way! In a friend way!" },
+			{ "text": "That was SO good. Okay, I'm going. I'm going! ...Okay, now I'm going." },
+			{ "text": "See you soon, [name]! I'll bring more news!" }
+		],
+		"seasons": {
+			"chef_birthday": "HAPPY BIRTHDAY! Oh my gosh, why didn't you TELL me?! I would've brought balloons!",
+			"christmas": "I got you something! It's a mug! It says 'world's best chef'! Well, it says 'world's best,' I ran out of room for 'chef.'",
+			"halloween": "Iddy and I did a couples costume! He's a cheese, I'm a mouse! He didn't want to be the cheese!",
+			"spring": "Wedding season is coming! I can feel it! Our wedding season!",
+			"summer": "Sun! Patio! Lemonade! Everything is perfect and I'm so happy!"
+		},
+		"crash_out": [
+			"Excuse me?? I come in here, I'm NICE to you, I tell you EVERYTHING, and that's what I get? Wow. Wow!",
+			"Okay. OKAY. I'm gonna eat my churros and I'm gonna be the bigger person. But I'm going to be FURIOUS about it.",
+			"Don't talk about Iddy like that. Only I get to talk about Iddy like that."
+		]
+	}
 }

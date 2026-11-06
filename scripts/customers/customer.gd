@@ -61,6 +61,7 @@ var greeting_introduces := false  # Their greeting tells you their name ("introd
 var order_line := ""          # What a regular says when ordering (empty = generic).
 var speech := ""              # The latest one-off line, e.g. when served or chatted with.
 var chatted := false          # A regular can be chatted with once while eating.
+var visit_mood := 0.0         # What a semi-regular's replies did for this visit's satisfaction.
 var learned_name := false     # A regular learned a chef's name this visit (for their goodbye).
 var talking := false:         # In a conversation: their wait and meal timers pause, so chatting is never punished.
 	set(value):
@@ -290,9 +291,10 @@ func emote(emotion: StringName) -> void:
 		emoted.emit(self, emotion)
 
 
-# A regular who's eating and hasn't been chatted with yet this visit.
+# A regular or semi-regular who's eating and hasn't been chatted with yet this visit.
 func can_chat() -> bool:
-	return is_regular() and state == State.EATING and not chatted and not _done_eating
+	var talks := is_regular() or (is_townsfolk() and TownsfolkTalk.has_talk(townsfolk_id))
+	return talks and state == State.EATING and not chatted and not _done_eating
 
 
 # The eating chat: say `line`, and no more chatting this visit.

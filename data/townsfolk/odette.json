@@ -9,5 +9,77 @@
 	"favorite_drink": "black_tea",
 	"seating": "booth",
 	"pairs": ["miles"],
-	"lines": {}
+	"lines": {},
+
+	"talk": {
+		"arrival": [
+			{ "when": "first", "text": "Good evening. Odette. I review restaurants. Please, do not change anything on my account. ...And you are? [name]. I will remember that." },
+			{ "text": "Good evening, [name]. A booth, if one is available." },
+			{ "text": "I have returned from my travels. The food there was... interesting. I am glad to be back." },
+			{ "text": "I am not here to review tonight. I am simply hungry. ...Mostly." },
+			{ "when": "last_great", "fav": true, "text": "I have thought about your croissants on two separate trains." },
+			{ "when": "last_burnt", "fav": true, "text": "Last time, the pastry was overdone. I expect you have corrected this." },
+			{ "when": "back", "text": "I have been away reviewing. Twelve restaurants. Yours remains... memorable." }
+		],
+		"order": [
+			{ "fav": true, "text": "The croissants. Tell me honestly: are they good today?", "choices": [
+				{ "tone": "warm", "text": "I'll make them for you with extra care.", "reply": "Care is the most important ingredient. Thank you.", "mood": 0.05 },
+				{ "tone": "playful", "text": "They're so good, you'll have to invent a new word.", "reply": "(The tiniest smile.) We shall see.", "mood": 0.05, "misses": { "reply": "I have plenty of words.", "mood": 0 } },
+				{ "tone": "straight", "text": "Yes. They're good today.", "reply": "Good. Honesty is rare. The croissants, then.", "mood": 0.05 },
+				{ "tone": "rude", "text": "They're fine. Just order.", "reply": "I see. (She writes for a long time.)", "mood": -0.05 }
+			] },
+			{ "text": "Do not mind the notebook. I write about everything. Even the weather.", "choices": [
+				{ "tone": "warm", "text": "I hope you write something nice about us.", "reply": "I write the truth. Your truth has been kind lately.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Can I see what you wrote about me?", "reply": "Absolutely not. (A tiny smile.)", "mood": 0.05, "misses": { "reply": "No.", "mood": 0 } },
+				{ "tone": "straight", "text": "What can I get you?", "reply": "The [dish], please. And black tea.", "mood": 0.05 },
+				{ "tone": "rude", "text": "Writing about the weather is weird.", "reply": "Perhaps. (She closes the notebook firmly.)", "mood": -0.05 }
+			] },
+			{ "fav": true, "text": "I dined at a very famous restaurant last week. Seven courses. I preferred your soup.", "choices": [
+				{ "tone": "warm", "text": "That means the world, coming from you.", "reply": "It was meant to. Do not let it go to your head.", "mood": 0.05 },
+				{ "tone": "playful", "text": "So we're officially better than famous?", "reply": "In soup. Only in soup.", "mood": 0.05, "misses": { "reply": "Let us not be hasty.", "mood": 0 } },
+				{ "tone": "straight", "text": "Thank you. What can I get you today?", "reply": "Croissants. Naturally.", "mood": 0.05 },
+				{ "tone": "rude", "text": "Why tell me that?", "reply": "Because it was true. (She doesn't say anything nice again this visit.)", "mood": -0.05 }
+			] }
+		],
+		"drink": {
+			"favourite": ["Black tea. Steeped properly, please."],
+			"other": "Water, with a slice of lemon if you have one. You do not. Plain water, then.",
+			"other_drink": "water"
+		},
+		"served_intro": "(She pauses perfectly still, takes one bite, taps her notebook once.)",
+		"served": {
+			"perfect": { "text": "...Exceptional. (She puts the pen down. She doesn't need it.)" },
+			"great": { "text": "Adequate. (Very high praise.)" },
+			"okay": { "text": "Acceptable." },
+			"burnt": { "text": "Interesting. (She writes for a long time.)" }
+		},
+		"eating": [
+			{ "text": "The lighting in here has improved. I noticed." },
+			{ "text": "You are watching me eat. I can feel it. Please, return to your work." },
+			{ "text": "This restaurant has a warmth most do not. That is not something you can cook." },
+			{ "fav": true, "text": "Miles took a photograph of my croissant before I could taste it. Infuriating. The photograph was excellent." },
+			{ "text": "(She's writing in her notebook. You catch the word 'lovely' before she closes it.)" }
+		],
+		"eating_chat": [
+			{ "fav": true, "text": "May I offer a small note? The plating could be more confident.", "choices": [
+				{ "tone": "warm", "text": "Thank you. I'll work on it.", "reply": "I know you will. That is why I told you.", "mood": 0.05 },
+				{ "tone": "playful", "text": "More confident? I'll give the croissants a pep talk.", "reply": "(She almost laughs.) Do.", "mood": 0.05, "misses": { "reply": "I am serious.", "mood": 0 } },
+				{ "tone": "straight", "text": "Noted.", "reply": "Good.", "mood": 0.05 },
+				{ "tone": "rude", "text": "Nobody asked for your notes.", "reply": "Many people do, in fact. But I see.", "mood": -0.05 }
+			] }
+		],
+		"leaving": [
+			{ "text": "Thank you, [name]. Until next time." },
+			{ "text": "I must catch a train. Keep the kitchen honest." },
+			{ "text": "That was... lovely. (She seems surprised she said it, and leaves quickly.)" }
+		],
+		"seasons": {
+			"autumn": "Autumn is the best season for pastry. I expect great things.",
+			"christmas": "For you. A recipe from my grandmother. Do not ruin it.",
+			"halloween": "I do not wear costumes. (She is wearing a tiny witch hat. She does not mention it.)",
+			"new_year": "My resolution is to be gentler in my reviews. I will begin next year.",
+			"spring": "Spring menus everywhere. Most are the same salad. Do better.",
+			"winter": "I am staying in town for the holidays. Do not tell the other restaurants."
+		}
+	}
 }

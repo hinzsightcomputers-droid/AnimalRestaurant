@@ -9,5 +9,78 @@
 	"favorite_drink": "moose_tain_dew",
 	"seating": "bar",
 	"pairs": ["cody"],
-	"lines": {}
+	"lines": {},
+
+	"talk": {
+		"arrival": [
+			{ "when": "first", "text": "HEY! Big fan of the place already. Yaniv. Sales. Don't worry, I'm off the clock. Mostly. And you are? [name]! [name], my friend, we're going to get along great." },
+			{ "text": "[name]! My favourite chef! Don't tell the other chefs. Actually, tell them. Healthy competition." },
+			{ "text": "Bar seat? Perfect. Best seat in the house. Best audience." },
+			{ "text": "I've been up since yesterday. Gaming marathon. I'm thriving. I think." },
+			{ "when": "back", "text": "I'M BACK. Three cities, two conferences, one very confusing hotel. Okay, sit down. Wait, you're working. Stand there and I'll tell you." },
+			{ "when": "night", "text": "Two AM and you're still open for calls? You and me, we're the same kind of people." },
+			{ "when": "last_great", "fav": true, "text": "Your fire noodles last time? I described them in a sales pitch. Closed the deal." },
+			{ "when": "last_burnt", "text": "Last time was a little toasty. I'm not complaining. I'm giving feedback. It's a sales thing." }
+		],
+		"order": [
+			{ "fav": true, "text": "Okay, okay, listen. Pitch me. Why should I order the fire noodles tonight?", "choices": [
+				{ "tone": "warm", "text": "Because I make them just the way you like them.", "reply": "Personal touch! That's how you close. Sold. Fire noodles.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Limited time offer. Only available tonight. And every night.", "reply": "(Booming laugh.) Urgency AND reliability! You should be in sales!", "mood": 0.05 },
+				{ "tone": "straight", "text": "They're good. Want them?", "reply": "Simple. Direct. I respect it. Yes.", "mood": 0 },
+				{ "tone": "rude", "text": "I'm not doing a pitch. Just order.", "reply": "Whoa, okay. Tough crowd tonight. (He orders and turns to the next customer.)", "mood": -0.05 }
+			] },
+			{ "fav": true, "text": "So remember where I left off? [story]. Okay, so THEN...", "choices": [
+				{ "tone": "warm", "text": "I've been waiting all week for this. Go on.", "reply": "(Delighted, he tells the next part. Ends on a cliffhanger.) ...And that's all you get today. Noodles, please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Is this the one with the goat?", "reply": "There's NO goat. ...There might be a goat later.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Tell me while I take your order.", "reply": "Multitasking! Okay, so... (He tells it fast.) Noodles.", "mood": 0 },
+				{ "tone": "rude", "text": "I don't care how it ends.", "reply": "Ouch. Okay. Noodles. (He saves the story for someone else.)", "mood": -0.05 }
+			] },
+			{ "fav": true, "text": "Card night last night. I was on a streak. Five hands in a row. Then I lost to a tortoise. A tortoise, [name].", "choices": [
+				{ "tone": "warm", "text": "Five in a row is still amazing.", "reply": "Thank you! See, you get it. Fire noodles.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Was it Olive? She's ruthless.", "reply": "It WAS Olive! How do you know? Is everyone losing to Olive?", "mood": 0.05 },
+				{ "tone": "straight", "text": "What can I get you?", "reply": "Fire noodles. And a Moose-tain Dew.", "mood": 0 },
+				{ "tone": "rude", "text": "Maybe you're just bad at cards.", "reply": "Wow. Okay. I'll take that to Olive.", "mood": -0.05 }
+			] }
+		],
+		"drink": {
+			"fallback": "No Moose-tain Dew? Coffee, then. Black. Like my sleep schedule.",
+			"fallback_drink": "coffee",
+			"favourite": ["Moose-tain Dew. The official drink of staying up too late."],
+			"other": "Whatever's got the most caffeine. Don't judge me."
+		},
+		"served": {
+			"perfect": { "text": "Okay. OKAY. Everybody look at this. This is what I'm talking about. Five stars. Ten stars." },
+			"great": { "text": "Now THAT'S a product I can sell." },
+			"okay": { "fav": true, "text": "Solid. Reliable. Good noodles." },
+			"burnt": { "text": "Little smoky! It's fine, I'll market it as 'flame-kissed.'" }
+		},
+		"eating": [
+			{ "text": "So I'm at this conference, right, and the guy next to me is ALSO a yak. Same hair. We were like mirrors. Anyway." },
+			{ "text": "I sold a fridge to a penguin last month. Hardest sale of my life. He kept saying 'I live in the cold.' I said 'Yes, but have you considered: drinks?'" },
+			{ "text": "Cody and I gamed till sunrise last night. He's really good. Don't tell him I said that." },
+			{ "when": "night", "text": "It's quiet. I love it when it's quiet. More room for my voice." },
+			{ "text": "(He's turned around on his stool and is telling a story to the customer behind him, who did not ask.)" }
+		],
+		"eating_chat": [
+			{ "text": "Real talk, [name]. Have you ever thought about expanding? Franchise? Yak-sized portions? I could sell this place in a heartbeat.", "choices": [
+				{ "tone": "warm", "text": "I like it small. But thanks for believing in it.", "reply": "Small and great. You know what, that's the better pitch.", "mood": 0.05 },
+				{ "tone": "playful", "text": "You're hired. Head of yak-sized portions.", "reply": "I ACCEPT. When do I start? I'm starting now.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Not right now.", "reply": "Fair. The offer stands. Forever.", "mood": 0 },
+				{ "tone": "rude", "text": "I'm not interested in your pitch.", "reply": "Okay, okay. Message received. (He goes quiet for the first time ever.)", "mood": -0.05 }
+			] }
+		],
+		"leaving": [
+			{ "text": "That's a wrap! Great service, great food, great audience. Bye, [name]!" },
+			{ "text": "Okay, I'm going home to game until the sun comes up. Don't tell my boss." },
+			{ "text": "To be continued... You'll have to come back. I mean, I'll come back. You're already here.", "later": "After a story part" },
+			{ "when": "leaving_town", "text": "Sales trip tomorrow. Three cities. If I don't come back, I've probably sold myself." }
+		],
+		"seasons": {
+			"christmas": "I got you a gift. It's a free subscription to my newsletter. There's no newsletter. I'll start one.",
+			"halloween": "I'm a salesman. (He is dressed exactly as usual.) The scariest costume of all.",
+			"new_year": "My resolution is to sleep. At night. Like a normal person. We'll see.",
+			"summer": "Summer conference season. I'll be gone a lot. Miss me. Don't replace me.",
+			"winter": "It's cold. I'm a yak. This is my weather. I'm wearing a t-shirt."
+		}
+	}
 }

@@ -9,5 +9,77 @@
 	"favorite_drink": "root_bear",
 	"seating": "bar",
 	"pairs": ["brandon"],
-	"lines": {}
+	"lines": {},
+
+	"talk": {
+		"arrival": [
+			{ "when": "first", "text": "Yo. Heard this place is good. We'll see. ...I'm Rush. Yeah, I know. Don't say it. What's your name? [name]. Cool." },
+			{ "text": "Yo, [name]. What's good, bro." },
+			{ "text": "I'm late? Nah, bro. Everyone else is early." },
+			{ "text": "Bar seat open? Perfect. Don't move me, I'm comfortable now." },
+			{ "text": "Bro. Made it. Barely. That counts.", "later": "Arriving right before the bell" },
+			{ "when": "last_great", "fav": true, "text": "Real talk, I thought about that pretzel all week. That's not normal. That's your fault." },
+			{ "when": "last_burnt", "text": "Last time? Burnt. I'm not gonna lie to you. I still ate it, though." },
+			{ "when": "away", "text": "You were closed? Bro, I came by. Once. That's a lot for me." }
+		],
+		"order": [
+			{ "fav": true, "text": "Bro, what's actually good today. Don't give me the polite answer.", "choices": [
+				{ "tone": "warm", "text": "For you? The pretzel. I'll make it right.", "reply": "See, bro, that's why I come here. Pretzel, extra cheese.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Honestly? The chef. But I'm not on the menu.", "reply": "(Stares. Then the goofy laugh starts.) Bro. BRO.", "mood": 0.05, "laugh_chain": true },
+				{ "tone": "straight", "text": "Everything's good. The [fav_dish] is your thing.", "reply": "Fair. Real answer. I respect it. The [dish].", "mood": 0.05 },
+				{ "tone": "rude", "text": "Just order. I don't have all day.", "reply": "Bro, relax. ...The [dish]. (He raises an eyebrow and lets it go.)", "mood": -0.05 }
+			] },
+			{ "fav": true, "text": "I almost didn't come. Couch was calling me. You should feel honoured.", "choices": [
+				{ "tone": "warm", "text": "I am honoured. Glad you made it.", "reply": "...Bro, that was nice. Don't make it weird. Pretzel, please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "The couch will understand. It's a big couch.", "reply": "It IS a big couch. Ha! (The laugh starts, quietly.)", "mood": 0.05 },
+				{ "tone": "straight", "text": "What can I get you?", "reply": "The [dish]. And a Root Bear.", "mood": 0.05 },
+				{ "tone": "rude", "text": "You could've stayed home.", "reply": "Wow. Okay. I'll remember that next time the couch asks.", "mood": -0.05 }
+			] },
+			{ "fav": true, "text": "You catch the game last night? Nah, you were working. I'll tell you. It was crazy.", "choices": [
+				{ "tone": "warm", "text": "Tell me everything.", "reply": "(He actually does, with hand gestures.) ...And THEN. Anyway. Pretzel.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Did they win, or did you fall asleep again?", "reply": "Fell asleep in the third. Woke up, they won. I'm good luck.", "mood": 0.05 },
+				{ "tone": "straight", "text": "I missed it. What are you having?", "reply": "Your loss, bro. The [dish].", "mood": 0.05 },
+				{ "tone": "rude", "text": "I don't care about basketball.", "reply": "That's crazy. Okay. The [dish].", "mood": -0.05 }
+			] }
+		],
+		"drink": {
+			"fallback": "No Root Bear? What is this. ...Koala-Cola, I guess.",
+			"fallback_drink": "koala_cola",
+			"favourite": ["Root Bear. Obviously."],
+			"other": "Whatever. Something cold."
+		},
+		"served": {
+			"perfect": { "text": "Oh, that's crazy. That's actually crazy. Okay. (Highest praise.)" },
+			"great": { "text": "Yeah, bro. That's the one." },
+			"okay": { "text": "It's good, bro. Not your best, but good." },
+			"burnt": { "text": "Bro. This is burnt. ...I'm still eating it. But it's burnt." }
+		},
+		"eating": [
+			{ "text": "Bro, real talk, this is the only place I leave the house for." },
+			{ "text": "Somebody at the table over there just dropped a whole fork and pretended it didn't happen. I saw you, man." },
+			{ "text": "I'm not saying I'm the best customer. I'm just saying name a better one." },
+			{ "text": "Bro, you ever just sit? Like, just sit? That's my whole hobby." },
+			{ "text": "(A customer near him spills something. Rush, quietly.) ...Nope. (Then the goofy laugh.)", "laugh_chain": true }
+		],
+		"eating_chat": [
+			{ "text": "Be honest. Am I your favourite customer?", "choices": [
+				{ "tone": "warm", "text": "Top three, easy.", "reply": "Top three? Who's above me? ...Nah, I'm messing. That's love.", "mood": 0.05 },
+				{ "tone": "playful", "text": "You're my favourite late customer.", "reply": "(The laugh explodes.) That's fair! That's so fair!", "mood": 0.05, "laugh_chain": true },
+				{ "tone": "straight", "text": "I don't pick favourites.", "reply": "Smart. That means yes.", "mood": 0.05 },
+				{ "tone": "rude", "text": "Not even close.", "reply": "Okay. Honest. I like that. (He's actually a little hurt but won't show it.)", "mood": -0.05 }
+			] }
+		],
+		"leaving": [
+			{ "text": "Aight, I'm out. Good stuff, bro." },
+			{ "text": "That was worth leaving the house. Barely. I'm kidding. Mostly." },
+			{ "text": "See you next time. Don't wait up." }
+		],
+		"seasons": {
+			"christmas": "I got you something. It's a card. I wrote 'thanks' in it. That's the whole card.",
+			"halloween": "I came as a raccoon. ...What? It's a costume if I say it is.",
+			"new_year": "My resolution? Show up on time. ...Next year's resolution, actually.",
+			"summer": "It's hot. I'm only out because of the pretzel. Know that.",
+			"winter": "Cold outside, warm couch at home, and I still came. That's loyalty."
+		}
+	}
 }

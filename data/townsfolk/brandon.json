@@ -9,5 +9,80 @@
 	"favorite_drink": "pupsi",
 	"seating": "booth",
 	"pairs": ["rush"],
-	"lines": {}
+	"lines": {},
+
+	"talk": {
+		"familiar_after": 5,
+		"arrival": [
+			{ "when": "first", "voice": "before", "text": "Hey. Brandon. Booth, if you've got one. ...What's your name? [name]. Cool. Thanks." },
+			{ "voice": "before", "text": "Hey. Booth, please." },
+			{ "voice": "before", "text": "Hi. Nice place." },
+			{ "voice": "before", "text": "Hey. Movie later. Thought I'd eat first." },
+			{ "when": "familiar_moment", "voice": "familiar", "text": "Hey, [name]. You know what this place needs? A sequel. ...I'm kidding. It's great. Okay, now I'm going to tease you forever." },
+			{ "voice": "familiar", "text": "[name]. Oh, you're still working here? Thought you'd been promoted to 'customer.'" },
+			{ "voice": "familiar", "text": "Three days until Captain Carrot 3. Three. Days." },
+			{ "voice": "familiar", "text": "Booth, please. My usual. You know the one. Don't pretend you don't." },
+			{ "when": "last_great", "voice": "familiar", "fav": true, "text": "Your pretzel last time? Ten out of ten. Strong opening. Great cheese." },
+			{ "when": "last_burnt", "voice": "familiar", "text": "Last time was a bit burnt. Plot twist. I'll allow it once." }
+		],
+		"order": [
+			{ "fav": true, "text": "Pretzel, please. With the cheese.", "choices": [
+				{ "tone": "warm", "text": "Extra cheese for you. Always.", "reply": "Thanks.", "mood": 0.05, "familiar": { "reply": "Extra cheese? Okay, you're officially my favourite chef. Don't let it go to your head.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Popcorn's not on the menu, if you were wondering.", "reply": "(A polite chuckle.)", "mood": 0, "familiar": { "reply": "Popcorn would make you a cinema. You're not ready for that responsibility.", "mood": 0.05 } },
+				{ "tone": "straight", "text": "One pretzel.", "reply": "Thanks.", "mood": 0 },
+				{ "tone": "rude", "text": "Same as always. Predictable.", "reply": "Hm. Okay.", "mood": -0.05 }
+			] },
+			{ "fav": true, "text": "You notice the shirt? Night Moose. First edition design.", "choices": [
+				{ "tone": "warm", "text": "Love it. Who's Night Moose?", "reply": "(He lights up and explains the whole origin story.) ...Anyway. Pretzel.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Is Night Moose the one with the antler cape?", "reply": "Ha. Close.", "mood": 0, "familiar": { "reply": "It's an ANTLER BOOMERANG. Did you even watch the movie? I'm disappointed in you.", "mood": 0.05 } },
+				{ "tone": "straight", "text": "Nice. What can I get you?", "reply": "The [dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Aren't you a bit old for superheroes?", "reply": "(Calmly.) Nope. (He doesn't elaborate.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "fav": true, "text": "Okay, real question. If you were a superhero, what would your power be?", "choices": [
+				{ "tone": "warm", "text": "Making people's day better, one plate at a time.", "reply": "...Okay, that was actually kind of good. I hate it. Pretzel.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Flipping pancakes with my mind.", "reply": "Captain Spatula. I'd watch that. Mid-budget. Cult classic.", "mood": 0.05 },
+				{ "tone": "straight", "text": "I don't know. Flying?", "reply": "Classic. Safe. Respectable.", "mood": 0 },
+				{ "tone": "rude", "text": "That's a childish question.", "reply": "Hm. Okay. (No more teasing this visit.)", "mood": -0.05 }
+			] }
+		],
+		"drink": {
+			"fallback": "No Pupsi? Koala-Cola, then. The knock-off. ...They're both knock-offs. Of each other.",
+			"fallback_drink": "koala_cola",
+			"favourite": ["Pupsi. The official drink of movie night."],
+			"other": "Something fizzy."
+		},
+		"served": {
+			"perfect": { "text": "...Wow. Thanks.", "familiar": "Okay. Standing ovation. I'm not standing. But in my heart." },
+			"great": { "text": "Strong entry." },
+			"okay": { "text": "Solid. Middle of the franchise." },
+			"burnt": { "text": "Burnt. This is the sequel nobody asked for." }
+		},
+		"eating": [
+			{ "voice": "before", "text": "It's good. Thanks." },
+			{ "voice": "familiar", "text": "You know, for a chef, you're pretty good at this. That's a joke. You're great. Mostly." },
+			{ "voice": "familiar", "text": "Rush fell asleep halfway through the Captain Carrot marathon. He says he didn't. He snored through the final battle." },
+			{ "voice": "familiar", "text": "I've seen every Night Moose movie four times. The fourth one is bad. I've seen it six times." },
+			{ "text": "The trailer for Captain Carrot 3 came out. I've watched it twelve times. There's a frame where you can see a carrot in the background. Huge." }
+		],
+		"eating_chat": [
+			{ "text": "Captain Carrot 3 comes out this week. Midnight showing. You should come.", "choices": [
+				{ "tone": "warm", "text": "I'd love to. Save me a seat.", "reply": "Cool. I will.", "mood": 0.05, "familiar": { "reply": "I'll save you a seat. I'll also judge how loud you eat popcorn.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Only if you don't explain every scene to me.", "reply": "Ha. Fair.", "mood": 0, "familiar": { "reply": "No promises. I have notes.", "mood": 0.05 } },
+				{ "tone": "straight", "text": "Can't. I close late.", "reply": "Fair. I'll tell you about it. In detail.", "mood": 0 },
+				{ "tone": "rude", "text": "I'd rather not.", "reply": "Hm. Okay.", "mood": -0.05 }
+			] }
+		],
+		"leaving": [
+			{ "voice": "before", "text": "Thanks. See you." },
+			{ "voice": "familiar", "text": "Good stuff, [name]. Two thumbs up. Okay, one and a half." },
+			{ "voice": "familiar", "text": "Movie time. Don't wait up. You weren't going to. I know." }
+		],
+		"seasons": {
+			"christmas": "Got you a superhero shirt. It's Captain Carrot. Wear it. I'll know if you don't.",
+			"halloween": "I'm Night Moose. (He is wearing antlers over his horns. Very serious.)",
+			"new_year": "My resolution is to watch less movies. ...Fewer movies. See? I'm already changing.",
+			"summer": "Summer blockbuster season. Best time of year.",
+			"winter": "It's cold. Perfect excuse to stay in and rewatch everything."
+		}
+	}
 }
