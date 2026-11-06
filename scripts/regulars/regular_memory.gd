@@ -203,8 +203,8 @@ static func dialogue_context(record: Dictionary, chef_id: String, extra: Diction
 		"weekday": GameClock.weekday_id(),
 		"day_phase": DayCycle.phase_id(),
 		"returned_after_away": days >= GameData.regular_settings.get("away_days", 3),
-		"favorite": GameData.get_dish(record["favorite_dish"]).get("name", ""),
-		"disliked": "" if record["disliked_dish"].is_empty() else GameData.get_dish(record["disliked_dish"]).get("name", ""),  # Some like everything (Zakk).
+		"favorite": _dish_name(record["favorite_dish"]),  # Either can be empty: Zakk likes everything.
+		"disliked": _dish_name(record["disliked_dish"]),
 		"seen_lines": record.get("seen_lines", []),
 		"friends": record.get("friends", []),
 		"relationships": _relationships(),  # Everyone's, for lines about another regular.

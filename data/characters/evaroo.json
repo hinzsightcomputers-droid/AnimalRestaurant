@@ -1,0 +1,234 @@
+{
+	"id": "evaroo",
+	"name": "Evaroo",
+	"species": "kangaroo",
+	"name_color": "#a8642a",
+	"color": "#c9a26e",
+	"voice": { "blips": "res://design/sound/sound_effects/text moving sound", "pitch": 0.85 },
+	"personality": ["sarcastic", "deadpan", "secretly_caring", "music_lover"],
+	"favorite_dish": "",
+	"favorite_drink": "banana_milk",
+	"birthday": "",
+	"disliked_dish": "",
+	"referral_only": false,
+	"stage_names": {
+		"4": "Bandmate", "3": "Backstage", "2": "Tolerating you", "1": "Critic",
+		"-1": "Flat", "-2": "Polite", "-3": "Headphones on", "-4": "Gone"
+	},
+	"tone_reactions": {
+		"1": { "warm": 0, "playful": 4, "straight": 3, "rude": -5 },
+		"2": { "warm": 1, "playful": 4, "straight": 3, "rude": -8 },
+		"3": { "warm": 3, "playful": 3, "straight": 3, "rude": -10 },
+		"4": { "warm": 3, "playful": 3, "straight": 2, "rude": -12 },
+		"negative": { "warm": 1, "playful": 0, "straight": 3, "rude": -6 }
+	},
+	"gone": {
+		"ask_friend": "Have you seen Evaroo lately? Could you talk to him for me?",
+		"goodbye_note": "Thank you for the food. —E",
+		"letter": {
+			"invented": true,
+			"needs": [["straight"], ["straight"]],
+			"reply": "Read your letter. It was honest. I hate that it worked. Coming by.",
+			"parts": [
+				{
+					"prompt": "How do you start?",
+					"choices": [
+						{ "tone": "straight", "text": "Evaroo, I was out of line." },
+						{ "tone": "warm", "text": "Evaroo, you're the best critic I've ever had." },
+						{ "tone": "playful", "text": "Ten out of ten for that exit." }
+					]
+				},
+				{
+					"prompt": "What do you tell him?",
+					"choices": [
+						{ "tone": "straight", "text": "I hurt you, and I'm sorry. That's all." },
+						{ "tone": "warm", "text": "This place isn't the same without you." },
+						{ "tone": "playful", "text": "The music's even worse now." }
+					]
+				}
+			]
+		}
+	},
+	"memory": {
+		"friends": [],
+		"notebook_chat": false,
+		"bear_chat": false,
+		"scared_chat": false
+	},
+	"lines": [
+		{ "event": "greeting", "priority": 300, "conditions": { "first_visit": true }, "introduces": true, "text": "Nice place. The music's rough, but the place is fine.", "emotion": "neutral" },
+		{ "event": "greeting", "priority": 300, "conditions": { "first_visit": true }, "introduces": true, "text": "I was told this was the good restaurant. We'll see.", "emotion": "neutral" },
+		{ "event": "greeting", "priority": 300, "conditions": { "first_visit": true }, "introduces": true, "text": "Table for one. Try to contain your excitement.", "emotion": "neutral" },
+
+		{ "event": "greeting", "priority": 260, "conditions": { "stage": 1, "days_since_last_visit": 14 }, "text": "Two weeks. I almost forgot what your cooking tasted like. Almost.", "emotion": "neutral" },
+		{ "event": "greeting", "priority": 260, "conditions": { "stage": 1, "days_since_last_visit": 14 }, "text": "Wow, you're back. Did the band break up, or did you?", "emotion": "neutral" },
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 1, "returned_after_away": true }, "text": "Oh, you're alive. I assumed you'd quit and I was weirdly fine with it.", "emotion": "neutral" },
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 1, "returned_after_away": true }, "text": "Back again. I'd say I missed this place, but that would be a lie. Mostly.", "emotion": "neutral" },
+		{ "event": "greeting", "priority": 220, "conditions": { "stage": 1, "last_quality_max": 0.4 }, "text": "Wow. Did you cook that last time or just find it?", "emotion": "neutral" },
+		{ "event": "greeting", "priority": 220, "conditions": { "stage": 1, "last_quality_max": 0.4 }, "text": "I've eaten worse. Not recently, though.", "emotion": "neutral" },
+		{ "event": "greeting", "priority": 220, "conditions": { "stage": 1, "last_quality_max": 0.4 }, "text": "Let's try that again, and this time, with feeling.", "emotion": "neutral" },
+		{ "event": "greeting", "priority": 210, "conditions": { "stage": 1, "last_quality_min": 0.7 }, "text": "Not bad last time. Don't let it go to your head.", "emotion": "neutral" },
+		{ "event": "greeting", "priority": 210, "conditions": { "stage": 1, "last_quality_min": 0.7 }, "text": "Fine. That was good. Happy now?", "emotion": "neutral" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 1, "dishes_unlocked": ["sushi"] }, "text": "Sushi's on the menu. Okay, you have my attention.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 1, "dishes_unlocked": ["sushi"] }, "text": "Sushi. Alright, maybe you do know what you're doing.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 1 }, "text": "Food's fine. The music, however.", "emotion": "neutral" },
+
+		{ "event": "greeting", "priority": 205, "conditions": { "min_stage": 1, "unlocked": "radio" }, "text": "Whoever picked this song owes me an apology.", "emotion": "neutral" },
+		{ "event": "greeting", "priority": 205, "conditions": { "min_stage": 1, "unlocked": "radio" }, "text": "Is this the best the speakers can do? Because it isn't.", "emotion": "neutral" },
+		{ "event": "greeting", "priority": 205, "conditions": { "min_stage": 1, "unlocked": "radio" }, "text": "Okay. This one's actually good. Don't tell anyone I said that.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 205, "conditions": { "min_stage": 1, "unlocked": "radio" }, "text": "Finally, someone with taste. Leave it on.", "emotion": "happy" },
+
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 2, "returned_after_away": true }, "text": "You were gone. I noticed. Don't make it a thing.", "emotion": "neutral" },
+		{ "event": "greeting", "priority": 220, "conditions": { "stage": 2, "last_quality_max": 0.4 }, "text": "Last time was burnt. Four out of ten. Down from six.", "emotion": "neutral" },
+		{ "event": "greeting", "priority": 210, "conditions": { "stage": 2, "last_quality_min": 0.7 }, "text": "Last meal was an eight. I'm telling you so you don't get lazy.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 2 }, "text": "It's me again. Act surprised.", "emotion": "neutral" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 2 }, "text": "Zakk says hi. I didn't want to pass that on, but he wouldn't stop.", "emotion": "neutral" },
+
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 3, "returned_after_away": true }, "text": "...You were gone a few days. The place felt off. Not saying I missed it. Just noting it.", "emotion": "shy" },
+		{ "event": "greeting", "priority": 220, "conditions": { "stage": 3, "last_quality_max": 0.4 }, "text": "Burnt last time. I'm telling you because I know you can do better. That's a compliment. Kind of.", "emotion": "neutral" },
+		{ "event": "greeting", "priority": 210, "conditions": { "stage": 3, "last_quality_min": 0.7 }, "text": "Last meal: nine. I wrote it in my notebook. Don't ask.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 3 }, "text": "...You're doing okay here. Don't make it weird.", "emotion": "shy" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 3 }, "text": "I'm not saying I like this place. I'm just here a lot. Draw your own conclusions.", "emotion": "neutral" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 3 }, "text": "(He doesn't put his headphones on at all today.)", "emotion": "neutral" },
+
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 4, "returned_after_away": true }, "text": "You disappeared. I had to eat Zakk's cooking. Never again.", "emotion": "neutral" },
+		{ "event": "greeting", "priority": 220, "conditions": { "stage": 4, "last_quality_max": 0.4 }, "text": "Burnt last time. Still a seven. You get points for being you.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 210, "conditions": { "stage": 4, "last_quality_min": 0.7 }, "text": "Last time was a ten. First ten I've ever given. Frame it.", "emotion": "joyful" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 4 }, "text": "[name]. Good. You're here. The music's still bad, but you're here.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 206, "conditions": { "stage": 4, "unlocked": "radio" }, "text": "I brought a playlist for your radio. You're welcome. It's a gift. Don't say anything.", "emotion": "shy" },
+
+		{ "event": "greeting", "id": "evaroo_quotes_you", "priority": 230, "once": true, "conditions": { "stage": -1, "has_rude_line": true }, "text": "You said \"[last_rude_line]\". Noted.", "emotion": "neutral" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": -1 }, "text": "Hi. Table for one.", "emotion": "neutral" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": -2 }, "text": "Good afternoon. Thank you for having me.", "emotion": "neutral" },
+
+		{ "event": "order", "id": "evaroo_order_1a", "priority": 200, "conditions": { "stage": 1 }, "text": "What's good here? And don't say 'everything.' Nobody's everything is good.", "emotion": "neutral",
+			"choices": [
+				{ "tone": "warm", "text": "I'll make you something really special.", "reply": "'Special.' Bold claim. The [dish].", "emotion": "neutral", "change": 0 },
+				{ "tone": "playful", "text": "Honestly? The napkins. Five stars.", "reply": "...Okay, that was almost funny. The [dish].", "emotion": "happy", "change": 4 },
+				{ "tone": "straight", "text": "The [dish]. It's what I make best.", "reply": "See, that's an answer. Fine.", "emotion": "neutral", "change": 3 },
+				{ "tone": "rude", "text": "Then go eat somewhere else.", "reply": "Wow. Cute. The [dish].", "emotion": "neutral", "change": -5 }
+			]
+		},
+		{ "event": "order", "id": "evaroo_order_1b", "priority": 200, "conditions": { "stage": 1 }, "text": "Who picks the music in here? Because I have notes.", "emotion": "neutral",
+			"choices": [
+				{ "tone": "warm", "text": "You can pick next time, if you want.", "reply": "...Don't tempt me.", "emotion": "neutral", "change": 1 },
+				{ "tone": "playful", "text": "It's my grandma's playlist. Be nice.", "reply": "Your grandma has terrible taste. Tell her I said hi.", "emotion": "happy", "change": 4 },
+				{ "tone": "straight", "text": "Me. What should I play instead?", "reply": "Finally, someone asks. Anything with a real drummer.", "emotion": "happy", "change": 3 },
+				{ "tone": "rude", "text": "Nobody asked for your notes.", "reply": "Nobody ever does.", "emotion": "neutral", "change": -5 }
+			]
+		},
+		{ "event": "order", "id": "evaroo_order_1c", "priority": 200, "conditions": { "stage": 1 }, "text": "Don't mind the headphones. I'm not ignoring you. I'm ignoring everyone, generally.", "emotion": "neutral",
+			"choices": [
+				{ "tone": "warm", "text": "That's okay. Order whenever you're ready.", "reply": "...Huh. Okay. Thanks.", "emotion": "confused", "change": 0 },
+				{ "tone": "playful", "text": "Good. I was going to ignore you first.", "reply": "...Okay, that's fair. Respect.", "emotion": "happy", "change": 4 },
+				{ "tone": "straight", "text": "What are you listening to?", "reply": "Stuff you haven't heard of. ...It's good, though.", "emotion": "neutral", "change": 3 },
+				{ "tone": "rude", "text": "Then take them off. It's rude.", "reply": "Wow. Cute. (He doesn't take them off.)", "emotion": "neutral", "change": -5 }
+			]
+		},
+		{ "event": "order", "id": "evaroo_order_2", "priority": 200, "conditions": { "stage": 2 }, "text": "Band practice was a disaster. Zakk dropped a drumstick into his own snack. Twice.", "emotion": "neutral",
+			"choices": [
+				{ "tone": "warm", "text": "Sounds like you needed a good meal, then.", "reply": "...Yeah. Maybe. The [dish].", "emotion": "shy", "change": 1 },
+				{ "tone": "playful", "text": "Twice? That's commitment.", "reply": "(A tiny snort, instantly denied.) I didn't laugh. The [dish].", "emotion": "happy", "change": 4 },
+				{ "tone": "straight", "text": "What happened after?", "reply": "He ate the snack. Drumstick and all. Basically.", "emotion": "neutral", "change": 3 },
+				{ "tone": "rude", "text": "Your band sounds terrible.", "reply": "Nine people disagree. Barely.", "emotion": "neutral", "change": -8 }
+			]
+		},
+		{ "event": "order", "id": "evaroo_order_3", "priority": 200, "conditions": { "stage": 3 }, "text": "My band's playing Friday. I'm not inviting you. But if you happened to show up, nobody would stop you.", "emotion": "shy",
+			"choices": [
+				{ "tone": "warm", "text": "I'd love to hear you play.", "reply": "...You'd hate it. It's all covers. Whatever.", "emotion": "shy", "change": 3 },
+				{ "tone": "playful", "text": "Will there be a drumstick in a snack?", "reply": "Probably. That's half the show.", "emotion": "happy", "change": 3 },
+				{ "tone": "straight", "text": "Why only covers?", "reply": "...Order first. I'll tell you later. Maybe.", "emotion": "neutral", "change": 3 },
+				{ "tone": "rude", "text": "Nobody wants to see that.", "reply": "Yeah. Nine people, remember?", "emotion": "neutral", "change": -10 }
+			]
+		},
+		{ "event": "order", "id": "evaroo_order_4", "priority": 200, "conditions": { "stage": 4 }, "text": "I've been working on something. A song. One of mine. Don't ask about it.", "emotion": "shy",
+			"choices": [
+				{ "tone": "warm", "text": "I won't ask. But I'm really proud of you.", "reply": "...You can't just say that. Ugh. Thank you.", "emotion": "shy", "change": 3 },
+				{ "tone": "playful", "text": "Is it about my soup?", "reply": "Partly. Don't let it go to your head.", "emotion": "happy", "change": 3 },
+				{ "tone": "straight", "text": "I'll be here whenever you want to share it.", "reply": "I know. That's kind of the problem.", "emotion": "shy", "change": 2 },
+				{ "tone": "rude", "text": "Probably won't be any good.", "reply": "(Long silence.) ...Wow.", "emotion": "neutral", "change": -12 }
+			]
+		},
+		{ "event": "order", "priority": 210, "conditions": { "stage": -1, "dishes_unlocked": ["sushi"] }, "text": "Sushi. Thanks.", "emotion": "neutral" },
+		{ "event": "order", "priority": 200, "conditions": { "stage": -1 }, "invented": true, "text": "[dish]. Thanks.", "emotion": "neutral" },
+
+		{ "event": "pick_for_me", "id": "evaroo_recommend", "priority": 200, "conditions": { "min_relationship": 40, "max_stage": 3 }, "text": "Sure. Whatever you recommend. I'll judge it either way.", "emotion": "neutral",
+			"reactions": {
+				"favorite": [{ "text": "Sushi. ...Fine. You've been paying attention. Don't let it go to your head.", "emotion": "happy", "change": 5 }],
+				"disliked": [{ "text": "Okay. Seven. Maybe eight. Don't push it.", "emotion": "neutral", "change": 1 }],
+				"other": [{ "text": "Okay. Seven. Maybe eight. Don't push it.", "emotion": "neutral", "change": 1 }]
+			}
+		},
+		{ "event": "pick_for_me", "id": "evaroo_surprise", "priority": 200, "conditions": { "stage": 4 }, "text": "I'll have the usual. If I had a usual. Surprise me.", "emotion": "neutral",
+			"reactions": {
+				"favorite": [{ "text": "Sushi. Okay. You win. You always win.", "emotion": "joyful", "change": 3 }],
+				"disliked": [{ "text": "Hm. Eight. ...Nine. Don't tell anyone.", "emotion": "happy", "change": 2 }],
+				"other": [{ "text": "Hm. Eight. ...Nine. Don't tell anyone.", "emotion": "happy", "change": 2 }]
+			}
+		},
+
+		{ "event": "learn_name", "id": "evaroo_learn_name", "priority": 200, "conditions": { "min_stage": 2, "knows_player_name": false }, "learns_name": true, "text": "Thanks, [name]. ...Ugh. I said your name. Forget that happened.", "emotion": "shy" },
+
+		{ "event": "drink_served", "priority": 220, "conditions": { "min_stage": 1, "served_drink": "coffee" }, "text": "This is bitter. Why is this bitter? Who did this to me?", "emotion": "angry" },
+		{ "event": "drink_served", "priority": 220, "conditions": { "min_stage": 1, "served_drink": "black_tea" }, "text": "This is bitter. Why is this bitter? Who did this to me?", "emotion": "angry" },
+		{ "event": "drink_served", "priority": 220, "conditions": { "min_stage": 1, "served_drink": "matcha_latte" }, "text": "This is bitter. Why is this bitter? Who did this to me?", "emotion": "angry" },
+		{ "event": "drink_served", "priority": 220, "conditions": { "min_stage": 1, "served_drink": "coffee" }, "text": "I'd say thank you, but my taste buds are filing a complaint.", "emotion": "neutral" },
+		{ "event": "drink_served", "priority": 220, "conditions": { "min_stage": 1, "served_drink": "black_tea" }, "text": "I'd say thank you, but my taste buds are filing a complaint.", "emotion": "neutral" },
+		{ "event": "drink_served", "priority": 220, "conditions": { "min_stage": 1, "served_drink": "matcha_latte" }, "text": "I'd say thank you, but my taste buds are filing a complaint.", "emotion": "neutral" },
+
+		{ "event": "served", "priority": 220, "conditions": { "min_stage": 1, "served_quality_min": 0.7 }, "text": "Fine. That looks good. Happy now?", "emotion": "happy" },
+		{ "event": "served", "priority": 220, "conditions": { "min_stage": 1, "served_quality_min": 0.4, "served_quality_max": 0.7 }, "text": "It's food. It's on a plate. Six out of ten.", "emotion": "neutral" },
+		{ "event": "served", "priority": 220, "conditions": { "min_stage": 1, "served_quality_max": 0.4 }, "text": "Charcoal. Interesting artistic choice.", "emotion": "neutral" },
+		{ "event": "served", "priority": 200, "conditions": { "stage": -2 }, "text": "Thank you very much. It looks lovely.", "emotion": "neutral" },
+
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "(He's wearing his headphones. When you walk up, he takes out one earbud.) Yes?", "emotion": "neutral" },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Soup: six. Lighting: four. You: pending.", "emotion": "neutral" },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "My band plays Fridays. Nine people come. Ten if Zakk's mom is in town.", "emotion": "neutral" },
+		{ "event": "eating_chat", "id": "evaroo_chat_2", "priority": 200, "conditions": { "stage": 2 }, "text": "I rate everything. Your turn. Rate me. Out of ten. Go.", "emotion": "neutral",
+			"choices": [
+				{ "tone": "warm", "text": "Ten. Easy.", "reply": "...Ew. Okay. That's. Okay. (He puts his headphones back on fast.)", "emotion": "shy", "change": 1 },
+				{ "tone": "playful", "text": "Six. Lighting's bad.", "reply": "Ha. Fair. Respect.", "emotion": "happy", "change": 4 },
+				{ "tone": "straight", "text": "Eight. You'd be ten if you smiled more.", "reply": "Bold. Wrong. But bold.", "emotion": "neutral", "change": 3 },
+				{ "tone": "rude", "text": "Two.", "reply": "Wow. Okay.", "emotion": "neutral", "change": -8 }
+			]
+		},
+		{ "event": "eating_chat", "id": "evaroo_chat_notebook", "priority": 200, "conditions": { "stage": 3 }, "set": { "notebook_chat": true }, "text": "I write songs. Like, a lot. We've never played one. Only covers.", "emotion": "shy",
+			"choices": [
+				{ "tone": "warm", "text": "I bet they're really good.", "reply": "...You don't know that. (A pause.) Thanks, though.", "emotion": "shy", "change": 3 },
+				{ "tone": "playful", "text": "Let me guess. They're all about how bad the music is in here.", "reply": "Only, like, three of them.", "emotion": "happy", "change": 3 },
+				{ "tone": "straight", "text": "Why not play them?", "reply": "Covers are safe. They're somebody else's feelings. Mine are... a lot.", "emotion": "sad", "change": 3 },
+				{ "tone": "rude", "text": "Probably for the best.", "reply": "(He closes the notebook and doesn't open it again.)", "emotion": "neutral", "change": -10 }
+			]
+		},
+		{ "event": "eating_chat", "id": "evaroo_chat_bear", "priority": 200, "conditions": { "stage": 3 }, "set": { "bear_chat": true }, "text": "People are jerks to that bear with the patches. I sat next to him at the park yesterday. Didn't say anything. Just sat there. ...Don't tell anyone.", "emotion": "shy" },
+		{ "event": "eating_chat", "id": "evaroo_chat_scared", "priority": 200, "conditions": { "stage": 3 }, "set": { "scared_chat": true }, "text": "You ever make something and get scared to show anyone? ...Forget I asked.", "emotion": "shy" },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "Hey. ...You're a ten. Don't make me say it twice.", "emotion": "shy" },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "I used to wear headphones everywhere so nobody would talk to me. Weird that I stopped here, huh?", "emotion": "shy" },
+
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 1 }, "text": "Bye. I'll be back. Probably. Don't wait up.", "emotion": "neutral" },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 1 }, "text": "Bye. I'll be back. Probably. Don't wait up. (His tip is hidden under the plate, and it's bigger than it needs to be.)", "emotion": "neutral" },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 2 }, "text": "Bye, [name]. ...I'm saying it on purpose now. Don't read into it.", "emotion": "shy" },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 3 }, "text": "See you, [name]. ...Thanks. For the food. And stuff.", "emotion": "shy" },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 4 }, "text": "See you tomorrow, [name]. That's not a promise. It's a fact.", "emotion": "happy" },
+
+		{ "event": "phone_greeting", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "invented": true, "text": "It's Evaroo." },
+		{ "event": "phone_order", "priority": 250, "conditions": { "min_stage": -4, "max_stage": -3, "memory": { "last_note": "straight" } }, "set": { "last_note": "" }, "text": "...Heard you. Still thinking." },
+		{ "event": "phone_order", "priority": 210, "conditions": { "min_stage": -4, "max_stage": -3, "dishes_unlocked": ["sushi"] }, "text": "Sushi. Delivered. Thanks." },
+		{ "event": "phone_order", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "invented": true, "text": "[dish]. Delivered. Thanks." },
+		{ "event": "phone_note", "id": "evaroo_phone_note", "priority": 200, "conditions": { "stage": -3 }, "invented": true, "text": "That's it.",
+			"choices": [
+				{ "tone": "straight", "text": "I was out of line. I'm sorry.", "change": 5, "set": { "last_note": "straight" } },
+				{ "text": "(Just send the food.)", "change": 0 }
+			]
+		},
+
+		{ "event": "return_scene", "id": "evaroo_return", "priority": 200, "text": "(He stands by the door with his headphones on, then takes them off.) So. I wrote a song about this place. It's not a nice one.", "emotion": "neutral",
+			"choices": [
+				{ "text": "I deserved that song. I'm sorry.", "reply": "...Yeah. You did. Thanks for saying it.", "emotion": "neutral", "change": 0 },
+				{ "text": "I'd like the chance to earn a better one.", "reply": "(A long pause.) That's a good line. Annoyingly good.", "emotion": "shy", "change": 0 },
+				{ "text": "Can I play something you like on the radio?", "reply": "...Fine. One song. Then we'll see.", "emotion": "neutral", "change": 0 }
+			]
+		},
+		{ "event": "return_closing", "id": "evaroo_return_closing", "priority": 200, "text": "Table for one. ...Try to contain your excitement. (His first joke in weeks.)", "emotion": "happy" }
+	]
+}

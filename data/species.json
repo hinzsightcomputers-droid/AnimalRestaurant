@@ -27,6 +27,7 @@
 		{ "id": "yak", "name": "Yak", "color": "#8f6640" },
 		{ "id": "coyote", "name": "Coyote", "color": "#c09560" },
 		{ "id": "bison", "name": "Bison", "color": "#6e4830" },
-		{ "id": "retriever", "name": "White Retriever", "color": "#f4efe4" }
+		{ "id": "retriever", "name": "White Retriever", "color": "#f4efe4" },
+		{ "id": "kangaroo", "name": "Kangaroo", "color": "#c9a26e" }
 	]
 }

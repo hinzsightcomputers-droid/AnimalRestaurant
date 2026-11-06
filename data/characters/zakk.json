@@ -98,7 +98,7 @@
 		{ "event": "greeting", "priority": 200, "conditions": { "stage": 4 }, "text": "I signed a lease, dude. Like, a whole year. Me. Wild.", "emotion": "excited" },
 
 		{ "event": "greeting", "id": "zakk_quotes_you", "priority": 230, "once": true, "conditions": { "stage": -1, "has_rude_line": true }, "text": "Hey, so... '[last_rude_line].' Been thinking about it. No worries, though. Seriously.", "emotion": "neutral" },
-		{ "event": "greeting", "priority": 200, "conditions": { "stage": -2 }, "text": "Can't stay long. Waves are calling.", "emotion": "neutral", "after": [{ "narration": "(They aren't. He checks his phone and puts it away.)" }] },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": -2 }, "text": "Can't stay long. Waves are calling. (They aren't. He checks his phone and puts it away.)", "emotion": "neutral" },
 
 		{ "event": "order", "id": "zakk_order_1a", "priority": 200, "conditions": { "stage": 1 }, "text": "What's good, dude? Actually, don't tell me. Everything's good. I'm easy.", "emotion": "happy",
 			"choices": [
@@ -178,7 +178,7 @@
 
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Ever surfed? You should. I'll teach you. Free lessons. Payment in stew.", "emotion": "excited" },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "I've been to, like, twenty beaches. This town's got a good one. Not the best one. But good.", "emotion": "happy" },
-		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "before": [{ "narration": "(He shows you his phone.)" }], "text": "Surf report says tomorrow's gonna be epic. Says that every day. Never right. Love it.", "emotion": "happy" },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "(He shows you his phone.) Surf report says tomorrow's gonna be epic. Says that every day. Never right. Love it.", "emotion": "happy" },
 		{ "event": "eating_chat", "id": "zakk_chat_2", "priority": 200, "conditions": { "stage": 2 }, "text": "You ever feel like you're supposed to be somewhere else? Like there's a better wave down the coast?", "emotion": "neutral",
 			"choices": [
 				{ "tone": "warm", "text": "Not really. I'm happy right here.", "reply": "...That sounds nice, man. Must be nice.", "emotion": "shy", "change": 3 },
@@ -203,7 +203,7 @@
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": -1 }, "text": "Just vibing today, man.", "emotion": "neutral" },
 
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 1 }, "text": "Catch you on the next wave, dude.", "emotion": "happy" },
-		{ "event": "farewell", "id": "zakk_bye_shell", "priority": 200, "conditions": { "stage": 1 }, "text": "Catch you on the next wave, dude.", "emotion": "happy", "after": [{ "narration": "(He leaves a seashell next to his tip.)" }] },
+		{ "event": "farewell", "id": "zakk_bye_shell", "priority": 200, "conditions": { "stage": 1 }, "text": "Catch you on the next wave, dude. (He leaves a seashell next to his tip.)", "emotion": "happy" },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 2 }, "text": "Later, [name]. Same wave, same time.", "emotion": "happy" },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 3 }, "text": "See you tomorrow, [name]. ...Huh. 'Tomorrow.' I never used to know where I'd be tomorrow.", "emotion": "happy" },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 4 }, "text": "Later, dude. I'll be here tomorrow. And the day after. Get used to it.", "emotion": "joyful" },
