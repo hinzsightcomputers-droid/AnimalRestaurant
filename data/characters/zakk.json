@@ -1,0 +1,230 @@
+{
+	"id": "zakk",
+	"name": "Zakk",
+	"species": "penguin",
+	"name_color": "#2f5f8a",
+	"color": "#2b2f3a",
+	"voice": { "blips": "res://design/sound/sound_effects/text moving sound", "pitch": 1.1 },
+	"personality": ["chill", "friendly", "never_angry"],
+	"favorite_dish": "fish_stew",
+	"favorite_drink": "lemonade",
+	"birthday": "",
+	"usual_table": "window",
+	"disliked_dish": "",
+	"referral_only": false,
+	"stage_names": {
+		"4": "Wave buddy", "3": "Crew", "2": "Local", "1": "Paddling out",
+		"-1": "Coasting", "-2": "Drifting", "-3": "Out of town", "-4": "Gone"
+	},
+	"tone_reactions": {
+		"1": { "warm": 3, "playful": 3, "straight": 2, "rude": -4 },
+		"2": { "warm": 3, "playful": 3, "straight": 2, "rude": -6 },
+		"3": { "warm": 3, "playful": 3, "straight": 2, "rude": -8 },
+		"4": { "warm": 2, "playful": 3, "straight": 2, "rude": -10 },
+		"negative": { "warm": 2, "playful": 2, "straight": 2, "rude": -4 }
+	},
+	"gone": {
+		"ask_friend": "Have you seen Zakk lately? Could you talk to him for me?",
+		"goodbye_note": "Waves are good out here. Didn't wanna make things weird back there. No worries, dude. Seriously. —Z",
+		"letter": {
+			"invented": true,
+			"needs": [["warm", "straight"], ["warm", "straight"]],
+			"reply": "Got your letter, dude. Read it on the beach. ...Coming back up. Save me a window seat.",
+			"parts": [
+				{
+					"prompt": "How do you start?",
+					"choices": [
+						{ "tone": "warm", "text": "Zakk, I'm sorry. No excuses." },
+						{ "tone": "straight", "text": "Zakk, I treated you badly." },
+						{ "tone": "playful", "text": "Hey, dude. Long time." }
+					]
+				},
+				{
+					"prompt": "What do you tell him?",
+					"choices": [
+						{ "tone": "warm", "text": "You have a place here. You always will." },
+						{ "tone": "straight", "text": "Your window seat's still open." },
+						{ "tone": "playful", "text": "The floors are way too clean without you." }
+					]
+				}
+			]
+		}
+	},
+	"memory": {
+		"friends": [],
+		"hometown_chat": false,
+		"driftwood_chat": false,
+		"never_mad_chat": false
+	},
+	"lines": [
+		{ "event": "greeting", "priority": 300, "conditions": { "first_visit": true }, "introduces": true, "text": "Whoa, nice spot, dude. Smells like a perfect swell in here. I'm Zakk.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 300, "conditions": { "first_visit": true }, "introduces": true, "text": "Hey, new place! Mind if I post up and catch some flavor? I'm Zakk.", "emotion": "excited" },
+		{ "event": "greeting", "priority": 300, "conditions": { "first_visit": true }, "introduces": true, "text": "Good vibes in here. I can already tell. I'm Zakk.", "emotion": "happy" },
+
+		{ "event": "greeting", "priority": 260, "conditions": { "stage": 1, "days_since_last_visit": 14 }, "text": "Dude, two whole weeks? I almost sent out a search party. Okay, not really. But I thought about it.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 260, "conditions": { "stage": 1, "days_since_last_visit": 14 }, "text": "Long time, man. The waves have been mellow, but the stew hasn't been the same.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 1, "returned_after_away": true }, "text": "Yo, been a minute! The tide's been low without you.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 1, "returned_after_away": true }, "text": "Look who washed back in! I was starting to wonder, dude.", "emotion": "excited" },
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 1, "returned_after_away": true }, "text": "Hey, you're back. Good to see you again, seriously.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 220, "conditions": { "stage": 1, "last_quality_max": 0.4 }, "text": "No worries about last time, man. Burnt's just extra crispy, right?", "emotion": "happy" },
+		{ "event": "greeting", "priority": 220, "conditions": { "stage": 1, "last_quality_max": 0.4 }, "text": "It's all good. Everybody wipes out sometimes.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 220, "conditions": { "stage": 1, "last_quality_max": 0.4 }, "text": "Hey, I'm not even mad. Can't be, it's not in me.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 210, "conditions": { "stage": 1, "last_quality_min": 0.7 }, "text": "That was gnarly good last time. I've been thinking about it all week.", "emotion": "excited" },
+		{ "event": "greeting", "priority": 210, "conditions": { "stage": 1, "last_quality_min": 0.7 }, "text": "Straight-up barrel-ride flavor. You've got a gift, dude.", "emotion": "joyful" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 1, "dishes_unlocked": ["favorite"] }, "text": "Wait, fish stew? You're the best, man.", "emotion": "excited" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 1, "dishes_unlocked": ["favorite"] }, "text": "Okay, now I'm definitely staying a while.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 1 }, "text": "Another good day. Another good wave.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 1 }, "text": "Cool place, cool people. Can't ask for more.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 1 }, "text": "Just gonna sit back and soak it in.", "emotion": "happy" },
+
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 2, "returned_after_away": true }, "text": "[name]! Thought you paddled off somewhere, dude.", "emotion": "excited" },
+		{ "event": "greeting", "priority": 220, "conditions": { "stage": 2, "last_quality_max": 0.4 }, "text": "Last one was a little crispy, man. Still ate it. No worries.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 210, "conditions": { "stage": 2, "last_quality_min": 0.7 }, "text": "Dude. Last time? Gnarly. I told, like, three people.", "emotion": "excited" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 2 }, "text": "You know, this place feels like home break now.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 2 }, "text": "I tell everyone about this spot. Everyone.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 2 }, "text": "[name]! My dude. What's cookin'? Literally.", "emotion": "excited" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 2 }, "text": "Funny thing. I was only gonna stay here a week. That was, like, a month ago.", "emotion": "happy" },
+
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 3, "returned_after_away": true }, "text": "There you are, man. I actually missed this place. Weird feeling. Good weird.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 220, "conditions": { "stage": 3, "last_quality_max": 0.4 }, "text": "Bit burnt last time, dude. Telling you 'cause you're crew now. Crew's honest.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 210, "conditions": { "stage": 3, "last_quality_min": 0.7 }, "text": "Last meal was so good I skipped a surf session for it. That's huge for me.", "emotion": "excited" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 3 }, "text": "[name]! Crew's here. And by crew I mean me.", "emotion": "excited" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 3 }, "text": "I cancelled a trip down the coast this week. Didn't feel like going. That's weird, right? That's weird for me.", "emotion": "confused" },
+
+		{ "event": "greeting", "priority": 250, "conditions": { "stage": 4, "returned_after_away": true }, "text": "Dude, where'd you go? I'm supposed to be the one who drifts off!", "emotion": "excited" },
+		{ "event": "greeting", "priority": 220, "conditions": { "stage": 4, "last_quality_max": 0.4 }, "text": "Burnt last time, dude. Don't care. I'd eat your burnt stuff forever.", "emotion": "happy" },
+		{ "event": "greeting", "priority": 210, "conditions": { "stage": 4, "last_quality_min": 0.7 }, "text": "Last time was the best meal I've had on any coast. Not even kidding.", "emotion": "joyful" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 4 }, "text": "[name]! My guy! Best spot on the whole coast, right here.", "emotion": "joyful" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": 4 }, "text": "I signed a lease, dude. Like, a whole year. Me. Wild.", "emotion": "excited" },
+
+		{ "event": "greeting", "id": "zakk_quotes_you", "priority": 230, "once": true, "conditions": { "stage": -1, "has_rude_line": true }, "text": "Hey, so... '[last_rude_line].' Been thinking about it. No worries, though. Seriously.", "emotion": "neutral" },
+		{ "event": "greeting", "priority": 200, "conditions": { "stage": -2 }, "text": "Can't stay long. Waves are calling.", "emotion": "neutral", "after": [{ "narration": "(They aren't. He checks his phone and puts it away.)" }] },
+
+		{ "event": "order", "id": "zakk_order_1a", "priority": 200, "conditions": { "stage": 1 }, "text": "What's good, dude? Actually, don't tell me. Everything's good. I'm easy.", "emotion": "happy",
+			"choices": [
+				{ "tone": "warm", "text": "I'll make you something really good, then.", "reply": "See? Good vibes. I knew it.", "emotion": "happy", "change": 3 },
+				{ "tone": "playful", "text": "Easy, huh? I'll bring you a bowl of sand.", "reply": "Ha! I've had worse, man. The [dish], please.", "emotion": "joyful", "change": 3 },
+				{ "tone": "straight", "text": "The [dish] is great today.", "reply": "Sold. No questions.", "emotion": "happy", "change": 2 },
+				{ "tone": "rude", "text": "Can you just pick something, please?", "reply": "Oh, totally, no worries. The [dish]. (Nothing in his voice changes.)", "emotion": "neutral", "change": -4 }
+			]
+		},
+		{ "event": "order", "id": "zakk_order_1b", "priority": 200, "conditions": { "stage": 1 }, "text": "Swell's tiny today. Perfect day to eat instead of surf.", "emotion": "happy",
+			"choices": [
+				{ "tone": "warm", "text": "Lucky for me, then.", "reply": "Lucky for both of us, dude.", "emotion": "happy", "change": 3 },
+				{ "tone": "playful", "text": "Can penguins even surf?", "reply": "That's what everyone back home said, man. Watch me.", "emotion": "joyful", "change": 3 },
+				{ "tone": "straight", "text": "What'll it be?", "reply": "The [dish]. Hit me.", "emotion": "happy", "change": 2 },
+				{ "tone": "rude", "text": "Nobody cares about the waves.", "reply": "Ha, fair. No worries.", "emotion": "neutral", "change": -4 }
+			]
+		},
+		{ "event": "order", "id": "zakk_order_1c", "priority": 200, "conditions": { "stage": 1 }, "text": "Oh, man, sorry about the sand. It just kinda follows me.", "emotion": "shy",
+			"choices": [
+				{ "tone": "warm", "text": "Don't worry about it. Sand means you've been somewhere fun.", "reply": "Ha. That's a nice way to see it, dude.", "emotion": "happy", "change": 3 },
+				{ "tone": "playful", "text": "I'm charging you a sweeping fee.", "reply": "Fair. Payment in seashells?", "emotion": "joyful", "change": 3 },
+				{ "tone": "straight", "text": "No problem. What can I get you?", "reply": "The [dish], man.", "emotion": "happy", "change": 2 },
+				{ "tone": "rude", "text": "Can you wipe your feet next time?", "reply": "Oh, totally. My bad, dude. No worries. (He picks a table farther in.)", "emotion": "neutral", "change": -4 }
+			]
+		},
+		{ "event": "order", "id": "zakk_order_2", "priority": 200, "conditions": { "stage": 2 }, "text": "I've been in town for a month now, dude. That's, like, a record for me.", "emotion": "happy",
+			"choices": [
+				{ "tone": "warm", "text": "I hope you stay a lot longer.", "reply": "...Huh. Nobody's ever said that to me, man.", "emotion": "shy", "change": 3 },
+				{ "tone": "playful", "text": "It's the food. You're trapped now.", "reply": "Delicious trap, dude. Best kind.", "emotion": "joyful", "change": 3 },
+				{ "tone": "straight", "text": "Where were you before this?", "reply": "Everywhere, man. Nowhere long. The [dish], please.", "emotion": "happy", "change": 2 },
+				{ "tone": "rude", "text": "Hope you leave soon.", "reply": "Ha. Yeah, probably. No worries. (He looks out the window for a while.)", "emotion": "neutral", "change": -6 }
+			]
+		},
+		{ "event": "order", "id": "zakk_order_3", "priority": 200, "conditions": { "stage": 3 }, "text": "I don't really stay places, you know? Stay too long, stuff gets heavy.", "emotion": "neutral",
+			"choices": [
+				{ "tone": "warm", "text": "Some heavy things are worth carrying.", "reply": "(A long pause.) ...Gonna think about that one, dude.", "emotion": "shy", "change": 4 },
+				{ "tone": "playful", "text": "Too late. You're a regular. It's in the paperwork.", "reply": "Ha! Can't argue with paperwork.", "emotion": "joyful", "change": 3 },
+				{ "tone": "straight", "text": "You've stayed here pretty long.", "reply": "Yeah. I noticed that too.", "emotion": "happy", "change": 2 },
+				{ "tone": "rude", "text": "Sounds like an excuse.", "reply": "Maybe it is, man. No worries. (He orders and doesn't say much else.)", "emotion": "neutral", "change": -8 }
+			]
+		},
+		{ "event": "order", "id": "zakk_order_4", "priority": 200, "conditions": { "stage": 4 }, "text": "I'm thinking about teaching surf lessons here. Like, staying-here staying. What do you think?", "emotion": "excited",
+			"choices": [
+				{ "tone": "warm", "text": "I think this town's lucky to have you.", "reply": "...You can't just say stuff like that, dude. I'll cry into my stew.", "emotion": "shy", "change": 2 },
+				{ "tone": "playful", "text": "Only if my lessons are free.", "reply": "Free forever, man. Payment in stew.", "emotion": "joyful", "change": 3 },
+				{ "tone": "straight", "text": "Do it. You'd be great.", "reply": "Yeah? Yeah. Okay. I'm doing it.", "emotion": "excited", "change": 2 },
+				{ "tone": "rude", "text": "Nobody would sign up.", "reply": "...Yeah. Probably not. No worries.", "emotion": "neutral", "change": -10 }
+			]
+		},
+		{ "event": "order", "priority": 200, "conditions": { "stage": -1 }, "text": "Hey. All good. Just the [dish], dude.", "emotion": "neutral" },
+
+		{ "event": "pick_for_me", "id": "zakk_recommend", "priority": 200, "conditions": { "min_relationship": 40, "max_stage": 3 }, "text": "What do you recommend, [name]? I trust you, man.", "emotion": "happy",
+			"reactions": {
+				"favorite": [{ "text": "Fish stew?! You get me, dude.", "emotion": "joyful", "change": 5 }],
+				"disliked": [{ "text": "Love it. You can't miss with me.", "emotion": "happy", "change": 2 }],
+				"other": [{ "text": "Love it. You can't miss with me.", "emotion": "happy", "change": 2 }]
+			}
+		},
+		{ "event": "pick_for_me", "id": "zakk_surprise", "priority": 200, "conditions": { "stage": 4 }, "text": "Surprise me, dude. Whatever you make, I'm stoked.", "emotion": "excited",
+			"reactions": {
+				"favorite": [{ "text": "Fish stew. The best. You're the best.", "emotion": "joyful", "change": 3 }],
+				"disliked": [{ "text": "Stoked. Totally stoked.", "emotion": "happy", "change": 2 }],
+				"other": [{ "text": "Stoked. Totally stoked.", "emotion": "happy", "change": 2 }]
+			}
+		},
+
+		{ "event": "learn_name", "id": "zakk_learn_name", "priority": 200, "conditions": { "min_stage": 2, "knows_player_name": false }, "learns_name": true, "text": "Hey, I never got your name, dude.", "emotion": "happy",
+			"choices": [
+				{ "text": "(Tell him your name.)", "reply": "...[name]. Rad. That's a good wave name.", "emotion": "happy", "change": 0 }
+			]
+		},
+
+		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_min": 0.7 }, "text": "Gnarly. Straight-up gnarly.", "emotion": "joyful" },
+		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_min": 0.4, "served_quality_max": 0.7 }, "text": "Solid, man. Solid.", "emotion": "happy" },
+		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_max": 0.4 }, "text": "Extra crispy. Love that for me.", "emotion": "happy" },
+		{ "event": "served", "priority": 200, "conditions": { "min_stage": 2 }, "text": "Thanks, [name]. You always make it look so easy.", "emotion": "happy" },
+
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Ever surfed? You should. I'll teach you. Free lessons. Payment in stew.", "emotion": "excited" },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "I've been to, like, twenty beaches. This town's got a good one. Not the best one. But good.", "emotion": "happy" },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "before": [{ "narration": "(He shows you his phone.)" }], "text": "Surf report says tomorrow's gonna be epic. Says that every day. Never right. Love it.", "emotion": "happy" },
+		{ "event": "eating_chat", "id": "zakk_chat_2", "priority": 200, "conditions": { "stage": 2 }, "text": "You ever feel like you're supposed to be somewhere else? Like there's a better wave down the coast?", "emotion": "neutral",
+			"choices": [
+				{ "tone": "warm", "text": "Not really. I'm happy right here.", "reply": "...That sounds nice, man. Must be nice.", "emotion": "shy", "change": 3 },
+				{ "tone": "playful", "text": "Only when I burn things.", "reply": "Ha! Then you'd never leave, dude.", "emotion": "joyful", "change": 3 },
+				{ "tone": "straight", "text": "Sometimes. But I chose to stay.", "reply": "Chose to stay. Huh. Never tried that.", "emotion": "neutral", "change": 2 },
+				{ "tone": "rude", "text": "Then go find it.", "reply": "Yeah. Maybe I should.", "emotion": "neutral", "change": -6 }
+			]
+		},
+		{ "event": "eating_chat", "id": "zakk_wink_1", "priority": 210, "once": true, "conditions": { "stage": 3 }, "text": "I knew this one kid, best surfer I ever saw. Came from some cold little town up north, can't remember the name. Rad dude though.", "emotion": "happy" },
+		{ "event": "eating_chat", "id": "zakk_wink_2", "priority": 205, "once": true, "conditions": { "stage": 3 }, "text": "I knew this one kid, best surfer I ever saw. Came from some cold little town up north, can't remember the name. Rad dude though.", "emotion": "happy" },
+		{ "event": "eating_chat", "id": "zakk_chat_hometown", "priority": 200, "conditions": { "stage": 3 }, "set": { "hometown_chat": true }, "text": "Grew up in this tiny cold town. Everybody fished. Nobody surfed. Penguins swim, man, we don't surf. That's what they all said.", "emotion": "neutral",
+			"choices": [
+				{ "tone": "warm", "text": "And you proved them all wrong.", "reply": "...Never thought of it like that. Thanks, dude.", "emotion": "shy", "change": 3 },
+				{ "tone": "playful", "text": "Their loss. Bet you surf better than all of them fish.", "reply": "Ha! That's not hard, man.", "emotion": "joyful", "change": 3 },
+				{ "tone": "rude", "text": "Maybe they had a point.", "reply": "Ha. Yeah. Maybe.", "emotion": "neutral", "change": -8 }
+			]
+		},
+		{ "event": "eating_chat", "id": "zakk_chat_driftwood", "priority": 200, "conditions": { "stage": 3 }, "set": { "driftwood_chat": true }, "text": "First board I ever had was a piece of driftwood. Still got it, actually. Carried it to every beach.", "emotion": "happy" },
+		{ "event": "eating_chat", "id": "zakk_chat_never_mad", "priority": 200, "conditions": { "stage": 3 }, "set": { "never_mad_chat": true }, "text": "People think I never get mad 'cause nothing bugs me. Nah. I just figured out holding on to stuff makes you sink.", "emotion": "neutral" },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "Funny thing about staying, dude. It doesn't feel heavy at all. Feels like floating.", "emotion": "happy" },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 4 }, "text": "You're the reason I unpacked. Like, actually unpacked. My stuff's in drawers now, man.", "emotion": "joyful" },
+		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": -1 }, "text": "Just vibing today, man.", "emotion": "neutral" },
+
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 1 }, "text": "Catch you on the next wave, dude.", "emotion": "happy" },
+		{ "event": "farewell", "id": "zakk_bye_shell", "priority": 200, "conditions": { "stage": 1 }, "text": "Catch you on the next wave, dude.", "emotion": "happy", "after": [{ "narration": "(He leaves a seashell next to his tip.)" }] },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 2 }, "text": "Later, [name]. Same wave, same time.", "emotion": "happy" },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 3 }, "text": "See you tomorrow, [name]. ...Huh. 'Tomorrow.' I never used to know where I'd be tomorrow.", "emotion": "happy" },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 4 }, "text": "Later, dude. I'll be here tomorrow. And the day after. Get used to it.", "emotion": "joyful" },
+
+		{ "event": "phone_greeting", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "text": "Hey, it's Zakk." },
+		{ "event": "phone_order", "priority": 250, "conditions": { "min_stage": -4, "max_stage": -3, "memory": { "last_note": "warm" } }, "set": { "last_note": "" }, "dish": "favorite", "text": "...I might, dude. Might." },
+		{ "event": "phone_order", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "dish": "favorite", "text": "Just the stew, delivered. I'm gonna catch a wave after. No worries." },
+		{ "event": "phone_order", "priority": 190, "conditions": { "min_stage": -4, "max_stage": -3 }, "invented": true, "text": "Just the [dish], delivered. No worries." },
+		{ "event": "phone_note", "id": "zakk_phone_note", "priority": 200, "conditions": { "stage": -3 }, "invented": true, "text": "That's it, dude. Later.",
+			"choices": [
+				{ "tone": "warm", "text": "Come by sometime. We miss you here.", "change": 5, "set": { "last_note": "warm" } },
+				{ "text": "(Just send the food.)", "change": 0 }
+			]
+		},
+
+		{ "event": "return_scene", "id": "zakk_return", "priority": 200, "text": "(Sand on his feet. Sunglasses down, which he never does.) Hey, dude. ...So. I came back. I never come back to places.", "emotion": "shy",
+			"choices": [
+				{ "text": "I'm sorry. I treated you badly, and you didn't deserve it.", "reply": "(He pushes his sunglasses up.) Thanks, man. That means a lot. Like, actually.", "emotion": "shy", "change": 0 },
+				{ "text": "You can tell me when I hurt you, you know.", "reply": "...Yeah. I'm not great at that. Gonna try.", "emotion": "shy", "change": 0 },
+				{ "text": "Your window seat's still open.", "reply": "...Yeah? Cool. Cool. (He sits down.)", "emotion": "happy", "change": 0 }
+			]
+		}
+	]
+}
