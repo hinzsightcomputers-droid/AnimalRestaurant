@@ -100,6 +100,16 @@ func update(delta: float, input: CookInput) -> void:
 			_finish_side()
 
 
+# For a reel: press on the ring, then draw the knife along the line.
+func scripted_hold(delta: float, input: CookInput) -> bool:
+	if _flipping or _side >= sides:
+		return false
+	if not _cutting:
+		return input.move_to(_point(_t), delta, 1.2) and not input.held
+	input.move_to(_point(minf(_t + 0.06, 1.0)), delta, 0.3)
+	return true
+
+
 func _finish_side() -> void:
 	_cutting = false
 	while _passed < dots:  # The last dots go with the end of the cut.

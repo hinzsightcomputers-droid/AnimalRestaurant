@@ -45,6 +45,7 @@ var _wander: Array[float] = []
 var _scores: Array[float] = []
 var _skin: StandardMaterial3D
 var _flesh_color := Color.WHITE
+var _scripted_stroke := false             # A reel's peeler is on its way along, pressed.
 
 
 func _init() -> void:
@@ -109,6 +110,19 @@ func cursor_area() -> Rect2:
 
 func cursor_height() -> float:
 	return _top()
+
+
+# For a reel: one straight stroke down the middle of each side, left to right.
+func scripted_hold(delta: float, input: CookInput) -> bool:
+	if _rolling or _side >= sides:
+		_scripted_stroke = false
+		return false
+	if not _scripted_stroke:
+		_scripted_stroke = input.move_to(Vector3(_left - peel_margin * 0.5, 0.0, _z), delta, 1.5)
+		return false
+	if input.move_to(Vector3(_right + peel_margin * 0.5, 0.0, _z), delta, 0.7):
+		_scripted_stroke = false
+	return true
 
 
 func update(delta: float, input: CookInput) -> void:

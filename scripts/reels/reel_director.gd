@@ -287,7 +287,9 @@ func _through_visit(house: House, chats: int) -> void:
 func _cook(beat: Dictionary) -> void:
 	var wanted: String = beat.get("station", "stove")
 	var stations := main.find_children("*", "CookingStation", true, false).filter(func(s): return s.station_id == wanted)
-	var station: CookingStation = stations.front()
+	if wanted == "board":
+		stations = main.find_children("*", "ChoppingBoard", true, false)
+	var station: Station = stations.front()
 	Engine.time_scale = float(beat.get("speed", 1.0))
 	_camera.close_up_fov = float(beat.get("fov", ReelCamera.CLOSE_UP_FOV))
 	_camera.close_up = true

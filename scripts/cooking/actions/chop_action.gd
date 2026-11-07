@@ -104,6 +104,13 @@ func update(delta: float, input: CookInput) -> void:
 		_chop()
 
 
+# For a reel: press right on each tick.
+func scripted_hold(_delta: float, _input: CookInput) -> bool:
+	if _chopping or _piece["marks"].is_empty():
+		return false
+	return fmod(_time, beat_seconds) < 0.04
+
+
 # Over the next mark, ready to come down.
 func _over_next() -> Vector3:
 	var marks: Array = _piece["marks"]

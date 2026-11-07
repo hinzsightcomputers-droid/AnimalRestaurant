@@ -63,6 +63,13 @@ func practice(player: Player, with_recipe: CookRecipe = null) -> void:
 		_open_closeup(player, null, with_recipe)
 
 
+# For a reel (see ReelDirector): `recipe` played well by itself, no order.
+func reel_cook(player: Player, with_recipe: CookRecipe, _dish: Dictionary) -> void:
+	practice(player, with_recipe)
+	session.input.scripted = true
+	session.big_hint()
+
+
 func _open_closeup(player: Player, ingredients: Ingredients, with_recipe: CookRecipe = null) -> void:
 	if with_recipe == null and ingredients != null:
 		with_recipe = CookRecipe.for_dish({ "recipe": ingredients.chop_recipe() })

@@ -1,0 +1,10 @@
+{
+	"title": "At the chopping board",
+	"meal": "lunch",
+	"regular": { "id": "cheddar", "relationship": 40, "first_visit": false },
+	"beats": [
+		{ "do": "cook", "recipe": "chopping", "station": "board", "speed": 1.4, "fov": 40 },
+		{ "do": "cook", "recipe": "filleting", "station": "board", "speed": 1.4, "fov": 40 },
+		{ "do": "end" }
+	]
+}
