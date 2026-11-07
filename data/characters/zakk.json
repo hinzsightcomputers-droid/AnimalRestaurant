@@ -215,6 +215,17 @@
 		{ "event": "eating_chat", "id": "zakk_befriends_cheddar", "priority": 230, "invented": true, "conditions": { "min_stage": 3, "regular_min_relationship": { "cheddar": 50 }, "friends_with": { "cheddar": false } }, "befriends": "cheddar", "text": "Cheddar tried surfing with me today, dude. He was terrible. Like, historically terrible. Rad guy.", "emotion": "joyful" },
 		{ "event": "eating_chat", "id": "zakk_befriends_mabel", "priority": 230, "invented": true, "conditions": { "min_stage": 3, "regular_min_relationship": { "mabel": 50 }, "friends_with": { "mabel": false } }, "befriends": "mabel", "text": "I called Mabel 'dude' today. She said I can't call her that. She was kinda smiling though, man.", "emotion": "happy" },
 
+		{ "event": "drink_order", "id": "zakk_drink_1", "priority": 100, "invented": true, "conditions": { "stage": 1, "wants_favorite": true }, "drink": "favorite", "text": "Got any lemonade, dude? Tastes like the beach. In a good way.", "emotion": "happy" },
+		{ "event": "drink_order", "id": "zakk_drink_1_other", "priority": 100, "invented": true, "conditions": { "stage": 1, "wants_favorite": false }, "drink": "other", "text": "Whatever's good, man. A [drink]? Sure, sounds rad.", "emotion": "happy" },
+		{ "event": "drink_order", "id": "zakk_drink_2", "priority": 100, "invented": true, "conditions": { "stage": 2, "wants_favorite": true }, "drink": "favorite", "text": "Lemonade, please, dude. Can't surf thirsty.", "emotion": "happy" },
+		{ "event": "drink_order", "id": "zakk_drink_2_other", "priority": 100, "invented": true, "conditions": { "stage": 2, "wants_favorite": false }, "drink": "other", "text": "Trying a [drink] today, dude. New wave, you know?", "emotion": "happy" },
+		{ "event": "drink_order", "id": "zakk_drink_3", "priority": 100, "invented": true, "conditions": { "stage": 3, "wants_favorite": true }, "drink": "favorite", "text": "The usual lemonade, dude. Extra ice if you've got it.", "emotion": "happy" },
+		{ "event": "drink_order", "id": "zakk_drink_3_other", "priority": 100, "invented": true, "conditions": { "stage": 3, "wants_favorite": false }, "drink": "other", "text": "Feeling a [drink] today, man.", "emotion": "happy" },
+		{ "event": "drink_order", "id": "zakk_drink_4", "priority": 100, "invented": true, "conditions": { "stage": 4, "wants_favorite": true }, "drink": "favorite", "text": "Lemonade, dude. You already know.", "emotion": "joyful" },
+		{ "event": "drink_order", "id": "zakk_drink_4_other", "priority": 100, "invented": true, "conditions": { "stage": 4, "wants_favorite": false }, "drink": "pick", "text": "Surprise me, dude. Ride whatever wave you want.", "emotion": "joyful" },
+		{ "event": "drink_order", "id": "zakk_drink_low", "priority": 100, "invented": true, "conditions": { "stage": -1 }, "drink": "favorite", "text": "Just a lemonade, dude. All good.", "emotion": "neutral" },
+		{ "event": "drink_order", "id": "zakk_drink_lower", "priority": 100, "invented": true, "conditions": { "max_stage": -2 }, "drink": "favorite", "text": "Lemonade's fine.", "emotion": "neutral" },
+
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 1 }, "text": "Catch you on the next wave, dude.", "emotion": "happy" },
 		{ "event": "farewell", "id": "zakk_bye_shell", "priority": 200, "conditions": { "stage": 1 }, "text": "Catch you on the next wave, dude. (He leaves a seashell next to his tip.)", "emotion": "happy" },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 2 }, "text": "Later, [name]. Same wave, same time.", "emotion": "happy" },
