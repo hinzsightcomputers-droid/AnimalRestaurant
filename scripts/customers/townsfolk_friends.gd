@@ -53,8 +53,7 @@ static func gossip_line(townsfolk_id: String, chef_id: String) -> String:
 	words["last_rude_line"] = news.get("line", "")
 	for entry in _entries(townsfolk_id):
 		if entry.get(news["tone"], "") == news["friend"] and TownsfolkTalk._usable(entry["text"], words):
-			var said := TownsfolkTalk.fill(entry["text"], words)
-			return RegEx.create_from_string("([.!?])\"\\.").sub(said, "$1\"", true)  # "Go away." not "Go away.".
+			return TownsfolkTalk.fill(entry["text"], words)
 	return ""
 
 

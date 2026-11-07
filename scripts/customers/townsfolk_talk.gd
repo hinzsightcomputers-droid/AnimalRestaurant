@@ -17,7 +17,15 @@
 # What this adds to GameState.townsfolk: seen (lines heard), warm (warm replies
 # by chef), setback (visits a rude reply cost), rude_last (chefs who were rude
 # last visit), last_rude_line, last_tier and last_dish (the last meal),
-# last_seen_unix, just_back and familiar_told.
+# last_seen_unix, just_back and familiar_told; cold (chef -> the day of a
+# crash-out) and grudge (chef -> the rude line they remember).
+#
+# A crash_out reply (Amy) makes them cold to that chef for the rest of the day:
+# their "cold" lines stand in for anything else they'd say, and next time they
+# have an "after_crash_out" arrival. A grudge reply (Seth) puts that chef on
+# their grudge list for good: "grudge" arrival and leaving lines, "grudge_drop"
+# words left out of the rest, and only the "only": "grudge" ordering
+# conversation, until an "apology" reply clears it.
 class_name TownsfolkTalk
 extends RefCounted
 
@@ -72,14 +80,40 @@ static func context(townsfolk_id: String, chef_id: String, dish: Dictionary = {}
 		words["drink"] = drink.get("name", "")
 	if state.has("last_rude_line"):
 		words["last_rude_line"] = state["last_rude_line"]
+	if has_grudge(townsfolk_id, chef_id):
+		words["last_rude_line"] = state["grudge"][chef_id]  # What they remember you saying.
 	return words
+
+
+# Cold to this chef after a crash-out today.
+static func is_cold(townsfolk_id: String, chef_id: String) -> bool:
+	return int(_state(townsfolk_id).get("cold", {}).get(chef_id, -1)) == GameState.day_number
+
+
+static func has_grudge(townsfolk_id: String, chef_id: String) -> bool:
+	return _state(townsfolk_id).get("grudge", {}).has(chef_id)
+
+
+# One of their cold lines.
+static func _cold_line(townsfolk_id: String) -> String:
+	var lines: Array = talk_of(townsfolk_id).get("cold", [])
+	return String(lines.pick_random()) if not lines.is_empty() else ""
+
+
+# `text` without their friendly words, for a chef they hold a grudge against.
+static func _grudging(townsfolk_id: String, chef_id: String, text: String) -> String:
+	if not has_grudge(townsfolk_id, chef_id):
+		return text
+	for words in talk_of(townsfolk_id).get("grudge_drop", []):
+		text = text.replace(words, "")
+	return text
 
 
 static func fill(text: String, words: Dictionary) -> String:
 	var result := text
 	for key in words:
 		result = result.replace("[%s]" % key, str(words[key]))
-	return result
+	return RegEx.create_from_string("([.!?])\"\\.").sub(result, "$1\"", true)  # A quote: "Go away." not "Go away.".
 
 
 # "" until all of a line's placeholders can be filled.
@@ -181,6 +215,16 @@ static func arrival(townsfolk_id: String, chef_id: String) -> String:
 		for line in lines:  # In any voice: a new chef still gets introduced.
 			if line.get("when", "") == "first":
 				return fill(line["text"], words)
+	if has_grudge(townsfolk_id, chef_id):
+		var cold := _for_moment(townsfolk_id, chef_id, lines, "grudge", words, last_dish)
+		if not cold.is_empty():
+			return fill(cold["text"], words)
+	var crashed: Dictionary = state.get("cold", {})
+	if crashed.has(chef_id) and int(crashed[chef_id]) < GameState.day_number:
+		crashed.erase(chef_id)
+		var fresh_start := _for_moment(townsfolk_id, chef_id, lines, "after_crash_out", words, last_dish)
+		if not fresh_start.is_empty():
+			return fill(fresh_start["text"], words)
 	var gossip := TownsfolkFriends.gossip_line(townsfolk_id, chef_id)
 	if not gossip.is_empty():
 		return gossip
@@ -256,6 +300,9 @@ static func pick_order(townsfolk_id: String, chef_id: String) -> Dictionary:
 	var words := context(townsfolk_id, chef_id, { "name": "dish" }, { "name": "drink" })
 	var pool: Array = talk_of(townsfolk_id).get("order", []).filter(func(talk_line):
 		return (can_have or not talk_line.get("fav", false)) and _can_converse(townsfolk_id, chef_id, talk_line, words))
+	var grudging := pool.filter(func(talk_line): return talk_line.get("only", "") == "grudge")
+	if not grudging.is_empty():
+		return grudging.pick_random()  # Every time, till you say sorry.
 	return _pick_unheard(townsfolk_id, pool)
 
 
@@ -268,7 +315,8 @@ static func _can_converse(townsfolk_id: String, chef_id: String, line: Dictionar
 			if not _time_now()["night"]:
 				return false
 		"grudge":
-			return false  # Seth's apology: comes with his grudge.
+			if not has_grudge(townsfolk_id, chef_id):
+				return false  # Seth's apology: only with his grudge.
 	if not _usable(line["text"], words):
 		return false
 	for choice in line.get("choices", []):
@@ -306,18 +354,27 @@ static func answer(townsfolk_id: String, chef_id: String, choice: Dictionary) ->
 				rude.append(chef_id)
 			state["setback"] = int(state.get("setback", 0)) + int(talk.get("rude_sets_back", 0))
 	TownsfolkFriends.heard(townsfolk_id, chef_id, String(choice.get("tone", "")), fill(String(choice.get("text", "")), context(townsfolk_id, chef_id)))
+	if choice.get("grudge", false) and not has_grudge(townsfolk_id, chef_id):
+		state.get_or_add("grudge", {})[chef_id] = fill(String(choice.get("text", "")), context(townsfolk_id, chef_id))
+	if choice.get("apology", false):
+		state.get("grudge", {}).erase(chef_id)
+	var emotion: StringName = &"sad" if mood < 0.0 else (&"happy" if mood > 0.0 else &"")
 	if choice.get("crash_out", false):
 		var lines: Array = talk.get("crash_out", [])
 		reply = String(lines.pick_random()) if not lines.is_empty() else ""
-	return { "reply": reply, "mood": mood, "emotion": &"sad" if mood < 0.0 else (&"happy" if mood > 0.0 else &"") }
+		state.get_or_add("cold", {})[chef_id] = GameState.day_number
+		emotion = &"angry"
+	return { "reply": reply, "mood": mood, "emotion": emotion }
 
 
 # What they say when the food lands, by how it came out (perfect, great, okay or
 # burnt). "" if they have nothing to say about this dish.
 static func served(townsfolk_id: String, chef_id: String, tier: String, dish: Dictionary) -> String:
 	var talk := talk_of(townsfolk_id)
+	if is_cold(townsfolk_id, chef_id):
+		return _cold_line(townsfolk_id)
 	var line: Dictionary = talk.get("served", {}).get(tier, {})
-	var text: String = line.get("text", "")
+	var text: String = _grudging(townsfolk_id, chef_id, line.get("text", ""))
 	if line.has("familiar") and is_familiar(townsfolk_id, chef_id):
 		text = line["familiar"]
 	if line.get("fav", false) and dish.get("id", "") != GameData.get_townsfolk(townsfolk_id).get("favorite_dish", ""):
@@ -336,6 +393,8 @@ static func eating(townsfolk_id: String, chef_id: String, dish: Dictionary) -> D
 	var words := context(townsfolk_id, chef_id, dish)
 	var dish_id: String = dish.get("id", "")
 	var favorite: String = GameData.get_townsfolk(townsfolk_id).get("favorite_dish", "")
+	if is_cold(townsfolk_id, chef_id):
+		return { "text": _cold_line(townsfolk_id) }
 	if randf() < _chance("eating_choice_chance", 0.35):
 		var chats: Array = talk.get("eating_chat", []).filter(func(line):
 			return (dish_id == favorite or not line.get("fav", false)) and _can_converse(townsfolk_id, chef_id, line, words))
@@ -359,8 +418,12 @@ static func leaving(townsfolk_id: String, chef_id: String, dish: Dictionary) -> 
 	var words := context(townsfolk_id, chef_id, dish)
 	var dish_id: String = dish.get("id", "")
 	var line := {}
+	if is_cold(townsfolk_id, chef_id):
+		return _cold_line(townsfolk_id)
+	if has_grudge(townsfolk_id, chef_id):
+		line = _for_moment(townsfolk_id, chef_id, lines, "grudge", words, dish_id)
 	var until := int(state.get("until", 0))
-	if until > 0 and until <= GameState.day_number + 1:
+	if line.is_empty() and until > 0 and until <= GameState.day_number + 1:
 		line = _for_moment(townsfolk_id, chef_id, lines, "leaving_town", words, dish_id)
 	if line.is_empty():
 		line = _pick_unheard(townsfolk_id, _pool(townsfolk_id, chef_id, lines, words, dish_id))

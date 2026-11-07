@@ -29,7 +29,7 @@
 			{ "when": "back", "text": "I'm back! We came second! Second's great! It's not first. But it's great!" },
 			{ "when": "last_great", "fav": true, "text": "Your breakfast last time? Best game I've ever played. Coincidence? No." },
 			{ "when": "last_burnt", "text": "Last time was a little burnt, buddy. All good. I still scored." },
-			{ "text": "Hey. ((No.) buddy. (He doesn't look at that chef.).)", "later": "With a grudge" }
+			{ "when": "grudge", "text": "Hey." }
 		],
 		"order": [
 			{ "fav": true, "text": "Big Breakfast, please! Fast as you can! No pressure! Some pressure.", "choices": [
@@ -51,6 +51,7 @@
 				{ "tone": "rude", "text": "Still sulking?", "reply": "I remember what you said. \"[last_rude_line]\". (He doesn't say anything else.)", "mood": -0.05 }
 			] }
 		],
+		"grudge_drop": ["BUDDY. ", ", buddy"],
 		"drink": {
 			"fallback": "No Gator Goo? Water, then. Lots of water. All the water.",
 			"fallback_drink": "water",
@@ -79,10 +80,10 @@
 			] }
 		],
 		"leaving": [
-			{ "text": "Gotta go! Game time! Thanks, [name]! (He's out the door before the bill's even printed. (He's already left the money.).)" },
+			{ "text": "Gotta go! Game time! Thanks, [name]! (He's out the door before the bill's even printed. He's already left the money.)" },
 			{ "text": "Wish me luck! Or don't, I'm gonna win anyway! Kidding! Wish me luck!" },
 			{ "when": "leaving_town", "text": "Tournament this week! I'll be gone a few days. Don't miss me too much!" },
-			{ "text": "Bye.", "later": "With a grudge" }
+			{ "when": "grudge", "text": "Bye." }
 		],
 		"seasons": {
 			"autumn": "Football season! Also the best season!",

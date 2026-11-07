@@ -29,7 +29,7 @@
 			{ "when": "last_great", "fav": true, "text": "I've been telling EVERYONE about your churros. Like, strangers. On the bus." },
 			{ "when": "last_burnt", "text": "Okay, honest? Last time was a little crispy. But I still love you!" },
 			{ "when": "away", "text": "Where WERE you? I came by and it was closed and I was SO worried!" },
-			{ "text": "Hi, [name]! ...We're good. Fresh start. Don't make me do that again.", "later": "After a crash-out yesterday" }
+			{ "when": "after_crash_out", "text": "Hi, [name]! ...We're good. Fresh start. Don't make me do that again." }
 		],
 		"order": [
 			{ "fav": true, "text": "Okay so I want churros, obviously, but I also want to try something new, but I always want churros, so maybe churros and then something new next time?", "fast": true, "choices": [
@@ -90,6 +90,7 @@
 			"spring": "Wedding season is coming! I can feel it! Our wedding season!",
 			"summer": "Sun! Patio! Lemonade! Everything is perfect and I'm so happy!"
 		},
+		"cold": ["Mm-hm.", "Thanks.", "I'm fine."],
 		"crash_out": [
 			"Excuse me?? I come in here, I'm NICE to you, I tell you EVERYTHING, and that's what I get? Wow. Wow!",
 			"Okay. OKAY. I'm gonna eat my churros and I'm gonna be the bigger person. But I'm going to be FURIOUS about it.",
