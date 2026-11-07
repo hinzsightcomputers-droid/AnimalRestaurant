@@ -233,6 +233,7 @@
 		{ "event": "served", "priority": 220, "conditions": { "min_stage": 1, "served_quality_min": 0.4, "served_quality_max": 0.7 }, "text": "It's food. It's on a plate. Six out of ten.", "emotion": "neutral" },
 		{ "event": "served", "priority": 220, "conditions": { "min_stage": 1, "served_quality_max": 0.4 }, "text": "Charcoal. Interesting artistic choice.", "emotion": "neutral" },
 		{ "event": "served", "priority": 200, "conditions": { "stage": -2 }, "text": "Thank you very much. It looks lovely.", "emotion": "neutral" },
+		{ "event": "served", "id": "evaroo_served_food_low", "priority": 200, "invented": true, "conditions": { "stage": -1 }, "text": "Thanks.", "emotion": "neutral" },
 
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "(He's wearing his headphones. When you walk up, he takes out one earbud.) Yes?", "emotion": "neutral" },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Soup: six. Lighting: four. You: pending.", "emotion": "neutral" },

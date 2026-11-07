@@ -176,6 +176,8 @@
 		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_min": 0.4, "served_quality_max": 0.7 }, "text": "Solid, man. Solid.", "emotion": "happy" },
 		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_max": 0.4 }, "text": "Extra crispy. Love that for me.", "emotion": "happy" },
 		{ "event": "served", "priority": 200, "conditions": { "min_stage": 2 }, "text": "Thanks, [name]. You always make it look so easy.", "emotion": "happy" },
+		{ "event": "served", "id": "zakk_served_food_low", "priority": 200, "invented": true, "conditions": { "stage": -1 }, "text": "Thanks, man.", "emotion": "neutral" },
+		{ "event": "served", "id": "zakk_served_food_lower", "priority": 200, "invented": true, "conditions": { "stage": -2 }, "text": "Thanks.", "emotion": "neutral" },
 
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Ever surfed? You should. I'll teach you. Free lessons. Payment in stew.", "emotion": "excited" },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "I've been to, like, twenty beaches. This town's got a good one. Not the best one. But good.", "emotion": "happy" },
