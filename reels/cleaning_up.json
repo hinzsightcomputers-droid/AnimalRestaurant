@@ -1,0 +1,11 @@
+{
+	"title": "Cleaning up",
+	"meal": "dinner",
+	"regular": { "id": "cheddar", "relationship": 40, "first_visit": false },
+	"beats": [
+		{ "do": "cook", "recipe": "clear_table", "station": "table", "table": "kitchen", "speed": 1.4, "fov": 45 },
+		{ "do": "cook", "recipe": "wipe_table", "station": "table", "table": "kitchen", "speed": 1.4, "fov": 45 },
+		{ "do": "cook", "recipe": "wash_dishes", "station": "sink", "speed": 1.4, "fov": 70 },
+		{ "do": "end" }
+	]
+}

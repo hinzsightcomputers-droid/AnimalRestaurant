@@ -1,0 +1,12 @@
+{
+	"title": "In the oven",
+	"meal": "lunch",
+	"regular": { "id": "cheddar", "relationship": 40, "first_visit": false },
+	"beats": [
+		{ "do": "cook", "recipe": "acorn_cookies", "station": "oven", "speed": 1.6, "fov": 40 },
+		{ "do": "cook", "recipe": "cherry_pie", "station": "oven", "speed": 1.6, "fov": 40 },
+		{ "do": "cook", "recipe": "egg_tarts", "station": "oven", "speed": 1.6, "fov": 40 },
+		{ "do": "cook", "recipe": "pork_dumplings", "station": "oven", "speed": 1.6, "fov": 40 },
+		{ "do": "end" }
+	]
+}

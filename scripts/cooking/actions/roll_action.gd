@@ -185,3 +185,19 @@ func _outline() -> void:
 			piece.position += _center
 			session.add_child(piece)
 			_dashes.append(piece)
+
+
+# --- For a reel -----------------------------------------------------------------
+
+var _scripted_way := 1.0
+
+
+# Back and forth, pressing, the way the sheet is furthest short.
+func scripted_hold(delta: float, input: CookInput) -> bool:
+	var fill := _goal()
+	var along_x := _size.x / fill.x < _size.y / fill.y
+	var reach := (fill.x if along_x else fill.y) * 0.35 * _scripted_way
+	var goal := _center + (Vector3(reach, 0.0, 0.0) if along_x else Vector3(0.0, 0.0, reach))
+	if input.move_to(goal, delta, 0.6):
+		_scripted_way = -_scripted_way
+	return true

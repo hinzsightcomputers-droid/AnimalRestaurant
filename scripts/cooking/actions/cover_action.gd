@@ -76,3 +76,10 @@ func _lay(spot: Vector2) -> void:
 # The top of the bottom piece and what's on it (the filling).
 func _covered_height() -> float:
 	return _bottom.position.y + CookSession.top_of(_bottom) + 0.01
+
+
+# For a reel: lined up right over the bottom.
+func scripted_hold(delta: float, input: CookInput) -> bool:
+	if _laying:
+		return false
+	return input.move_to(_bottom.position, delta, 0.6) and not input.held

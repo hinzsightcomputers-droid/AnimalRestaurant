@@ -201,3 +201,23 @@ func _round_up(cookie: MeshInstance3D) -> void:
 
 func _top() -> float:
 	return _top_y
+
+
+# For a reel: one press for each, spaced out evenly over the sheet.
+func scripted_hold(delta: float, input: CookInput) -> bool:
+	if _moving or _cut.size() >= cookies:
+		return false
+	return input.move_to(_scripted_spot(_cut.size()), delta, 1.0) and not input.held
+
+
+func _scripted_spot(i: int) -> Vector3:
+	var size: Vector2 = _sheet.get("size", Vector2.ONE * 0.3)
+	var center: Vector3 = _sheet.get("center", Vector3.ZERO)
+	var half := _half()
+	var across := clampi(floori(size.x / (half.x * 2.0)), 1, cookies)  # As many as fit side by side...
+	var rows := ceili(float(cookies) / across)
+	if rows > maxi(floori(size.y / (half.y * 2.0)), 1):  # ...unless the rows wouldn't fit: then spread them evenly.
+		across = maxi(ceili(sqrt(cookies * size.x / size.y)), 1)
+		rows = ceili(float(cookies) / across)
+	var cell := Vector2(size.x / across, size.y / rows)
+	return center + Vector3(-size.x * 0.5 + cell.x * (i % across + 0.5), 0.0, -size.y * 0.5 + cell.y * (i / across + 0.5))

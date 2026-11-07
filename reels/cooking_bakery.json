@@ -1,0 +1,12 @@
+{
+	"title": "From the bakery",
+	"meal": "breakfast",
+	"regular": { "id": "cheddar", "relationship": 40, "first_visit": false },
+	"beats": [
+		{ "do": "cook", "recipe": "croissant", "station": "oven", "speed": 1.6, "fov": 40 },
+		{ "do": "cook", "recipe": "soft_pretzel", "station": "oven", "speed": 1.6, "fov": 40 },
+		{ "do": "cook", "recipe": "apple_strudel", "station": "oven", "speed": 1.6, "fov": 40 },
+		{ "do": "cook", "recipe": "mochi", "station": "microwave", "speed": 1.6, "fov": 40 },
+		{ "do": "end" }
+	]
+}

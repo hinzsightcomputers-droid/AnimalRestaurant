@@ -185,3 +185,18 @@ func _add_streaks() -> void:
 
 func _on_sheet(cursor: Vector3) -> bool:
 	return cursor_area().grow(-0.03).has_point(Vector2(cursor.x, cursor.z))
+
+
+# For a reel: the turn, then take hold and flick each fold straight up.
+func scripted_hold(_delta: float, input: CookInput) -> bool:
+	if _busy:
+		return false
+	if not _turned:
+		return not input.held
+	if _folded >= folds:
+		return false
+	if _held:
+		input.flick = Vector2(0.0, -1.0)
+		return false
+	input.cursor = Vector3(_sheet["center"].x, input.height, _sheet["center"].z)
+	return not input.held

@@ -37,6 +37,7 @@ var _mouse_trail: Array = []   # [time, point on the surface] for the last momen
 var _mouse_flicked := false
 var _wait_for_release := true  # Until every button's been let go once.
 var _keys_down := {}           # Direction keys held at the last update (for _key_flick).
+var _scripted_step: CookAction = null  # The step a reel's hand was last on: a new one starts with the button up.
 
 
 func _init(session: CookSession, player_index: int, view_manager: ViewManager) -> void:
@@ -49,6 +50,10 @@ func update(delta: float) -> void:
 	if scripted:
 		flick = Vector2.ZERO
 		stick = Vector2.ZERO
+		if _session.current != _scripted_step:
+			_scripted_step = _session.current
+			_press(false)  # Let go between steps, so the next one's first press counts.
+			return
 		_press(_session.current != null and _session.current.scripted_hold(delta, self))
 		return
 	_time += delta

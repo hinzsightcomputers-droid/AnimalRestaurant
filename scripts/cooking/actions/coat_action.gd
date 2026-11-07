@@ -301,3 +301,53 @@ func _make_shaker() -> Node3D:
 	shaker.rotation.z = 2.6
 	session.add_child(shaker)
 	return shaker
+
+
+# --- For a reel -----------------------------------------------------------------
+
+var _scripted_route: Array = []            # [point, paint?] in order.
+var _scripted_next := 0
+var _scripted_speed := 0.5
+
+
+# Back and forth over each piece (or the patch), let go between them, done once
+# there's enough on.
+func scripted_hold(delta: float, input: CookInput) -> bool:
+	if each_some and _touched.size() >= _cookies.size():
+		return false
+	if not each_some and _coverage() >= target_coverage:
+		return false
+	if _scripted_route.is_empty():
+		_scripted_route = _scripted_plan()
+	var stop: Array = _scripted_route[_scripted_next % _scripted_route.size()]
+	if input.move_to(stop[0], delta, _scripted_speed if stop[1] else 1.2):
+		_scripted_next += 1
+	return stop[1]
+
+
+func _scripted_plan() -> Array:
+	var areas := []  # [middle, half size]
+	if not on_surface.is_empty():
+		areas.append([session.surface(on_surface).position, patch * 0.5 * 0.85])
+	else:
+		for cookie: MeshInstance3D in _cookies:
+			areas.append([cookie.position, CookSession.half_of(cookie) * 0.7])
+	var step := blob_radius * (2.4 if tool == "shaker" else 1.8)
+	var route := []
+	var painted := 0.0
+	for area in areas:
+		var middle: Vector3 = area[0]
+		var half: Vector2 = area[1]
+		var rows := maxi(ceili(half.y * 2.0 / step), 2)
+		for row in rows:
+			var z := middle.z - half.y + half.y * 2.0 * row / (rows - 1)
+			var x_from := -half.x if row % 2 == 0 else half.x
+			if row == 0:
+				route.append([Vector3(middle.x + x_from, 0.0, z), false])
+			else:
+				route.append([Vector3(middle.x + x_from, 0.0, z), true])
+				painted += half.y * 2.0 / (rows - 1)
+			route.append([Vector3(middle.x - x_from, 0.0, z), true])
+			painted += half.x * 2.0
+	_scripted_speed = clampf(painted / (seconds * 0.8), 0.2, 1.0)
+	return route

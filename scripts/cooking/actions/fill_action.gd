@@ -324,3 +324,12 @@ func _add_rim(cookie: MeshInstance3D) -> void:
 	rim.scale = Vector3(1.0, rim_height / (radius * 0.16), 1.0)
 	rim.position.y = CookSession.top_of(cookie) + rim_height * 0.5
 	cookie.add_child(rim)
+
+
+# For a reel: pour, and let go right at the line.
+func scripted_hold(_delta: float, input: CookInput) -> bool:
+	if _settling > 0.0:
+		return false
+	if not _pouring:
+		return not input.held
+	return _fill < 0.98

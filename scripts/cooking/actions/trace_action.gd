@@ -321,3 +321,13 @@ static func _even(points: Array[Vector2], count: int) -> Array[Vector2]:
 		var span := lengths[j + 1] - lengths[j]
 		even.append(points[j].lerp(points[j + 1], (want - lengths[j]) / span if span > 0.0 else 0.0))
 	return even
+
+
+# For a reel: press on the ring, then follow the dots.
+func scripted_hold(delta: float, input: CookInput) -> bool:
+	if _moving or _index >= _cookies.size():
+		return false
+	if not _tracing:
+		return input.move_to(_point3(_t), delta, 1.0) and not input.held
+	input.move_to(_point3(minf(_t + 0.03, 1.0)), delta, 0.25)
+	return true

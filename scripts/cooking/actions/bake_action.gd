@@ -188,3 +188,8 @@ func _bar(box_size: Vector3, x: float, color: Color, y: float) -> MeshInstance3D
 	node.position = Vector3(x, y, 0.0)
 	_meter.add_child(node)
 	return node
+
+
+# For a reel: out right in the middle of golden.
+func scripted_hold(_delta: float, _input: CookInput) -> bool:
+	return _phase == 1 and not (leave_in and not claimed) and _done >= (band.x + band.y) * 0.5

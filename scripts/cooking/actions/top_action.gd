@@ -172,3 +172,11 @@ func _make_dollop() -> Node3D:
 	dollop.mesh = mesh
 	session.add_child(dollop)
 	return dollop
+
+
+# For a reel: one in the middle of each.
+func scripted_hold(delta: float, input: CookInput) -> bool:
+	for cookie: MeshInstance3D in _cookies:
+		if not _topped.has(cookie):
+			return input.move_to(cookie.position, delta, 1.0) and not input.held
+	return false

@@ -240,3 +240,33 @@ func _build_sponge() -> void:
 		_sponge.add_child(pad)
 	_sponge.visible = false
 	session.add_child(_sponge)
+
+
+# --- For a reel -----------------------------------------------------------------
+
+var _scripted_angle := 0.0
+
+
+# Each dish: out of the bin into the sink, small circles over each grime spot,
+# then onto the rack.
+func scripted_hold(delta: float, input: CookInput) -> bool:
+	if _busy:
+		return false
+	match _phase:
+		Phase.PICK:
+			if _carrying:
+				return not input.move_to(session.surface(sink_surface).position, delta, 0.9)
+			return input.move_to(session.surface(bin_surface).position, delta, 1.0) and not input.held and _bin.top() != null
+		Phase.SCRUB:
+			for entry in _spots:
+				if entry["dirt"] > 0.0:
+					_scripted_angle += delta * 12.0
+					var round_it := Vector3(cos(_scripted_angle), 0.0, sin(_scripted_angle)) * spot_radius
+					input.move_to(_dish.position + entry["offset"] + round_it, delta, 0.8)
+					return true
+			return false
+		Phase.RACK:
+			if _carrying:
+				return not input.move_to(session.surface(rack_surface).position, delta, 0.9)
+			return input.move_to(_dish.position, delta, 1.0) and not input.held
+	return false

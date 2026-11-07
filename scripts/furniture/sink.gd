@@ -170,3 +170,15 @@ func _refresh() -> void:
 func _slot(index: int) -> Vector3:
 	var step := rack_width / maxf(rack_slots - 1, 1)
 	return rack_spot + Vector3(-rack_width * 0.5 + index * step, 0.12, 0.0)
+
+
+# For a reel (see ReelDirector): wash the bin in their hands, played well by
+# itself; with none (or an empty one), a bin of two dirty plates.
+func reel_cook(player: Player, _recipe: CookRecipe, _dish: Dictionary) -> void:
+	var bin := player.held_item as DishBin
+	if bin == null or bin.dishes.is_empty():
+		bin = DishBin.new()
+		bin.dishes.append_array([DiningTable.PLATE_MODEL, DiningTable.PLATE_MODEL])
+	_open_closeup(player, bin)
+	session.input.scripted = true
+	session.big_hint()

@@ -188,3 +188,29 @@ func _update_interactable() -> void:
 	interactable.enabled = true
 	interactable.prompt = "Clear dishes" if not dishes.is_empty() else "Wipe table"
 	interactable.priority = 0 if is_clean() else 1  # A mess to clean beats its own chairs, close by.
+
+
+# For a reel (see ReelDirector): clear it (clear_recipe) or wipe it, played well
+# by itself. A clean table gets a mess first: a dirty dish at each chair.
+func reel_cook(player: Player, recipe: CookRecipe, _dish: Dictionary) -> void:
+	if recipe == clear_recipe:
+		if dishes.is_empty():
+			_reel_mess()
+		var bin := player.held_item as DishBin
+		_open_closeup(player, clear_recipe, bin if bin != null else DishBin.new())
+	else:
+		if spills.is_empty():
+			_reel_mess()
+			dishes.clear()
+		_open_closeup(player, wipe_recipe, null)
+	session.input.scripted = true
+	session.big_hint()
+
+
+func _reel_mess() -> void:
+	var dirty := [{}, GameData.get_dish("vegetable_soup")]
+	var i := 0
+	for seat in get_tree().root.find_children("*", "Seat", true, false):
+		if seat.table == self:
+			make_dirty(seat.meal_position(), dirty[i % dirty.size()])
+			i += 1

@@ -264,3 +264,21 @@ func _sheet_top() -> float:
 	if not is_instance_valid(dough):
 		return session.work_height
 	return dough.position.y + (dough.mesh as BoxMesh).size.y * 0.5
+
+
+# For a reel: the strips cut along the sheet, then each laid on the next free line.
+func scripted_hold(delta: float, input: CookInput) -> bool:
+	var cutting := _laid == 0 and _holding == null and _pile.size() < per_way * 2
+	if cutting:
+		var size: Vector2 = _sheet["size"]
+		var along := lerpf(-0.3, 0.3, float(_pile.size()) / maxi(per_way * 2 - 1, 1))
+		return input.move_to(_sheet["center"] + Vector3(along * size.x, 0.0, 0.0), delta, 0.8) and not input.held
+	if _holding == null:
+		return false
+	var across := _laid % 2 == 0
+	var way := "across" if across else "down"
+	for i in per_way:
+		if not i in _taken.get(way, []):
+			var spot := _pie.position + (Vector3(0.0, 0.0, _slot(i)) if across else Vector3(_slot(i), 0.0, 0.0))
+			return input.move_to(spot, delta, 0.8) and not input.held
+	return false

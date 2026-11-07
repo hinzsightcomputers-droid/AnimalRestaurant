@@ -180,3 +180,8 @@ func _front() -> Vector3:
 	if _model == null:
 		return _home + Vector3(0.5, 0.1, 0.15)
 	return session.to_local(_model.front_point())
+
+
+# For a reel: in, and out right at the ding.
+func scripted_hold(_delta: float, input: CookInput) -> bool:
+	return (_phase == 0 or _phase == 3) and not input.held

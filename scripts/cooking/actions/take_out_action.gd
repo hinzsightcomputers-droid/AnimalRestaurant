@@ -35,3 +35,7 @@ func update(_delta: float, _input: CookInput) -> void:
 	if _bake.done:
 		finish(_bake.quality)
 
+
+# For a reel: the bake's own press, out right in the middle of golden.
+func scripted_hold(delta: float, input: CookInput) -> bool:
+	return _bake != null and _bake.scripted_hold(delta, input)

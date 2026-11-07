@@ -119,6 +119,7 @@ func scripted_hold(delta: float, input: CookInput) -> bool:
 		if anywhere:
 			var side := 1.0 if session.stack_of(target).size() % 2 == 0 else -1.0
 			aim = session.surface(target).position + SCRIPTED_BESIDE * Vector3(side, 1.0, 1.0)
+		aim = session.surface(target).keep_inside(aim, maxf(item_size.x, item_size.z) * 0.5)  # Somewhere it can go (a small pan).
 		return input.move_to(aim, delta) and _scripted_pause <= 0.0 and _carrying != null
 	if _riding != null or input.held:
 		return false

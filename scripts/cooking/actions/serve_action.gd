@@ -93,3 +93,13 @@ func _cookie_at(point: Vector2) -> MeshInstance3D:
 		if Vector2(cookie.position.x, cookie.position.z).distance_to(point) <= CookSession.half_of(cookie).x + grab_margin:
 			return cookie
 	return null
+
+
+# For a reel: each onto the plate in turn.
+func scripted_hold(delta: float, input: CookInput) -> bool:
+	if _carrying != null:
+		return false
+	for cookie: MeshInstance3D in _cookies:
+		if not _served.has(cookie):
+			return input.move_to(cookie.position, delta, 1.0) and not input.held
+	return false

@@ -77,3 +77,12 @@ func _dish_at(spot: Vector3) -> Node3D:
 			best = dish
 			best_gap = gap
 	return best
+
+
+# For a reel: each dish in turn, carried over the bin and let go.
+func scripted_hold(delta: float, input: CookInput) -> bool:
+	if _carrying != null:
+		return not input.move_to(session.surface(bin_surface).position, delta, 0.9)
+	if _dishes.is_empty():
+		return false
+	return input.move_to(_dishes[0].position, delta, 1.0) and not input.held

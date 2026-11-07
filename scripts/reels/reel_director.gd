@@ -289,6 +289,10 @@ func _cook(beat: Dictionary) -> void:
 	var stations := main.find_children("*", "CookingStation", true, false).filter(func(s): return s.station_id == wanted)
 	if wanted == "board":
 		stations = main.find_children("*", "ChoppingBoard", true, false)
+	elif wanted == "table":  # Clearing or wiping: the table at beat "table" (kitchen by default).
+		stations = main.find_children("*", "DiningTable", true, false).filter(func(t): return t.spot == beat.get("table", "kitchen"))
+	elif wanted == "sink":
+		stations = main.find_children("*", "Sink", true, false)
 	var station: Station = stations.front()
 	Engine.time_scale = float(beat.get("speed", 1.0))
 	_camera.close_up_fov = float(beat.get("fov", ReelCamera.CLOSE_UP_FOV))

@@ -115,3 +115,19 @@ func _build_cloth() -> void:
 	_cloth.position = Vector3(0.0, 0.05, 0.3)
 	_last = _cloth.position
 	session.add_child(_cloth)
+
+
+# --- For a reel -----------------------------------------------------------------
+
+var _scripted_angle := 0.0
+
+
+# Small circles over each spill till it's gone.
+func scripted_hold(delta: float, input: CookInput) -> bool:
+	for spill in _spills:
+		if spill["dirt"] > 0.0:
+			_scripted_angle += delta * 12.0
+			var round_it := Vector3(cos(_scripted_angle), 0.0, sin(_scripted_angle)) * float(spill["radius"]) * 0.7
+			input.move_to((spill["at"] as Vector3) + round_it, delta, 0.8)
+			return true
+	return false
