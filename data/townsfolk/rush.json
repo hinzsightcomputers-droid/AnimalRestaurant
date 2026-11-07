@@ -13,6 +13,7 @@
 
 	"talk": {
 		"friends": [
+			{"beats":[{"text":"Jessie, bro. The jacket. Come on.","who":"rush"},{"text":"OHH, thank you!","who":"jessie"}],"with":"jessie"},
 			{"beats":[{"text":"This guy made me watch three superhero movies in a row.","who":"rush"},{"text":"You loved it.","who":"brandon"},{"text":"...I loved it.","who":"rush"}],"with":"brandon"},
 			{"about":"brandon","text":"Brandon teases everyone. Except me. Because he knows I'll say it back, but worse."},
 			{"about":"evaroo","text":"Evaroo's my guy. If you're good to Evaroo, you're good to me."},
@@ -20,12 +21,28 @@
 			{"rude":"evaroo","text":"Evaroo told me you said \"[last_rude_line]\". Nah. Not cool. Fix that."},
 			{"about":"seth","text":"Seth's always rushing off somewhere. Bro took my name and my energy."}
 		],
+		"arrives": "late",
+		"skip_chance": 0.17,
+		"laugh_chain_after": "...Why is everybody laughing? Oh. Me. My bad.",
+		"outfit_chance": 0.33,
+		"outfit": [
+			{ "text": "Bro. The apron. That's clean. That's actually clean." },
+			{ "text": "Okay, I see you with the fit today. Respect, bro." },
+			{ "text": "New hat? Bro, that's hard. Don't take it off.", "later": "Once outfits exist" },
+			{ "text": "That shirt's crazy, bro. In a good way. Real talk." },
+			{ "text": "You changed something. I don't know what. But it's working, bro." },
+			{ "unlocked": "patchwork_apron", "text": "Bro, that apron's custom? That's the hardest thing in this building." }
+		],
 		"arrival": [
 			{ "when": "first", "text": "Yo. Heard this place is good. We'll see. ...I'm Rush. Yeah, I know. Don't say it. What's your name? [name]. Cool." },
 			{ "text": "Yo, [name]. What's good, bro." },
 			{ "text": "I'm late? Nah, bro. Everyone else is early." },
 			{ "text": "Bar seat open? Perfect. Don't move me, I'm comfortable now." },
-			{ "text": "Bro. Made it. Barely. That counts.", "later": "Arriving right before the bell" },
+			{ "when": "before_bell", "text": "Bro. Made it. Barely. That counts." },
+			{ "when": "missed", "text": "Okay, so I was coming. Then I sat down to put my shoes on. Then it was night." },
+			{ "when": "missed", "text": "My couch and I had a long talk. I lost." },
+			{ "when": "missed", "text": "I was on my way. Then the game went to overtime. You understand." },
+			{ "when": "missed", "text": "I'm not gonna lie to you. I forgot. But I'm here now." },
 			{ "when": "last_great", "fav": true, "text": "Real talk, I thought about that pretzel all week. That's not normal. That's your fault." },
 			{ "when": "last_burnt", "text": "Last time? Burnt. I'm not gonna lie to you. I still ate it, though." },
 			{ "when": "away", "text": "You were closed? Bro, I came by. Once. That's a lot for me." }

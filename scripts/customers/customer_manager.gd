@@ -36,6 +36,9 @@ const REEL_FRONT_AISLE := 0.5           # How far in from the door a reel's regu
 const POP_OFFSET := Vector3(0.8, 1.5, 0.3)  # Where serving and paying pops float, beside a customer.
 const POP_FONT_SIZE := 56
 const QUALITY_COLORS: Array[Color] = [Color(1.0, 0.85, 0.3), Color(0.55, 0.95, 0.45), Color(1.0, 0.98, 0.92), Color(0.7, 0.72, 0.78)]  # Perfect, Great, Okay, Burnt.
+const LAUGH_REACH := 4.0   # Metres: who joins in when Rush gets laughing.
+const LAUGH_STEP := 0.35   # Seconds between each one joining in.
+const LAUGH_MOOD := 0.02   # What joining in does for their visit.
 const COMPANION_GAP := 2.0  # Seconds behind their friend that a semi-regular walking in with them comes in.
 const SITTING_STATES := [Customer.State.WAITING_DRINK_ORDER, Customer.State.WAITING_FOR_DRINK, Customer.State.WAITING_FOOD_ORDER, Customer.State.WAITING_FOR_FOOD, Customer.State.EATING, Customer.State.DONE_EATING, Customer.State.WANTS_BILL]
 
@@ -233,7 +236,7 @@ func _try_spawn_customer() -> void:
 	var critic: bool = next.get("critic", false)
 	var person: Dictionary = next.get("townsfolk", {})
 	if person.is_empty() and regular.is_empty() and not critic:
-		person = Townsfolk.pick_walk_in()
+		person = Townsfolk.pick_walk_in(float(_arrived) / maxi(_meal_size, 1))
 		if not person.is_empty():
 			_companion = TownsfolkFriends.pair_for(person["id"])
 			if not _companion.is_empty():
@@ -995,6 +998,8 @@ func _townsfolk_converse(box: ConversationBox, customer: Customer, line: Diction
 	var reply := TownsfolkTalk.fill(result["reply"], TownsfolkTalk.context(customer.townsfolk_id, customer.last_chef, customer.dish, customer.drink))
 	if not reply.is_empty():
 		await _say(box, customer, reply, result["emotion"])
+	if result.get("laugh_chain", false):
+		await _laugh_chain(box, customer)
 
 
 # A regular orders, in a dialogue box: usually the ordering conversation from
@@ -1367,6 +1372,29 @@ func _say_duo(box: ConversationBox, customer: Customer, friend: Customer, duo: D
 			await _say(box, who, TownsfolkTalk.fill(String(beat.get("text", "")), words))
 
 
+# Rush's laugh (a "laugh_chain" line or reply): it ripples out to everyone
+# sitting within LAUGH_REACH, nearest first, each a little happier for it. Once
+# a visit; then their "laugh_chain_after" line.
+func _laugh_chain(box: ConversationBox, customer: Customer) -> void:
+	if customer.laughed:
+		return
+	customer.laughed = true
+	customer.emote(&"joyful")
+	var near := []
+	for child in get_children():
+		if child is Customer and child != customer and child.state in SITTING_STATES and child.global_position.distance_to(customer.global_position) <= LAUGH_REACH:
+			near.append(child)
+	near.sort_custom(func(a, b): return a.global_position.distance_to(customer.global_position) < b.global_position.distance_to(customer.global_position))
+	for other: Customer in near:
+		await get_tree().create_timer(LAUGH_STEP).timeout
+		if is_instance_valid(other):
+			other.emote(&"joyful")
+			other.visit_mood += LAUGH_MOOD
+	var after: String = TownsfolkTalk.talk_of(customer.townsfolk_id).get("laugh_chain_after", "")
+	if not near.is_empty() and not after.is_empty():
+		await _say(box, customer, TownsfolkTalk.fill(after, TownsfolkTalk.context(customer.townsfolk_id, customer.last_chef)))
+
+
 # Walking up to a semi-regular mid-meal: a line, or a chat with choices.
 func _townsfolk_eating_chat(player: Player, customer: Customer) -> void:
 	customer.last_chef = Accounts.id_of(player.player_index)
@@ -1385,6 +1413,8 @@ func _townsfolk_eating_chat(player: Player, customer: Customer) -> void:
 	else:
 		var words := TownsfolkTalk.context(customer.townsfolk_id, customer.last_chef, customer.dish, customer.drink)
 		await _say(box, customer, TownsfolkTalk.fill(String(line.get("text", "Mm. It's good.")), words))
+		if line.get("laugh_chain", false):
+			await _laugh_chain(box, customer)
 	box.close()
 	_unlock_player(player)
 	customer.talking = false

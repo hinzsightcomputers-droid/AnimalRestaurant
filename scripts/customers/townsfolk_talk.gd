@@ -154,12 +154,30 @@ static func _pool(townsfolk_id: String, chef_id: String, lines: Array, words: Di
 		return _can_say(townsfolk_id, chef_id, line, words, dish_id))
 
 
-# The first line for the moment `when`, or {}.
+# A line for the moment `when` (one at random if there are a few), or {}.
 static func _for_moment(townsfolk_id: String, chef_id: String, lines: Array, when: String, words: Dictionary, dish_id: String) -> Dictionary:
-	for line in lines:
-		if line.get("when", "") == when and _can_say(townsfolk_id, chef_id, line, words, dish_id):
-			return line
-	return {}
+	var found := lines.filter(func(line): return line.get("when", "") == when and _can_say(townsfolk_id, chef_id, line, words, dish_id))
+	return found.pick_random() if not found.is_empty() else {}
+
+
+# Sometimes (outfit_chance, once a visit) a compliment on the chef's outfit, for
+# arriving or eating. A line with "unlocked" needs that unlocked. "" for none.
+static func outfit_line(townsfolk_id: String, chef_id: String) -> String:
+	var talk := talk_of(townsfolk_id)
+	var state := _state(townsfolk_id)
+	if not talk.has("outfit") or int(state.get("outfit_day", -1)) == GameState.day_number:
+		return ""
+	if randf() >= float(talk.get("outfit_chance", 0.33)):
+		return ""
+	var words := context(townsfolk_id, chef_id)
+	var pool: Array = talk["outfit"].filter(func(line):
+		return (not line.has("unlocked") or line["unlocked"] in GameState.unlocks) and _can_say(townsfolk_id, chef_id, line, words, ""))
+	var special := pool.filter(func(line): return line.has("unlocked"))
+	var line := _pick_unheard(townsfolk_id, special if not special.is_empty() and randf() < 0.5 else pool)
+	if line.is_empty():
+		return ""
+	state["outfit_day"] = GameState.day_number
+	return fill(line["text"], words)
 
 
 # Something from `pool` you haven't heard, starting over once you've heard it all.
@@ -225,6 +243,16 @@ static func arrival(townsfolk_id: String, chef_id: String) -> String:
 		var fresh_start := _for_moment(townsfolk_id, chef_id, lines, "after_crash_out", words, last_dish)
 		if not fresh_start.is_empty():
 			return fill(fresh_start["text"], words)
+	if state.get("missed", false):
+		state.erase("missed")
+		var excuse := _for_moment(townsfolk_id, chef_id, lines, "missed", words, last_dish)
+		if not excuse.is_empty():
+			return fill(excuse["text"], words)
+	if state.get("before_bell", false):
+		state.erase("before_bell")
+		var barely := _for_moment(townsfolk_id, chef_id, lines, "before_bell", words, last_dish)
+		if not barely.is_empty():
+			return fill(barely["text"], words)
 	var gossip := TownsfolkFriends.gossip_line(townsfolk_id, chef_id)
 	if not gossip.is_empty():
 		return gossip
@@ -234,6 +262,10 @@ static func arrival(townsfolk_id: String, chef_id: String) -> String:
 		state["familiar_told"] = not line.is_empty()
 	if line.is_empty() and back:
 		line = _for_moment(townsfolk_id, chef_id, lines, "back", words, last_dish)
+	if line.is_empty():
+		var compliment := outfit_line(townsfolk_id, chef_id)
+		if not compliment.is_empty():
+			return compliment
 	if line.is_empty():
 		var season := _season_line(townsfolk_id, chef_id, words)
 		if not season.is_empty():
@@ -364,7 +396,7 @@ static func answer(townsfolk_id: String, chef_id: String, choice: Dictionary) ->
 		reply = String(lines.pick_random()) if not lines.is_empty() else ""
 		state.get_or_add("cold", {})[chef_id] = GameState.day_number
 		emotion = &"angry"
-	return { "reply": reply, "mood": mood, "emotion": emotion }
+	return { "reply": reply, "mood": mood, "emotion": emotion, "laugh_chain": result.get("laugh_chain", choice.get("laugh_chain", false)) }
 
 
 # What they say when the food lands, by how it came out (perfect, great, okay or
@@ -404,6 +436,9 @@ static func eating(townsfolk_id: String, chef_id: String, dish: Dictionary) -> D
 	var season: String = talk.get("seasons", {}).get(GameClock.season(), "")
 	if randf() < _chance("season_line_chance", 0.25) and _usable(season, words):
 		return { "text": season }
+	var compliment := outfit_line(townsfolk_id, chef_id)
+	if not compliment.is_empty():
+		return { "text": compliment }
 	if randf() < _chance("friend_line_chance", 0.3):
 		var about := TownsfolkFriends.mention(townsfolk_id, chef_id)
 		if not about.is_empty():

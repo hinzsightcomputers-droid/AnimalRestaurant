@@ -62,17 +62,31 @@ static func is_in_town(townsfolk_id: String) -> bool:
 
 
 # Who walks in next: someone in town who hasn't been in yet today. {} if nobody.
-static func pick_walk_in() -> Dictionary:
+# `progress` is how far through the meal's customers this is (0 to 1): someone
+# whose talk says "arrives": "late" waits till late_after of the way through
+# (unless there's nobody else), and comes "before_bell" in the last stretch.
+# Someone with a "skip_chance" sometimes doesn't turn up at all (missed).
+static func pick_walk_in(progress := 0.0) -> Dictionary:
 	if GameState.townsfolk.is_empty():
 		rotate(GameState.day_number)  # A save from before townsfolk: they move in now.
 	var free := GameData.townsfolk.filter(func(p):
 		var state: Dictionary = GameState.townsfolk.get(p["id"], {})
 		return state.get("in_town", false) and int(state.get("last_visit", 0)) != GameState.day_number)
-	if free.is_empty():
-		return {}
-	var person: Dictionary = free.pick_random()
-	GameState.townsfolk[person["id"]]["last_visit"] = GameState.day_number
-	return person
+	var late_after := float(settings().get("late_after", 0.6))
+	var on_time := free.filter(func(p): return p.get("talk", {}).get("arrives", "") != "late")
+	if progress < late_after and not on_time.is_empty():
+		free = on_time
+	while not free.is_empty():
+		var person: Dictionary = free.pick_random()
+		free.erase(person)
+		var state: Dictionary = GameState.townsfolk[person["id"]]
+		state["last_visit"] = GameState.day_number
+		if randf() < float(person.get("talk", {}).get("skip_chance", 0.0)):
+			state["missed"] = true  # Didn't make it today. Nobody waits; they'll have an excuse.
+			continue
+		state["before_bell"] = progress >= float(settings().get("before_bell_after", 0.9)) and person.get("talk", {}).get("arrives", "") == "late"
+		return person
+	return {}
 
 
 # Their favorite (when it can be had) favorite_chance of the time, else `fallback`.

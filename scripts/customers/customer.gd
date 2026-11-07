@@ -62,6 +62,7 @@ var greeting_introduces := false  # Their greeting tells you their name ("introd
 var order_line := ""          # What a regular says when ordering (empty = generic).
 var speech := ""              # The latest one-off line, e.g. when served or chatted with.
 var chatted := false          # A regular can be chatted with once while eating.
+var laughed := false          # Rush's laugh chain has gone off this visit.
 var visit_mood := 0.0         # What a semi-regular's replies did for this visit's satisfaction.
 var learned_name := false     # A regular learned a chef's name this visit (for their goodbye).
 var talking := false:         # In a conversation: their wait and meal timers pause, so chatting is never punished.
