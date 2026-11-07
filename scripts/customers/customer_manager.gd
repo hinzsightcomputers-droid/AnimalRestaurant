@@ -543,7 +543,10 @@ func _regular_greets(player: Player, customer: Customer, lock_target: Interactab
 	var seating := RegularMemory.pick_line(record, "seating", _visit_context(customer, chef_id))
 	customer.wanted_table = seating.get("table", record.get("usual_table", ""))
 	customer.seat_note = DialoguePicker.fill(seating.get("on_sit", ""), _visit_context(customer, chef_id))
-	await _say_line(box, customer, seating, _visit_context(customer, chef_id))
+	# A line marked "seated" is said at the table instead (see _seated_line).
+	customer.seated_line_pending = seating.get("seated", false)
+	if not customer.seated_line_pending:
+		await _say_line(box, customer, seating, _visit_context(customer, chef_id))
 	box.close()
 	customer.talking = false
 	_unlock_player(player)
@@ -754,12 +757,20 @@ func _regular_orders_drink(player: Player, customer: Customer, rolled: Dictionar
 	if line.is_empty():
 		context["wants_favorite"] = not context["wants_favorite"]
 		line = RegularMemory.pick_line(record, "drink_order", context)
-	if line.is_empty():
+	var seated := _seated_line(customer, Accounts.id_of(player.player_index))
+	if line.is_empty() and seated.is_empty():
 		return rolled
 	var drink := rolled
 	_lock_player(player, _at_table(customer), order_chat_zoom, customer.interactable)
 	customer.talking = true
 	var box := _open_box(player, customer)
+	if not seated.is_empty():
+		await _say_line(box, customer, seated, seated["context"])
+	if line.is_empty():
+		box.close()
+		customer.talking = false
+		_unlock_player(player)
+		return rolled
 	if line.get("drink", "") == "pick":  # "Surprise me!": the chef picks.
 		var question := DialoguePicker.fill(line["text"], context)
 		customer.say(question)
@@ -776,6 +787,23 @@ func _regular_orders_drink(player: Player, customer: Customer, rolled: Dictionar
 	customer.talking = false
 	_unlock_player(player)
 	return drink
+
+
+# A seating line marked "seated" (Zakk's and Evaroo's) waits until a chef first
+# comes to their table, then is picked knowing which table they got
+# ("seated_at") and said before the drink order. {} if there's none. Its
+# "context" is what to fill it in with.
+func _seated_line(customer: Customer, chef_id: String) -> Dictionary:
+	if not customer.seated_line_pending or customer.seat == null or customer.seat.table == null:
+		return {}
+	customer.seated_line_pending = false
+	var context := _visit_context(customer, chef_id, { "seated_at": customer.seat.table.spot })
+	var line := RegularMemory.pick_line(GameState.regulars[customer.regular_id], "seating", context)
+	if not line.get("seated", false):
+		return {}
+	line = line.duplicate()
+	line["context"] = context
+	return line
 
 
 # What a drink_order line's "drink" means for this regular:

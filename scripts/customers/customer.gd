@@ -46,6 +46,7 @@ var drink_quality := 0.0      # How well it was poured.
 var drink_secret := false     # A regular who just asked for "the usual" without naming it.
 var wanted_table := ""        # The table spot a regular asked for this visit ("" for none).
 var surprise_meal := false    # A regular who asked to be surprised with the food too.
+var seated_line_pending := false  # Their seating line is one to say at the table (see CustomerManager).
 var seat_note := ""           # Something they do as they sit (e.g. Mabel inspecting the table), announced then.
 var seat: Seat = null         # Their chair, once a player seats them.
 var leader: Player = null     # The player leading them to a table.

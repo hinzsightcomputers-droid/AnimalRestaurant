@@ -198,6 +198,8 @@ static func _condition_met(key: String, want: Variant, context: Dictionary) -> b
 			return want.all(func(id): return GameData.is_unlocked(id))
 		"drinks_locked":  # ["bubble_tea", ...]: none of those drinks is on the menu yet.
 			return not want.any(func(id): return GameData.is_unlocked(id))
+		"seated_at":  # "window" or ["corner", ...]: the table they're sitting at (seating lines marked "seated").
+			return context.get("seated_at", "") in _as_list(want)
 		"served_drink", "served_drink_type":  # The drink just brought (an id), or its type (e.g. "soda").
 			return context.get(key, "") == want
 		"memory":  # { field: value } in the regular's memory, e.g. { "dislike_confessed": false }.
