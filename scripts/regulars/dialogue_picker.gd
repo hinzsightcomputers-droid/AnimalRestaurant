@@ -37,8 +37,51 @@ static func pick_line(event: String, context: Dictionary) -> Dictionary:
 			best.append(line)
 
 	if best.is_empty():
-		return {}
+		return _name_free_fallback(event, context)
 	return _least_seen(best, context.get("seen_lines", []))
+
+
+# Nothing fits only because every line names a chef this regular doesn't know
+# yet (co-op): rather than say nothing, use one of those lines with "chef" for
+# the name. Each such moment should also have its own name-free line; this is
+# the safety net. Marked "name_fallback" so a check can find these.
+static func _name_free_fallback(event: String, context: Dictionary) -> Dictionary:
+	if context.get("knows_player_name", true):
+		return {}
+	var known := context.duplicate()
+	known["knows_player_name"] = true
+	var lines: Array = []
+	var top := -INF
+	for line in GameData.dialogue:
+		if line["event"] != event or not line.get("needs_name", false) or not conditions_met(line.get("conditions", {}), known):
+			continue
+		if line.get("once", false) and line_key(line) in context.get("seen_lines", []):
+			continue
+		var priority: float = line.get("priority", 0)
+		if priority > top:
+			top = priority
+			lines = [line]
+		elif priority == top:
+			lines.append(line)
+	if lines.is_empty():
+		return {}
+	var result: Dictionary = _least_seen(lines, context.get("seen_lines", [])).duplicate(true)
+	result["text"] = _unnamed(result.get("text", ""))
+	for key in ["before", "after"]:
+		for beat in result.get(key, []):
+			for part in ["text", "narration"]:
+				if beat.has(part):
+					beat[part] = _unnamed(beat[part])
+	result["name_fallback"] = true
+	return result
+
+
+# [name] and [nickname] -> "chef" ("Chef" starting the line).
+static func _unnamed(text: String) -> String:
+	var result := text.replace("[name]", "chef").replace("[nickname]", "chef")
+	if result.begins_with("chef"):
+		result = "C" + result.substr(1)
+	return result
 
 
 # How seen_lines refers to a line: its "id", or a hash of its text.

@@ -381,6 +381,7 @@ func _with_token_conditions(line: Dictionary, regular_id: String) -> Dictionary:
 	var text: String = result.get("text", "")
 	if ("[name]" in text or "[nickname]" in text) and not conditions.has("knows_player_name"):
 		conditions["knows_player_name"] = true
+		result["needs_name"] = true  # Added here, not written in: DialoguePicker can fall back on it.
 	if "[last_rude_line]" in text and not conditions.has("has_rude_line"):
 		conditions["has_rude_line"] = true
 	if "[restaurant]" in text and not conditions.has("has_restaurant_name"):
