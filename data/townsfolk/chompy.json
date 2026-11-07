@@ -12,6 +12,13 @@
 	"lines": {},
 
 	"talk": {
+		"friends": [
+			{"beats":[{"text":"This is my cousin Kyle. He's smart. Like, book smart.","who":"chompy"},{"text":"I'm... it's nice to meet you. He's told me nothing about you. Which is normal for him.","who":"kyle"}],"with":"kyle"},
+			{"about":"kyle","text":"Kyle says alligators and crocodiles are different. I don't see it. We both have teeth."},
+			{"about":"seth","text":"Seth plays football for real. I watch it really hard. Same thing."},
+			{"kind":"kyle","text":"Kyle said you were nice to him. He doesn't say that a lot. Thanks, [name]."},
+			{"rude":"kyle","text":"Kyle said you said \"[last_rude_line]\". That's not cool. He's my cousin."}
+		],
 		"arrival": [
 			{ "when": "first", "text": "Uhh, hi. Is this the restaurant? ...It is? Nice. I'm Chompy. What's your name? ...[name]. Cool. I'll try to remember that." },
 			{ "text": "Hey, [name]! Wait. It's [name], right? Yeah. I knew that." },

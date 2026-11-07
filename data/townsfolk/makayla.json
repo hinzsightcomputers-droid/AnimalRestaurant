@@ -13,6 +13,14 @@
 	"lines": {},
 
 	"talk": {
+		"friends": [
+			{"beats":[{"text":"Makayla drove an hour to get here. For churros! That's commitment.","who":"amy"},{"text":"(Completely flat.) They're worth it.","who":"makayla"}],"with":"amy"},
+			{"beats":[{"narration":"Amy talks for a full minute at double speed. Makayla nods throughout, then says:"},{"text":"Yes.","who":"makayla"}],"with":"amy"},
+			{"beats":[{"text":"Race you to finish.","who":"seth"},{"text":"Okay.","who":"makayla"},{"narration":"She's done before he picks up his fork."},{"text":"(Flat.) That was so fun.","who":"makayla"}],"with":"seth"},
+			{"about":"seth","text":"Seth always knows when I'm happy. Even though my face doesn't move. It's annoying."},
+			{"kind":"amy","text":"Amy said you're the nicest. I agree. Quietly."},
+			{"rude":"seth","text":"Seth told me what you said. \"[last_rude_line]\". ...He remembers everything. You should apologise."}
+		],
 		"familiar_after": 4,
 		"arrival": [
 			{ "when": "first", "voice": "before", "text": "Hello. I'm Makayla. I drove in. ...What's your name? [name]. Thank you, [name]." },

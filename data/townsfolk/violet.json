@@ -13,6 +13,14 @@
 	"lines": {},
 
 	"talk": {
+		"friends": [
+			{"beats":[{"narration":"They sit together in complete silence. Then Hezzy suddenly bursts into song."},{"text":"Ok.","who":"violet"}],"with":"hezzy"},
+			{"beats":[{"narration":"Hezzy makes a weird honking noise out of nowhere."},{"text":"(Without looking up.) Haha, nice.","who":"violet"}],"with":"hezzy"},
+			{"about":"hezzy","text":"Hezzy's funny. Quietly."},
+			{"kind":"hezzy","text":"Hezzy likes you. He sang about it."},
+			{"rude":"hezzy","text":"Hezzy said you said \"[last_rude_line]\". Not nice."},
+			{"about":"stitches","text":"Stitches took the corner. It's ok. He needs it more."}
+		],
 		"favorite_chance": 0.95,
 		"arrival": [
 			{ "when": "first", "text": "Hi. Violet. Corner table, please. ...Your name? [name]. Ok." },

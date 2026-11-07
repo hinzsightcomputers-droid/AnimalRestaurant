@@ -12,6 +12,14 @@
 	"lines": {},
 
 	"talk": {
+		"friends": [
+			{"beats":[{"text":"This guy made me watch three superhero movies in a row.","who":"rush"},{"text":"You loved it.","who":"brandon"},{"text":"...I loved it.","who":"rush"}],"with":"brandon"},
+			{"about":"brandon","text":"Brandon teases everyone. Except me. Because he knows I'll say it back, but worse."},
+			{"about":"evaroo","text":"Evaroo's my guy. If you're good to Evaroo, you're good to me."},
+			{"kind":"evaroo","text":"Evaroo said you've been looking after them. Respect. Real respect."},
+			{"rude":"evaroo","text":"Evaroo told me you said \"[last_rude_line]\". Nah. Not cool. Fix that."},
+			{"about":"seth","text":"Seth's always rushing off somewhere. Bro took my name and my energy."}
+		],
 		"arrival": [
 			{ "when": "first", "text": "Yo. Heard this place is good. We'll see. ...I'm Rush. Yeah, I know. Don't say it. What's your name? [name]. Cool." },
 			{ "text": "Yo, [name]. What's good, bro." },

@@ -12,6 +12,11 @@
 	"lines": {},
 
 	"talk": {
+		"friends": [
+			{"beats":[{"narration":"They sit together in complete silence. Then Hezzy suddenly bursts into song."},{"text":"Ok.","who":"violet"}],"with":"violet"},
+			{"beats":[{"narration":"Hezzy makes a weird honking noise out of nowhere."},{"text":"(Without looking up.) Haha, nice.","who":"violet"}],"with":"violet"},
+			{"about":"violet","text":"Violet doesn't talk much. I sing. It balances out."}
+		],
 		"familiar_after": 5,
 		"arrival": [
 			{ "when": "first", "voice": "before", "text": "Hi. Hezzy. Table for one. ...Your name? [name]. Okay. Thanks." },

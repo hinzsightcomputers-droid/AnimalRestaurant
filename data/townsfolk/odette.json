@@ -12,6 +12,12 @@
 	"lines": {},
 
 	"talk": {
+		"friends": [
+			{"beats":[{"text":"Odette and I swap travel stories! She rates the food, I photograph it.","who":"miles"},{"text":"He photographs it before I've had a chance to taste it. It's infuriating. ...The photos are excellent.","who":"odette"}],"with":"miles"},
+			{"beats":[{"narration":"Miles tells a pun. Odette stares."},{"text":"...That was adequate.","who":"odette"},{"narration":"Miles is thrilled."}],"with":"miles"},
+			{"kind":"miles","text":"Miles says you laugh at his jokes. That is generous of you. They are terrible."},
+			{"rude":"miles","text":"Miles mentioned you said \"[last_rude_line]\". He laughed it off. He always does. I did not."}
+		],
 		"arrival": [
 			{ "when": "first", "text": "Good evening. Odette. I review restaurants. Please, do not change anything on my account. ...And you are? [name]. I will remember that." },
 			{ "text": "Good evening, [name]. A booth, if one is available." },

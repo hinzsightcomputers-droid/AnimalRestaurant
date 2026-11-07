@@ -12,6 +12,13 @@
 	"lines": {},
 
 	"talk": {
+		"friends": [
+			{"beats":[{"text":"Juno's learning to bake with me on Sundays.","who":"hazel"},{"text":"I've only set one thing on fire!","who":"juno"},{"text":"Two, dear.","who":"hazel"}],"with":"hazel"},
+			{"beats":[{"narration":"Juno knocks over the sugar."},{"text":"(Without looking up from her knitting.) Dustpan's under the sink, sweetheart.","who":"hazel"},{"text":"On it!","who":"juno"}],"with":"hazel"},
+			{"about":"hazel","text":"Hazel says I have 'good instincts and terrible hands.' I'm taking it as a compliment."},
+			{"kind":"hazel","text":"Hazel says you're a lovely young chef. She says that about me too, but she means it more about you."},
+			{"rude":"hazel","text":"Hazel told me you said \"[last_rude_line]\". ...She's the sweetest person alive, [name]. Come on."}
+		],
 		"arrival": [
 			{ "when": "first", "text": "Hi! I'm Juno! Oh, this place is so cool. Are you hiring? Sorry. Hi first. What's your name? [name]! Hi, [name]! Are you hiring?" },
 			{ "text": "[name]! Hi! I'm back! Did you miss me? I missed this place!" },

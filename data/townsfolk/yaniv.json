@@ -12,6 +12,13 @@
 	"lines": {},
 
 	"talk": {
+		"friends": [
+			{"beats":[{"text":"This guy beat me at a racing game last night.","who":"yaniv"},{"text":"(Slow, chill.) Every game.","who":"cody"},{"text":"MOST games.","who":"yaniv"}],"with":"cody"},
+			{"beats":[{"narration":"Yaniv talks for five minutes straight. Cody says one word."},{"text":"See? He gets me.","who":"yaniv"}],"with":"cody"},
+			{"about":"zakk","text":"Zakk's my guy. Me, Zakk and Cody, gaming trio. Undefeated. Except when we lose."},
+			{"kind":"zakk","text":"Zakk says you look out for him. That's a good look, [name]. That's a great look."},
+			{"rude":"cody","text":"Cody told me you said \"[last_rude_line]\". He shrugged it off. He shrugs everything off. Doesn't mean it didn't land."}
+		],
 		"arrival": [
 			{ "when": "first", "text": "HEY! Big fan of the place already. Yaniv. Sales. Don't worry, I'm off the clock. Mostly. And you are? [name]! [name], my friend, we're going to get along great." },
 			{ "text": "[name]! My favourite chef! Don't tell the other chefs. Actually, tell them. Healthy competition." },

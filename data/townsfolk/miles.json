@@ -12,6 +12,13 @@
 	"lines": {},
 
 	"talk": {
+		"friends": [
+			{"beats":[{"text":"Uh, Odette and I swap travel stories! She rates the food, I photograph it.","who":"miles"},{"text":"He photographs it before I've had a chance to taste it. It's infuriating. ...The photos are excellent.","who":"odette"}],"with":"odette"},
+			{"about":"odette","text":"Uh, Odette said the restaurant I went to on the coast was 'adequate.' That's basically five stars from her!"},
+			{"kind":"odette","text":"Uh, Odette said something nice about you! Out loud! I wrote down the date."},
+			{"rude":"odette","text":"Uh, Odette mentioned you said \"[last_rude_line]\". Ha... that doesn't sound like you, [name]. Bad day?"},
+			{"about":"amy","later":"Gossip from Amy: comes with the specials","text":"Uh, Amy told me there's a new regular in town! I need to take their portrait."}
+		],
 		"arrival": [
 			{ "when": "first", "text": "Uh, hi hi hi! I'm Miles! Mind if I snap a photo? Of the restaurant, I mean. And you, if you want! What's your name? ...[name]! Great name. Very photogenic." },
 			{ "text": "Uh, [name]! I dug my way over here. Not literally. ...Okay, a little literally. Ha!" },

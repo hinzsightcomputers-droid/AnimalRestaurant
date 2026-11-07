@@ -12,6 +12,13 @@
 	"lines": {},
 
 	"talk": {
+		"friends": [
+			{"beats":[{"text":"This is my fiancée. She's a nightmare.","who":"iddy"},{"text":"He LOVES me.","who":"amy"},{"text":"...I love her so much it's annoying.","who":"iddy"}],"with":"amy"},
+			{"beats":[{"text":"Tell them about the cake tasting.","who":"iddy"},{"text":"(Very fast.) Okay so we tried twelve cakes and he ate all twelve and then said 'can we try the first one again'—","who":"amy"},{"text":"It was a good first cake!","who":"iddy"}],"with":"amy"},
+			{"beats":[{"narration":"Amy rolls her eyes at every joke he makes and laughs at every single one."}],"with":"amy"},
+			{"kind":"amy","text":"Amy said you're her favourite chef. I'm jealous. Of you. I'm also happy. Mixed emotions."},
+			{"rude":"amy","text":"Amy said you said \"[last_rude_line]\". ...Hey. Not her, okay? Joke about me all you want."}
+		],
 		"arrival": [
 			{ "when": "first", "text": "HELLO, restaurant! Okay. Okay okay okay. Nice place. Who's in charge? You? What's your name? [name]. [name]! I like it. Short. Like me." },
 			{ "text": "I'M HERE. Everybody relax. [name], you good?" },

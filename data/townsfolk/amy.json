@@ -12,6 +12,14 @@
 	"lines": {},
 
 	"talk": {
+		"friends": [
+			{"beats":[{"text":"He's annoying.","who":"amy"},{"text":"She loves it.","who":"iddy"},{"text":"...I love it so much.","who":"amy"}],"with":"iddy"},
+			{"beats":[{"text":"Okay so guess what—","who":"amy"},{"text":"OHHH, what?!","who":"jessie"},{"text":"I haven't said it yet!","who":"amy"},{"text":"I know! I'm ready though!","who":"jessie"}],"with":"jessie"},
+			{"beats":[{"narration":"Amy and Jessie both gasp at the same time over something tiny, then laugh until they can't breathe."}],"with":"jessie"},
+			{"beats":[{"text":"Makayla drove an hour to get here. For churros! That's commitment.","who":"amy"},{"text":"(Completely flat.) They're worth it.","who":"makayla"}],"with":"makayla"},
+			{"kind":"iddy","text":"Iddy said you laughed at all his jokes. Even the bad ones. Thank you for your service."},
+			{"rude":"jessie","text":"Jessie told me you said \"[last_rude_line]\". Do NOT make me come back there."}
+		],
 		"arrival": [
 			{ "when": "first", "text": "Hi! Oh my gosh, hi! I'm Amy! I've heard SO much about this place, okay, not that much, but some, and it's even cuter in person! What's your name? [name]? I love that! We're friends now. That's just how it is.", "fast": true },
 			{ "text": "[name]! Hi hi hi! Okay, I have SO much to tell you." },

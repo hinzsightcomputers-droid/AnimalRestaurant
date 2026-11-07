@@ -13,6 +13,13 @@
 	"lines": {},
 
 	"talk": {
+		"friends": [
+			{"beats":[{"text":"Juno's learning to bake with me on Sundays.","who":"hazel"},{"text":"I've only set one thing on fire!","who":"juno"},{"text":"Two, dear.","who":"hazel"}],"with":"juno"},
+			{"beats":[{"narration":"Juno knocks over the sugar."},{"text":"(Without looking up from her knitting.) Dustpan's under the sink, sweetheart.","who":"hazel"}],"with":"juno"},
+			{"kind":"juno","text":"Juno says you're very patient with her. That means a great deal to me, dear."},
+			{"rude":"juno","text":"Juno told me you said \"[last_rude_line]\". She tries so hard, sweetheart. Be gentle with her."},
+			{"about":"clover","text":"That little gecko girl asked if I was her grandma. I said I could be, if she likes."}
+		],
 		"arrival": [
 			{ "when": "first", "text": "Hello, dear. Oh, isn't this lovely. I'm Hazel. I used to run a bakery, a long time ago now. And what's your name, sweetheart? [name]. What a good, strong name." },
 			{ "text": "Hello, [name], dear. Is there a table? My knees prefer a table." },

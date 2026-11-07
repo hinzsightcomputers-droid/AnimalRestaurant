@@ -36,6 +36,8 @@ const REEL_FRONT_AISLE := 0.5           # How far in from the door a reel's regu
 const POP_OFFSET := Vector3(0.8, 1.5, 0.3)  # Where serving and paying pops float, beside a customer.
 const POP_FONT_SIZE := 56
 const QUALITY_COLORS: Array[Color] = [Color(1.0, 0.85, 0.3), Color(0.55, 0.95, 0.45), Color(1.0, 0.98, 0.92), Color(0.7, 0.72, 0.78)]  # Perfect, Great, Okay, Burnt.
+const COMPANION_GAP := 2.0  # Seconds behind their friend that a semi-regular walking in with them comes in.
+const SITTING_STATES := [Customer.State.WAITING_DRINK_ORDER, Customer.State.WAITING_FOR_DRINK, Customer.State.WAITING_FOOD_ORDER, Customer.State.WAITING_FOR_FOOD, Customer.State.EATING, Customer.State.DONE_EATING, Customer.State.WANTS_BILL]
 
 @export var order_counter: Station  # The host stand.
 @export var order_board: OrderBoard
@@ -70,6 +72,7 @@ var _arrival_timer := Timer.new()
 var _meal_size := 0       # How many this meal expects (for its pacing).
 var _arrived := 0         # How many of them have walked in so far.
 var _rush_called := false
+var _companion: Dictionary = {}     # A semi-regular walking in right behind their friend (TownsfolkFriends.pair_for).
 var bell := ServiceBell.new()     # On the host stand: rung to start the next meal.
 
 
@@ -228,7 +231,13 @@ func _try_spawn_customer() -> void:
 	var customer: Customer = CUSTOMER_SCENE.instantiate()
 	customer.plan_index = next["index"]
 	var critic: bool = next.get("critic", false)
-	var person := Townsfolk.pick_walk_in() if regular.is_empty() and not critic else {}
+	var person: Dictionary = next.get("townsfolk", {})
+	if person.is_empty() and regular.is_empty() and not critic:
+		person = Townsfolk.pick_walk_in()
+		if not person.is_empty():
+			_companion = TownsfolkFriends.pair_for(person["id"])
+			if not _companion.is_empty():
+				_arrival_timer.start(COMPANION_GAP)
 	if critic:
 		_setup_critic(customer)
 	elif not person.is_empty():
@@ -263,6 +272,10 @@ func _try_spawn_customer() -> void:
 # come after all (they've stopped visiting, or already came today) counts as
 # done and the next one comes instead.
 func _next_customer() -> Dictionary:
+	if not _companion.is_empty():  # Walking in right behind their friend.
+		var friend := _companion
+		_companion = {}
+		return { "index": -1, "regular": {}, "townsfolk": friend }
 	if GameState.forced_critic:
 		GameState.forced_critic = false
 		return { "index": -1, "regular": {}, "critic": true }
@@ -1087,6 +1100,7 @@ func _converse(box: ConversationBox, player: Player, customer: Customer, line: D
 	for other_id in choices[picked].get("others", {}):
 		others_before[other_id] = GameState.regulars.get(other_id, {}).get("relationship", 0)
 	var result := Conversation.apply_choice(record, choices[picked], options[picked], chef_id)
+	TownsfolkFriends.heard(customer.regular_id, chef_id, choices[picked].get("tone", ""), options[picked])
 	_after_line(customer, line, chef_id)
 	_order_dish(customer, Conversation.dish_of(choices[picked], record))
 	context = _visit_context(customer, chef_id, extra)  # The reply can use a nickname just picked.
@@ -1328,6 +1342,31 @@ func _eating_chat(player: Player, customer: Customer) -> void:
 	customer.talking = false
 
 
+# Their friends (from TownsfolkFriends.duo_friends) sitting down in here now:
+# { townsfolk id: Customer }.
+func _friends_in(customer: Customer) -> Dictionary:
+	var ids := TownsfolkFriends.duo_friends(customer.townsfolk_id)
+	var found := {}
+	for child in get_children():
+		if child is Customer and child != customer and child.townsfolk_id in ids and child.state in SITTING_STATES:
+			found[child.townsfolk_id] = child
+	return found
+
+
+# A duo (see TownsfolkFriends): each says their part, from their own table.
+func _say_duo(box: ConversationBox, customer: Customer, friend: Customer, duo: Dictionary) -> void:
+	TownsfolkFriends.duo_said(customer.townsfolk_id, duo)
+	var seen: Array = TownsfolkTalk._state(friend.townsfolk_id).get_or_add("seen", [])
+	seen.append(TownsfolkTalk._key(duo))  # Their side of it is heard too.
+	for beat in duo["beats"]:
+		if beat.has("narration"):
+			await box.tell("", beat["narration"])
+		else:
+			var who: Customer = customer if beat.get("who", "") == customer.townsfolk_id else friend
+			var words := TownsfolkTalk.context(who.townsfolk_id, customer.last_chef)
+			await _say(box, who, TownsfolkTalk.fill(String(beat.get("text", "")), words))
+
+
 # Walking up to a semi-regular mid-meal: a line, or a chat with choices.
 func _townsfolk_eating_chat(player: Player, customer: Customer) -> void:
 	customer.last_chef = Accounts.id_of(player.player_index)
@@ -1337,7 +1376,11 @@ func _townsfolk_eating_chat(player: Player, customer: Customer) -> void:
 	customer.talking = true
 	_lock_player(player, _at_table(customer), eating_chat_zoom if eating_chat_zoom != null else order_chat_zoom, customer.interactable)
 	var box := _open_box(player, customer)
-	if line.has("choices"):
+	var friends := _friends_in(customer)
+	var duo := TownsfolkFriends.duo(customer.townsfolk_id, friends.keys())
+	if not duo.is_empty():
+		await _say_duo(box, customer, friends[duo["friend"]], duo)
+	elif line.has("choices"):
 		await _townsfolk_converse(box, customer, line)
 	else:
 		var words := TownsfolkTalk.context(customer.townsfolk_id, customer.last_chef, customer.dish, customer.drink)

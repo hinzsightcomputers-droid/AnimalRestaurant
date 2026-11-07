@@ -12,6 +12,13 @@
 	"lines": {},
 
 	"talk": {
+		"friends": [
+			{"beats":[{"narration":"Clover hides behind the booth."},{"text":"...Is he gonna eat me?","who":"clover"},{"text":"(Softly.) No. I'm having the soup.","who":"kyle"}],"first":true,"with":"kyle"},
+			{"beats":[{"text":"This is Kyle! He's my best friend!","who":"clover"},{"text":"(Gently, awkward.) I'm... yes. Hello. She drew me a picture. I have it on my fridge.","who":"kyle"}],"with":"kyle"},
+			{"about":"kyle","text":"Kyle knows EVERYTHING. He knows why the sky is blue. I forgot why. He's gonna tell me again."},
+			{"kind":"kyle","text":"Kyle said you're nice to him! Good! Everyone should be nice to Kyle!"},
+			{"rude":"kyle","text":"Kyle said you said \"[last_rude_line]\". That's mean! Say sorry!"}
+		],
 		"arrival": [
 			{ "when": "first", "text": "Hi! I'm Clover! I'm eight! Are you the chef? Do you have a chef name? What's your name? ...[name]! That's a good chef name!" },
 			{ "text": "[name]! I'm back! It's holidays!" },

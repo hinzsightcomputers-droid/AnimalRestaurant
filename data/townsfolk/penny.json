@@ -12,6 +12,13 @@
 	"lines": {},
 
 	"talk": {
+		"friends": [
+			{"beats":[{"text":"Luna draws while I read. We don't talk much.","who":"penny"},{"text":"(Yawning.) It's the best friendship I've ever had.","who":"luna"}],"with":"luna"},
+			{"about":"luna","text":"Luna said she'd illustrate my story if I ever finish it. So now I have to finish it."},
+			{"kind":"luna","text":"Luna said you always remember her coffee. She was really touched. She just showed it by yawning."},
+			{"rude":"luna","text":"Luna told me you said \"[last_rude_line]\". ...That doesn't sound like you. Was it a bad day?"},
+			{"about":"zakk","later":"After the Zakk setup (Penny storyline)","text":"If Zakk ever seems sad, could you... make him pancakes? He likes when people are nice to him."}
+		],
 		"arrival": [
 			{ "when": "first", "text": "Oh, um, hello. I'm Penny. Is it alright if I sit outside? By the water? ...Not too close. What's your name? [name]. That's a nice name. It sounds like a character in a book." },
 			{ "text": "Hi, [name]. Is the patio free? I brought my book." },

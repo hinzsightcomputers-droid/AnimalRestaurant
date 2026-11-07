@@ -12,6 +12,13 @@
 	"lines": {},
 
 	"talk": {
+		"friends": [
+			{"beats":[{"text":"Race you to finish.","who":"seth"},{"text":"Okay.","who":"makayla"},{"narration":"She's done before he picks up his fork."},{"text":"(Flat.) That was so fun.","who":"makayla"}],"with":"makayla"},
+			{"beats":[{"text":"I always know when Makayla's happy, even though her face doesn't move. Right now? She's thrilled.","who":"seth"},{"text":"...No.","who":"makayla"},{"narration":"(She is.)"}],"with":"makayla"},
+			{"about":"chompy","text":"Chompy watches every game. He doesn't know the rules. He's my biggest fan."},
+			{"kind":"makayla","text":"Makayla said you were nice to her. She said it flat, but she meant it. I could tell."},
+			{"rude":"makayla","text":"Makayla told me you said \"[last_rude_line]\". She covered her eyes for a whole minute. Not cool, buddy."}
+		],
 		"arrival": [
 			{ "when": "first", "text": "Hey! I'm Seth! Sorry, I've only got twenty minutes, I've got a game. What's your name? [name]! Awesome. Okay, I'll remember that. I always remember." },
 			{ "text": "Hey, buddy! Gotta be quick today. Game at six!" },

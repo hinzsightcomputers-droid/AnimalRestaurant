@@ -12,6 +12,13 @@
 	"lines": {},
 
 	"talk": {
+		"friends": [
+			{"beats":[{"text":"This guy made me watch three superhero movies in a row.","who":"rush"},{"text":"You loved it.","who":"brandon"},{"text":"...I loved it.","who":"rush"}],"with":"rush"},
+			{"beats":[{"narration":"Brandon teases Rush about being late. Rush says it back, but worse. They both laugh."}],"with":"rush"},
+			{"about":"rush","text":"Rush is the only one I can't tease. He comes back too hard."},
+			{"kind":"rush","text":"Rush says you're a real one. That's the highest honour he gives. Congrats."},
+			{"rude":"rush","text":"Rush told me you said \"[last_rude_line]\". He won't say it hurt. I'm saying it for him."}
+		],
 		"familiar_after": 5,
 		"arrival": [
 			{ "when": "first", "voice": "before", "text": "Hey. Brandon. Booth, if you've got one. ...What's your name? [name]. Cool. Thanks." },

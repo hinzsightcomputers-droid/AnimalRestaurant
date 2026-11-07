@@ -12,6 +12,13 @@
 	"lines": {},
 
 	"talk": {
+		"friends": [
+			{"beats":[{"text":"This is my cousin Kyle. He's smart. Like, book smart.","who":"chompy"},{"text":"I'm... it's nice to meet you. He's told me nothing about you. Which is normal for him.","who":"kyle"}],"with":"chompy"},
+			{"beats":[{"text":"Kyle, how many teeth do we have?","who":"chompy"},{"text":"About sixty-six.","who":"kyle"},{"text":"...I have one.","who":"chompy"}],"with":"chompy"},
+			{"beats":[{"text":"This is Kyle! He's my best friend!","who":"clover"},{"text":"(Gently, awkward.) I'm... yes. Hello. She drew me a picture. I have it on my fridge.","who":"kyle"}],"with":"clover"},
+			{"kind":"clover","text":"Clover says you let her be the taste-tester. That made her whole week. Mine too, a little."},
+			{"rude":"chompy","text":"Chompy told me you said \"[last_rude_line]\". He didn't understand it. I did. Please don't."}
+		],
 		"warm_choices_to_open": 2,
 		"arrival": [
 			{ "when": "first", "text": "Oh. Um. Yes, please. Sorry. I'm Kyle. I know I look... I'm very gentle. What's your name? [name]. Nice to meet you, [name]." },

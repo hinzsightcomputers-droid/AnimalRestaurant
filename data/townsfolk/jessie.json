@@ -13,6 +13,13 @@
 	"lines": {},
 
 	"talk": {
+		"friends": [
+			{"beats":[{"text":"Okay so guess what—","who":"amy"},{"text":"OHHH, what?!","who":"jessie"},{"text":"I haven't said it yet!","who":"amy"},{"text":"I know! I'm ready though!","who":"jessie"}],"with":"amy"},
+			{"beats":[{"narration":"Amy and Jessie both gasp at the same time over something tiny, then laugh until they can't breathe."}],"with":"amy"},
+			{"about":"amy","text":"Amy and I have matching bracelets. She talks, I gasp. It's a system."},
+			{"kind":"amy","text":"Amy said you made her day. AAHH. You're the best."},
+			{"rude":"amy","text":"Amy told me you said \"[last_rude_line]\". ...Not cool, [name]. Not cool at all."}
+		],
 		"arrival": [
 			{ "when": "first", "text": "Heyyy. Nice place. Very cosy. ...Wait, is that a fireplace? OHH. What's your name? [name]? WOOWW, cute name. I'm Jessie." },
 			{ "text": "Heyyy, [name]. What's good?" },

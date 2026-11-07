@@ -144,7 +144,7 @@ static func _pick_unheard(townsfolk_id: String, pool: Array) -> Dictionary:
 
 
 static func _key(line: Dictionary) -> String:
-	return str(String(line.get("text", "")).hash())
+	return str(String(line.get("text", JSON.stringify(line.get("beats", [])))).hash())  # A duo is its beats.
 
 
 # Their line for a holiday or the chef's birthday today, else sometimes for the
@@ -181,6 +181,9 @@ static func arrival(townsfolk_id: String, chef_id: String) -> String:
 		for line in lines:  # In any voice: a new chef still gets introduced.
 			if line.get("when", "") == "first":
 				return fill(line["text"], words)
+	var gossip := TownsfolkFriends.gossip_line(townsfolk_id, chef_id)
+	if not gossip.is_empty():
+		return gossip
 	var line := {}
 	if int(talk_of(townsfolk_id).get("familiar_after", 0)) == _visit_number(state) and not state.get("familiar_told", false):
 		line = _for_moment(townsfolk_id, chef_id, lines, "familiar_moment", words, GameData.get_townsfolk(townsfolk_id).get("favorite_dish", ""))
@@ -302,6 +305,7 @@ static func answer(townsfolk_id: String, chef_id: String, choice: Dictionary) ->
 			if not chef_id in rude:
 				rude.append(chef_id)
 			state["setback"] = int(state.get("setback", 0)) + int(talk.get("rude_sets_back", 0))
+	TownsfolkFriends.heard(townsfolk_id, chef_id, String(choice.get("tone", "")), fill(String(choice.get("text", "")), context(townsfolk_id, chef_id)))
 	if choice.get("crash_out", false):
 		var lines: Array = talk.get("crash_out", [])
 		reply = String(lines.pick_random()) if not lines.is_empty() else ""
@@ -341,6 +345,10 @@ static func eating(townsfolk_id: String, chef_id: String, dish: Dictionary) -> D
 	var season: String = talk.get("seasons", {}).get(GameClock.season(), "")
 	if randf() < _chance("season_line_chance", 0.25) and _usable(season, words):
 		return { "text": season }
+	if randf() < _chance("friend_line_chance", 0.3):
+		var about := TownsfolkFriends.mention(townsfolk_id, chef_id)
+		if not about.is_empty():
+			return about
 	return _pick_unheard(townsfolk_id, _pool(townsfolk_id, chef_id, talk.get("eating", []), words, dish_id))
 
 
