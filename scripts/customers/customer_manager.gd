@@ -337,6 +337,7 @@ func _visit_context(customer: Customer, chef_id: String, extra: Dictionary = {})
 		"dish": customer.dish.get("name", ""),
 		"ordered_favorite": customer.dish.get("id", "") == record["favorite_dish"],
 		"drink": customer.drink.get("name", ""),
+		"fav_drink": GameData.get_drink(record.get("favorite_drink", "")).get("name", ""),
 	})
 	context.merge(extra, true)
 	return context
