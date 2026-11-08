@@ -91,6 +91,7 @@ func _put_face_on(head: MeshInstance3D) -> bool:
 func dress(look: CharacterAppearance) -> void:
 	for node in _worn:
 		if is_instance_valid(node):
+			node.get_parent().remove_child(node)  # Out now, so the new pieces keep their names.
 			node.queue_free()
 	_worn.clear()
 	skin.set_shader_parameter("tint", look.skin_color)

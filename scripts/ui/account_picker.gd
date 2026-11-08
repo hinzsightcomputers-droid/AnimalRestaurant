@@ -4,6 +4,8 @@
 # or the on-screen letters (for gamepads). The game stays paused while it's up;
 # several players waiting are asked one after another. Players keep their
 # account across days, so it only shows once per session.
+# A chef without a look yet (new, or from before looks) goes on to the
+# ChefCustomizer to make one.
 extends CanvasLayer
 
 const DEFAULT_NAME := "Chef"
@@ -167,6 +169,14 @@ func _create_new() -> void:
 
 
 func _choose(account_id: String) -> void:
+	if not Accounts.has_appearance(account_id):
+		# A chef who hasn't made how they look yet (a new one, or from before
+		# looks): that first.
+		visible = false
+		ChefCustomizer.open(get_parent(), account_id, false).finished.connect(func(_saved: bool):
+			visible = true
+			_choose(account_id))
+		return
 	var player_index: int = _waiting.pop_front()
 	Accounts.assign(player_index, account_id)
 	GameEvents.announce("Welcome, %s!" % Accounts.name_of(player_index))

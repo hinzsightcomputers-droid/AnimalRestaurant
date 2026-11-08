@@ -92,6 +92,14 @@ func _skip_days(days: int) -> void:
 # Players 3 and 4 no device at all (they stand still until "WASD: P3").
 # Each gets a "Test chef" account (made once, then reused), with no birthday
 # question, so nothing waits on input they can't give.
+# Opens the ChefCustomizer for player `index`'s chef (if they've picked one).
+func _change_look(index: int) -> void:
+	if not Accounts.has_account(index):
+		return
+	_set_open(false)
+	ChefCustomizer.open(get_tree().root, Accounts.id_of(index))
+
+
 func _add_player() -> void:
 	var player_manager := get_tree().root.find_children("*", "PlayerManager", true, false).front() as PlayerManager
 	var players := InputSetup.active_players()
@@ -744,6 +752,9 @@ func _build() -> void:
 	var control_row := _add_row(box)
 	for i in InputSetup.MAX_PLAYERS:
 		_add_button(control_row, "WASD: P%d" % (i + 1), _control_player.bind(i))
+	var look_row := _add_row(box)
+	for i in InputSetup.MAX_PLAYERS:
+		_add_button(look_row, "Look: P%d" % (i + 1), _change_look.bind(i))
 
 	_add_label(box, "Phone", 18, true)
 	_caller_picker = OptionButton.new()
