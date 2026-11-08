@@ -1,0 +1,23 @@
+{
+	"id": "default_female",
+	"name": "Default Female",
+	"order": 2,
+	"placeholder": true,
+	"look": {
+		"body": "standard",
+		"skin": "#f1c7a0",
+		"hair": "hair_bob",
+		"hair_color": "#5a3a22",
+		"eye_color": "#3b2a20",
+		"eyes": { "id": "sparkle", "offset": [0, 0], "scale": 1 },
+		"brows": { "id": "soft", "offset": [0, 0], "scale": 1 },
+		"nose": { "id": "dot", "offset": [0, 0], "scale": 0.9 },
+		"mouth": { "id": "smile", "offset": [0, 0], "scale": 1 },
+		"face_paint": ["blush"],
+		"top": "rogue_tunic",
+		"bottom": "ranger_trousers",
+		"dress": "",
+		"shoes": "",
+		"accessories": []
+	}
+}

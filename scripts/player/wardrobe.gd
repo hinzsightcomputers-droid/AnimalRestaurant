@@ -1,6 +1,7 @@
 # Wardrobe: everything a chef can wear, one file per item in data/wardrobe/
 # (see _template.json there), plus the rest of the look in data/appearance.json
-# (base body, body shapes, face parts, colors, the default chef).
+# (base body, body shapes, face parts, colors, the default chef), and the
+# starting looks for a new chef in data/presets/.
 #
 # An item: { id, name, slot, placeholder?, unlock?, hidden?, mesh, parts,
 # hides, hat_variant, tint? }
@@ -25,12 +26,14 @@ extends RefCounted
 
 const ITEMS_DIR := "res://data/wardrobe"
 const LOOKS_PATH := "res://data/appearance.json"
+const PRESETS_DIR := "res://data/presets"
 const SLOTS := ["hair", "top", "bottom", "dress", "shoes", "apron", "hat", "glasses", "face_accessory"]
 const ACCESSORY_SLOTS := ["hat", "glasses", "face_accessory"]
 const REGIONS := ["torso", "arm_left", "arm_right", "leg_left", "leg_right", "feet"]
 
 static var _items := {}
 static var _looks := {}
+static var _presets: Array[Dictionary] = []
 
 
 static func items() -> Dictionary:
@@ -81,6 +84,23 @@ static func looks() -> Dictionary:
 	return _looks
 
 
+# Starting looks for a new chef, one file each in data/presets/ (see
+# _template.json there): [{ id, name, order, look }], by order. `look` is a
+# saved appearance (CharacterAppearance.to_dict).
+static func presets() -> Array[Dictionary]:
+	if _presets.is_empty() and DirAccess.dir_exists_absolute(PRESETS_DIR):
+		for file in DirAccess.get_files_at(PRESETS_DIR):
+			if not file.ends_with(".json") or file.begins_with("_"):
+				continue
+			var preset = JSON.parse_string(FileAccess.get_file_as_string(PRESETS_DIR.path_join(file)))
+			if preset is Dictionary and preset.has("id") and preset.get("look") is Dictionary:
+				_presets.append(preset)
+			else:
+				push_warning("Preset %s needs an id and a look" % file)
+		_presets.sort_custom(func(a, b): return [float(a.get("order", 99)), String(a.get("name", ""))] < [float(b.get("order", 99)), String(b.get("name", ""))])
+	return _presets
+
+
 # The choices for a face part ("eyes", "brows", "nose", "mouth", "face_paint"):
 # [{ id, name, texture, ... }].
 static func face_parts(kind: String) -> Array:
@@ -107,6 +127,9 @@ static func placeholders() -> Array[String]:
 	for item in items().values():
 		if item.get("placeholder", false):
 			ids.append(item["id"])
+	for preset in presets():
+		if preset.get("placeholder", false):
+			ids.append("preset/%s" % preset["id"])
 	for kind in looks().get("face", {}).get("parts", {}):
 		for part in face_parts(kind):
 			if part.get("placeholder", false):

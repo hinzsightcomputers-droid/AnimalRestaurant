@@ -1,5 +1,6 @@
 # ChefCustomizer: make your chef. Pages for Body, Face, Hair, Clothes,
-# Accessories and Face Paint, with the chef beside them (drag to turn them, or
+# Accessories and Face Paint (a new chef first gets a Start page to pick one
+# of the presets in data/presets/ to work from), with the chef beside them (drag to turn them, or
 # switch on Spin to have them turn slowly) and changing as you pick. Done saves the look on the
 # account (Accounts.set_appearance), which redresses that player's chef.
 # Opened by the AccountPicker for a new chef, by the ChefWardrobe in the
@@ -11,6 +12,7 @@ extends CanvasLayer
 signal finished(saved: bool)
 
 const PAGES := ["Body", "Face", "Hair", "Clothes", "Accessories", "Face Paint"]
+const START_PAGE := "Start"
 const FACE_PAGES := ["Face", "Face Paint"]
 const FEATURE_NAMES := { "eyes": "Eyes", "brows": "Eyebrows", "nose": "Nose", "mouth": "Mouth" }
 const SLOT_NAMES := { "top": "Tops", "bottom": "Bottoms", "dress": "Dresses", "shoes": "Shoes", "apron": "Aprons", "hat": "Hats", "glasses": "Glasses", "face_accessory": "Face accessories" }
@@ -25,6 +27,7 @@ var account_id := ""
 var can_cancel := true
 var look: CharacterAppearance
 var spinning := false  # The Spin toggle under the preview: off to start with.
+var preset_id := ""  # The preset picked on the Start page (new chefs only).
 
 var _chef: ChefModel
 var _pivot := Node3D.new()
@@ -36,6 +39,7 @@ var _title := Label.new()
 var _tabs: Array[Button] = []
 var _refreshers: Array[Callable] = []  # Bring the buttons up to date with the look.
 var _page := ""
+var _pages: Array = PAGES.duplicate()
 var _dragging := false
 var _was_paused := false
 
@@ -53,13 +57,16 @@ func _ready() -> void:
 	layer = 30
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	look = Accounts.appearance_of_account(account_id).copy()
+	if not Accounts.has_appearance(account_id) and not Wardrobe.presets().is_empty():
+		_pages.push_front(START_PAGE)  # A new chef: pick where to start from.
+		use_preset(Wardrobe.presets()[0])
 	_was_paused = get_tree().paused
 	get_tree().paused = true
 	_build()
 	_aim(BODY_VIEW, 1.0)
 	get_viewport().size_changed.connect(_fit)
 	_fit()
-	show_page(PAGES[0])
+	show_page(_pages[0])
 	_tabs[0].grab_focus()
 
 
@@ -90,6 +97,8 @@ func show_page(page: String) -> void:
 		child.queue_free()
 	_refreshers.clear()
 	match page:
+		START_PAGE:
+			_start_page()
 		"Body":
 			_body_page()
 		"Face":
@@ -107,6 +116,17 @@ func show_page(page: String) -> void:
 	var view: Array = FACE_VIEW if page in FACE_PAGES else BODY_VIEW
 	var tween := create_tween()
 	tween.tween_method(func(t: float): _aim(view, t), 0.0, 1.0, 0.35).set_trans(Tween.TRANS_SINE)
+
+
+# Starts over from a preset (data/presets/), wearing anything unlocked that's
+# worn straight away.
+func use_preset(preset: Dictionary) -> void:
+	preset_id = preset["id"]
+	look = CharacterAppearance.from_dict(preset["look"])
+	for item_id in Wardrobe.auto_wear_ids():
+		look.wear(item_id)
+	if _chef != null:
+		_chef.apply_appearance(look)
 
 
 # Picks something for every part at random.
@@ -151,6 +171,18 @@ func _refresh() -> void:
 
 
 # --- Pages ---
+
+func _start_page() -> void:
+	_heading("Start from")
+	_label("Pick one, then change anything you like.", 16)
+	var row := _row()
+	for preset in Wardrobe.presets():
+		var id: String = preset["id"]
+		var button := _option(row, preset.get("name", id), func(): use_preset(preset), func(): return preset_id == id)
+		button.custom_minimum_size = Vector2(170, 64)
+	var next := _button(_page_box, "Next: Body", show_page.bind("Body"))
+	next.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+
 
 func _body_page() -> void:
 	_heading("Body shape")
@@ -372,7 +404,7 @@ func _build() -> void:
 	tabs.add_theme_constant_override("h_separation", 6)
 	tabs.add_theme_constant_override("v_separation", 6)
 	side.add_child(tabs)
-	for page in PAGES:
+	for page in _pages:
 		var tab := Button.new()
 		tab.text = page
 		tab.toggle_mode = true

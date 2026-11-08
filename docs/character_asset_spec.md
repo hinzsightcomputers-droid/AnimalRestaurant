@@ -163,6 +163,10 @@ There's one JSON file per item in `data/wardrobe/` (see `_template.json`; files 
 - `assets/wardrobe/<slot>s/<id>.glb`, e.g. `assets/wardrobe/tops/striped_shirt.glb`, `assets/wardrobe/hair/curly.glb` and `assets/wardrobe/hair/curly_hat.glb`.
 - Use snake_case ids, the same as the file name. Mesh objects get `<Id>_<Part>` names, e.g. `StripedShirt_Body` and `StripedShirt_ArmLeft`.
 
+### Presets (starting looks)
+
+A new chef first picks a starting look, then changes anything from there. There's one file per preset in `data/presets/` (see `_template.json`): an `id`, a `name`, an `order` (lower comes first) and a `look`. A `look` is a saved appearance, in the same shape as an account's `appearance` in `accounts.json`, so the easiest way to make one is to build the chef in the game and copy theirs out. Ids in it must exist in the wardrobe and `data/appearance.json`. "Default Male" and "Default Female" are placeholders made from the starter pieces.
+
 ---
 
 ## 6. Fitting a Meshy clothing item to the shared skeleton

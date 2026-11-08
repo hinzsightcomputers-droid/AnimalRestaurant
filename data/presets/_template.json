@@ -1,0 +1,24 @@
+{
+	"_about": "One file per starting look offered when someone makes a new chef (files starting with _ are skipped). 'look' is a saved appearance (CharacterAppearance.to_dict: copy one out of accounts.json); anything left out comes from data/appearance.json's default. Lower 'order' comes first.",
+	"id": "my_preset",
+	"name": "My Preset",
+	"order": 10,
+	"placeholder": false,
+	"look": {
+		"body": "standard",
+		"skin": "#f1c7a0",
+		"hair": "hair_short",
+		"hair_color": "#5a3a22",
+		"eye_color": "#3b2a20",
+		"eyes": { "id": "round", "offset": [0, 0], "scale": 1 },
+		"brows": { "id": "soft", "offset": [0, 0], "scale": 1 },
+		"nose": { "id": "dot", "offset": [0, 0], "scale": 1 },
+		"mouth": { "id": "smile", "offset": [0, 0], "scale": 1 },
+		"face_paint": [],
+		"top": "ranger_tunic",
+		"bottom": "ranger_trousers",
+		"dress": "",
+		"shoes": "",
+		"accessories": []
+	}
+}

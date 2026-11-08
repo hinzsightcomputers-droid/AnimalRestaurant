@@ -1,0 +1,23 @@
+{
+	"id": "default_male",
+	"name": "Default Male",
+	"order": 1,
+	"placeholder": true,
+	"look": {
+		"body": "standard",
+		"skin": "#f1c7a0",
+		"hair": "hair_short",
+		"hair_color": "#5a3a22",
+		"eye_color": "#3b2a20",
+		"eyes": { "id": "round", "offset": [0, 0], "scale": 1 },
+		"brows": { "id": "bold", "offset": [0, 0], "scale": 1 },
+		"nose": { "id": "dot", "offset": [0, 0], "scale": 1 },
+		"mouth": { "id": "smile", "offset": [0, 0], "scale": 1 },
+		"face_paint": [],
+		"top": "ranger_tunic",
+		"bottom": "ranger_trousers",
+		"dress": "",
+		"shoes": "",
+		"accessories": []
+	}
+}
