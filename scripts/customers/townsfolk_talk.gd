@@ -18,7 +18,8 @@
 # by chef), setback (visits a rude reply cost), rude_last (chefs who were rude
 # last visit), last_rude_line, last_tier and last_dish (the last meal),
 # last_seen_unix, just_back and familiar_told; cold (chef -> the day of a
-# crash-out) and grudge (chef -> the rude line they remember).
+# crash-out) and grudge (chef -> the rude line they remember); outfits_seen
+# (chef -> what they last saw them in) and outfit_day (see outfit_line).
 #
 # A crash_out reply (Amy) makes them cold to that chef for the rest of the day:
 # their "cold" lines stand in for anything else they'd say, and next time they
@@ -249,24 +250,68 @@ static func _for_moment(townsfolk_id: String, chef_id: String, lines: Array, whe
 	return line
 
 
-# Sometimes (outfit_chance, once a visit) a compliment on the chef's outfit, for
-# arriving or eating. A line with "unlocked" needs that unlocked. "" for none.
+# Outfits townsfolk notice (Rush): what a chef has on in these slots.
+const OUTFIT_SLOTS := ["hat", "top", "dress", "bottom", "shoes", "apron"]
+
+
+# Chef `chef_id`'s outfit as townsfolk see it: { slot: item id or "" }.
+static func outfit_of(chef_id: String) -> Dictionary:
+	var look := Accounts.appearance_of_account(chef_id)
+	var outfit := {}
+	for slot in OUTFIT_SLOTS:
+		outfit[slot] = look.worn(slot)
+	return outfit
+
+
+# Someone with "outfit" lines (Rush) remembers what each chef wore last time
+# (outfits_seen in their GameState.townsfolk record). If it's changed, they
+# say one of those lines, once a visit, for arriving or eating; the first time
+# they see a chef they just take it in. A line with "part" (a slot, e.g. "hat")
+# is for when that's new, and comes first; one with "wearing" (a slot or an
+# item id) only if the chef has it on, and one with "unlocked" only once that's
+# unlocked. Lines with [name] wait until they know the chef's name, so there
+# should always be some without. "" for nothing to say.
 static func outfit_line(townsfolk_id: String, chef_id: String) -> String:
 	var talk := talk_of(townsfolk_id)
 	var state := _state(townsfolk_id)
-	if not talk.has("outfit") or int(state.get("outfit_day", -1)) == GameState.day_number:
+	if not talk.has("outfit") or Accounts.get_account(chef_id).is_empty() or int(state.get("outfit_day", -1)) == GameState.day_number:
 		return ""
-	if randf() >= float(talk.get("outfit_chance", 0.33)):
+	var seen: Dictionary = state.get_or_add("outfits_seen", {})
+	var now := outfit_of(chef_id)
+	if not seen.has(chef_id):
+		seen[chef_id] = now
 		return ""
+	var before: Dictionary = seen[chef_id]
+	var new_parts := OUTFIT_SLOTS.filter(func(slot): return not String(now[slot]).is_empty() and String(now[slot]) != String(before.get(slot, "")))
+	if new_parts.is_empty() and OUTFIT_SLOTS.all(func(slot): return String(now[slot]) == String(before.get(slot, ""))):
+		return ""
+	var look := Accounts.appearance_of_account(chef_id)
 	var words := context(townsfolk_id, chef_id)
 	var pool: Array = talk["outfit"].filter(func(line):
-		return (not line.has("unlocked") or line["unlocked"] in GameState.unlocks) and _can_say(townsfolk_id, chef_id, line, words, ""))
-	var special := pool.filter(func(line): return line.has("unlocked"))
-	var line := _pick_unheard(townsfolk_id, special if not special.is_empty() and randf() < 0.5 else pool)
+		return _wears(look, line) and (not line.has("unlocked") or line["unlocked"] in GameState.unlocks) and _can_say(townsfolk_id, chef_id, line, words, ""))
+	var line := {}
+	for slot in new_parts:
+		var about := pool.filter(func(each): return each.get("part", "") == slot)
+		if not about.is_empty():
+			line = _pick_unheard(townsfolk_id, about)
+			break
+	if line.is_empty():
+		var general := pool.filter(func(each): return not each.has("part"))
+		var special := general.filter(func(each): return each.has("wearing") or each.has("unlocked"))
+		line = _pick_unheard(townsfolk_id, special if not special.is_empty() and randf() < 0.5 else general)
 	if line.is_empty():
 		return ""
+	seen[chef_id] = now
 	state["outfit_day"] = GameState.day_number
 	return fill(line["text"], words)
+
+
+# Whether the chef has on what `line` is about ("wearing": a slot or item id).
+static func _wears(look: CharacterAppearance, line: Dictionary) -> bool:
+	if not line.has("wearing"):
+		return true
+	var what := String(line["wearing"])
+	return not look.worn(what).is_empty() if what in Wardrobe.SLOTS else what in look.worn_items()
 
 
 # Something from `pool` you haven't heard, starting over once you've heard it all.
