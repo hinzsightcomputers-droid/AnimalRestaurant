@@ -1,0 +1,5 @@
+{
+	"id": "ranger_trousers", "name": "Brown Trousers", "slot": "bottom", "placeholder": true,
+	"mesh": { "scene": "res://design/assets/KayKit_Adventurers_2.0_FREE/Characters/gltf/Ranger.glb", "nodes": ["Ranger_LegLeft", "Ranger_LegRight"] },
+	"hides": ["leg_left", "leg_right", "feet"]
+}

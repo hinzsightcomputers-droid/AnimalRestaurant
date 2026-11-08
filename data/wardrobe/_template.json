@@ -1,0 +1,9 @@
+{
+	"_about": "One file per wardrobe item (files starting with _ are skipped). See Wardrobe for every field and docs/character_asset_spec.md for making the mesh.",
+	"id": "my_item",
+	"name": "My Item",
+	"slot": "top",
+	"placeholder": false,
+	"mesh": { "scene": "res://assets/wardrobe/tops/my_item.glb" },
+	"hides": ["torso", "arm_left", "arm_right"]
+}

@@ -1,0 +1,8 @@
+{
+	"id": "hair_bob", "name": "Bob", "slot": "hair", "placeholder": true, "hat_variant": "hair_bob_hat",
+	"parts": [
+		{ "sphere": 1, "at": [0, 1.95, -0.05], "scale": [0.62, 0.42, 0.57] },
+		{ "sphere": 1, "at": [0, 1.62, -0.12], "scale": [0.63, 0.48, 0.5] },
+		{ "box": [0.7, 0.14, 0.12], "at": [0, 1.98, 0.45], "rotation": [-20, 0, 0] }
+	]
+}

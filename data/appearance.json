@@ -1,0 +1,91 @@
+{
+	"_about": "The chef's look apart from what they wear (that's data/wardrobe/). See Wardrobe, CharacterAppearance, ChefBuilder, ChefFace and docs/character_asset_spec.md. Positions are in the character's own unscaled space (KayKit Rig_Medium, about 2.3 tall, facing +z).",
+	"base_body": {
+		"_about": "One body for everyone, skin colored. Each region is meshes in `scene`, hidden by clothes that list it in `hides`. `drop` are meshes in the scene that aren't part of the body. `head`: a stand-in head shape (until a real one has a `Face` surface, see the spec), and the face plate drawn over its front.",
+		"placeholder": true,
+		"scene": "res://design/assets/KayKit_Adventurers_2.0_FREE/Characters/gltf/Barbarian.glb",
+		"regions": {
+			"torso": ["Barbarian_Body"],
+			"arm_left": ["Barbarian_ArmLeft"],
+			"arm_right": ["Barbarian_ArmRight"],
+			"leg_left": ["Barbarian_LegLeft"],
+			"leg_right": ["Barbarian_LegRight"]
+		},
+		"drop": ["Barbarian_Head", "Barbarian_BearHat"],
+		"head": { "center": [0, 1.7, 0.02], "radii": [0.55, 0.53, 0.5] }
+	},
+	"body_shapes": [
+		{ "id": "standard", "name": "Standard", "scale": [1, 1, 1] },
+		{ "id": "tall", "name": "Tall", "scale": [0.95, 1.08, 0.95] },
+		{ "id": "sturdy", "name": "Sturdy", "scale": [1.12, 0.97, 1.1] },
+		{ "id": "small", "name": "Small", "scale": [0.96, 0.9, 0.96] }
+	],
+	"skin_colors": ["#fbe1c8", "#f1c7a0", "#e0a97e", "#c68a5e", "#a06a43", "#7a4b2e", "#553220", "#b8d8a8", "#c9b6e4", "#a8d0e6"],
+	"hair_colors": ["#1e1a18", "#3d2a1e", "#5a3a22", "#8a5a32", "#c08850", "#e6c27a", "#f2e6c8", "#b0302a", "#e07a9a", "#5a7ad0", "#4fa070", "#9a9a9a"],
+	"eye_colors": ["#3b2a20", "#6b4a2a", "#3b6ea5", "#4f8a5a", "#7a6a9a", "#a07a2a", "#2a2a2a", "#c05a7a"],
+	"face": {
+		"_about": "The face canvas is a square, 0..1 across (u: left to right as you look at the chef) and down (v), drawn on the face plate or on a real head's `Face` surface. Each part's texture is `feature_size` pixels square, centered at `center` and `size` across (canvas units), times the chef's own scale and moved by their offset. Eyes and brows are drawn twice, `spacing` either side of center, the texture mirrored for the chef's left. Face paint fills the whole canvas.",
+		"canvas_size": 512,
+		"feature_size": 128,
+		"plate": { "width": 0.92, "height": 0.92 },
+		"layout": {
+			"eyes": { "center": [0.5, 0.52], "size": 0.2, "spacing": 0.15 },
+			"brows": { "center": [0.5, 0.39], "size": 0.18, "spacing": 0.16 },
+			"nose": { "center": [0.5, 0.62], "size": 0.13 },
+			"mouth": { "center": [0.5, 0.73], "size": 0.22 }
+		},
+		"parts": {
+			"eyes": [
+				{ "id": "round", "name": "Round", "texture": "res://assets/face/eyes_round.png", "placeholder": true },
+				{ "id": "dot", "name": "Dot", "texture": "res://assets/face/eyes_dot.png", "placeholder": true },
+				{ "id": "sleepy", "name": "Sleepy", "texture": "res://assets/face/eyes_sleepy.png", "placeholder": true },
+				{ "id": "sparkle", "name": "Sparkle", "texture": "res://assets/face/eyes_sparkle.png", "placeholder": true }
+			],
+			"brows": [
+				{ "id": "soft", "name": "Soft", "texture": "res://assets/face/brows_soft.png", "placeholder": true },
+				{ "id": "bold", "name": "Bold", "texture": "res://assets/face/brows_bold.png", "placeholder": true }
+			],
+			"nose": [
+				{ "id": "dot", "name": "Dot", "texture": "res://assets/face/nose_dot.png", "placeholder": true },
+				{ "id": "button", "name": "Button", "texture": "res://assets/face/nose_button.png", "placeholder": true }
+			],
+			"mouth": [
+				{ "id": "smile", "name": "Smile", "texture": "res://assets/face/mouth_smile.png", "placeholder": true },
+				{ "id": "grin", "name": "Grin", "texture": "res://assets/face/mouth_grin.png", "placeholder": true },
+				{ "id": "flat", "name": "Flat", "texture": "res://assets/face/mouth_flat.png", "placeholder": true },
+				{ "id": "cat", "name": "Cat", "texture": "res://assets/face/mouth_cat.png", "placeholder": true }
+			],
+			"face_paint": [
+				{ "id": "blush", "name": "Blush", "texture": "res://assets/face/paint_blush.png", "placeholder": true },
+				{ "id": "freckles", "name": "Freckles", "texture": "res://assets/face/paint_freckles.png", "placeholder": true },
+				{ "id": "whiskers", "name": "Whiskers", "texture": "res://assets/face/paint_whiskers.png", "placeholder": true }
+			]
+		},
+		"_expressions": "Eye and mouth textures that stand in for the chef's own while they blink or react. A face part can have its own (e.g. \"happy_eyes\": a texture) to use instead.",
+		"expressions": {
+			"blink": { "eyes": "res://assets/face/eyes_closed.png" },
+			"happy": { "eyes": "res://assets/face/eyes_happy.png", "mouth": "res://assets/face/mouth_happy.png" },
+			"surprised": { "eyes": "res://assets/face/eyes_surprised.png", "mouth": "res://assets/face/mouth_surprised.png" },
+			"sad": { "eyes": "res://assets/face/eyes_sad.png", "mouth": "res://assets/face/mouth_sad.png" }
+		},
+		"blink_every": [2.0, 5.0],
+		"blink_seconds": 0.12
+	},
+	"default": {
+		"body": "standard",
+		"skin": "#f1c7a0",
+		"hair": "hair_short",
+		"hair_color": "#5a3a22",
+		"eye_color": "#3b2a20",
+		"eyes": { "id": "round", "offset": [0, 0], "scale": 1 },
+		"brows": { "id": "soft", "offset": [0, 0], "scale": 1 },
+		"nose": { "id": "dot", "offset": [0, 0], "scale": 1 },
+		"mouth": { "id": "smile", "offset": [0, 0], "scale": 1 },
+		"face_paint": [],
+		"top": "ranger_tunic",
+		"bottom": "ranger_trousers",
+		"dress": "",
+		"shoes": "",
+		"accessories": []
+	}
+}

@@ -1,0 +1,5 @@
+{
+	"id": "mage_robe", "name": "Purple Robe", "slot": "dress", "placeholder": true,
+	"mesh": { "scene": "res://design/assets/KayKit_Adventurers_2.0_FREE/Characters/gltf/Mage.glb", "nodes": ["Mage_Body", "Mage_ArmLeft", "Mage_ArmRight", "Mage_LegLeft", "Mage_LegRight"] },
+	"hides": ["torso", "arm_left", "arm_right", "leg_left", "leg_right", "feet"]
+}

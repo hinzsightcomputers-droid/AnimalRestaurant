@@ -1,0 +1,10 @@
+{
+	"id": "round_glasses", "name": "Round Glasses", "slot": "glasses", "placeholder": true,
+	"parts": [
+		{ "torus": [0.075, 0.095], "at": [0.14, 1.68, 0.5], "rotation": [90, 0, 0], "color": "#2a2a2a" },
+		{ "torus": [0.075, 0.095], "at": [-0.14, 1.68, 0.5], "rotation": [90, 0, 0], "color": "#2a2a2a" },
+		{ "box": [0.1, 0.02, 0.02], "at": [0, 1.7, 0.51], "color": "#2a2a2a" },
+		{ "box": [0.02, 0.02, 0.5], "at": [0.5, 1.7, 0.2], "color": "#2a2a2a" },
+		{ "box": [0.02, 0.02, 0.5], "at": [-0.5, 1.7, 0.2], "color": "#2a2a2a" }
+	]
+}

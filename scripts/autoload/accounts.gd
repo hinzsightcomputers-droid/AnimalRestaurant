@@ -1,13 +1,16 @@
 # Accounts (autoload): the chefs who play here, each { id, name,
-# playtime_seconds, last_played_day, played_before } (the restaurant days they
+# playtime_seconds, last_played_day, played_before, appearance } (the restaurant days they
 # last played and played before that, for days_since_played).
 # Saved in their own file (user://accounts.json), separate from the restaurant
 # save, so playtime is kept even if you quit mid-day. Also remembers which
 # account each joined player is using; like InputSetup, that lasts across days.
 # Regulars remember chefs by account id (see RegularMemory).
+# appearance: how their chef looks (CharacterAppearance.to_dict), or missing for
+# the default chef until they make one.
 extends Node
 
 signal player_account_changed(player_index: int)
+signal appearance_changed(account_id: String)
 
 const SAVE_PATH := "user://accounts.json"
 const AUTOSAVE_SECONDS := 30.0
@@ -105,6 +108,29 @@ func id_of(player_index: int) -> String:
 # What to call a player: their account name, or "Player 2" before they pick one.
 func name_of(player_index: int) -> String:
 	return account_of(player_index).get("name", "Player %d" % (player_index + 1))
+
+
+# How the chef on account `id` looks (the default chef if they haven't made one).
+func appearance_of_account(id: String) -> CharacterAppearance:
+	return CharacterAppearance.from_dict(get_account(id).get("appearance", {}))
+
+
+# How player `player_index`'s chef looks.
+func appearance_of(player_index: int) -> CharacterAppearance:
+	return appearance_of_account(id_of(player_index))
+
+
+func has_appearance(id: String) -> bool:
+	return get_account(id).has("appearance")
+
+
+func set_appearance(id: String, appearance: CharacterAppearance) -> void:
+	var account := get_account(id)
+	if account.is_empty():
+		return
+	account["appearance"] = appearance.to_dict()
+	save()
+	appearance_changed.emit(id)
 
 
 func is_in_use(id: String) -> bool:

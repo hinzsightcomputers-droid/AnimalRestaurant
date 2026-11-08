@@ -1,0 +1,7 @@
+{
+	"id": "hair_bun_hat", "name": "Bun (under a hat)", "slot": "hair", "placeholder": true, "hidden": true,
+	"parts": [
+		{ "sphere": 1, "at": [0, 1.72, -0.18], "scale": [0.57, 0.42, 0.4] },
+		{ "sphere": 1, "at": [0, 1.6, -0.5], "scale": [0.2, 0.18, 0.18] }
+	]
+}

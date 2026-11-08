@@ -1,0 +1,6 @@
+{
+	"id": "hair_short_hat", "name": "Short (under a hat)", "slot": "hair", "placeholder": true, "hidden": true,
+	"parts": [
+		{ "sphere": 1, "at": [0, 1.72, -0.18], "scale": [0.57, 0.42, 0.4] }
+	]
+}

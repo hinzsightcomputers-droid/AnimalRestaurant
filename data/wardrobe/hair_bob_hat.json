@@ -1,0 +1,6 @@
+{
+	"id": "hair_bob_hat", "name": "Bob (under a hat)", "slot": "hair", "placeholder": true, "hidden": true,
+	"parts": [
+		{ "sphere": 1, "at": [0, 1.6, -0.12], "scale": [0.63, 0.46, 0.5] }
+	]
+}

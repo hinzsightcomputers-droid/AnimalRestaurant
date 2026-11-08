@@ -1,0 +1,5 @@
+{
+	"id": "ranger_tunic", "name": "Cream Tunic", "slot": "top", "placeholder": true,
+	"mesh": { "scene": "res://design/assets/KayKit_Adventurers_2.0_FREE/Characters/gltf/Ranger.glb", "nodes": ["Ranger_Body", "Ranger_ArmLeft", "Ranger_ArmRight"] },
+	"hides": ["torso", "arm_left", "arm_right"]
+}

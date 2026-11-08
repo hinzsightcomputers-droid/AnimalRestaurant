@@ -1,0 +1,5 @@
+{
+	"id": "knight_trousers", "name": "Shiny Trousers", "slot": "bottom", "placeholder": true,
+	"mesh": { "scene": "res://design/assets/KayKit_Adventurers_2.0_FREE/Characters/gltf/Knight.glb", "nodes": ["Knight_LegLeft", "Knight_LegRight"] },
+	"hides": ["leg_left", "leg_right", "feet"]
+}

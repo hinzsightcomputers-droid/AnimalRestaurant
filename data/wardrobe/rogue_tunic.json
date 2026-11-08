@@ -1,0 +1,5 @@
+{
+	"id": "rogue_tunic", "name": "Green Tunic", "slot": "top", "placeholder": true,
+	"mesh": { "scene": "res://design/assets/KayKit_Adventurers_2.0_FREE/Characters/gltf/Rogue.glb", "nodes": ["Rogue_Body", "Rogue_ArmLeft", "Rogue_ArmRight"] },
+	"hides": ["torso", "arm_left", "arm_right"]
+}

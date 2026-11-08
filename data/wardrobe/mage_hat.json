@@ -1,0 +1,4 @@
+{
+	"id": "mage_hat", "name": "Pointy Hat", "slot": "hat", "placeholder": true,
+	"mesh": { "scene": "res://design/assets/KayKit_Adventurers_2.0_FREE/Characters/gltf/Mage.glb", "nodes": ["Mage_Hat"] }
+}
