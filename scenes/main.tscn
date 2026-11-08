@@ -34,6 +34,7 @@
 [ext_resource type="Script" path="res://scripts/guide/guide.gd" id="32_guide"]
 [ext_resource type="Script" path="res://scripts/furniture/kitchen_slot.gd" id="33_slot"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/microwave.tscn" id="34_microwave"]
+[ext_resource type="Script" path="res://scripts/furniture/chef_wardrobe.gd" id="35_wardrobe"]
 
 [sub_resource type="Environment" id="Env"]
 background_mode = 1
@@ -227,6 +228,10 @@ delivery_manager = NodePath("../../DeliveryManager")
 view_manager = NodePath("../../Views")
 day_manager = NodePath("../../DayManager")
 customer_manager = NodePath("../../CustomerManager")
+
+[node name="ChefWardrobe" type="StaticBody3D" parent="Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0, -4.7)
+script = ExtResource("35_wardrobe")
 
 [node name="OrderBoard" type="Node" parent="." unique_id=1808753145]
 script = ExtResource("9_orders")

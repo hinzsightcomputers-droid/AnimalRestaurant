@@ -2,8 +2,8 @@
 # Accessories and Face Paint, with the chef beside them (drag to turn them, or
 # switch on Spin to have them turn slowly) and changing as you pick. Done saves the look on the
 # account (Accounts.set_appearance), which redresses that player's chef.
-# Opened by the AccountPicker for a new chef, and from the debug panel for now
-# (somewhere in the restaurant later). Pauses the game while it's up. Works
+# Opened by the AccountPicker for a new chef, by the ChefWardrobe in the
+# restaurant, and from the debug panel. Pauses the game while it's up. Works
 # with mouse, keyboard or gamepad (focus moves between the buttons).
 class_name ChefCustomizer
 extends CanvasLayer
