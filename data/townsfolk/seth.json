@@ -12,6 +12,7 @@
 	"lines": {},
 
 	"talk": {
+		"intuition": {"after_served":3,"lines":[{"rough_yesterday":true,"text":"Rough day yesterday? You seem tired. You're doing great, buddy."},{"low_regular":true,"text":"[regular] seems down. Maybe make their favourite next time?"},{"streak":5,"text":"You're on a roll today, I can feel it!"},{"new_star":true,"text":"Something big happened. I can tell. You look proud. You should be."},{"text":"You seem good today. Good. I like that."}]},
 		"friends": [
 			{"beats":[{"text":"Race you to finish.","who":"seth"},{"text":"Okay.","who":"makayla"},{"narration":"She's done before he picks up his fork."},{"text":"(Flat.) That was so fun.","who":"makayla"}],"with":"makayla"},
 			{"beats":[{"text":"I always know when Makayla's happy, even though her face doesn't move. Right now? She's thrilled.","who":"seth"},{"text":"...No.","who":"makayla"},{"narration":"(She is.)"}],"with":"makayla"},
@@ -72,7 +73,7 @@
 			{ "fav": true, "text": "My coach says I need to eat more protein. I told him about this breakfast. He's coming next week." }
 		],
 		"eating_chat": [
-			{ "text": "Can I tell you something? Mabel's been a bit quiet lately. I can tell. Can you check on her?", "choices": [
+			{ "text": "Can I tell you something? [low_regular]'s been a bit quiet lately. I can tell. Can you check on [low_them]?", "choices": [
 				{ "tone": "warm", "text": "I will. Thanks for looking out for her.", "reply": "Of course. That's what friends do. Even friends of friends.", "mood": 0.05 },
 				{ "tone": "playful", "text": "Are you a retriever or a detective?", "reply": "Both! Retriever-detective. Retrective.", "mood": 0.05 },
 				{ "tone": "straight", "text": "Okay. I'll keep an eye out.", "reply": "Thanks, buddy.", "mood": 0 },

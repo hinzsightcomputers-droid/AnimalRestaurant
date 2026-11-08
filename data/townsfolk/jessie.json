@@ -21,6 +21,9 @@
 			{"rude":"amy","text":"Amy told me you said \"[last_rude_line]\". ...Not cool, [name]. Not cool at all."}
 		],
 		"arrival": [
+			{"any_decor":["potted_fern","big_planter","indoor_tree"],"text":"The new plants? Chef's kiss.","when":"decor_changed"},
+			{"few_decor":3,"text":"Okay, the corner's a bit empty. It's giving 'unfinished.' Just saying.","when":"decor_changed"},
+			{"full_set":true,"text":"Wait, is that a matching set? OHH, coordinated. I see you.","when":"decor_changed"},
 			{ "when": "first", "text": "Heyyy. Nice place. Very cosy. ...Wait, is that a fireplace? OHH. What's your name? [name]? WOOWW, cute name. I'm Jessie." },
 			{ "text": "Heyyy, [name]. What's good?" },
 			{ "text": "Yo. Vibes in here are immaculate today." },

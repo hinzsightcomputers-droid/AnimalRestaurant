@@ -12,7 +12,10 @@
 	"lines": {},
 
 	"talk": {
+		"trip_from": "miles",
+		"now_and_then": [{"at":["eating"],"chance":0.33,"lines":[{"in_town":"miles","text":"Miles is back from [trip]! He took a photo of a goat and he won't stop showing everyone."},{"in_town":"juno","season":"summer","text":"Juno's back for the summer! She's looking for a job, by the way. Hint hint."},{"in_town":"odette","text":"Odette's in town this week. Be careful, [name]. She's reviewing."},{"away":"seth","text":"Seth's away at a tournament. He said he'd be back 'soon.' He always says that."},{"min_stage":{"stitches":2},"text":"Stitches seems so much happier lately. I think that's you!"}]},{"at":["eating"],"chance":0.33,"lines":[{"any_decor":["potted_fern","big_planter","indoor_tree"],"text":"(She's quietly eating churros.) OH MY GOSH. IS THAT A NEW PLANT?!","then":"Sorry. It's just really cute."},{"text":"WAIT. WAIT WAIT WAIT. I JUST REMEMBERED SOMETHING!","then":"(Pause.) ...Okay, I forgot it again."},{"text":"[name]! THE SUN JUST CAME OUT! LOOK!","then":"Okay, it went back in."},{"text":"IDDY JUST TEXTED ME A HEART!","then":"(Quietly.) He never does that."},{"fav":true,"text":"THIS IS THE BEST CHURRO OF MY LIFE!","then":"I say that every time. It's true every time."}],"loud":true}],
 		"friends": [
+			{"beats":[{"text":"Babe. Inside voice.","who":"iddy"},{"text":"THIS IS MY INSIDE VOICE!","who":"amy"}],"with":"iddy"},
 			{"beats":[{"text":"He's annoying.","who":"amy"},{"text":"She loves it.","who":"iddy"},{"text":"...I love it so much.","who":"amy"}],"with":"iddy"},
 			{"beats":[{"text":"Okay so guess what—","who":"amy"},{"text":"OHHH, what?!","who":"jessie"},{"text":"I haven't said it yet!","who":"amy"},{"text":"I know! I'm ready though!","who":"jessie"}],"with":"jessie"},
 			{"beats":[{"narration":"Amy and Jessie both gasp at the same time over something tiny, then laugh until they can't breathe."}],"with":"jessie"},

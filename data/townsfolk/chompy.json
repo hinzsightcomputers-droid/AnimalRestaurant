@@ -12,6 +12,7 @@
 	"lines": {},
 
 	"talk": {
+		"game_day_linger": 1.5,
 		"friends": [
 			{"beats":[{"text":"This is my cousin Kyle. He's smart. Like, book smart.","who":"chompy"},{"text":"I'm... it's nice to meet you. He's told me nothing about you. Which is normal for him.","who":"kyle"}],"with":"kyle"},
 			{"about":"kyle","text":"Kyle says alligators and crocodiles are different. I don't see it. We both have teeth."},
@@ -20,6 +21,8 @@
 			{"rude":"kyle","text":"Kyle said you said \"[last_rude_line]\". That's not cool. He's my cousin."}
 		],
 		"arrival": [
+			{"text":"My team won! I didn't watch it. I fell asleep. But they won!","when":"game_day"},
+			{"text":"My team lost. It's okay. Breakfast doesn't lose.","when":"game_day"},
 			{ "when": "first", "text": "Uhh, hi. Is this the restaurant? ...It is? Nice. I'm Chompy. What's your name? ...[name]. Cool. I'll try to remember that." },
 			{ "text": "Hey, [name]! Wait. It's [name], right? Yeah. I knew that." },
 			{ "text": "Yo! Is the patio open? I like the patio. It's like outside but with food." },

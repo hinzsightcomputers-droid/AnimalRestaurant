@@ -69,8 +69,8 @@ func _award_star() -> void:
 		_playing = true
 		player.movement_locked = true
 		var box := ConversationBox.open(ConversationBox.parent_for(view_manager, player.player_index, self), player.player_index)
-		for line in Rating.settings().get("award_lines", []):
-			await box.tell("", Rating.fill(String(line)))
+		for line in Rating.award_lines(Accounts.id_of(player.player_index)):
+			await box.tell(line[0], line[1])
 		box.close()
 		player.ignore_interact_until_released()
 		player.movement_locked = false

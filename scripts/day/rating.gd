@@ -118,6 +118,28 @@ static func critic_left(satisfaction: float) -> String:
 	return String(critic_settings().get("passed" if passed else "not_yet", ""))
 
 
+# What the award box says: [speaker, text] each. The named critic says their
+# "passed" line (talk "critic") in place of the first of award_lines; at five
+# stars, their "five_stars" line too, and their framed review (five_stars_gift)
+# goes into your decor storage. Call after award().
+static func award_lines(chef_id: String) -> Array:
+	var lines := []
+	for line in settings().get("award_lines", []):
+		lines.append(["", fill(String(line))])
+	var person := critic_person()
+	var critic: Dictionary = person.get("talk", {}).get("critic", {})
+	if critic.is_empty():
+		return lines
+	var words := TownsfolkTalk.context(person["id"], chef_id)
+	if critic.has("passed"):
+		lines[0] = [person["name"], TownsfolkTalk.fill(critic["passed"], words)]
+	if GameState.stars >= MAX_STARS and critic.has("five_stars"):
+		lines.append([person["name"], TownsfolkTalk.fill(critic["five_stars"], words)])
+		if critic.has("five_stars_gift"):
+			TownsfolkSpecials.give(person["id"], critic["five_stars_gift"])
+	return lines
+
+
 # The star goes up (at closing). Returns the news.
 static func award() -> String:
 	GameState.star_earned = false

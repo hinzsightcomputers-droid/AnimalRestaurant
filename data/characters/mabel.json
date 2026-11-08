@@ -1,6 +1,7 @@
 {
 	"id": "mabel",
 	"name": "Mabel",
+	"them": "her",
 	"species": "tortoise",
 	"name_color": "#3f8a3a",
 	"model": { "path": "res://design/characters/Mabel/mabel.tscn", "height": 1.15, "sit_drop": 0.12, "sit_forward": 0.16, "lean_keep": 0.3, "clip_parts": { "sit_down": [2.6, 4.2], "stand_up": [1.1, 3.1], "sit": [0.5, 4.2] }, "animations": { "sit_down": "Step_to_Sit_Transition", "stand_up": "Sit_to_Stand_Transition_M", "walk": "Walking_Woman", "idle": "Idle_4", "talk": "Talk_with_Right_Hand_Open", "sit": "Chair_Sit_Idle_F", "sit_talk": "Sitting_Answering_Questions" } },

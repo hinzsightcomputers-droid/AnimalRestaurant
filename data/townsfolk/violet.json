@@ -13,6 +13,9 @@
 	"lines": {},
 
 	"talk": {
+		"same_fallback": true,
+		"finally": "Finally.",
+		"now_and_then": [{"at":["eating"],"chance":0.25,"lines":[{"dirty_table":true,"text":"Table three's been dirty a while."},{"later":"New decor since last visit","text":"New lamp. Good."},{"no_decor":["potted_fern","big_planter","indoor_tree"],"text":"The corner needs a plant."},{"not_in_yet":"rush","text":"Rush is late again. He's outside. Sitting."},{"later":"A customer who wanted another table","text":"That customer wanted the booth."},{"later":"Cooking timing","text":"You flipped that one early. It was fine."},{"text":"Your hands are shaking. Drink water."},{"has_decor":true,"text":"It's nicer in here than last month."}]}],
 		"friends": [
 			{"beats":[{"narration":"They sit together in complete silence. Then Hezzy suddenly bursts into song."},{"text":"Ok.","who":"violet"}],"with":"hezzy"},
 			{"beats":[{"narration":"Hezzy makes a weird honking noise out of nowhere."},{"text":"(Without looking up.) Haha, nice.","who":"violet"}],"with":"hezzy"},
@@ -27,7 +30,7 @@
 			{ "text": "Hi, [name]." },
 			{ "text": "Corner, please." },
 			{ "text": "Hello." },
-			{ "text": "Oh. Somewhere quiet, then.", "later": "Stitches is in the corner" },
+			{ "text": "Oh. Somewhere quiet, then.", "regular_in": "stitches", "regular_at": "corner" },
 			{ "when": "last_great", "text": "Last time was good." },
 			{ "when": "last_burnt", "text": "Last time was burnt. Today won't be. (It isn't a threat. It might be a threat.)" },
 			{ "when": "away", "text": "You were closed. I noticed." }

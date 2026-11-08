@@ -63,7 +63,7 @@
 		"eating": [
 			{ "fav": true, "text": "Did you know the word 'soup' comes from an old word for bread soaked in broth? Sorry. I'll stop." },
 			{ "text": "Chompy's my cousin. He's... not a reader. He's very happy, though. I'm a little jealous." },
-			{ "text": "A little gecko girl hid from me last week. I don't blame her. I'd hide from me.", "later": "Before Clover befriends him" },
+			{ "text": "A little gecko girl hid from me last week. I don't blame her. I'd hide from me.", "not_friends": "clover" },
 			{ "voice": "familiar", "text": "I'm reading three books at once right now. It's a problem. A good problem." },
 			{ "voice": "familiar", "text": "I don't usually talk this much. You're easy to talk to. Sorry. That was a lot." }
 		],

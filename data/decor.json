@@ -26,6 +26,71 @@
 		{ "at": [-6.97, 1.7, 2.5], "turn": 90 }
 	],
 	"items": [
+		{ "id": "miles_photo", "name": "Miles' Photo", "description": "A sunrise from one of his trips. He was very grumpy taking it.", "category": "wall art", "kind": "wall", "gift": true, "price": 0, "points": 2, "size": [0.6, 0.1],
+			"parts": [
+				{ "box": [0.6, 0.5, 0.04], "color": "#7f5634", "at": [0, -0.25, 0] },
+				{ "box": [0.48, 0.38, 0.02], "color": "#f2b880", "at": [0, -0.19, 0.03] }
+			] },
+		{ "id": "odette_review", "name": "Odette's Review", "description": "Five stars. Rarely given. Earned.", "category": "wall art", "kind": "wall", "gift": true, "price": 0, "points": 2, "size": [0.6, 0.1],
+			"parts": [
+				{ "box": [0.6, 0.5, 0.04], "color": "#7f5634", "at": [0, -0.25, 0] },
+				{ "box": [0.48, 0.38, 0.02], "color": "#f4ecd8", "at": [0, -0.19, 0.03] }
+			] },
+		{ "id": "clover_drawing_chef", "name": "Clover's Drawing: The Chef", "description": "A chef with a giant hat and a very tall stove.", "category": "wall art", "kind": "wall", "gift": true, "price": 0, "points": 2, "size": [0.6, 0.1],
+			"parts": [
+				{ "box": [0.6, 0.5, 0.04], "color": "#7f5634", "at": [0, -0.25, 0] },
+				{ "box": [0.48, 0.38, 0.02], "color": "#fff6c2", "at": [0, -0.19, 0.03] }
+			] },
+		{ "id": "clover_drawing_everyone", "name": "Clover's Drawing: Everyone", "description": "The whole restaurant with everyone smiling, even the bins.", "category": "wall art", "kind": "wall", "gift": true, "price": 0, "points": 2, "size": [0.6, 0.1],
+			"parts": [
+				{ "box": [0.6, 0.5, 0.04], "color": "#7f5634", "at": [0, -0.25, 0] },
+				{ "box": [0.48, 0.38, 0.02], "color": "#d8f0ff", "at": [0, -0.19, 0.03] }
+			] },
+		{ "id": "clover_drawing_kyle", "name": "Clover's Drawing: Kyle", "description": "Kyle the Crocodile holding her hand, labelled \"MY FRIEND KYLE\".", "category": "wall art", "kind": "wall", "gift": true, "price": 0, "points": 2, "size": [0.6, 0.1],
+			"parts": [
+				{ "box": [0.6, 0.5, 0.04], "color": "#7f5634", "at": [0, -0.25, 0] },
+				{ "box": [0.48, 0.38, 0.02], "color": "#c9f2c0", "at": [0, -0.19, 0.03] }
+			] },
+		{ "id": "luna_mural_spring", "name": "Luna's Spring Mural", "description": "Cherry blossoms over the front door.", "category": "wall art", "kind": "wall", "gift": true, "price": 0, "points": 4, "size": [1.4, 0.1],
+			"parts": [
+				{ "box": [1.4, 0.9, 0.02], "color": "#f6d6e2", "at": [0, -0.45, 0] },
+				{ "box": [1.2, 0.35, 0.02], "color": "#e08aa8", "at": [0, -0.7, 0.01] }
+			] },
+		{ "id": "luna_mural_summer", "name": "Luna's Summer Mural", "description": "The pond at sunset, with the three docks.", "category": "wall art", "kind": "wall", "gift": true, "price": 0, "points": 4, "size": [1.4, 0.1],
+			"parts": [
+				{ "box": [1.4, 0.9, 0.02], "color": "#f7b267", "at": [0, -0.45, 0] },
+				{ "box": [1.2, 0.35, 0.02], "color": "#4f7ca8", "at": [0, -0.7, 0.01] }
+			] },
+		{ "id": "luna_mural_autumn", "name": "Luna's Autumn Mural", "description": "Everyone at a long table, painted small.", "category": "wall art", "kind": "wall", "gift": true, "price": 0, "points": 4, "size": [1.4, 0.1],
+			"parts": [
+				{ "box": [1.4, 0.9, 0.02], "color": "#e2a15a", "at": [0, -0.45, 0] },
+				{ "box": [1.2, 0.35, 0.02], "color": "#8a4b2a", "at": [0, -0.7, 0.01] }
+			] },
+		{ "id": "luna_mural_winter", "name": "Luna's Winter Mural", "description": "The restaurant at night, snowy, every window glowing.", "category": "wall art", "kind": "wall", "gift": true, "price": 0, "points": 4, "size": [1.4, 0.1],
+			"parts": [
+				{ "box": [1.4, 0.9, 0.02], "color": "#2c3a5a", "at": [0, -0.45, 0] },
+				{ "box": [1.2, 0.35, 0.02], "color": "#f2d16b", "at": [0, -0.7, 0.01] }
+			] },
+		{ "id": "penny_book", "name": "Penny's Book", "description": "She'd like it to live somewhere happy.", "category": "counters", "kind": "floor", "gift": true, "price": 0, "points": 1, "size": [0.5, 0.5],
+			"parts": [
+				{ "box": [0.45, 0.5, 0.45], "color": "#8a6a4a", "at": [0, 0, 0] },
+				{ "box": [0.3, 0.08, 0.3], "color": "#4a78b5", "at": [0, 0.5, 0] }
+			] },
+		{ "id": "hazel_tea_cosy", "name": "Hazel's Tea Cosy", "description": "For the teapot. Now you have a reason to get one.", "category": "counters", "kind": "floor", "gift": true, "price": 0, "points": 1, "size": [0.5, 0.5],
+			"parts": [
+				{ "box": [0.45, 0.5, 0.45], "color": "#8a6a4a", "at": [0, 0, 0] },
+				{ "box": [0.25, 0.2, 0.25], "color": "#d9738f", "at": [0, 0.5, 0] }
+			] },
+		{ "id": "hazel_coasters", "name": "Hazel's Coasters", "description": "Six of them. Two spares for when somebody spills.", "category": "counters", "kind": "floor", "gift": true, "price": 0, "points": 1, "size": [0.5, 0.5],
+			"parts": [
+				{ "box": [0.45, 0.5, 0.45], "color": "#8a6a4a", "at": [0, 0, 0] },
+				{ "box": [0.3, 0.05, 0.3], "color": "#9cc69b", "at": [0, 0.5, 0] }
+			] },
+		{ "id": "hazel_sign_scarf", "name": "Hazel's Little Scarf", "description": "For your sign. It gets cold out there.", "category": "counters", "kind": "floor", "gift": true, "price": 0, "points": 1, "size": [0.5, 0.5],
+			"parts": [
+				{ "box": [0.45, 0.5, 0.45], "color": "#8a6a4a", "at": [0, 0, 0] },
+				{ "box": [0.35, 0.06, 0.35], "color": "#c0392b", "at": [0, 0.5, 0] }
+			] },
 		{ "id": "potted_fern", "name": "Potted Fern", "description": "A small green friend for a corner.", "category": "plants", "kind": "floor", "tier": 1, "price": 15, "points": 2, "size": [0.5, 0.5], "set": "cozy",
 			"parts": [
 				{ "cylinder": [0.2, 0.3], "color": "#b5683c", "at": [0, 0, 0] },

@@ -39,6 +39,7 @@ const QUALITY_COLORS: Array[Color] = [Color(1.0, 0.85, 0.3), Color(0.55, 0.95, 0
 const LAUGH_REACH := 4.0   # Metres: who joins in when Rush gets laughing.
 const LAUGH_STEP := 0.35   # Seconds between each one joining in.
 const LAUGH_MOOD := 0.02   # What joining in does for their visit.
+const PASSING_REACH := 1.6  # Metres: walking this close past Iddy's table counts as passing.
 const COMPANION_GAP := 2.0  # Seconds behind their friend that a semi-regular walking in with them comes in.
 const SITTING_STATES := [Customer.State.WAITING_DRINK_ORDER, Customer.State.WAITING_FOR_DRINK, Customer.State.WAITING_FOOD_ORDER, Customer.State.WAITING_FOR_FOOD, Customer.State.EATING, Customer.State.DONE_EATING, Customer.State.WANTS_BILL]
 
@@ -75,6 +76,7 @@ var _arrival_timer := Timer.new()
 var _meal_size := 0       # How many this meal expects (for its pacing).
 var _arrived := 0         # How many of them have walked in so far.
 var _rush_called := false
+var _passing_left := 0.0   # Seconds till the next look for chefs walking past tables.
 var _companion: Dictionary = {}     # A semi-regular walking in right behind their friend (TownsfolkFriends.pair_for).
 var bell := ServiceBell.new()     # On the host stand: rung to start the next meal.
 
@@ -92,7 +94,11 @@ func _ready() -> void:
 		table.seat_requested.connect(_on_table_seat_requested)
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	_passing_left -= delta
+	if _passing_left <= 0.0:
+		_passing_left = 0.4
+		_check_passing()
 	# Someone leading a customer left the game: the customer goes back in line.
 	for player_index in _leading.keys():
 		var customer: Customer = _leading[player_index]
@@ -325,6 +331,9 @@ func _setup_townsfolk(customer: Customer, person: Dictionary) -> void:
 	customer.setup(species, Townsfolk.choose(person, "favorite_dish", GameData.menu(), GameData.random_dish()), null)
 	customer.townsfolk_id = person["id"]
 	customer.display_name = person.get("name", customer.display_name)
+	var linger := float(person.get("talk", {}).get("game_day_linger", 1.0))
+	if linger != 1.0 and TownsfolkTalk._time_now()["game_day"]:
+		customer.eat_duration *= linger  # Chompy stays for the game.
 
 
 # The critic: the named townsfolk playing them, or the unnamed one from
@@ -488,6 +497,9 @@ func _greet(player: Player, customer: Customer, lock_target: Interactable) -> vo
 	else:
 		customer.last_chef = Accounts.id_of(player.player_index)
 		var hello := TownsfolkTalk.arrival(customer.townsfolk_id, customer.last_chef) if _has_talk(customer) else ""
+		if customer.is_critic and _has_talk(customer):
+			hello = TownsfolkTalk.fill(String(TownsfolkTalk.talk_of(customer.townsfolk_id).get("critic", {}).get("arrival", hello)), TownsfolkTalk.context(customer.townsfolk_id, customer.last_chef))
+		_after_townsfolk_line(customer)
 		if hello.is_empty():
 			hello = _townsfolk_line(customer, "host_stand")
 		await _talk_at(player, customer, hello, &"", _at_counter(player, customer), order_chat_zoom, lock_target)
@@ -638,7 +650,8 @@ func _on_seated(customer: Customer, table: DiningTable) -> void:
 		if not customer.seat_note.is_empty():
 			GameEvents.announce(customer.seat_note)
 	else:
-		customer.say(_townsfolk_line(customer, "seated"))
+		var new_seat := TownsfolkSpecials.new_seat(customer.townsfolk_id, table.spot) if _has_talk(customer) else ""
+		customer.say(new_seat if not new_seat.is_empty() else _townsfolk_line(customer, "seated"))
 	GameEvents.announce("%s sat down. Take their drink order!" % _who(customer).capitalize())
 
 
@@ -1285,6 +1298,8 @@ func _serve(player: Player, customer: Customer) -> void:
 	GameState.record_chef_action(player.player_index, "served")
 	customer.serve(plate.quality, plate)
 	GameEvents.announce("Served %s to %s." % [plate.dish_name(), customer_name])
+	if CookingMinigame.quality_label(plate.quality) == "Burnt":
+		_oops_near(customer)
 	_pop_serve(customer)
 	if not customer.is_regular():
 		var quality := customer.served_quality
@@ -1372,6 +1387,58 @@ func _say_duo(box: ConversationBox, customer: Customer, friend: Customer, duo: D
 			await _say(box, who, TownsfolkTalk.fill(String(beat.get("text", "")), words))
 
 
+# After a semi-regular says something: everyone near jumps if it was loud
+# (Amy, Hezzy), and a gift in it comes to you.
+func _after_townsfolk_line(customer: Customer) -> void:
+	if not _has_talk(customer):
+		return
+	if TownsfolkTalk.take_startle(customer.townsfolk_id):
+		_react_near(customer, &"surprised")
+	var gift := TownsfolkSpecials.take_gift(customer.townsfolk_id)
+	if not gift.is_empty():
+		TownsfolkSpecials.give(customer.townsfolk_id, gift)
+
+
+# Everyone sitting within LAUGH_REACH of `customer` (not them), nearest first.
+func _near(customer: Customer) -> Array:
+	var near := []
+	for child in get_children():
+		if child is Customer and child != customer and child.state in SITTING_STATES and child.global_position.distance_to(customer.global_position) <= LAUGH_REACH:
+			near.append(child)
+	near.sort_custom(func(a, b): return a.global_position.distance_to(customer.global_position) < b.global_position.distance_to(customer.global_position))
+	return near
+
+
+func _react_near(customer: Customer, emotion: StringName) -> void:
+	for other: Customer in _near(customer):
+		other.emote(emotion)
+
+
+# Something went wrong at `customer`'s table (a burnt dish): anyone near with
+# an "oops" line (Makayla) covers their eyes and says it.
+func _oops_near(customer: Customer) -> void:
+	for other: Customer in _near(customer) + [customer]:
+		if other.is_townsfolk() and TownsfolkTalk.talk_of(other.townsfolk_id).has("oops"):
+			other.emote(&"shy")
+			other.say(String(TownsfolkTalk.talk_of(other.townsfolk_id)["oops"]))
+
+
+# Iddy's "You good?": a chef walking past a semi-regular's table (once a visit).
+func _check_passing() -> void:
+	for child in get_children():
+		if not (child is Customer) or child.passed_by or not child.is_townsfolk() or not child.state in SITTING_STATES or child.talking:
+			continue
+		if not TownsfolkTalk.talk_of(child.townsfolk_id).has("passing"):
+			continue
+		for node in get_tree().get_nodes_in_group(Player.GROUP):
+			if node is Node3D and node.global_position.distance_to(child.global_position) <= PASSING_REACH:
+				child.passed_by = true
+				var line := TownsfolkSpecials.passing(child.townsfolk_id)
+				if not line.is_empty():
+					child.say(line)
+				break
+
+
 # Rush's laugh (a "laugh_chain" line or reply): it ripples out to everyone
 # sitting within LAUGH_REACH, nearest first, each a little happier for it. Once
 # a visit; then their "laugh_chain_after" line.
@@ -1380,11 +1447,7 @@ func _laugh_chain(box: ConversationBox, customer: Customer) -> void:
 		return
 	customer.laughed = true
 	customer.emote(&"joyful")
-	var near := []
-	for child in get_children():
-		if child is Customer and child != customer and child.state in SITTING_STATES and child.global_position.distance_to(customer.global_position) <= LAUGH_REACH:
-			near.append(child)
-	near.sort_custom(func(a, b): return a.global_position.distance_to(customer.global_position) < b.global_position.distance_to(customer.global_position))
+	var near := _near(customer)
 	for other: Customer in near:
 		await get_tree().create_timer(LAUGH_STEP).timeout
 		if is_instance_valid(other):
@@ -1413,6 +1476,9 @@ func _townsfolk_eating_chat(player: Player, customer: Customer) -> void:
 	else:
 		var words := TownsfolkTalk.context(customer.townsfolk_id, customer.last_chef, customer.dish, customer.drink)
 		await _say(box, customer, TownsfolkTalk.fill(String(line.get("text", "Mm. It's good.")), words))
+		_after_townsfolk_line(customer)
+		if line.has("then"):
+			await _say(box, customer, TownsfolkTalk.fill(String(line["then"]), words))
 		if line.get("laugh_chain", false):
 			await _laugh_chain(box, customer)
 	box.close()
@@ -1607,6 +1673,7 @@ func _settle_bill(player: Player, customer: Customer) -> void:
 		var farewell := Townsfolk.line(customer.townsfolk_id, "farewell", {}, customer.last_chef)
 		if _has_talk(customer):
 			farewell = TownsfolkTalk.leaving(customer.townsfolk_id, customer.last_chef, customer.dish)
+			_after_townsfolk_line(customer)
 			TownsfolkTalk.after_visit(customer.townsfolk_id, customer.dish, customer.served_quality)
 		line = farewell if not farewell.is_empty() else line
 		Townsfolk.record_visit(customer.townsfolk_id, customer.served_by_account)  # They know who served them now.
@@ -1641,6 +1708,9 @@ func _settle_bill(player: Player, customer: Customer) -> void:
 		GameEvents.announce("%s paid $%d." % [_who(customer).capitalize(), amount])
 	if customer.is_critic:
 		GameEvents.announce(Rating.critic_left(satisfaction))
+		var critic: Dictionary = TownsfolkTalk.talk_of(customer.townsfolk_id).get("critic", {}) if customer.is_townsfolk() else {}
+		if not GameState.star_earned and critic.has("not_yet"):
+			customer.say(TownsfolkTalk.fill(critic["not_yet"], TownsfolkTalk.context(customer.townsfolk_id, customer.last_chef)))
 	GameState.record_service({
 		"species": customer.species.get("id", ""),
 		"regular": customer.regular_id,

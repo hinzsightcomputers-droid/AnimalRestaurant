@@ -94,8 +94,18 @@ static func choose(person: Dictionary, favorite_key: String, can_have: Array, fa
 	var favorite := String(person.get(favorite_key, ""))
 	var found := can_have.filter(func(item): return item["id"] == favorite)
 	var chance: float = person.get("talk", {}).get("favorite_chance", settings().get("favorite_chance", 0.7))
-	if not found.is_empty() and randf() < chance:
-		return found[0]
+	var state: Dictionary = GameState.townsfolk.get(person.get("id", ""), {})
+	if not found.is_empty():
+		if state.has("fallback_" + favorite_key):
+			state.erase("fallback_" + favorite_key)
+			state["finally"] = true  # It's on at last (Violet: "Finally.").
+		if randf() < chance:
+			return found[0]
+	elif person.get("talk", {}).get("same_fallback", false) and not state.is_empty():
+		var same := can_have.filter(func(item): return item["id"] == state.get("fallback_" + favorite_key, ""))
+		if not same.is_empty():
+			return same[0]
+		state["fallback_" + favorite_key] = fallback.get("id", "")
 	return fallback
 
 
@@ -131,6 +141,9 @@ static func record_visit(townsfolk_id: String, chef_id: String) -> void:
 	if state.is_empty():
 		return
 	state["visits"] = int(state.get("visits", 0)) + 1
+	if not chef_id.is_empty():
+		var served: Dictionary = state.get_or_add("served", {})  # Visits each chef served them.
+		served[chef_id] = int(served.get(chef_id, 0)) + 1
 	var met: Array = state.get_or_add("met", [])
 	if not chef_id.is_empty() and not chef_id in met:
 		met.append(chef_id)

@@ -12,6 +12,7 @@
 	"lines": {},
 
 	"talk": {
+		"leaves_gift": ["clover_drawing_chef","clover_drawing_everyone","clover_drawing_kyle"],
 		"friends": [
 			{"beats":[{"narration":"Clover hides behind the booth."},{"text":"...Is he gonna eat me?","who":"clover"},{"text":"(Softly.) No. I'm having the soup.","who":"kyle"}],"first":true,"with":"kyle"},
 			{"beats":[{"text":"This is Kyle! He's my best friend!","who":"clover"},{"text":"(Gently, awkward.) I'm... yes. Hello. She drew me a picture. I have it on my fridge.","who":"kyle"}],"with":"kyle"},
@@ -64,7 +65,7 @@
 		"eating": [
 			{ "text": "Do you have a dog? I want a dog. My mum says no. Do YOU have a dog?" },
 			{ "text": "I'm drawing you right now. Don't move. ...Okay, you can move. I'll make it up." },
-			{ "text": "Why does that customer have so many patches? ...Oh, they're nice. I like them.", "later": "If Stitches is in" },
+			{ "text": "Why does that customer have so many patches? ...Oh, they're nice. I like them.", "regular_in": "stitches" },
 			{ "text": "The big crocodile is my friend now! His name is Kyle! He's not scary. He's nice. He likes soup." },
 			{ "text": "How many dishes have you washed? Like, ever? A hundred? A MILLION?" }
 		],

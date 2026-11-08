@@ -12,6 +12,7 @@
 	"lines": {},
 
 	"talk": {
+		"stories": [{"invented":true,"parts":["My suitcase got sent to the wrong city","Then it got sent to a different wrong city","Then it turned up at the airport wearing someone else's luggage tag","And when I opened it, there was a goat inside"],"title":"The Lost Luggage"},{"invented":true,"parts":["I'm trying to sell one fridge to a penguin","Day four of trying to sell that penguin one fridge","It's been a whole week and that penguin still hasn't bought the fridge"],"title":"The Big Sale"},{"invented":true,"parts":["Cody and I started a gaming night","We played so long the sun came up","Neither of us knew what day it was anymore"],"title":"The All-Nighter"}],
 		"friends": [
 			{"beats":[{"text":"This guy beat me at a racing game last night.","who":"yaniv"},{"text":"(Slow, chill.) Every game.","who":"cody"},{"text":"MOST games.","who":"yaniv"}],"with":"cody"},
 			{"beats":[{"narration":"Yaniv talks for five minutes straight. Cody says one word."},{"text":"See? He gets me.","who":"yaniv"}],"with":"cody"},
@@ -79,7 +80,7 @@
 		"leaving": [
 			{ "text": "That's a wrap! Great service, great food, great audience. Bye, [name]!" },
 			{ "text": "Okay, I'm going home to game until the sun comes up. Don't tell my boss." },
-			{ "text": "To be continued... You'll have to come back. I mean, I'll come back. You're already here.", "later": "After a story part" },
+			{ "text": "To be continued... You'll have to come back. I mean, I'll come back. You're already here.", "when": "story_part" },
 			{ "when": "leaving_town", "text": "Sales trip tomorrow. Three cities. If I don't come back, I've probably sold myself." }
 		],
 		"seasons": {

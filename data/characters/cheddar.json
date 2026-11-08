@@ -1,6 +1,7 @@
 {
 	"id": "cheddar",
 	"name": "Cheddar",
+	"them": "him",
 	"species": "mouse",
 	"name_color": "#e0780f",
 	"color": "#f5922f",

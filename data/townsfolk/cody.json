@@ -12,6 +12,7 @@
 	"lines": {},
 
 	"talk": {
+		"car": {"every":5,"levels":["She's not much. Yet.","Got rims. They're shiny. I polished them for an hour.","Added a spoiler. Does it help? Nope. Does it look cool? Yep.","Painted her. Took three tries. The first two were... a phase.","Under-glow. Wait till it's dark. Then come look. I'll wait.","She's finished. Took me two years. ...Want a ride? Kidding. Kind of."]},
 		"friends": [
 			{"beats":[{"text":"This guy beat me at a racing game last night.","who":"yaniv"},{"text":"(Slow, chill.) Every game.","who":"cody"},{"text":"MOST games.","who":"yaniv"}],"with":"yaniv"},
 			{"beats":[{"narration":"Yaniv talks for five minutes straight. Cody says one word."},{"text":"See? He gets me.","who":"yaniv"}],"with":"yaniv"},

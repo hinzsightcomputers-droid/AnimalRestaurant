@@ -12,6 +12,7 @@
 	"lines": {},
 
 	"talk": {
+		"trips": ["Pinecrest Mountain","the Coral Coast","Fogwillow Marsh","the Sandy Dunes","Lantern Lake","the Old Lighthouse"],
 		"friends": [
 			{"beats":[{"text":"Uh, Odette and I swap travel stories! She rates the food, I photograph it.","who":"miles"},{"text":"He photographs it before I've had a chance to taste it. It's infuriating. ...The photos are excellent.","who":"odette"}],"with":"odette"},
 			{"about":"odette","text":"Uh, Odette said the restaurant I went to on the coast was 'adequate.' That's basically five stars from her!"},
@@ -20,6 +21,9 @@
 			{"about":"amy","later":"Gossip from Amy: comes with the specials","text":"Uh, Amy told me there's a new regular in town! I need to take their portrait."}
 		],
 		"arrival": [
+			{"gift":"miles_photo","text":"Uh, I brought you something! It's a photo of the sunrise at [trip]. I took it at 5 AM. I was very grumpy. It was worth it.","when":"back_gift"},
+			{"gift":"miles_photo","text":"Uh, got you a little something from [trip]. Frame and everything! Hang it somewhere sunny.","when":"back_gift"},
+			{"decor_up":"miles_photo","text":"Uh, ha! My photo! It looks so good there. You've got great taste. In frames."},
 			{ "when": "first", "text": "Uh, hi hi hi! I'm Miles! Mind if I snap a photo? Of the restaurant, I mean. And you, if you want! What's your name? ...[name]! Great name. Very photogenic." },
 			{ "text": "Uh, [name]! I dug my way over here. Not literally. ...Okay, a little literally. Ha!" },
 			{ "text": "Uh, is the patio open? I love the patio. Fresh air, nice light, great for photos." },
@@ -77,6 +81,7 @@
 			] }
 		],
 		"leaving": [
+			{"text":"Uh, I'm off to [trip] tomorrow! Don't miss me too much. Actually, miss me a little.","when":"leaving_town"},
 			{ "text": "Uh, thanks, [name]! I'll see you soon. Or I'll see you through a lens!" },
 			{ "text": "Uh, okay, I'm off! Gotta hole up at home. Ha! Bye!" },
 			{ "text": "Uh, that was delightful. I'm going to go photograph a cloud now." }

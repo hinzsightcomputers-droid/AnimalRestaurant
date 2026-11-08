@@ -20,6 +20,9 @@
 			{"rude":"hazel","text":"Hazel told me you said \"[last_rude_line]\". ...She's the sweetest person alive, [name]. Come on."}
 		],
 		"arrival": [
+			{"text":"Are you hiring? Asking for a friend. The friend is me."},
+			{"text":"I made a CV. It's one page. It's mostly a drawing of a dumpling."},
+			{"later":"Once staff unlock","text":"Wait. You're HIRING now? [name]. Look at me. LOOK at me."},
 			{ "when": "first", "text": "Hi! I'm Juno! Oh, this place is so cool. Are you hiring? Sorry. Hi first. What's your name? [name]! Hi, [name]! Are you hiring?" },
 			{ "text": "[name]! Hi! I'm back! Did you miss me? I missed this place!" },
 			{ "text": "Oops! (She drops her keys on the way in.) I'm fine! Everything's fine!" },
@@ -74,6 +77,7 @@
 			] }
 		],
 		"leaving": [
+			{"text":"If you ever need someone to wash dishes, I'm very good at getting wet. Otter."},
 			{ "text": "Bye, [name]! Thanks for the food! And the life lessons!" },
 			{ "text": "I'm gonna go study. Or nap. Probably nap." },
 			{ "text": "See you tomorrow! If I'm not working. I'm never working. See you tomorrow!" },

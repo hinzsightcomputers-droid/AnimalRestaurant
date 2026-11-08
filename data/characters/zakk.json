@@ -1,6 +1,7 @@
 {
 	"id": "zakk",
 	"name": "Zakk",
+	"them": "him",
 	"species": "penguin",
 	"name_color": "#2f5f8a",
 	"color": "#2b2f3a",

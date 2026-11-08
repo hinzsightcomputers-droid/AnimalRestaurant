@@ -12,6 +12,7 @@
 	"lines": {},
 
 	"talk": {
+		"now_and_then": [{"asked_after":"What?","at":["arrival","eating","leaving"],"chance":0.33,"familiar":true,"lines":[{"text":"♪ Strudel in my heart ♪"},{"text":"(A goose honk.)"},{"text":"(A whale call.)"},{"text":"(The noise of a dial-up modem.)"},{"text":"(A kettle whistle.)"},{"text":"(A single, dramatic opera note.)"},{"text":"(A short beatbox.)"}],"loud":true}],
 		"friends": [
 			{"beats":[{"narration":"They sit together in complete silence. Then Hezzy suddenly bursts into song."},{"text":"Ok.","who":"violet"}],"with":"violet"},
 			{"beats":[{"narration":"Hezzy makes a weird honking noise out of nowhere."},{"text":"(Without looking up.) Haha, nice.","who":"violet"}],"with":"violet"},

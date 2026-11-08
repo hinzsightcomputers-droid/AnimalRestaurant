@@ -26,10 +26,15 @@
 # their grudge list for good: "grudge" arrival and leaving lines, "grudge_drop"
 # words left out of the rest, and only the "only": "grudge" ordering
 # conversation, until an "apology" reply clears it.
+#
+# "now_and_then" (see _roll_now_and_then) are the things they do some visits:
+# Iddy's "shallow and pedantic", Amy's news and outbursts, Violet's rare
+# lines, Hezzy's songs and honks. A line can also say when it's true (see
+# _true_now): who's in town, who's sitting in here, how yesterday went, and so on.
 class_name TownsfolkTalk
 extends RefCounted
 
-const WHEN_NOW := ["day", "evening", "night", "breakfast", "weekend"]  # These just join the pool, when they're true.
+const WHEN_NOW := ["day", "evening", "night", "breakfast", "weekend", "game_day"]  # These just join the pool, when they're true.
 
 
 static func talk_of(townsfolk_id: String) -> Dictionary:
@@ -82,6 +87,14 @@ static func context(townsfolk_id: String, chef_id: String, dish: Dictionary = {}
 		words["last_rude_line"] = state["last_rude_line"]
 	if has_grudge(townsfolk_id, chef_id):
 		words["last_rude_line"] = state["grudge"][chef_id]  # What they remember you saying.
+	var low := lowest_regular()
+	if not low.is_empty():
+		words["low_regular"] = low["name"]
+		words["low_them"] = GameData.characters.get(low["id"], {}).get("them", "them")
+	var trip: String = _state(person.get("talk", {}).get("trip_from", townsfolk_id)).get("trip", "")
+	if not trip.is_empty():
+		words["trip"] = trip
+	TownsfolkSpecials.add_words(townsfolk_id, words)
 	return words
 
 
@@ -128,7 +141,8 @@ static func _time_now() -> Dictionary:
 	# Walk-ins don't come in on the night shift itself, so dinner is as late as
 	# they get: that's when night people say their night lines.
 	var late: bool = phase == "dinner" or DayCycle.is_night()
-	return { "day": not late, "evening": phase == "dinner", "night": late, "breakfast": phase == "breakfast", "weekend": GameClock.is_weekend() }
+	return { "day": not late, "evening": phase == "dinner", "night": late, "breakfast": phase == "breakfast", "weekend": GameClock.is_weekend(),
+		"game_day": GameClock.is_weekend() and phase == "dinner" }  # Chompy's weekend dinners.
 
 
 # Whether `line` can be said now by someone in that voice. `dish_id` is what
@@ -141,7 +155,79 @@ static func _can_say(townsfolk_id: String, chef_id: String, line: Dictionary, wo
 		return false
 	if line.get("fav", false) and dish_id != GameData.get_townsfolk(townsfolk_id).get("favorite_dish", ""):
 		return false
+	if not _true_now(townsfolk_id, line):
+		return false
 	return not "[name]" in String(line["text"]) or chef_id in _state(townsfolk_id).get("met", [])
+
+
+# Whether what `line` is about is so right now. Its keys (all optional):
+# in_town / away (a semi-regular), not_in_yet (in town, not been in today),
+# regular_in (a regular sitting in here) with regular_at (at that table),
+# min_stage ({ regular: stage }), rough_yesterday (true or false), season,
+# not_friends (they haven't had their first time in with them yet),
+# dirty_table, has_decor, no_decor (none of those ids placed), decor_up (placed),
+# any_decor (one of those placed), few_decor (fewer than that placed), full_set.
+static func _true_now(townsfolk_id: String, line: Dictionary) -> bool:
+	if line.has("in_town") and not Townsfolk.is_in_town(line["in_town"]):
+		return false
+	if line.has("away") and Townsfolk.is_in_town(line["away"]):
+		return false
+	if line.has("not_in_yet") and (not Townsfolk.is_in_town(line["not_in_yet"]) or int(_state(line["not_in_yet"]).get("last_visit", -1)) == GameState.day_number):
+		return false
+	if line.has("regular_in"):
+		var at: String = line.get("regular_at", "")
+		if not customers_in().any(func(c): return c.regular_id == line["regular_in"] and (at.is_empty() or (c.seat != null and c.seat.table != null and c.seat.table.spot == at))):
+			return false
+	for regular_id in line.get("min_stage", {}):
+		var record: Dictionary = GameState.regulars.get(regular_id, {})
+		if record.is_empty() or not record.get("introduced", false) or RegularMemory.stage_of(record) < int(line["min_stage"][regular_id]):
+			return false
+	if line.has("rough_yesterday") and bool(line["rough_yesterday"]) != rough_yesterday():
+		return false
+	if line.has("season") and GameClock.season() != line["season"]:
+		return false
+	if line.has("not_friends") and line["not_friends"] in _state(townsfolk_id).get("friends_met", []):
+		return false
+	if line.has("decor_up") and not GameState.decor_placed.any(func(p): return p["id"] == line["decor_up"]):
+		return false
+	if line.get("dirty_table", false) and not _a_dirty_table():
+		return false
+	if line.get("has_decor", false) and GameState.decor_placed.is_empty():
+		return false
+	if line.has("any_decor") and not GameState.decor_placed.any(func(p): return p["id"] in line["any_decor"]):
+		return false
+	if line.has("few_decor") and GameState.decor_placed.size() >= int(line["few_decor"]):
+		return false
+	if line.get("full_set", false) and not Decor.has_full_set():
+		return false
+	if line.has("no_decor") and GameState.decor_placed.any(func(p): return p["id"] in line["no_decor"]):
+		return false
+	return true
+
+
+# Everyone in the restaurant right now.
+static func customers_in() -> Array:
+	var tree := Engine.get_main_loop() as SceneTree
+	return tree.root.find_children("*", "Customer", true, false) if tree != null else []
+
+
+static func _a_dirty_table() -> bool:
+	var tree := Engine.get_main_loop() as SceneTree
+	return tree != null and tree.root.find_children("*", "DiningTable", true, false).any(func(t): return not t.is_clean())
+
+
+# The last day open went badly (rough_day_below average satisfaction).
+static func rough_yesterday() -> bool:
+	return not GameState.service_history.is_empty() and float(GameState.service_history.back()) < _chance("rough_day_below", 0.5)
+
+
+# The introduced regular who's lowest right now, or {} if nobody's below stage 1.
+static func lowest_regular() -> Dictionary:
+	var lowest := {}
+	for record in GameState.regulars.values():
+		if record.get("introduced", false) and (lowest.is_empty() or int(record["relationship"]) < int(lowest["relationship"])):
+			lowest = record
+	return lowest
 
 
 # Lines with no "when" that can be said now, plus those whose "when" is true.
@@ -157,7 +243,10 @@ static func _pool(townsfolk_id: String, chef_id: String, lines: Array, words: Di
 # A line for the moment `when` (one at random if there are a few), or {}.
 static func _for_moment(townsfolk_id: String, chef_id: String, lines: Array, when: String, words: Dictionary, dish_id: String) -> Dictionary:
 	var found := lines.filter(func(line): return line.get("when", "") == when and _can_say(townsfolk_id, chef_id, line, words, dish_id))
-	return found.pick_random() if not found.is_empty() else {}
+	var line: Dictionary = found.pick_random() if not found.is_empty() else {}
+	if line.has("gift"):
+		_state(townsfolk_id)["gift"] = line["gift"]
+	return line
 
 
 # Sometimes (outfit_chance, once a visit) a compliment on the chef's outfit, for
@@ -192,7 +281,54 @@ static func _pick_unheard(townsfolk_id: String, pool: Array) -> Dictionary:
 		fresh = pool
 	var line: Dictionary = fresh.pick_random()
 	seen.append(_key(line))
+	if line.has("gift"):
+		_state(townsfolk_id)["gift"] = line["gift"]
 	return line
+
+
+# Each of their "now_and_then" entries comes up `chance` of visits (rolled as
+# they walk in), at one of its moments ("at": arrival, eating or leaving), and
+# then says one of its lines instead of what they'd say there. "familiar": true
+# waits for their warmer voice; "loud": true makes everyone near jump (see
+# take_startle); "asked_after" is what they say if you walk up straight after.
+# A line can have "then": a second line said after it.
+static func _roll_now_and_then(townsfolk_id: String, chef_id: String) -> void:
+	var due := []
+	var entries: Array = talk_of(townsfolk_id).get("now_and_then", [])
+	for i in entries.size():
+		var entry: Dictionary = entries[i]
+		if entry.get("familiar", false) and not is_familiar(townsfolk_id, chef_id):
+			continue
+		if randf() < float(entry.get("chance", 0.0)):
+			due.append({ "entry": i, "at": Array(entry.get("at", ["eating"])).pick_random() })
+	_state(townsfolk_id)["now_and_then"] = due
+
+
+static func _now_and_then(townsfolk_id: String, chef_id: String, moment: String, words: Dictionary, dish_id: String) -> Dictionary:
+	var state := _state(townsfolk_id)
+	var entries: Array = talk_of(townsfolk_id).get("now_and_then", [])
+	for due in state.get("now_and_then", []).duplicate():
+		if due["at"] != moment or int(due["entry"]) >= entries.size():
+			continue
+		state["now_and_then"].erase(due)
+		var entry: Dictionary = entries[int(due["entry"])]
+		var line := _pick_unheard(townsfolk_id, entry.get("lines", []).filter(func(l): return _can_say(townsfolk_id, chef_id, l, words, dish_id)))
+		if line.is_empty():
+			continue
+		if entry.get("loud", false):
+			state["startle"] = true
+		if entry.has("asked_after"):
+			state["asked_after"] = entry["asked_after"]
+		return line
+	return {}
+
+
+# Whether what they just said made everyone near jump (once).
+static func take_startle(townsfolk_id: String) -> bool:
+	var state := _state(townsfolk_id)
+	var loud: bool = state.get("startle", false)
+	state.erase("startle")
+	return loud
 
 
 static func _key(line: Dictionary) -> String:
@@ -228,6 +364,7 @@ static func arrival(townsfolk_id: String, chef_id: String) -> String:
 	var met: Array = state.get_or_add("met", [])
 	var back: bool = state.get("just_back", false)
 	state.erase("just_back")
+	_roll_now_and_then(townsfolk_id, chef_id)
 	if not chef_id in met:
 		met.append(chef_id)
 		for line in lines:  # In any voice: a new chef still gets introduced.
@@ -256,10 +393,18 @@ static func arrival(townsfolk_id: String, chef_id: String) -> String:
 	var gossip := TownsfolkFriends.gossip_line(townsfolk_id, chef_id)
 	if not gossip.is_empty():
 		return gossip
+	var special := TownsfolkSpecials.arrival(townsfolk_id, chef_id, words)
+	if not special.is_empty():
+		return special
+	var now := _now_and_then(townsfolk_id, chef_id, "arrival", words, last_dish)
+	if not now.is_empty():
+		return fill(now["text"], words)
 	var line := {}
 	if int(talk_of(townsfolk_id).get("familiar_after", 0)) == _visit_number(state) and not state.get("familiar_told", false):
 		line = _for_moment(townsfolk_id, chef_id, lines, "familiar_moment", words, GameData.get_townsfolk(townsfolk_id).get("favorite_dish", ""))
 		state["familiar_told"] = not line.is_empty()
+	if line.is_empty() and back:
+		line = _for_moment(townsfolk_id, chef_id, lines, "back_gift", words, last_dish)
 	if line.is_empty() and back:
 		line = _for_moment(townsfolk_id, chef_id, lines, "back", words, last_dish)
 	if line.is_empty():
@@ -427,6 +572,17 @@ static func eating(townsfolk_id: String, chef_id: String, dish: Dictionary) -> D
 	var favorite: String = GameData.get_townsfolk(townsfolk_id).get("favorite_dish", "")
 	if is_cold(townsfolk_id, chef_id):
 		return { "text": _cold_line(townsfolk_id) }
+	var state := _state(townsfolk_id)
+	if state.has("asked_after"):  # Hezzy, straight after an outburst.
+		var asked: String = state["asked_after"]
+		state.erase("asked_after")
+		return { "text": asked }
+	var now := _now_and_then(townsfolk_id, chef_id, "eating", words, dish_id)
+	if not now.is_empty():
+		return now
+	var hunch := TownsfolkSpecials.intuition(townsfolk_id, chef_id, words)
+	if not hunch.is_empty():
+		return hunch
 	if randf() < _chance("eating_choice_chance", 0.35):
 		var chats: Array = talk.get("eating_chat", []).filter(func(line):
 			return (dish_id == favorite or not line.get("fav", false)) and _can_converse(townsfolk_id, chef_id, line, words))
@@ -457,6 +613,10 @@ static func leaving(townsfolk_id: String, chef_id: String, dish: Dictionary) -> 
 		return _cold_line(townsfolk_id)
 	if has_grudge(townsfolk_id, chef_id):
 		line = _for_moment(townsfolk_id, chef_id, lines, "grudge", words, dish_id)
+	if line.is_empty():
+		line = _now_and_then(townsfolk_id, chef_id, "leaving", words, dish_id)
+	if line.is_empty():
+		line = TownsfolkSpecials.leaving(townsfolk_id, chef_id, words)
 	var until := int(state.get("until", 0))
 	if line.is_empty() and until > 0 and until <= GameState.day_number + 1:
 		line = _for_moment(townsfolk_id, chef_id, lines, "leaving_town", words, dish_id)

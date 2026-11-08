@@ -13,6 +13,7 @@
 	"lines": {},
 
 	"talk": {
+		"knitting": {"every":8,"gifts":[{"gift":"hazel_tea_cosy","text":"Here, dear. I made you a tea cosy. For the teapot. You do have a teapot? Well, now you have a reason to get one."},{"gift":"hazel_coasters","text":"Coasters! Six of them. One for every table, and two spares for when somebody spills."},{"gift":"hazel_sign_scarf","text":"A little scarf. For your sign. It gets cold out there."}]},
 		"friends": [
 			{"beats":[{"text":"Juno's learning to bake with me on Sundays.","who":"hazel"},{"text":"I've only set one thing on fire!","who":"juno"},{"text":"Two, dear.","who":"hazel"}],"with":"juno"},
 			{"beats":[{"narration":"Juno knocks over the sugar."},{"text":"(Without looking up from her knitting.) Dustpan's under the sink, sweetheart.","who":"hazel"}],"with":"juno"},

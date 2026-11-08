@@ -12,7 +12,11 @@
 	"lines": {},
 
 	"talk": {
+		"new_seat": ["New seat, new me. Old me sat over there. He was fine.","I've sat at every table now. I'm basically the restaurant's mayor."],
+		"passing": {"chance":0.5,"rough":"Rough one yesterday? You good? You're good. You're doing great.","text":"You good?"},
+		"now_and_then": [{"at":["eating"],"chance":0.1,"lines":[{"text":"This napkin? Shallow and pedantic."},{"text":"Honestly? The weather today is very shallow and pedantic."},{"text":"Seth's whole schedule is shallow and pedantic. Who has three games in a day?"},{"later":"About a new decoration","text":"That lamp is shallow and pedantic. I love it."}]}],
 		"friends": [
+			{"beats":[{"text":"This churro is shallow and pedantic.","who":"iddy"},{"text":"That's not what pedantic means.","who":"amy"},{"text":"It is now.","who":"iddy"}],"with":"amy"},
 			{"beats":[{"text":"This is my fiancée. She's a nightmare.","who":"iddy"},{"text":"He LOVES me.","who":"amy"},{"text":"...I love her so much it's annoying.","who":"iddy"}],"with":"amy"},
 			{"beats":[{"text":"Tell them about the cake tasting.","who":"iddy"},{"text":"(Very fast.) Okay so we tried twelve cakes and he ate all twelve and then said 'can we try the first one again'—","who":"amy"},{"text":"It was a good first cake!","who":"iddy"}],"with":"amy"},
 			{"beats":[{"narration":"Amy rolls her eyes at every joke he makes and laughs at every single one."}],"with":"amy"},

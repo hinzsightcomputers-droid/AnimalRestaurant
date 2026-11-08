@@ -24,7 +24,7 @@ static func get_item(item_id: String) -> Dictionary:
 
 # Today's shop: shop_per_day of the items the stars allow, the same all day.
 static func stock() -> Array:
-	var open := items().filter(func(item): return int(item.get("tier", 1)) <= GameState.stars)
+	var open := items().filter(func(item): return int(item.get("tier", 1)) <= GameState.stars and not item.get("gift", false))  # Gifts come from people.
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(GameState.date)
 	for i in range(open.size() - 1, 0, -1):
@@ -57,6 +57,15 @@ static func score() -> int:
 		if members.all(func(item): return copies.has(item["id"])):
 			total += int(settings().get("set_points", 4))
 	return total
+
+
+# Whether every piece of some set is placed.
+static func has_full_set() -> bool:
+	var placed := GameState.decor_placed.map(func(p): return p.get("id", ""))
+	for set_name in _set_names():
+		if items().filter(func(item): return item.get("set", "") == set_name).all(func(item): return item["id"] in placed):
+			return true
+	return false
 
 
 static func _set_names() -> Array:

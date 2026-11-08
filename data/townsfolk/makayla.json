@@ -13,6 +13,7 @@
 	"lines": {},
 
 	"talk": {
+		"oops": "Oop!",
 		"friends": [
 			{"beats":[{"text":"Makayla drove an hour to get here. For churros! That's commitment.","who":"amy"},{"text":"(Completely flat.) They're worth it.","who":"makayla"}],"with":"amy"},
 			{"beats":[{"narration":"Amy talks for a full minute at double speed. Makayla nods throughout, then says:"},{"text":"Yes.","who":"makayla"}],"with":"amy"},

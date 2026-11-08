@@ -12,6 +12,7 @@
 	"lines": {},
 
 	"talk": {
+		"critic": {"arrival":"Good evening. I am here to review. Please. Treat me as you would anyone.","five_stars":"Five stars. Rarely given. Earned.","five_stars_gift":"odette_review","not_yet":"Not today. But I will return. I expect to be impressed.","passed":"I have eaten in many restaurants. Few feel like this one. I am pleased to award you another star. ...Congratulations, [name]."},
 		"friends": [
 			{"beats":[{"text":"Odette and I swap travel stories! She rates the food, I photograph it.","who":"miles"},{"text":"He photographs it before I've had a chance to taste it. It's infuriating. ...The photos are excellent.","who":"odette"}],"with":"miles"},
 			{"beats":[{"narration":"Miles tells a pun. Odette stares."},{"text":"...That was adequate.","who":"odette"},{"narration":"Miles is thrilled."}],"with":"miles"},

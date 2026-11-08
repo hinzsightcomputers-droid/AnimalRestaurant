@@ -12,6 +12,7 @@
 	"lines": {},
 
 	"talk": {
+		"mural": {"after":"Do you like it? I did it by moonlight. That's why the colours are a bit weird. On purpose.","before":"I'm painting tonight. After you close. Don't peek.","gifts":{"autumn":"luna_mural_autumn","spring":"luna_mural_spring","summer":"luna_mural_summer","winter":"luna_mural_winter"}},
 		"friends": [
 			{"beats":[{"text":"Luna draws while I read. We don't talk much.","who":"penny"},{"text":"(Yawning.) It's the best friendship I've ever had.","who":"luna"}],"with":"penny"},
 			{"beats":[{"narration":"Penny reads a line aloud. Luna sketches it. Neither says anything. They both look very happy."}],"with":"penny"},
