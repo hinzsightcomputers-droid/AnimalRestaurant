@@ -1,5 +1,5 @@
 # Accounts (autoload): the chefs who play here, each { id, name,
-# playtime_seconds, last_played_day, played_before, appearance } (the restaurant days they
+# playtime_seconds, last_played_day, played_before, appearance, given_items } (the restaurant days they
 # last played and played before that, for days_since_played).
 # Saved in their own file (user://accounts.json), separate from the restaurant
 # save, so playtime is kept even if you quit mid-day. Also remembers which
@@ -22,6 +22,7 @@ var _since_save := 0.0
 
 func _ready() -> void:
 	_load()
+	(func(): GameState.unlocks_changed.connect(_on_unlocks_changed)).call_deferred()  # GameState loads after us.
 
 
 # Playtime only counts while the game isn't paused (autoloads stop with the tree).
@@ -73,6 +74,7 @@ func find_by_name(account_name: String) -> Dictionary:
 func assign(player_index: int, id: String) -> void:
 	_by_player[player_index] = id
 	_mark_played(get_account(id))
+	give_unlocked_items(id)
 	player_account_changed.emit(player_index)
 
 
@@ -110,9 +112,16 @@ func name_of(player_index: int) -> String:
 	return account_of(player_index).get("name", "Player %d" % (player_index + 1))
 
 
-# How the chef on account `id` looks (the default chef if they haven't made one).
+# How the chef on account `id` looks (the default chef if they haven't made one,
+# wearing anything unlocked that's worn straight away, like Stitches' apron).
 func appearance_of_account(id: String) -> CharacterAppearance:
-	return CharacterAppearance.from_dict(get_account(id).get("appearance", {}))
+	var account := get_account(id)
+	if account.has("appearance"):
+		return CharacterAppearance.from_dict(account["appearance"])
+	var look := CharacterAppearance.default_look()
+	for item_id in Wardrobe.auto_wear_ids():
+		look.wear(item_id)
+	return look
 
 
 # How player `player_index`'s chef looks.
@@ -128,9 +137,35 @@ func set_appearance(id: String, appearance: CharacterAppearance) -> void:
 	var account := get_account(id)
 	if account.is_empty():
 		return
+	if not account.has("appearance"):
+		account["given_items"] = Wardrobe.auto_wear_ids()  # They've seen those on their first look.
 	account["appearance"] = appearance.to_dict()
 	save()
 	appearance_changed.emit(id)
+
+
+# Items that go on every chef the first time they're unlocked (Wardrobe "auto_wear",
+# e.g. Stitches' apron): put on this chef once, remembered in "given_items" so
+# taking it off sticks. Chefs without a look yet get them in their default look.
+func give_unlocked_items(id: String) -> void:
+	var account := get_account(id)
+	if not account.has("appearance"):
+		return
+	var given: Array = account.get_or_add("given_items", [])
+	var look := appearance_of_account(id)
+	var changed := false
+	for item_id in Wardrobe.auto_wear_ids():
+		if not item_id in given:
+			given.append(item_id)
+			look.wear(item_id)
+			changed = true
+	if changed:
+		set_appearance(id, look)
+
+
+func _on_unlocks_changed() -> void:
+	for id in ids_in_play():
+		give_unlocked_items(id)
 
 
 func is_in_use(id: String) -> bool:

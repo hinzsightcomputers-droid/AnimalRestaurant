@@ -1,0 +1,19 @@
+{
+	"_about": "Stitches' gift from his big moment (data/scenes.json unlocks patchwork_apron). Goes on every chef the first time it's unlocked (auto_wear), then it's theirs to take off and put back on. Mismatched patches: his old blanket, the stars, the scarf from his first day...",
+	"id": "patchwork_apron", "name": "Patchwork Apron", "slot": "apron", "placeholder": true,
+	"unlock": "patchwork_apron", "auto_wear": true,
+	"parts": [
+		{ "box": [0.188, 0.158, 0.03], "at": [-0.1, 1.12, 0.335], "rotation": [0, -3.4, 0], "bone": "spine", "color": "#5980cc" },
+		{ "box": [0.188, 0.158, 0.03], "at": [0.1, 1.12, 0.335], "rotation": [0, 3.4, 0], "bone": "spine", "color": "#f2d159" },
+		{ "box": [0.188, 0.158, 0.03], "at": [-0.2, 0.95, 0.31], "rotation": [0, -6.9, 0], "bone": "spine", "color": "#d95a4d" },
+		{ "box": [0.188, 0.158, 0.03], "at": [0, 0.95, 0.36], "rotation": [0, 0, 0], "bone": "spine", "color": "#80b873" },
+		{ "box": [0.188, 0.158, 0.03], "at": [0.2, 0.95, 0.31], "rotation": [0, 6.9, 0], "bone": "spine", "color": "#eb99b8" },
+		{ "box": [0.188, 0.158, 0.03], "at": [-0.2, 0.78, 0.31], "rotation": [0, -6.9, 0], "bone": "spine", "color": "#fae6b3" },
+		{ "box": [0.188, 0.158, 0.03], "at": [0, 0.78, 0.36], "rotation": [0, 0, 0], "bone": "spine", "color": "#664d8c" },
+		{ "box": [0.188, 0.158, 0.03], "at": [0.2, 0.78, 0.31], "rotation": [0, 6.9, 0], "bone": "spine", "color": "#8cc7d9" },
+		{ "box": [0.188, 0.158, 0.03], "at": [-0.2, 0.61, 0.31], "rotation": [0, -6.9, 0], "bone": "spine", "color": "#bf8c4d" },
+		{ "box": [0.188, 0.158, 0.03], "at": [0, 0.61, 0.36], "rotation": [0, 0, 0], "bone": "spine", "color": "#5980cc" },
+		{ "box": [0.188, 0.158, 0.03], "at": [0.2, 0.61, 0.31], "rotation": [0, 6.9, 0], "bone": "spine", "color": "#d95a4d" },
+		{ "torus": [0.3, 0.34], "at": [0, 1.27, 0.06], "rotation": [-20, 0, 0], "bone": "spine", "color": "#8c6140" }
+	]
+}

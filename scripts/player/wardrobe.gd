@@ -4,7 +4,8 @@
 #
 # An item: { id, name, slot, placeholder?, unlock?, hidden?, mesh, parts,
 # hides, hat_variant, tint? }
-#   slot         hair, top, bottom, dress, shoes, hat, glasses, face_accessory
+#   slot         hair, top, bottom, dress, shoes, apron, hat, glasses,
+#                face_accessory (an apron goes over the top or dress)
 #   mesh         skinned to the shared skeleton: { "scene": a .glb/.tscn,
 #                "nodes": [mesh names in it] } (no "nodes": every mesh in it)
 #   parts        or simple shapes held by a bone (placeholders, glasses):
@@ -15,6 +16,8 @@
 #                leg_left, leg_right, feet), so they don't poke through
 #   hat_variant  hair only: the hair id to wear under a hat instead
 #   unlock       only wearable once GameState.unlocks has it
+#   auto_wear    with unlock: put on every chef the first time it's unlocked
+#                (see Accounts.give_unlocked_items); they can take it off
 #   hidden       not offered in the customizer (e.g. hat variants)
 #   placeholder  stand-in art, to replace with the real thing
 class_name Wardrobe
@@ -22,7 +25,7 @@ extends RefCounted
 
 const ITEMS_DIR := "res://data/wardrobe"
 const LOOKS_PATH := "res://data/appearance.json"
-const SLOTS := ["hair", "top", "bottom", "dress", "shoes", "hat", "glasses", "face_accessory"]
+const SLOTS := ["hair", "top", "bottom", "dress", "shoes", "apron", "hat", "glasses", "face_accessory"]
 const ACCESSORY_SLOTS := ["hat", "glasses", "face_accessory"]
 const REGIONS := ["torso", "arm_left", "arm_right", "leg_left", "leg_right", "feet"]
 
@@ -60,6 +63,15 @@ static func of_slot(slot: String) -> Array[Dictionary]:
 static func is_unlocked(item: Dictionary) -> bool:
 	var unlock: String = item.get("unlock", "")
 	return unlock.is_empty() or unlock in GameState.unlocks
+
+
+# Unlocked items that go straight on every chef the first time (auto_wear).
+static func auto_wear_ids() -> Array[String]:
+	var ids: Array[String] = []
+	for item in items().values():
+		if item.get("auto_wear", false) and item.has("unlock") and is_unlocked(item):
+			ids.append(item["id"])
+	return ids
 
 
 static func looks() -> Dictionary:

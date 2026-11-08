@@ -103,6 +103,8 @@ func dress(look: CharacterAppearance) -> void:
 		if item.is_empty():
 			push_warning("Chef is wearing %s, which isn't in the wardrobe" % id)
 			continue
+		if not Wardrobe.is_unlocked(item):
+			continue  # E.g. the debug panel cleared the unlocks.
 		if item["slot"] == "hair" and hat_on and item.has("hat_variant"):
 			item = Wardrobe.get_item(item["hat_variant"])
 		for region in item.get("hides", []):

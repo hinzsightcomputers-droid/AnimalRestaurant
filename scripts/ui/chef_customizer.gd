@@ -1,6 +1,6 @@
 # ChefCustomizer: make your chef. Pages for Body, Face, Hair, Clothes,
-# Accessories and Face Paint, with the chef turning slowly beside them (drag
-# to turn them yourself) and changing as you pick. Done saves the look on the
+# Accessories and Face Paint, with the chef beside them (drag to turn them, or
+# switch on Spin to have them turn slowly) and changing as you pick. Done saves the look on the
 # account (Accounts.set_appearance), which redresses that player's chef.
 # Opened by the AccountPicker for a new chef, and from the debug panel for now
 # (somewhere in the restaurant later). Pauses the game while it's up. Works
@@ -13,9 +13,9 @@ signal finished(saved: bool)
 const PAGES := ["Body", "Face", "Hair", "Clothes", "Accessories", "Face Paint"]
 const FACE_PAGES := ["Face", "Face Paint"]
 const FEATURE_NAMES := { "eyes": "Eyes", "brows": "Eyebrows", "nose": "Nose", "mouth": "Mouth" }
-const SLOT_NAMES := { "top": "Tops", "bottom": "Bottoms", "dress": "Dresses", "shoes": "Shoes", "hat": "Hats", "glasses": "Glasses", "face_accessory": "Face accessories" }
+const SLOT_NAMES := { "top": "Tops", "bottom": "Bottoms", "dress": "Dresses", "shoes": "Shoes", "apron": "Aprons", "hat": "Hats", "glasses": "Glasses", "face_accessory": "Face accessories" }
 const MAX_FACE_PAINT := 3
-const SPIN_SPEED := 0.5  # Radians a second while nobody's turning them.
+const SPIN_SPEED := 0.5  # Radians a second while spinning and nobody's turning them.
 const BODY_VIEW := [Vector3(0, 1.0, 3.6), Vector3(0, 0.85, 0)]  # Camera position, looking at.
 const FACE_VIEW := [Vector3(0, 1.3, 2.4), Vector3(0, 1.22, 0)]
 const INK := Color(0.3, 0.22, 0.15)
@@ -24,6 +24,7 @@ const PAPER := Color(0.99, 0.95, 0.86)
 var account_id := ""
 var can_cancel := true
 var look: CharacterAppearance
+var spinning := false  # The Spin toggle under the preview: off to start with.
 
 var _chef: ChefModel
 var _pivot := Node3D.new()
@@ -63,7 +64,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	if not _dragging:
+	if spinning and not _dragging:
 		_pivot.rotation.y += SPIN_SPEED * delta
 
 
@@ -193,7 +194,7 @@ func _hair_page() -> void:
 
 
 func _clothes_page() -> void:
-	for slot in ["top", "bottom", "dress", "shoes"]:
+	for slot in ["top", "bottom", "dress", "apron", "shoes"]:
 		if not Wardrobe.of_slot(slot).is_empty():
 			_heading(SLOT_NAMES[slot])
 			_slot_options(slot, "None")
@@ -426,8 +427,11 @@ func _theme() -> Theme:
 	return theme
 
 
-# The chef on a little rug in their own world, turning.
+# The chef on a little rug in their own world, with the Spin toggle under them.
 func _build_preview() -> Control:
+	var box := VBoxContainer.new()
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var container := SubViewportContainer.new()
 	container.stretch = true
 	container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -466,7 +470,13 @@ func _build_preview() -> Control:
 	_chef = ChefModel.new()
 	_chef.look = look
 	_pivot.add_child(_chef)
-	return container
+	box.add_child(container)
+	var spin := _button(box, "Spin", func(): spinning = not spinning)
+	spin.name = "Spin"
+	spin.toggle_mode = true
+	spin.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	spin.custom_minimum_size.x = 120
+	return box
 
 
 func _on_preview_input(event: InputEvent) -> void:

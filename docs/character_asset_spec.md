@@ -147,12 +147,13 @@ There's one JSON file per item in `data/wardrobe/` (see `_template.json`; files 
 
 | Field | |
 |---|---|
-| `slot` | `hair`, `top`, `bottom`, `dress`, `shoes`, `hat`, `glasses`, `face_accessory`. A dress replaces the top and bottom. |
+| `slot` | `hair`, `top`, `bottom`, `dress`, `shoes`, `apron`, `hat`, `glasses`, `face_accessory`. A dress replaces the top and bottom. An apron goes over either. |
 | `mesh` | `scene`: the .glb. `nodes`: which meshes in it to use (leave out to use them all). The meshes must be **skinned** to the shared skeleton. |
 | `parts` | Instead of a mesh: simple shapes held by a bone. See `Wardrobe`. Mostly for placeholders. |
 | `hides` | Body regions it covers. |
 | `hat_variant` | Hair only: the id of a flatter version to wear under hats (usually with `"hidden": true` so it isn't offered on its own). Without one, the hair stays as is under a hat. |
 | `unlock` | Only wearable once the game unlocks it (e.g. a reward). |
+| `auto_wear` | With `unlock`: put on every chef the first time it's unlocked (like Stitches' apron). After that it's theirs to take off and put back on. |
 | `hidden` | Not offered in the customizer. |
 | `placeholder` | `true` for stand-in art waiting to be replaced. Every current item has it. Search `"placeholder": true` to find them all. |
 

@@ -6,7 +6,7 @@
 #     whenever a customer comes in (bell_sound in data/scenes.json, or a
 #     built-in chime until there's a real sound).
 #   - Zakk's driftwood board, high on the dining room's back wall.
-# (The patchwork apron is on the chefs: see PlayerVisual. Walter's Storm Soup
+# (The patchwork apron is a wardrobe item, data/wardrobe/patchwork_apron.json. Walter's Storm Soup
 # goes on the menu: see GameData.menu.)
 class_name RewardDecorations
 extends Node3D

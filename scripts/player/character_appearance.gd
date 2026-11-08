@@ -23,7 +23,7 @@ const CLOTHES := ["top", "bottom", "dress", "shoes"]
 @export var bottom := ""
 @export var dress := ""
 @export var shoes := ""
-@export var accessories: Array[String] = []  # Hat, glasses, face accessory ids (one per slot).
+@export var accessories: Array[String] = []  # Apron, hat, glasses, face accessory ids (one per slot).
 
 
 func feature_id(feature: String) -> String:
@@ -48,7 +48,7 @@ func set_feature(feature: String, id := "", offset = null, feature_scale = null)
 		now["scale"] = float(feature_scale)
 
 
-# The item id worn in `slot` (hair, top, bottom, dress, shoes, hat, glasses,
+# The item id worn in `slot` (hair, top, bottom, dress, shoes, apron, hat, glasses,
 # face_accessory), or "".
 func worn(slot: String) -> String:
 	if slot == "hair":
