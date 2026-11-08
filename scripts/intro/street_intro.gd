@@ -98,6 +98,7 @@ var _setup: RestaurantSetup = null  # Open while the restaurant is being named.
 
 func _ready() -> void:
 	camera.position = CAMERA_START
+	($Chef/Model/Body as ChefModel).apply_appearance(Accounts.appearance_of(0))  # Player 1's chef, once they have one.
 	_apply_look(look_for_hour(GameClock.now_local()["hour"]))
 	_load_walker_models()
 	if not GameState.restaurant_name.is_empty():

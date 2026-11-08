@@ -1,7 +1,8 @@
 # PlayerVisual: gives each player their own color (a ring at their feet) and
 # a name tag (their chef name, or "P1".."P4" before they've picked one) so
 # players can tell themselves apart, both shown once there's more than one
-# player. The body itself is the ChefModel. Display only.
+# player. The body itself is the ChefModel, dressed as their account's chef.
+# Display only.
 class_name PlayerVisual
 extends Node3D
 
@@ -39,6 +40,9 @@ func _ready() -> void:
 	_build_ring(color)
 	tag.modulate = color.lightened(0.3)
 	Accounts.player_account_changed.connect(_refresh_tag)
+	Accounts.player_account_changed.connect(_refresh_look)
+	Accounts.appearance_changed.connect(_on_appearance_changed)
+	_refresh_look()
 	_refresh_tag()
 	_apron = _build_apron()
 	player.held_item_changed.connect(func(item): chef.carrying = item != null)  # Arms up to hold it.
@@ -100,6 +104,17 @@ func _build_apron() -> Node3D:
 	apron.add_child(strap)
 	chef.attach("spine", apron, Transform3D.IDENTITY)
 	return apron
+
+
+func _on_appearance_changed(account_id: String) -> void:
+	if account_id == Accounts.id_of(player.player_index):
+		_refresh_look()
+
+
+# Their chef looks the way their account says (the default chef before they pick one).
+func _refresh_look(changed_index: int = -1) -> void:
+	if changed_index == -1 or changed_index == player.player_index:
+		chef.apply_appearance(Accounts.appearance_of(player.player_index))
 
 
 func _refresh_tag(_changed_index: int = -1) -> void:

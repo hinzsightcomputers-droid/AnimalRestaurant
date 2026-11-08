@@ -1,6 +1,7 @@
-# ChefModel: the chef's body: a KayKit Adventurers character (the Ranger, minus
-# his quiver) animated with the KayKit Character Animations, which share its
-# skeleton. It stands with its feet on this node, facing +z, and picks its own
+# ChefModel: the chef's body: the shared base body on KayKit's Rig_Medium
+# skeleton, dressed from a CharacterAppearance by ChefBuilder (apply_appearance;
+# the default chef until then), with a ChefFace, and animated with the KayKit
+# Character Animations, which share that skeleton. It stands with its feet on this node, facing +z, and picks its own
 # animation from how fast it's moving (idle, walk or run), so whatever moves it
 # (a player, the intro's tweens) needn't tell it anything. While `carrying`,
 # its arms come up in front of it to hold the plate or crate (a pose made here,
@@ -8,13 +9,10 @@
 class_name ChefModel
 extends Node3D
 
-const CHARACTERS := "res://design/assets/KayKit_Adventurers_2.0_FREE/Characters/gltf/"
 const ANIMATIONS := "res://design/animations/KayKit_Character_Animations_1.1/Animations/gltf/Rig_Medium/"
 const ANIMATION_FILES := ["Rig_Medium_MovementBasic.glb", "Rig_Medium_General.glb"]
 const NATIVE_HEIGHT := 2.27        # The characters' height as modeled.
 
-@export var character := "Ranger"
-@export var hidden_parts: Array[String] = ["Ranger_Quiver"]
 @export var height := 1.5
 @export_group("Animations")
 @export var idle := "Idle_A"
@@ -35,6 +33,11 @@ const ARM_BONES := ["upperarm", "lowerarm", "wrist", "hand", "handslot"]
 const SKELETON_PATH := "Rig_Medium/Skeleton3D"
 
 var carrying := false
+var look: CharacterAppearance  # What they look like now (see apply_appearance).
+var builder := ChefBuilder.new(self)
+var face: ChefFace:
+	get:
+		return builder.face
 
 static var _library: AnimationLibrary = null  # Every animation, loaded once and shared.
 
@@ -48,14 +51,11 @@ var _speed := 0.0
 
 
 func _ready() -> void:
-	_model = load(CHARACTERS + character + ".glb").instantiate()
-	_model.scale = Vector3.ONE * height / NATIVE_HEIGHT
+	_model = load(String(ChefBuilder.base_data().get("scene", ""))).instantiate()
 	add_child(_model)
 	skeleton = _model.find_child("Skeleton3D") as Skeleton3D
-	for part in hidden_parts:
-		var node := _model.find_child(part) as Node3D
-		if node != null:
-			node.visible = false
+	builder.build_base(_model)
+	apply_appearance(look if look != null else CharacterAppearance.default_look())
 	_model.add_child(_animations)  # Its tracks are "Rig_Medium/Skeleton3D:<bone>", from the model's root.
 	_animations.root_node = NodePath("..")
 	_animations.add_animation_library("", library())
@@ -80,6 +80,16 @@ func _process(delta: float) -> void:
 		_play("run", clampf(_speed / run_pace, 0.8, 1.5))
 	_carry_amount = move_toward(_carry_amount, 1.0 if carrying else 0.0, delta / carry_fade)
 	_animations.set("parameters/carry/blend_amount", smoothstep(0.0, 1.0, _carry_amount))
+
+
+# Dresses the chef as `new_look` (and sizes them by its body shape).
+func apply_appearance(new_look: CharacterAppearance) -> void:
+	look = new_look
+	if _model == null:
+		return  # Not ready yet: _ready() puts it on.
+	var shape: Array = Wardrobe.body_shape(look.body_shape).get("scale", [1, 1, 1])
+	_model.scale = Vector3(shape[0], shape[1], shape[2]) * height / NATIVE_HEIGHT
+	builder.dress(look)
 
 
 # Puts `node` on a bone so it moves with it; `at` is where it goes in the
