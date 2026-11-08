@@ -68,7 +68,8 @@ static func tone_change(record: Dictionary, tone: String) -> int:
 #   - It can't drop below 0 unless they've had a run of rude replies (rude_streak).
 #   - During a visit (see begin_visit) it can't drop more than one stage below
 #     the stage they walked in at, however rude that visit gets.
-# Crossing into another stage is news their friends will hear (see Gossip).
+# Crossing into another stage is news their friends will hear (see Gossip),
+# and a step up puts a smile on the chefs' faces (ChefReactions).
 # Returns the new value.
 static func change_relationship(record: Dictionary, amount: int) -> int:
 	var settings := GameData.regular_settings
@@ -81,6 +82,8 @@ static func change_relationship(record: Dictionary, amount: int) -> int:
 	var stage_before := stage_of(record)
 	record["relationship"] = after
 	Gossip.on_stage_change(record, stage_before, stage_of(record))
+	if stage_of(record) > stage_before:
+		ChefReactions.react(Engine.get_main_loop() as SceneTree, "regular_stage_up")  # The whole kitchen's pleased.
 	return after
 
 

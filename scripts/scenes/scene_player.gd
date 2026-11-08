@@ -61,6 +61,7 @@ func play_due() -> bool:
 # The critic liked it: the star goes up, with a few lines in a box (data/rating.json).
 func _award_star() -> void:
 	var news := Rating.award()
+	ChefReactions.react(get_tree(), "star_earned")  # Everyone beams.
 	var player: Player = null
 	for i in 4:
 		if player == null:

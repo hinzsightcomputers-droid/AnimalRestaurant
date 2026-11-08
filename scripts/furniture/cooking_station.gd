@@ -119,6 +119,7 @@ func _try_start_cooking(player_index: int) -> void:
 	minigame.finished.connect(_on_minigame_finished)
 
 	player.movement_locked = true
+	ChefReactions.react(get_tree(), "cooking", player_index)
 	player.interactor.lock_to(interactable)
 	player.request_camera_focus(global_position + zoom_look_offset, camera_zoom)  # Only this player's camera.
 	player.hide_from_own_view(true)  # So the chef doesn't block it.
@@ -204,6 +205,7 @@ func cook_together(player: Player, dish: Dictionary, step: Dictionary, helper: C
 	minigame.hit_registered.connect(_on_together_stir)
 	minigame.finished.connect(_on_minigame_finished)
 	player.movement_locked = true
+	ChefReactions.react(get_tree(), "cooking", player.player_index)
 	player.interactor.lock_to(interactable)
 	player.request_camera_focus(global_position + zoom_look_offset, camera_zoom)
 	player.hide_from_own_view(true)
@@ -229,6 +231,8 @@ func _on_minigame_finished(quality: float) -> void:
 	var dish_name: String = _order.dish.get("name", "Dish") if _order != null else session.recipe.display_name
 	GameEvents.announce("%s came out %s (%d%%)" % [
 		dish_name, CookingMinigame.quality_label(quality).to_lower(), roundi(quality * 100)])
+	if CookingMinigame.quality_label(quality) == "Burnt" and session == null:  # (A close-up reacts as it burns.)
+		ChefReactions.react(get_tree(), "dish_burning", _cook.player_index)
 
 	await get_tree().create_timer(RESULT_SHOW_TIME * (2.0 if session != null else 1.0)).timeout  # Time to admire the plate.
 
@@ -244,6 +248,7 @@ func _on_minigame_finished(quality: float) -> void:
 		session.queue_free()
 		session = null
 		_show_stove_props(true)
+	ChefReactions.release(get_tree(), "cooking", _cook.player_index)
 	_cook.movement_locked = false
 	_cook.interactor.unlock()
 	_cook.release_camera_focus()
@@ -264,6 +269,7 @@ func _finish_together(quality: float) -> void:
 	if rescued:  # After their last coaching line has had a moment.
 		_together["helper"].say(_together.get("rescue", ""))
 		await get_tree().create_timer(RESULT_SHOW_TIME * 1.5).timeout
+	ChefReactions.release(get_tree(), "cooking", _cook.player_index)
 	_cook.movement_locked = false
 	_cook.interactor.unlock()
 	_cook.release_camera_focus()

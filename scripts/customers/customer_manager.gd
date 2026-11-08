@@ -1009,6 +1009,7 @@ func _townsfolk_converse(box: ConversationBox, customer: Customer, line: Diction
 	var result := TownsfolkTalk.answer(customer.townsfolk_id, customer.last_chef, choices[picked])
 	customer.visit_mood += result["mood"]
 	var reply := TownsfolkTalk.fill(result["reply"], TownsfolkTalk.context(customer.townsfolk_id, customer.last_chef, customer.dish, customer.drink))
+	_react_to_reply(box.player_index, String(choices[picked].get("tone", "")), result["emotion"], signf(result["mood"]), choices[picked].get("crash_out", false))
 	if not reply.is_empty():
 		await _say(box, customer, reply, result["emotion"])
 	if result.get("laugh_chain", false):
@@ -1126,12 +1127,25 @@ func _converse(box: ConversationBox, player: Player, customer: Customer, line: D
 	for other_id in result["others"]:  # e.g. Mabel passes your apology on to Stitches.
 		_announce_change(GameState.regulars[other_id], others_before[other_id], "")
 
+	_react_to_reply(player.player_index, String(choices[picked].get("tone", "")), result["emotion"], signf(result["change"]))
 	var reply := DialoguePicker.fill(result["reply"], context)
 	if not reply.is_empty():
 		await _say(box, customer, reply, result["emotion"])
 	if choices[picked].has("then"):  # e.g. "Knock knock." -> "...Who's there?" and you finish the joke.
 		return await _converse(box, player, customer, choices[picked]["then"], extra)
 	return reply if not reply.is_empty() else opening
+
+
+# The chef's face as the reply comes: pleased when a warm reply goes down well,
+# hurt when a rude one lands badly, startled by an outburst (Amy crashing out).
+# `went` is how it went: 1 better, -1 worse, 0 neither.
+func _react_to_reply(player_index: int, tone: String, emotion: StringName, went: float, outburst := false) -> void:
+	if outburst:
+		ChefReactions.react(get_tree(), "outburst", player_index)
+	elif tone == "warm" and (went > 0.0 or emotion in [&"happy", &"joyful", &"excited"]):
+		ChefReactions.react(get_tree(), "warm_reply_liked", player_index)
+	elif tone == "rude" and (went < 0.0 or emotion in [&"sad", &"angry"]):
+		ChefReactions.react(get_tree(), "rude_reply_hurt", player_index)
 
 
 # "What do you recommend?" / "Surprise me": the player picks a dish from the
@@ -1298,6 +1312,8 @@ func _serve(player: Player, customer: Customer) -> void:
 	GameState.record_chef_action(player.player_index, "served")
 	customer.serve(plate.quality, plate)
 	GameEvents.announce("Served %s to %s." % [plate.dish_name(), customer_name])
+	if CookingMinigame.quality_label(customer.served_quality) == "Perfect":
+		ChefReactions.react(get_tree(), "perfect_dish", player.player_index)
 	if CookingMinigame.quality_label(plate.quality) == "Burnt":
 		_oops_near(customer)
 	_pop_serve(customer)
@@ -1394,6 +1410,7 @@ func _after_townsfolk_line(customer: Customer) -> void:
 		return
 	if TownsfolkTalk.take_startle(customer.townsfolk_id):
 		_react_near(customer, &"surprised")
+		ChefReactions.react(get_tree(), "outburst", -1, customer.global_position)  # Chefs nearby jump too.
 	var gift := TownsfolkSpecials.take_gift(customer.townsfolk_id)
 	if not gift.is_empty():
 		TownsfolkSpecials.give(customer.townsfolk_id, gift)
@@ -1657,6 +1674,8 @@ func _settle_bill(player: Player, customer: Customer) -> void:
 	var satisfaction := Satisfaction.calculate(customer.served_quality, customer.wait_seconds)
 	satisfaction = clampf(satisfaction + Satisfaction.drink_mood(customer.drink, customer.served_drink) + customer.visit_mood, 0.0, 1.0)
 	var reaction := Satisfaction.reaction_for(satisfaction)
+	if reaction.get("id", "") == "unhappy":  # Leaving cross: the chef bringing the bill is crestfallen.
+		ChefReactions.react(get_tree(), "customer_left_angry", player.player_index)
 	var streak_percent := ServiceStreak.tip_percent(customer.streak)
 	var save_percent := float(ServiceStreak.settings().get("just_in_time_tip_percent", 10)) if customer.just_in_time else 0.0
 	var amount := Satisfaction.bill_for(customer.dish, customer.served_drink, reaction, streak_percent + save_percent)

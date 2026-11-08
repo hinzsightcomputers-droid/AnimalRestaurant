@@ -285,6 +285,11 @@ func say(line: String) -> void:
 		return
 	speech = line
 	spoke.emit(self)
+	if not townsfolk_id.is_empty():
+		for gasp in TownsfolkTalk.talk_of(townsfolk_id).get("gasps", []):
+			if String(gasp) in line:  # Jessie's OHH!: chefs nearby jump.
+				ChefReactions.react(get_tree(), "gasp", -1, global_position)
+				break
 
 
 # Show a feeling, e.g. &"happy" (EmotionLibrary has them all): icons over

@@ -13,6 +13,7 @@
 	"lines": {},
 
 	"talk": {
+		"gasps": ["OHH", "WOOW", "AAHH"],
 		"friends": [
 			{"beats":[{"text":"Okay so guess what—","who":"amy"},{"text":"OHHH, what?!","who":"jessie"},{"text":"I haven't said it yet!","who":"amy"},{"text":"I know! I'm ready though!","who":"jessie"}],"with":"amy"},
 			{"beats":[{"narration":"Amy and Jessie both gasp at the same time over something tiny, then laugh until they can't breathe."}],"with":"amy"},

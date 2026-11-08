@@ -25,6 +25,7 @@ var _seen := {}    # Piece -> its steam, once it's been on the heat.
 var _scores: Array[float] = []
 var _sizzle: AudioStreamPlayer3D
 var _markers := {}  # Piece -> its "Flip!" label.
+var _smoking := {}  # Pieces that have started to burn (the cook looks up, startled).
 
 
 func _begin() -> void:
@@ -123,6 +124,9 @@ func _update_steam(piece: CookPiece, steam: CPUParticles3D) -> void:
 	steam.emitting = amount > 0.25
 	steam.emission_sphere_radius = maxf(piece.radius, 0.01) * 0.7
 	if amount > 1.3:
+		if not _smoking.has(piece):
+			_smoking[piece] = true
+			session.react("dish_burning")
 		steam.color = Color(0.25, 0.22, 0.2).lerp(Color(0.1, 0.1, 0.1), clampf((amount - 1.3) / 0.4, 0.0, 1.0))
 		steam.speed_scale = 1.6
 	else:

@@ -121,8 +121,9 @@ Every eye, brow, nose and mouth texture is **128 × 128 px**, PNG with alpha, wi
 ### Expressions and blinking
 
 These are eye and mouth textures that stand in for the chef's own for a moment:
-- Shared defaults are in `face.expressions`: `blink` (eyes), and `happy`, `surprised` and `sad` (eyes and mouth).
+- Shared defaults are in `face.expressions`: `blink` (eyes), and `happy`, `surprised`, `sad` and `focused` (eyes and mouth).
 - A face part can have its own instead. Add `"happy_eyes": "res://…"` (or `blink_eyes`, `sad_mouth` and so on) to that part's entry.
+- When they show in play is set in `data/appearance.json` → `reactions` (see `ChefReactions`): each trigger names an expression and how long it lasts.
 
 ### File names and listing
 

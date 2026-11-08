@@ -213,7 +213,7 @@ func _face_page() -> void:
 			_colors("eye_colors", func(): return look.eye_color, func(color): look.eye_color = color)
 	_heading("Try a face")
 	var faces := _row()
-	for expression in ["happy", "surprised", "sad"]:
+	for expression in ["happy", "surprised", "sad", "focused"]:
 		_button(faces, expression.capitalize(), func(): _chef.face.set_expression(expression, 1.5))
 	_button(faces, "Blink", func(): _chef.face.blink())
 

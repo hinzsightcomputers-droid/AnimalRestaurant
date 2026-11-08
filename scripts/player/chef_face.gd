@@ -3,8 +3,10 @@
 # on a 0..1 face canvas. Drawn on the head's "Face" surface if the head mesh
 # has one (see docs/character_asset_spec.md), else on a face plate: a thin
 # patch over the front of the stand-in head, its UVs laid out the same way.
-# Blinks now and then, and set_expression() swaps in happy, surprised or sad
-# eyes and mouth for a while. ChefModel owns it.
+# Blinks now and then, and set_expression() swaps in happy, surprised, sad or
+# focused eyes and mouth for a while; hold() keeps one on underneath (focused
+# while cooking), which comes back after a quick one. ChefModel owns it, and
+# ChefReactions says when in play.
 class_name ChefFace
 extends Node
 
@@ -15,6 +17,7 @@ const PLATE_LIFT := 1.012  # Just outside the head, so it doesn't flicker into i
 
 var material := ShaderMaterial.new()
 var expression := ""  # "", or a key of data/appearance.json's face.expressions.
+var held := ""  # Shown when no quick expression is: see hold().
 
 var _look: CharacterAppearance
 var _expression_left := 0.0  # Seconds until it goes back to "" (0: stays).
@@ -99,13 +102,21 @@ func apply(look: CharacterAppearance) -> void:
 	_show_mouth()
 
 
-# "happy", "surprised", "sad" (or "" for their own face), for `seconds` (0:
-# until changed).
+# "happy", "surprised", "sad", "focused" (or "" for their own face, or what's
+# held), for `seconds` (0: until changed), then back to what's held.
 func set_expression(new_expression: String, seconds := 0.0) -> void:
-	expression = new_expression
+	expression = new_expression if not new_expression.is_empty() else held
 	_expression_left = seconds
 	_show_eyes()
 	_show_mouth()
+
+
+# Keeps `new_held` on (e.g. "focused" while cooking; "" to let go) whenever no
+# quick expression is showing.
+func hold(new_held: String) -> void:
+	held = new_held
+	if _expression_left <= 0.0:
+		set_expression("")
 
 
 func blink() -> void:

@@ -68,10 +68,13 @@ func start(cook_recipe: CookRecipe, cook: Player, view_manager: ViewManager, bro
 		steps.append(step.duplicate(true))
 	_build_cursor()
 	_build_hint(view_manager)
+	react("cooking")  # Focused till they're done.
 	_next_step()
 
 
 func _exit_tree() -> void:
+	if player != null and is_instance_valid(player):
+		ChefReactions.release(get_tree(), "cooking", player.player_index)
 	if _screen != null:
 		_screen.queue_free()
 
@@ -208,6 +211,12 @@ func overlay() -> Control:
 
 
 # A live line under the step's hint, e.g. "Syrup left: 40%".
+# The cook pulls a face (a ChefReactions trigger, e.g. "dish_burning").
+func react(trigger: String) -> void:
+	if player != null:
+		ChefReactions.react(get_tree(), trigger, player.player_index)
+
+
 func set_status(text: String) -> void:
 	_status = text
 

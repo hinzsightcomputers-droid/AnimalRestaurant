@@ -37,6 +37,7 @@ var _glow := OmniLight3D.new()
 var _meter := Node3D.new()
 var _fill: MeshInstance3D
 var _hum: AudioStreamPlayer3D
+var _burning := false  # Past golden: the cook looks up, startled, once.
 
 
 func _init() -> void:
@@ -105,6 +106,9 @@ func update(delta: float, input: CookInput) -> void:
 		material.albedo_color = _color_for(_raw[material])
 	if waiting:
 		return  # Not taken out till a TakeOutAction comes for it.
+	if _done > band.y and not _burning:
+		_burning = true
+		session.react("dish_burning")
 	var words := "Still pale..." if _done < band.x else ("Golden!" if _done <= band.y else "Burning!")
 	session.set_status(words)
 	if input.just_pressed or _done >= 1.0:

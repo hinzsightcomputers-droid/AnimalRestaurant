@@ -66,10 +66,25 @@
 			"blink": { "eyes": "res://assets/face/eyes_closed.png" },
 			"happy": { "eyes": "res://assets/face/eyes_happy.png", "mouth": "res://assets/face/mouth_happy.png" },
 			"surprised": { "eyes": "res://assets/face/eyes_surprised.png", "mouth": "res://assets/face/mouth_surprised.png" },
-			"sad": { "eyes": "res://assets/face/eyes_sad.png", "mouth": "res://assets/face/mouth_sad.png" }
+			"sad": { "eyes": "res://assets/face/eyes_sad.png", "mouth": "res://assets/face/mouth_sad.png" },
+			"focused": { "eyes": "res://assets/face/eyes_focused.png", "mouth": "res://assets/face/mouth_focused.png" }
 		},
 		"blink_every": [2.0, 5.0],
 		"blink_seconds": 0.12
+	},
+	"_reactions": "Faces the chefs pull in play (ChefReactions.react(trigger)): the expression (a face.expressions key) and how many seconds before it's back to their own face. \"hold\": true stays on until let go (e.g. focused while cooking); a quick reaction shows over it, then it comes back. Blinking carries on throughout.",
+	"reactions": {
+		"perfect_dish": { "expression": "happy", "seconds": 1.5 },
+		"regular_stage_up": { "expression": "happy", "seconds": 2.0 },
+		"warm_reply_liked": { "expression": "happy", "seconds": 1.5 },
+		"star_earned": { "expression": "happy", "seconds": 2.0 },
+		"dish_burning": { "expression": "surprised", "seconds": 1.2 },
+		"fire": { "expression": "surprised", "seconds": 1.5 },
+		"outburst": { "expression": "surprised", "seconds": 1.5 },
+		"gasp": { "expression": "surprised", "seconds": 1.2 },
+		"customer_left_angry": { "expression": "sad", "seconds": 1.5 },
+		"rude_reply_hurt": { "expression": "sad", "seconds": 1.5 },
+		"cooking": { "expression": "focused", "hold": true }
 	},
 	"default": {
 		"body": "standard",
