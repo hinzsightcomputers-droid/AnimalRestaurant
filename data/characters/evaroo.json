@@ -3,6 +3,7 @@
 	"name": "Evaroo",
 	"them": "him",
 	"species": "kangaroo",
+	"visit_window": ["afternoon"],
 	"name_color": "#a8642a",
 	"color": "#c9a26e",
 	"voice": { "blips": "res://design/sound/sound_effects/text moving sound", "pitch": 0.85 },

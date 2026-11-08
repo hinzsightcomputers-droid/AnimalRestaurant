@@ -384,20 +384,20 @@ Chef birthdays: %s" % [GameClock.now_string().left(10),
 	var plan := GameState.todays_plan()
 	for i in plan.size():
 		var regulars := PackedStringArray()
-		var walk_ins := 0
 		for entry in plan[i]:
 			if entry.has("regular"):
 				var visitor: Dictionary = GameState.regulars.get(entry["regular"], {})
 				regulars.append("%s%s" % [visitor.get("name", entry["regular"]), " (came)" if RegularMemory.visited_today(visitor) else ""])
-			else:
-				walk_ins += 1
+			elif entry.has("critic"):
+				regulars.append("the critic")
 		var now := " <- now" if DayCycle.is_open() and i == DayCycle.meal else ""
-		meals.append("%s: %d townsfolk%s%s%s" % [GameState.phase_info(i).get("name", "?"), walk_ins, ", " if not regulars.is_empty() else "", ", ".join(regulars), now])
+		meals.append("%s: %s%s" % [GameState.phase_info(i).get("name", "?"), ", ".join(regulars) if not regulars.is_empty() else "townsfolk only", now])
 	var state := DayCycle.phase_name().to_lower()
 	if DayCycle.is_night():
 		state = "night, %d of %d calls" % [GameState.night_calls_used, GameState.night_calls_total]
 	elif DayCycle.is_open():
-		state = "%d of this meal done" % GameState.phase_done.size()
+		var day := get_tree().current_scene.find_child("DayManager", true, false) as DayManager
+		state = ArrivalPacing.debug_line(day.customer_manager.status()) if day != null else "open"
 	elif DayCycle.is_new_day_waiting():
 		state += ", new day waiting"
 	var in_town := PackedStringArray()
@@ -593,6 +593,9 @@ func _build() -> void:
 	_add_button(rating_row, "Critic next", func(): GameState.forced_critic = true; _refresh())
 	_add_button(rating_row, "Star at closing", func(): GameState.star_earned = true; _changed = true; _refresh())
 	_add_button(rating_row, "Back to 1 star", func(): GameState.stars = 1; GameState.star_earned = false; GameState.critic_last_day = 0; _changed = true; _refresh())
+	_add_label(box, "Arrivals", 18, true)
+	var pacing_row := _add_row(box)
+	_add_button(pacing_row, "Pacing line on/off", func(): ArrivalPacing.show_debug_line = not ArrivalPacing.show_debug_line; _refresh())
 
 	_add_label(box, "Outdoors and fishing", 18, true)
 	_fishing_label = _add_label(box, "")

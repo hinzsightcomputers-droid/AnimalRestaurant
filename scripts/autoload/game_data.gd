@@ -21,6 +21,7 @@ const TOWNSFOLK_DIR := "res://data/townsfolk"
 const GOSSIP_PATH := "res://data/gossip.json"
 const SCENES_PATH := "res://data/scenes.json"
 const DAY_PATH := "res://data/day.json"
+const PACING_PATH := "res://data/pacing.json"
 const TIME_PATH := "res://data/time.json"
 const FISH_PATH := "res://data/fish.json"
 const FORAGE_PATH := "res://data/forage.json"
@@ -97,6 +98,9 @@ var scene_settings: Dictionary = {}
 # How a day runs: its phases (Breakfast, Lunch, Dinner), who comes in each,
 # their lighting, and the closing lighting (see DayManager, DayPlan).
 var day_settings: Dictionary = {}
+# How customers arrive through the day: the meals' clocks, the pacing phases,
+# the waiting cap and gaps by player count (see ArrivalPacing).
+var pacing: Dictionary = {}
 # The real clock in words: hour blocks (early_morning... late_night) and which
 # weekdays are the weekend (see GameClock.hour_block, GameClock.weekday_id).
 var time_settings: Dictionary = {}
@@ -146,6 +150,7 @@ func _ready() -> void:
 	scenes = _load_list(SCENES_PATH, "scenes")
 	scene_settings = _load_dictionary(SCENES_PATH).get("settings", {})
 	day_settings = _load_dictionary(DAY_PATH)
+	pacing = _load_dictionary(PACING_PATH)
 	time_settings = _load_dictionary(TIME_PATH)
 	fish = _load_list(FISH_PATH, "fish")
 	fishing_settings = _load_dictionary(FISH_PATH).get("settings", {})

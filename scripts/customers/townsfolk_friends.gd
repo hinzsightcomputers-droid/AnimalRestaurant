@@ -128,9 +128,10 @@ static func duo_said(townsfolk_id: String, duo_line: Dictionary) -> void:
 # --- Walking in together --------------------------------------------------------
 
 # Someone from their "pairs" who walks in right behind them (pair_chance of the
-# time): in town and not in yet today. {} for nobody. They count as in today.
-static func pair_for(townsfolk_id: String) -> Dictionary:
-	if randf() >= float(Townsfolk.settings().get("pair_chance", 0.35)):
+# time, times `scale`: more players, more pairs, see ArrivalPacing): in town and
+# not in yet today. {} for nobody. They count as in today.
+static func pair_for(townsfolk_id: String, scale := 1.0) -> Dictionary:
+	if randf() >= float(Townsfolk.settings().get("pair_chance", 0.35)) * scale:
 		return {}
 	var free := []
 	for friend_id in GameData.get_townsfolk(townsfolk_id).get("pairs", []):

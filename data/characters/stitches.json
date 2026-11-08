@@ -3,6 +3,7 @@
 	"name": "Stitches",
 	"them": "him",
 	"species": "bear",
+	"visit_window": ["opening", "afternoon"],
 	"name_color": "#8d5a2b",
 	"color": "#b98a5e",
 	"model": { "path": "res://design/characters/Stitches/stitches.tscn", "height": 1.1, "sit_drop": 0.12, "lean_keep": 0.3, "talk_turn": 45, "hold": ["Sit_on_Chair_Arms_Crossed"], "clip_parts": { "sit_down": [2.6, 4.2], "stand_up": [0.6, 2.27] }, "animations": { "sit_down": "Step_to_Sit_Transition", "stand_up": "Sit_to_standTransition_Female_2", "walk": "Walking", "idle": "Idle_6", "talk": "Stand_and_Chat", "sit": "Sit_on_Chair_Arms_Crossed", "sit_talk": "Sitting_Answering_Questions" } },

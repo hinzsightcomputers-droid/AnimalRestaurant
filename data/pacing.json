@@ -1,0 +1,42 @@
+{
+	"_about": "Arrival pacing (see ArrivalPacing). Each meal runs for its meal_seconds on its own clock. Customers come in one at a time while fewer than the cap are 'waiting for food' (arriving, at the host stand, being seated, or seated but not served yet; eating doesn't count, and a friend walking in with someone counts as part of their arrival). When there's room, the next one comes after a random gap: empty_gap when nobody's inside at all, else the player-count gap times the phase's gap_scale. Arrivals stop in the last quiet_last seconds of a phase that has it, and when the meal's time is up; the bell can be rung once everyone's gone. Regulars and the critic planned for a meal always get in before then.",
+
+	"meal_seconds": { "breakfast": 210, "lunch": 330, "dinner": 330 },
+
+	"_phases": "The day curve, in order. Each sits in one meal, from..to seconds of that meal's clock. cap_add is added to the player-count cap; gap_scale multiplies its gap (smaller = closer together). rush: true calls out the rush as it starts (rush_text) and allows surprises. quiet_last: no arrivals in that many seconds at the end of the phase.",
+	"phases": [
+		{ "id": "opening", "name": "Opening", "meal": "breakfast", "from": 0, "to": 210, "cap_add": 0, "gap_scale": 1.3 },
+		{ "id": "lunch_rush", "name": "Lunch rush", "meal": "lunch", "from": 0, "to": 200, "cap_add": 1, "gap_scale": 0.6, "rush": true },
+		{ "id": "afternoon", "name": "Afternoon", "meal": "lunch", "from": 200, "to": 330, "cap_add": 0, "gap_scale": 1.0 },
+		{ "id": "dinner_rush", "name": "Dinner rush", "meal": "dinner", "from": 0, "to": 200, "cap_add": 1, "gap_scale": 0.6, "rush": true },
+		{ "id": "closing", "name": "Closing", "meal": "dinner", "from": 200, "to": 330, "cap_add": 0, "gap_scale": 1.4, "quiet_last": 60 }
+	],
+	"rush_text": "Here comes the {phase}!",
+
+	"_players": "By how many players are in (read live: someone joining or leaving changes the next arrival straight away). cap: how many can be waiting for food at once, before the phase's cap_add. gap: [min, max] seconds after a slot opens. pair_scale: times the chance a townsfolk walks in with a friend (service.json pair_chance).",
+	"players": [
+		{ "players": 1, "cap": 2, "gap": [6, 20], "pair_scale": 1.0 },
+		{ "players": 2, "cap": 3, "gap": [5, 16], "pair_scale": 1.3 },
+		{ "players": 3, "cap": 4, "gap": [4, 13], "pair_scale": 1.6 },
+		{ "players": 4, "cap": 5, "gap": [3, 10], "pair_scale": 1.9 }
+	],
+
+	"empty_gap": [2, 5],
+	"first_arrival_seconds": 3,
+	"retry_seconds": 1.5,
+
+	"_surprise": "In a rush phase, chance of each arrival that someone else walks in surprise_delay seconds behind them, even at the cap (never past cap + 1).",
+	"surprise_chance": 0.17,
+	"surprise_delay": [1.5, 4],
+
+	"_regulars": "Who the next arrival is: a regular planned for this meal is picked regular_chance of the time, times window_boost while it's inside their visit_window (a list of phase ids in their character file). Once the meal's arrival time left is under urgent_seconds for each regular still to come, they're next. The critic is picked like a regular. Everyone else is townsfolk.",
+	"regular_chance": 0.25,
+	"window_boost": 3.0,
+	"urgent_seconds": 50,
+
+	"_bonuses": "Hooks that add to the cap on top of everything else. per_staff: for each hired staff member (none can be hired yet). stars: by the restaurant's star rating.",
+	"bonuses": {
+		"per_staff": 1,
+		"stars": { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 }
+	}
+}

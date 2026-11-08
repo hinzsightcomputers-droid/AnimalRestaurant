@@ -74,6 +74,7 @@ var talking := false:         # In a conversation: their wait and meal timers pa
 
 var wait_seconds := 0.0       # From ordering food until it arrives.
 var plan_index := -1          # Which of the meal's planned customers this is (-1: not from the plan).
+var paced := false            # An arrival ArrivalPacing counts while they wait for food (not a friend tagging along, or a scene's visitor).
 var served_quality := 0.0     # Quality of the dish they were served (0..1).
 var streak := 0                # The run of good serves (ServiceStreak) that their dish made.
 var just_in_time := false     # Their dish came in the last few seconds before it would have been too slow (ServiceStreak).

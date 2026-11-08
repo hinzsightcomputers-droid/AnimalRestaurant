@@ -3,6 +3,7 @@
 	"name": "Zakk",
 	"them": "him",
 	"species": "penguin",
+	"visit_window": ["dinner_rush"],
 	"name_color": "#2f5f8a",
 	"color": "#2b2f3a",
 	"voice": { "blips": "res://design/sound/sound_effects/text moving sound", "pitch": 1.1 },

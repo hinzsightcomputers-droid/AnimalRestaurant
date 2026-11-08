@@ -1,31 +1,21 @@
-# DayPlan: who comes in at each meal today. Planned once a day (GameState keeps
-# it, and it's saved): each phase in data/day.json gets its walk_ins townsfolk,
-# and today's regulars (VisitSchedule) are spread across the phases, each at a
-# random spot in their phase's line. A plan is one list per phase of
-# { "regular": id }, { "walk_in": true } or { "critic": true } (see Rating). Pure logic.
+# DayPlan: which regulars come in at each meal today. Planned once a day
+# (GameState keeps it, and it's saved): today's regulars (VisitSchedule) each go
+# in a meal their visit_window covers (ArrivalPacing.meal_for), else wherever
+# there's room, and the critic in any meal when due (see Rating). A plan is one
+# list per meal of { "regular": id } or { "critic": true }; townsfolk aren't in
+# it, they walk in by themselves at the meal's pace (ArrivalPacing). Pure logic.
 class_name DayPlan
 extends RefCounted
 
 
 static func plan() -> Array:
-	var phases: Array = GameData.day_settings.get("phases", [])
 	var result := []
-	for phase in phases:
-		var walk_ins: Dictionary = phase.get("walk_ins", { "min": 2, "max": 3 })
-		var entries := []
-		for i in randi_range(int(walk_ins["min"]), int(walk_ins["max"])):
-			entries.append({ "walk_in": true })
-		result.append(entries)
+	for _phase in GameData.day_settings.get("phases", []):
+		result.append([])
 	if result.is_empty():
 		return result
-	# Regulars to different meals while there are meals to go round.
-	var order := range(result.size())
-	order.shuffle()
-	var regulars := VisitSchedule.choose()
-	for i in regulars.size():
-		var entries: Array = result[order[i % order.size()]]
-		entries.insert(randi_range(0, entries.size()), { "regular": regulars[i] })
+	for regular_id in VisitSchedule.choose():
+		result[ArrivalPacing.meal_for(regular_id, result.size())].append({ "regular": regular_id })
 	if Rating.critic_due():
-		var entries: Array = result.pick_random()
-		entries.insert(randi_range(0, entries.size()), { "critic": true })
+		result.pick_random().append({ "critic": true })
 	return result

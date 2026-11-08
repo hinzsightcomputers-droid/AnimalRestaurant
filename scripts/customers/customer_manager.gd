@@ -1,6 +1,8 @@
-# CustomerManager: runs each customer's visit. Sends in this meal's customers
-# from today's plan (DayPlan) one at a time, while there are seats at clean
-# tables for them. Each visit goes step by step, one interaction each:
+# CustomerManager: runs each customer's visit. Customers walk in one at a time
+# at the pace ArrivalPacing sets (each meal runs on a clock, with a cap on how
+# many wait for food at once), with the regulars and critic from today's plan
+# (DayPlan) among them, while there are seats at clean tables for them. Each
+# visit goes step by step, one interaction each:
 #   1. They wait at the host stand (the old order counter). A player seats
 #      them there (or by talking to them): a regular says their greeting and
 #      what's on their mind, and asks for their usual table if they have one.
@@ -17,8 +19,9 @@
 #      it. They pay for the food and drink plus a tip by how happy they are, a
 #      regular says goodbye, and they leave a dirty table.
 # The lines townsfolk say at each step are in data/service.json; regulars use
-# their character files. Once the meal's last customer has gone, the host
-# stand's bell (ServiceBell) is rung for the next meal (see DayManager).
+# their character files. Once the meal's time for arrivals is up and its last
+# customer has gone, the host stand's bell (ServiceBell) is rung for the next
+# meal (see DayManager).
 # Customers walk along lanes so they don't cut through furniture: the front lane
 # (in line with the door), the back lane (in line with the host stand), and
 # straight up and down the aisle behind each chair.
@@ -42,6 +45,7 @@ const LAUGH_MOOD := 0.02   # What joining in does for their visit.
 const PASSING_REACH := 1.6  # Metres: walking this close past Iddy's table counts as passing.
 const COMPANION_GAP := 2.0  # Seconds behind their friend that a semi-regular walking in with them comes in.
 const SITTING_STATES := [Customer.State.WAITING_DRINK_ORDER, Customer.State.WAITING_FOR_DRINK, Customer.State.WAITING_FOOD_ORDER, Customer.State.WAITING_FOR_FOOD, Customer.State.EATING, Customer.State.DONE_EATING, Customer.State.WANTS_BILL]
+const WAITING_STATES := [Customer.State.ARRIVING, Customer.State.WAITING_TO_BE_SEATED, Customer.State.FOLLOWING, Customer.State.WALKING_TO_SEAT, Customer.State.WAITING_DRINK_ORDER, Customer.State.WAITING_FOR_DRINK, Customer.State.WAITING_FOOD_ORDER, Customer.State.WAITING_FOR_FOOD]  # Waiting for food, as ArrivalPacing's cap counts it.
 
 @export var order_counter: Station  # The host stand.
 @export var order_board: OrderBoard
@@ -70,12 +74,17 @@ var _leading: Dictionary = {}       # Player index -> the Customer following the
 var _greeting: Dictionary = {}      # Player index -> the Customer they're welcoming at the host stand.
 var _busy: Array[Customer] = []     # Customers in the middle of a step (so a second press waits).
 var _seat_owners: Dictionary = {}   # seat (Station) -> Customer sitting there or walking to it.
-var _pending: Array = []            # This meal's customers still to come: [plan index, entry].
+var _pending: Array = []            # This meal's planned regulars (and critic) still to come: [plan index, entry].
 var _writing_letter := false
-var _arrival_timer := Timer.new()
-var _meal_size := 0       # How many this meal expects (for its pacing).
-var _arrived := 0         # How many of them have walked in so far.
-var _rush_called := false
+var meal_clock := 0.0     # Seconds into this meal (ArrivalPacing's timeline).
+var _meal := 0            # Which meal it is.
+var _meal_running := false
+var _phase_id := ""       # The day curve's phase now (to call out a rush as it starts).
+var _players := 1         # Players in when last looked (to rescale the countdown when that changes).
+var _next_in := -1.0      # Seconds till the next arrival (-1: none counting down).
+var _next_empty := false  # That countdown is the short one for an empty restaurant.
+var _surprise_in := -1.0  # Seconds till a rush's surprise extra customer (-1: none).
+var _companion_in := -1.0 # Seconds till a friend walks in behind someone (-1: none).
 var _passing_left := 0.0   # Seconds till the next look for chefs walking past tables.
 var _companion: Dictionary = {}     # A semi-regular walking in right behind their friend (TownsfolkFriends.pair_for).
 var bell := ServiceBell.new()     # On the host stand: rung to start the next meal.
@@ -87,14 +96,13 @@ func _ready() -> void:
 	order_counter.add_child(bell)
 	bell.position = Vector3(-0.5, 0.65, -0.1)  # On the counter top, at the end away from the register.
 	bell.scale = Vector3.ONE * 1.8  # Big enough to spot from the usual camera.
-	_arrival_timer.timeout.connect(_try_spawn_customer)
-	add_child(_arrival_timer)
 	for table in _tables():
 		table.seating_prompt = _table_prompt
 		table.seat_requested.connect(_on_table_seat_requested)
 
 
 func _process(delta: float) -> void:
+	_pace(delta)
 	_passing_left -= delta
 	if _passing_left <= 0.0:
 		_passing_left = 0.4
@@ -111,46 +119,116 @@ func _process(delta: float) -> void:
 			_move_queue_forward()
 
 
-# A meal starts: its customers from today's plan come in one at a time, except
-# any already done (a day picked up again). `entries` is the meal's list. They
-# come at a pace that gives the meal a shape (see _next_gap).
+# A meal starts: its clock runs from 0 (see ArrivalPacing). Townsfolk walk in
+# while it's open for arrivals, as many waiting for food at once as the cap
+# allows; the regulars and critic planned for it (`entries`, today's plan) come
+# in among them, except any already done (a day picked up again).
 func start_phase(entries: Array, done: Array) -> void:
 	_pending.clear()
 	for i in entries.size():
-		if not i in done:
+		if not i in done and not entries[i].has("walk_in"):  # (Walk-ins in a plan saved before pacing: walk-ins come by themselves now.)
 			_pending.append([i, entries[i]])
-	_meal_size = _pending.size()
-	_arrived = 0
-	_rush_called = false
+	_meal = DayCycle.meal
+	meal_clock = 0.0
+	_phase_id = ""
+	_players = ArrivalPacing.player_count()
+	_next_in = float(ArrivalPacing.settings().get("first_arrival_seconds", 3.0))
+	_next_empty = true
+	_surprise_in = -1.0
+	_companion_in = -1.0
+	_companion = {}
+	_meal_running = true
 	accepting_customers = true
-	_arrival_timer.one_shot = true
-	_arrival_timer.stop()
-	await get_tree().create_timer(float(GameData.day_settings.get("first_arrival_seconds", 3.0)), false).timeout  # false: waits while paused (e.g. name entry).
-	_try_spawn_customer()
 
 
-# The time until the next customer walks in, after `_arrived` of the meal's
-# `_meal_size` have: a calm start (a gap after the first), then the rush (the
-# middle ones close together, called out once), and for a big meal a slower
-# last one. The gaps are multiples of arrival_seconds (data/day.json "pacing").
-func _next_gap() -> float:
-	var settings := GameData.day_settings
-	var pacing: Dictionary = settings.get("pacing", {})
-	var base := float(settings.get("arrival_seconds", 9.0)) * GameState.upgrade_multiplier("arrival_interval") * GameState.difficulty_value("arrival_interval")  # Welcome Sign, and the difficulty.
-	var still_to_come := _meal_size - _arrived
-	if _arrived == 1 and still_to_come >= 2:
-		return base * float(pacing.get("calm_start", 1.6))
-	if still_to_come == 1 and _meal_size >= int(pacing.get("wind_down_from", 5)):
-		return base * float(pacing.get("wind_down", 1.4))
-	if still_to_come >= 1 and not _rush_called and _meal_size >= int(pacing.get("rush_from", 3)):
-		_rush_called = true
-		_call_rush(String(pacing.get("rush_text", "Here comes the {meal} rush!")))
-	return base * float(pacing.get("rush", 0.45)) if still_to_come >= 1 else base
+# The meal's clock, phase and arrivals, every frame while it's open.
+func _pace(delta: float) -> void:
+	if not _meal_running or not accepting_customers or not DayCycle.is_open():
+		return
+	meal_clock += delta
+	var phase := ArrivalPacing.phase_at(_meal, meal_clock)
+	if String(phase.get("id", "")) != _phase_id:
+		_phase_id = String(phase.get("id", ""))
+		if phase.get("rush", false) and random_arrivals():
+			_call_rush(String(ArrivalPacing.settings().get("rush_text", "Here comes the {phase}!")).format({ "phase": String(phase.get("name", "rush")).to_lower() }))
+	# Someone joined or left: the countdown speeds up or slows down to match.
+	var players := ArrivalPacing.player_count()
+	if players != _players:
+		if _next_in > 0.0 and not _next_empty:
+			_next_in *= ArrivalPacing.gap_middle(players) / ArrivalPacing.gap_middle(_players)
+		_players = players
+	if _companion_in >= 0.0:
+		_companion_in -= delta
+		if _companion_in < 0.0:
+			if _free_seats().size() > _queue.size() + _leading.size():
+				_spawn({ "index": -1, "regular": {}, "townsfolk": _companion }, false)
+				_companion = {}
+			else:
+				_companion_in = float(ArrivalPacing.settings().get("retry_seconds", 1.5))
+	if _surprise_in >= 0.0:
+		_surprise_in -= delta
+		if _surprise_in < 0.0 and waiting_count() <= cap() and _has_seat():  # At most one over the cap.
+			_spawn_next()
+	_count_down(delta)
+
+
+# The next arrival's countdown: it runs while there's room under the cap (short
+# when nobody's inside), and someone walks in when it ends, if there's a seat.
+func _count_down(delta: float) -> void:
+	if not _anyone_to_come() or waiting_count() >= cap():
+		_next_in = -1.0
+		return
+	var empty := not has_customers()
+	if _next_in < 0.0 or (empty and not _next_empty):
+		var gap := ArrivalPacing.gap(_meal, meal_clock, empty)
+		_next_in = gap if _next_in < 0.0 else minf(_next_in, gap)
+		_next_empty = empty
+	_next_in -= delta
+	if _next_in > 0.0:
+		return
+	if not _has_seat():
+		_next_in = float(ArrivalPacing.settings().get("retry_seconds", 1.5))  # Nowhere to sit them yet: they wait outside a moment.
+		return
+	_next_in = -1.0
+	if _spawn_next() and ArrivalPacing.surprise(_meal, meal_clock):
+		_surprise_in = ArrivalPacing.surprise_delay()
+
+
+# Whether anyone could still walk in this meal: while it's open for arrivals,
+# and after that the planned regulars still to come (and the debug panel's).
+func _anyone_to_come() -> bool:
+	if GameState.forced_critic or not GameState.forced_visitors.is_empty() or not _pending.is_empty():
+		return true
+	return random_arrivals() and ArrivalPacing.arrivals_open(_meal, meal_clock)
+
+
+# Townsfolk walk in by themselves (not in a reel, where only its regular does).
+func random_arrivals() -> bool:
+	return not ReelSandbox.active()
+
+
+func cap() -> int:
+	return ArrivalPacing.cap(_meal, meal_clock)
+
+
+# How many arrivals are waiting for food: walking in, at the host stand, being
+# seated, or at the table not served yet. Eating doesn't count, nor does a
+# friend who walked in with them.
+func waiting_count() -> int:
+	var count := 0
+	for child in get_children():
+		if child is Customer and child.paced and not child.is_queued_for_deletion() and child.state in WAITING_STATES:
+			count += 1
+	return count
+
+
+func _has_seat() -> bool:
+	return _free_seats().size() > _queue.size() + _leading.size()
 
 
 # The rush starts: everyone hears about it.
 func _call_rush(text: String) -> void:
-	GameEvents.announce(text.format({ "meal": DayCycle.phase_name().to_lower() }))
+	GameEvents.announce(text)
 	var ding := AudioStreamPlayer.new()
 	ding.stream = CookSounds.get_sound("ding")
 	add_child(ding)
@@ -158,24 +236,44 @@ func _call_rush(text: String) -> void:
 	ding.finished.connect(ding.queue_free)
 
 
-# Everyone this meal was expecting has been and gone.
+# The meal's time for arrivals is up, its planned regulars have been, and
+# everyone's gone: the bell can be rung.
 func phase_finished() -> bool:
-	return _pending.is_empty() and not has_customers()
+	return _meal_running and not _anyone_to_come() and _companion_in < 0.0 and _surprise_in < 0.0 and not has_customers()
 
 
-# How many of this meal's customers haven't left yet (still to come or inside).
+# How many customers are inside and haven't left yet.
 func customers_left() -> int:
 	var inside := 0
 	for child in get_children():
 		if child is Customer and not child.is_queued_for_deletion() and child.state != Customer.State.LEAVING:
 			inside += 1
-	return _pending.size() + inside
+	return inside
+
+
+# Where the meal's at, for the HUD and debug panel: { phase (its name), open
+# (still open for arrivals), seconds (till arrivals stop), players, cap,
+# waiting, next (seconds till the next arrival, -1 when none's coming yet) }.
+func status() -> Dictionary:
+	return {
+		"phase": String(ArrivalPacing.phase_at(_meal, meal_clock).get("name", "")),
+		"open": random_arrivals() and ArrivalPacing.arrivals_open(_meal, meal_clock),
+		"seconds": maxf(ArrivalPacing.arrivals_close_at(_meal) - meal_clock, 0.0),
+		"players": ArrivalPacing.player_count(),
+		"cap": cap(),
+		"waiting": waiting_count(),
+		"next": _next_in,
+		"regulars_to_come": _pending.size(),
+	}
 
 
 # Debug: everyone heads straight home, and nobody else comes this meal.
 func send_everyone_home() -> void:
 	_pending.clear()
-	_arrival_timer.stop()
+	meal_clock = maxf(meal_clock, ArrivalPacing.arrivals_close_at(_meal))
+	_next_in = -1.0
+	_surprise_in = -1.0
+	_companion_in = -1.0
 	_queue.clear()
 	_leading.clear()
 	_busy.clear()
@@ -189,8 +287,11 @@ func send_everyone_home() -> void:
 # Customers already at a table stay until they've paid.
 func close() -> void:
 	accepting_customers = false
+	_meal_running = false
 	_pending.clear()
-	_arrival_timer.stop()
+	_next_in = -1.0
+	_surprise_in = -1.0
+	_companion_in = -1.0
 	var unseated: Array[Customer] = _queue.duplicate()
 	unseated.append_array(_leading.values())
 	_queue.clear()
@@ -219,34 +320,30 @@ func regular_arriving() -> bool:
 	return false
 
 
-# Someone comes in if there's a seat at a clean table for them (counting
-# everyone already waiting to be seated).
-func _try_spawn_customer() -> void:
-	if not accepting_customers:
-		return
-	var retry := float(GameData.day_settings.get("pacing", {}).get("retry_seconds", 2.0))
-	if not DayCycle.is_open() or _free_seats().size() <= _queue.size() + _leading.size():
-		_arrival_timer.start(retry)  # Nowhere to sit them yet: they wait outside a moment.
-		return
+# The next arrival walks in (see _next_customer). Whether anyone did.
+func _spawn_next() -> bool:
 	var next := _next_customer()
 	if next.is_empty():
-		_arrival_timer.start(retry)  # Anyone the debug panel sends still comes.
-		return
-	if next["index"] >= 0:
-		_arrived += 1
-	_arrival_timer.start(_next_gap())
-	var regular: Dictionary = next["regular"]
+		return false
+	_spawn(next, true)
+	return true
 
+
+# `next` (from _next_customer) walks in and joins the line at the host stand.
+# `paced`: they count toward the cap (not a friend walking in behind someone).
+func _spawn(next: Dictionary, paced: bool) -> void:
+	var regular: Dictionary = next["regular"]
 	var customer: Customer = CUSTOMER_SCENE.instantiate()
 	customer.plan_index = next["index"]
+	customer.paced = paced
 	var critic: bool = next.get("critic", false)
 	var person: Dictionary = next.get("townsfolk", {})
 	if person.is_empty() and regular.is_empty() and not critic:
-		person = Townsfolk.pick_walk_in(float(_arrived) / maxi(_meal_size, 1))
-		if not person.is_empty():
-			_companion = TownsfolkFriends.pair_for(person["id"])
-			if not _companion.is_empty():
-				_arrival_timer.start(COMPANION_GAP)
+		person = Townsfolk.pick_walk_in(clampf(meal_clock / maxf(ArrivalPacing.arrivals_close_at(_meal), 1.0), 0.0, 1.0))
+	if paced and not person.is_empty() and _companion_in < 0.0:
+		_companion = TownsfolkFriends.pair_for(person["id"], ArrivalPacing.pair_scale())
+		if not _companion.is_empty():
+			_companion_in = COMPANION_GAP
 	if critic:
 		_setup_critic(customer)
 	elif not person.is_empty():
@@ -275,31 +372,36 @@ func _try_spawn_customer() -> void:
 		GameEvents.announce("A %s walked in." % customer.display_name)
 
 
-# Who walks in next: anyone the debug panel queued (an extra, not from the
-# plan), else the meal's next customer: { index, regular } (regular {} for
-# townsfolk), or {} when nobody's left to come. A planned regular who can't
-# come after all (they've stopped visiting, or already came today) counts as
-# done and the next one comes instead.
+# Who walks in next: anyone the debug panel sent, else maybe one of the
+# regulars (or the critic) planned for this meal: picked now and then, more
+# often in their visit_window, and for sure once time's running out for them to
+# fit in. Else townsfolk, while the meal's open for arrivals: { index, regular,
+# critic?, townsfolk? } (regular {} for townsfolk), or {} for nobody. A planned
+# regular who can't come after all (they've stopped visiting, or already came
+# today) counts as done.
 func _next_customer() -> Dictionary:
-	if not _companion.is_empty():  # Walking in right behind their friend.
-		var friend := _companion
-		_companion = {}
-		return { "index": -1, "regular": {}, "townsfolk": friend }
 	if GameState.forced_critic:
 		GameState.forced_critic = false
 		return { "index": -1, "regular": {}, "critic": true }
 	if not GameState.forced_visitors.is_empty():
 		return { "index": -1, "regular": GameState.regulars.get(GameState.forced_visitors.pop_front(), {}) }
-	while not _pending.is_empty():
-		var next: Array = _pending.pop_front()
+	for next in _pending.duplicate():
 		var entry: Dictionary = next[1]
-		if not entry.has("regular"):
-			return { "index": next[0], "regular": {}, "critic": entry.has("critic") }
-		var record: Dictionary = GameState.regulars.get(entry["regular"], {})
-		if not record.is_empty() and RegularMemory.visits_in_person(record) and not RegularMemory.visited_today(record):
-			return { "index": next[0], "regular": record }
-		GameState.mark_done(next[0])
-	return {}
+		if entry.has("regular"):
+			var record: Dictionary = GameState.regulars.get(entry["regular"], {})
+			if record.is_empty() or not RegularMemory.visits_in_person(record) or RegularMemory.visited_today(record):
+				_pending.erase(next)
+				GameState.mark_done(next[0])
+	var open := random_arrivals() and ArrivalPacing.arrivals_open(_meal, meal_clock)
+	var urgent := not open or ArrivalPacing.urgent(_meal, meal_clock, _pending.size())
+	for next in _pending:
+		var regular_id := String(next[1].get("regular", ""))
+		if urgent or randf() < ArrivalPacing.regular_chance(regular_id, _meal, meal_clock):
+			_pending.erase(next)
+			if regular_id.is_empty():
+				return { "index": next[0], "regular": {}, "critic": next[1].has("critic") }
+			return { "index": next[0], "regular": GameState.regulars[regular_id] }
+	return { "index": -1, "regular": {} } if open else {}
 
 
 # A regular: their own species and name, an order based on their tastes, and

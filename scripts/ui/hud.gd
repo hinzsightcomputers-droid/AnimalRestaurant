@@ -78,10 +78,12 @@ func _process(delta: float) -> void:
 		_refresh_messages()
 
 
-# e.g. "Day 4  Lunch  3 to come   $18": which day and meal it is (DayCycle),
-# how many of its customers haven't left yet ("Ring the bell!" once they all
-# have, the calls still to come at night, "After hours" once the day's done),
-# and money.
+# e.g. "Day 4  Lunch  Lunch rush 2:15   $18": which day and meal it is
+# (DayCycle), the day curve's phase and the time left for arrivals
+# (ArrivalPacing), then how many customers are still inside ("Ring the bell!"
+# once they've all gone), the calls still to come at night, "After hours" once
+# the day's done, and money. With the debug panel's pacing line on, a second
+# line: phase, players, cap, waiting, next arrival.
 func _refresh_day_and_money() -> void:
 	var where := DayCycle.phase_name()
 	if DayCycle.is_new_day_waiting():
@@ -90,9 +92,17 @@ func _refresh_day_and_money() -> void:
 		var calls := maxi(GameState.night_calls_total - GameState.night_calls_used, 0)
 		where = "Night  %s" % ("%d call%s to come" % [calls, "" if calls == 1 else "s"] if calls > 0 else "quiet")
 	elif DayCycle.is_open():
+		var status := day_manager.customer_manager.status()
 		var left := day_manager.customer_manager.customers_left()
-		where = "%s  %s" % [DayCycle.phase_name(), "Ring the bell!" if day_manager.bell_ready() else "%d to go" % left]
+		if day_manager.bell_ready():
+			where = "%s  Ring the bell!" % DayCycle.phase_name()
+		elif status["open"]:
+			where = "%s  %s %d:%02d" % [DayCycle.phase_name(), status["phase"], int(status["seconds"]) / 60, int(status["seconds"]) % 60]
+		else:
+			where = "%s  %d to go" % [DayCycle.phase_name(), left]
 	money_label.text = "Day %d  %s   $%d" % [GameState.day_number, where, GameState.money]
+	if ArrivalPacing.show_debug_line and DayCycle.is_open():
+		money_label.text += "\n" + ArrivalPacing.debug_line(day_manager.customer_manager.status())
 
 
 # The serving streak under the money, once it's paying something (ServiceStreak).
