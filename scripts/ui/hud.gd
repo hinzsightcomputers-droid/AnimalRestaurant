@@ -54,6 +54,11 @@ func _ready() -> void:
 	message_label.text = ""
 	var managers := get_tree().root.find_children("*", "ViewManager", true, false)
 	_view_manager = managers.front() if not managers.is_empty() else null
+	# Real values from the start: the game can open paused (the new-chef welcome),
+	# and the labels would show the scene's placeholder text until the first frame.
+	time_label.text = GameClock.describe_time(GameClock.now_local())
+	date_label.text = GameClock.describe_date(GameState.date)
+	_refresh_day_and_money.call_deferred()
 
 
 func _process(delta: float) -> void:

@@ -125,8 +125,14 @@ func next_step(player: Player, claimed: Dictionary) -> Dictionary:
 	var wheel := _first(TicketWheel) as TicketWheel
 	if not player.tickets.is_empty() and wheel != null and not TicketWheel.is_full(get_tree()):
 		return _step(wheel.interactable, "clip")
+	# The first customer comes first; while they sit, eat or wait, the arrow shows
+	# what else needs doing (so a new chef isn't left standing while others wait).
+	var lesson_wait := {}
 	if _lessons.has(index) and not _lessons[index].get("done", false):
-		return _lesson_step(player)
+		var lesson_step := _lesson_step(player)
+		if lesson_step.is_empty() or lesson_step.has("target"):
+			return lesson_step
+		lesson_wait = lesson_step
 	var phone := _first(Phone) as Phone
 	var jobs: Array[Array] = []  # Most pressing first; each a list of { target, hint, claim }.
 	jobs.append([_job(phone.interactable if phone != null and phone.is_ringing() else null, "phone", "phone")])
@@ -163,8 +169,13 @@ func next_step(player: Player, claimed: Dictionary) -> Dictionary:
 		var open := level.filter(func(job): return job["target"] != null and not claimed.has(job["claim"]))
 		if not open.is_empty():
 			open.sort_custom(func(a, b): return _distance(player, a["target"]) < _distance(player, b["target"]))
-			return open[0]
-	return {}
+			if lesson_wait.is_empty():
+				return open[0]
+			var meanwhile: Dictionary = open[0].duplicate()
+			var first: Customer = _lessons[index]["customer"] if is_instance_valid(_lessons[index]["customer"]) else null
+			meanwhile["hint"] = String(settings().get("meanwhile", "{job} (then back to {name})")).format({ "job": meanwhile["hint"], "name": first.display_name if first != null else "" })
+			return meanwhile
+	return lesson_wait
 
 
 # --- The first customer -----------------------------------------------------

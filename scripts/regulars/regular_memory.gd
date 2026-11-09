@@ -195,8 +195,9 @@ static func dialogue_context(record: Dictionary, chef_id: String, extra: Diction
 		"has_rude_line": not String(record.get("last_rude_line", "")).is_empty(),
 		"restaurant": GameState.restaurant_name,
 		"has_restaurant_name": not GameState.restaurant_name.is_empty(),
-		# Named (or renamed) since they last reacted to it.
-		"new_restaurant_name": not GameState.restaurant_name.is_empty() and record.get("restaurant_name_heard", "") != GameState.restaurant_name,
+		# Named (or renamed) since they last reacted to it. Not on a first visit: the name is
+		# all they've known (they learn it then, so a later rename still counts).
+		"new_restaurant_name": int(record["times_visited"]) > 0 and not GameState.restaurant_name.is_empty() and record.get("restaurant_name_heard", "") != GameState.restaurant_name,
 		"wrong_name": wrong_names[int(record.get("wrong_name_index", 0)) % wrong_names.size()] if not wrong_names.is_empty() else chef_name,
 		"player_favorite": _dish_name(record.get("player_favorite", "")),  # Yours, if Cheddar asked.
 		"days": days,

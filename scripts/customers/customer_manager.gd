@@ -145,6 +145,8 @@ func start_phase(entries: Array, done: Array) -> void:
 func _pace(delta: float) -> void:
 	if not _meal_running or not accepting_customers or not DayCycle.is_open():
 		return
+	if _everyone_talking():
+		return  # Chatting is never punished: the meal waits while nobody's free to work.
 	meal_clock += delta
 	var phase := ArrivalPacing.phase_at(_meal, meal_clock)
 	if String(phase.get("id", "")) != _phase_id:
@@ -200,6 +202,21 @@ func _anyone_to_come() -> bool:
 	if GameState.forced_critic or not GameState.forced_visitors.is_empty() or not _pending.is_empty():
 		return true
 	return random_arrivals() and ArrivalPacing.arrivals_open(_meal, meal_clock)
+
+
+# Every player in the game is in a conversation (a customer's chat, the
+# birthday question...), so the meal's clock and the next arrival wait.
+func _everyone_talking() -> bool:
+	var talking := {}
+	for box in get_tree().get_nodes_in_group(ConversationBox.GROUP):
+		if not box.is_queued_for_deletion():
+			talking[box.player_index] = true
+	if talking.is_empty():
+		return false
+	for player in get_tree().get_nodes_in_group(Player.GROUP):
+		if player is Player and not talking.has(player.player_index):
+			return false
+	return true
 
 
 # Townsfolk walk in by themselves (not in a reel, where only its regular does).
@@ -366,10 +383,11 @@ func _spawn(next: Dictionary, paced: bool) -> void:
 	customer.walk_to(path, Customer.State.WAITING_TO_BE_SEATED)
 	if customer.is_critic:
 		GameEvents.announce(String(Rating.critic_settings().get("arrives", "")))
-	elif customer.is_regular() or customer.is_townsfolk():
+	elif customer.is_townsfolk() or (customer.is_regular() and GameState.regulars[customer.regular_id]["introduced"]):
 		GameEvents.announce("%s the %s walked in." % [customer.display_name, customer.species.get("name", "?")])
-	else:
-		GameEvents.announce("A %s walked in." % customer.display_name)
+	else:  # A stranger, or a regular who hasn't told you their name yet.
+		var species_name := String(customer.species.get("name", customer.display_name))
+		GameEvents.announce("%s %s walked in." % ["An" if species_name.left(1).to_lower() in ["a", "e", "i", "o", "u"] else "A", species_name])
 
 
 # Who walks in next: anyone the debug panel sent, else maybe one of the
@@ -657,6 +675,8 @@ func _regular_greets(player: Player, customer: Customer, lock_target: Interactab
 		var text := DialoguePicker.fill(restaurant_line["text"], context_now)
 		await _say(box, customer, text, Conversation.emotion_of(restaurant_line))
 		record["restaurant_name_heard"] = GameState.restaurant_name
+	elif int(record["times_visited"]) == 0:
+		record["restaurant_name_heard"] = GameState.restaurant_name  # First visit: this name is just the name.
 
 	# Something a friend told them about you since last time.
 	var gossip := Gossip.take_next(record)

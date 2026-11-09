@@ -46,6 +46,7 @@
 		"hint_font_size": 24,
 		"lesson_done_title": "Tutorial complete!",
 		"lesson_done": "Now on to the rest of the customers! You know the way now, so you're on your own from here.",
+		"meanwhile": "{job} (then back to {name})",
 		"hints": {
 			"open_up": "Open up for the day at the host stand",
 			"seat": "A customer is waiting: seat them at the host stand",
