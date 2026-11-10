@@ -8,7 +8,7 @@
 #   stories        Yaniv's [story]: { title, parts: [recap of each part] }. He
 #                  tells a part each visit ([story] recaps the last one told),
 #                  then a new story; his "story_part" goodbye sometimes says so.
-#   leaves_gift    Clover: a decor id per visit, in turn, left on her table.
+#   leaves_gift    Clover: a decor id per visit, in turn, left on her table; each only once.
 #   decor_changed  Jessie: an arrival moment for when the decor's different
 #                  from her last visit (lines say which, see TownsfolkTalk._true_now).
 #   car            Cody's car: { every, levels: [line] }. Up a level every
@@ -178,9 +178,13 @@ static func leaving(townsfolk_id: String, chef_id: String, words: Dictionary) ->
 				if line.get("when", "") == "story_part":
 					return line
 	var drawings: Array = talk.get("leaves_gift", [])
-	if not drawings.is_empty():
-		state["gift"] = drawings[int(state.get("left_gifts", 0)) % drawings.size()]
+	var new_drawings := drawings.filter(func(d): return not _owns_decor(d))  # One of each: none again once you have them all.
+	if not new_drawings.is_empty():
+		state["gift"] = new_drawings[0]
 		state["left_gifts"] = int(state.get("left_gifts", 0)) + 1
+		for line in talk.get("leaving", []):
+			if line.get("when", "") == "drawing":  # Her goodbye says she left it.
+				return { "text": TownsfolkTalk.fill(String(line["text"]), words) }
 	var mural: Dictionary = talk.get("mural", {})
 	if not mural.is_empty() and state.get("mural_season", "") != GameClock.season() and not state.has("mural_painting"):
 		if state.has("mural_season") or int(state.get("visits", 0)) > 0:
@@ -208,6 +212,18 @@ static func passing(townsfolk_id: String) -> String:
 	if passing.is_empty() or randf() >= float(passing.get("chance", 0.5)):
 		return ""
 	return String(passing.get("rough", passing["text"]) if TownsfolkTalk.rough_yesterday() else passing.get("text", ""))
+
+
+# Clover has a drawing for you: one picked to leave, or one you don't have yet.
+static func has_drawing(townsfolk_id: String) -> bool:
+	if not String(_state(townsfolk_id).get("gift", "")).is_empty():
+		return true
+	return _talk(townsfolk_id).get("leaves_gift", []).any(func(d): return not _owns_decor(d))
+
+
+# The chefs already have `decor_id`, in storage or out in the restaurant.
+static func _owns_decor(decor_id: String) -> bool:
+	return int(GameState.decor_stored.get(decor_id, 0)) > 0 or GameState.decor_placed.any(func(p): return p["id"] == decor_id)
 
 
 # A gift from what they just said (once), or "".

@@ -12,7 +12,8 @@
 # On each line: "when" is the moment it's for, "voice" is "before" or "familiar",
 # "fav" means it talks about their favorite dish, so it's only said around that
 # dish, and "later" parks it until the feature it needs exists. A line with a
-# [placeholder] nothing fills yet is left out too.
+# [placeholder] nothing fills yet is left out too. "when": "drawing" (Clover) is
+# only said while she still has a drawing you don't (see TownsfolkSpecials.has_drawing).
 #
 # What this adds to GameState.townsfolk: seen (lines heard), warm (warm replies
 # by chef), setback (visits a rude reply cost), rude_last (chefs who were rude
@@ -236,6 +237,8 @@ static func _pool(townsfolk_id: String, chef_id: String, lines: Array, words: Di
 	var now := _time_now()
 	return lines.filter(func(line):
 		var when: String = line.get("when", "")
+		if when == "drawing":  # Clover: only while she still has a drawing for you.
+			return TownsfolkSpecials.has_drawing(townsfolk_id) and _can_say(townsfolk_id, chef_id, line, words, dish_id)
 		if not when.is_empty() and not (when in WHEN_NOW and now[when]):
 			return false
 		return _can_say(townsfolk_id, chef_id, line, words, dish_id))

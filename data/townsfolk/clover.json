@@ -25,7 +25,7 @@
 			{ "text": "[name]! I'm back! It's holidays!" },
 			{ "text": "Can I sit in the booth? The squishy one? Please?" },
 			{ "text": "Guess what! I lost a tooth! ...Geckos grow new ones. It's fine." },
-			{ "text": "I drew you something already. I'll give it to you after. It's a surprise. It's you." },
+			{ "when": "drawing", "text": "I drew you something already. I'll give it to you after. It's a surprise. It's you." },
 			{ "when": "back", "text": "School's OUT! I counted the days. It was a lot of days." },
 			{ "when": "last_great", "fav": true, "text": "The mochi last time was SO good. I told my whole class. My teacher wants some." },
 			{ "when": "last_burnt", "text": "Last time it was a little bit black. That's okay! My mum burns stuff too." }
@@ -78,7 +78,7 @@
 			] }
 		],
 		"leaving": [
-			{ "text": "Bye bye! I left you a drawing! Don't look until I'm gone! ...You can look now." },
+			{ "when": "drawing", "text": "Bye bye! I left you a drawing! Don't look until I'm gone! ...You can look now." },
 			{ "text": "Thank you! I'm gonna come back tomorrow! If my mum says yes!" },
 			{ "text": "Bye, [name]! Bye, stove! Bye, booth!" },
 			{ "when": "leaving_town", "text": "School starts tomorrow. I don't wanna go. Will you still be here? ...Okay. Promise?" }
