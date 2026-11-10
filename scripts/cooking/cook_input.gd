@@ -50,6 +50,7 @@ func update(delta: float) -> void:
 	if scripted:
 		flick = Vector2.ZERO
 		stick = Vector2.ZERO
+		using_mouse = false  # Its hand is the stick: a mouse moved before it took over would leave a stir waiting for clicks.
 		if _session.current != _scripted_step:
 			_scripted_step = _session.current
 			_press(false)  # Let go between steps, so the next one's first press counts.
