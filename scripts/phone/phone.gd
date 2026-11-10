@@ -25,6 +25,8 @@ const SHAKE_DEGREES := 6.0
 var _ringing: Dictionary = {}   # The call ringing right now, {} when quiet.
 var _ring_left := 0.0           # Seconds before it goes to voicemail.
 var _until_next_ring := 0.0
+const BUSY_STATES := [Customer.State.WAITING_TO_BE_SEATED, Customer.State.WAITING_DRINK_ORDER, Customer.State.WAITING_FOR_DRINK,
+	Customer.State.WAITING_FOOD_ORDER, Customer.State.WAITING_FOR_FOOD, Customer.State.WANTS_BILL]  # Waiting on a chef (not eating).
 var _in_call := false
 var _last_caller := ""
 var _ring_sound := AudioStreamPlayer.new()
@@ -123,7 +125,7 @@ func _process(delta: float) -> void:
 	if DayCycle.is_night():
 		if GameState.night_calls_used >= GameState.night_calls_total or _someone_talking():
 			return
-	elif not DayCycle.is_open() or _someone_talking() or _regular_arriving() or not BigMoments.due().is_empty():
+	elif not DayCycle.is_open() or _someone_talking() or _regular_arriving() or _busy() or not BigMoments.due().is_empty():
 		return  # (No calls at all on the evening of a big moment.)
 	_until_next_ring -= delta
 	if _until_next_ring > 0.0:
@@ -239,6 +241,16 @@ func _someone_talking() -> bool:
 
 func _regular_arriving() -> bool:
 	return GameData.phone_settings.get("quiet_while_regular_arrives", true) and customer_manager.regular_arriving()
+
+
+# The floor is full of people waiting on a chef (see quiet_while_busy in
+# data/phone.json): the day's calls hold off until it calms down.
+func _busy() -> bool:
+	var limit := int(GameData.phone_settings.get("quiet_while_busy", 0))
+	if limit <= 0 or customer_manager == null:
+		return false
+	var waiting := customer_manager.get_children().filter(func(c): return c is Customer and c.state in BUSY_STATES)
+	return waiting.size() >= limit
 
 
 func _view_of(player: Player) -> Control:

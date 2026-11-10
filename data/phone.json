@@ -2,9 +2,10 @@
 	"settings": {
 		"ring_seconds": 15,
 		"first_ring_delay": { "min": 12, "max": 20 },
-		"seconds_between_calls": { "min": 25, "max": 45 },
+		"seconds_between_calls": { "min": 45, "max": 80 },
 		"max_voicemails": 6,
 		"quiet_while_regular_arrives": true,
+		"quiet_while_busy": 4,
 		"townsfolk_usual_order_chance": 0.75,
 		"townsfolk_chat_chance": 0.4,
 		"regular_order_call_stage": -3,
@@ -13,7 +14,7 @@
 		"regular_chat_call_chance": 0.25,
 		"ring_sound": "",
 		"voicemail_suffix": " (voicemail)",
-		"night": { "calls": { "min": 3, "max": 5 }, "first_ring_delay": { "min": 4, "max": 8 }, "seconds_between_calls": { "min": 10, "max": 18 }, "night_only_weight": 3 },
+		"night": { "calls": { "min": 5, "max": 7 }, "first_ring_delay": { "min": 4, "max": 8 }, "seconds_between_calls": { "min": 15, "max": 25 }, "night_only_weight": 3 },
 		"regular_day_call_factor": 0.25,
 		"courier": { "name": "Delivery Duck", "color": "#f2d24b", "walk_speed": 2.2, "spacing": 0.9 }
 	}
