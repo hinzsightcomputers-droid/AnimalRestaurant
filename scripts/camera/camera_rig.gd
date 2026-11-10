@@ -194,3 +194,5 @@ func _place_camera() -> void:
 	if player != null:
 		# Zoomed in on a close-up their own chef would block: leave them out of this view.
 		camera.set_cull_mask_value(player.own_view_layer(), not (player.hidden_from_own_view and mode == Mode.FOCUS))
+		# In a minigame (any zoom-in that isn't a chat): no customers' speech or name tags.
+		camera.set_cull_mask_value(CustomerDisplay.TEXT_LAYER, not (mode == Mode.FOCUS and focus_requested and not player.in_conversation()))

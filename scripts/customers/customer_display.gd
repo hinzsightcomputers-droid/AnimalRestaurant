@@ -10,6 +10,7 @@
 # their meal came out shows while they eat: their bubble, sparkles rising off a
 # perfect plate or smoke off a burnt one, and a happy or sad moment halfway
 # through. Display only.
+class_name CustomerDisplay
 extends Node3D
 
 const SIT_DROP_SPEED := 0.5  # How quickly a model settles into the chair (its "sit_drop").
@@ -19,6 +20,7 @@ const DONE_DOTS_SCALE := 3.0  # The "..." of someone done eating, big enough to 
 # never on top of each other.
 const LABEL_ABOVE_HEAD := 0.3   # Metres over a model's head (placeholders: the scene's height).
 const BUBBLE_OVER_NAME := 44.0  # Label pixels the bubble sits up from the name tag's bottom.
+const TEXT_LAYER := 17  # Render layer of the bubble and name tag: a camera in a minigame leaves it out (CameraRig).
 
 @onready var customer: Customer = get_parent()
 @onready var bubble: Label3D = $Bubble
@@ -58,6 +60,8 @@ var _aura: CPUParticles3D = null       # Sparkles or smoke over their plate whil
 
 func _ready() -> void:
 	_apply_species_color()
+	for label in [bubble, name_tag]:
+		label.layers = 1 << (TEXT_LAYER - 1)
 	_emotions.position.y = 1.5
 	_load_model()
 	add_child(_emotions)
