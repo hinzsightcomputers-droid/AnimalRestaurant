@@ -116,7 +116,7 @@ func _refresh_day_and_money() -> void:
 # The serving streak under the money, once it's paying something (ServiceStreak).
 func _refresh_streak() -> void:
 	var run := ServiceStreak.count
-	streak_label.visible = run >= 2
+	streak_label.visible = run >= 2 and not DayCycle.is_after_hours()  # It starts over tomorrow: nothing to keep going tonight.
 	if run >= 2:
 		streak_label.text = String(ServiceStreak.settings().get("hud", "Streak x{count}")).format({
 			"count": run, "percent": roundi(ServiceStreak.tip_percent(run)) })
