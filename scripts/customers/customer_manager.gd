@@ -42,6 +42,8 @@ const QUALITY_COLORS: Array[Color] = [Color(1.0, 0.85, 0.3), Color(0.55, 0.95, 0
 const LAUGH_REACH := 4.0   # Metres: who joins in when Rush gets laughing.
 const LAUGH_STEP := 0.35   # Seconds between each one joining in.
 const LAUGH_MOOD := 0.02   # What joining in does for their visit.
+const TALK_FACE_HEIGHT := 0.9    # Metres: about where a customer's face is, seated or standing.
+const TALK_BLOCK_RADIUS := 0.35  # Metres: a body this close to the line of sight blocks the face.
 const PASSING_REACH := 1.6  # Metres: walking this close past Iddy's table counts as passing.
 const COMPANION_GAP := 2.0  # Seconds behind their friend that a semi-regular walking in with them comes in.
 const SITTING_STATES := [Customer.State.WAITING_DRINK_ORDER, Customer.State.WAITING_FOR_DRINK, Customer.State.WAITING_FOOD_ORDER, Customer.State.WAITING_FOR_FOOD, Customer.State.EATING, Customer.State.DONE_EATING, Customer.State.WANTS_BILL]
@@ -1351,17 +1353,49 @@ func _talk_view(player: Player, customer: Customer, settings: CameraZoomSettings
 	var facing_side := side.dot(face)
 	if facing_side < -0.1 or (facing_side <= 0.1 and side.z < 0.0):
 		side = -side  # The side the customer's facing (or, face to face, the usual camera side).
-	var toward := (side + face * talk_face_turn).normalized()
 	var middle := (player.global_position + customer.global_position) * 0.5
-	var back := between.length() * 1.2 + talk_distance
-	if not RestaurantGrounds.outdoors(middle) and RestaurantGrounds.outdoors(middle + toward * back * cos(deg_to_rad(talk_pitch_degrees))):
-		toward = (-side + face * talk_face_turn).normalized()  # That side's through a wall: the other one.
+	var look := middle + Vector3.UP * talk_look_height
 	var zoom := CameraZoomSettings.new()
 	zoom.duration = settings.duration if settings != null else 0.4
 	zoom.pitch_degrees = talk_pitch_degrees
-	zoom.yaw_degrees = rad_to_deg(atan2(toward.x, toward.z))
-	zoom.distance = clampf(back, talk_distance, talk_distance * 1.8)
-	return [middle + Vector3.UP * talk_look_height, zoom]
+	zoom.distance = clampf(between.length() * 1.2 + talk_distance, talk_distance, talk_distance * 1.8)
+	# The customer's side first, then the other one. A side through a wall is out
+	# (unless both are); of the rest, the one with fewest people (the chef, other
+	# customers) in front of the customer's face.
+	var best_yaw := 0.0
+	var best_score := INF
+	for way in [side, -side]:
+		var toward: Vector3 = (way + face * talk_face_turn).normalized()
+		zoom.yaw_degrees = rad_to_deg(atan2(toward.x, toward.z))
+		var eye := look + zoom.offset()
+		var score := float(_faces_blocked(eye, customer))
+		if not RestaurantGrounds.outdoors(middle) and RestaurantGrounds.outdoors(Vector3(eye.x, middle.y, eye.z)):
+			score += 100.0  # Through a wall.
+		if score < best_score:
+			best_score = score
+			best_yaw = zoom.yaw_degrees
+	zoom.yaw_degrees = best_yaw
+	return [look, zoom]
+
+
+# How many chefs and other customers stand between a camera at `eye` and
+# `customer`'s face (a body counts if its middle or head is within
+# TALK_BLOCK_RADIUS of the line of sight).
+func _faces_blocked(eye: Vector3, customer: Customer) -> int:
+	var face := customer.global_position + Vector3.UP * TALK_FACE_HEIGHT
+	var sight := face - eye
+	var count := 0
+	for body in get_tree().get_nodes_in_group(Player.GROUP) + get_tree().get_nodes_in_group(Customer.GROUP):
+		var node := body as Node3D
+		if node == null or node == customer or not node.is_visible_in_tree():
+			continue
+		for height in [0.6, 1.2]:
+			var point: Vector3 = node.global_position + Vector3.UP * height
+			var along: float = clampf((point - eye).dot(sight) / sight.length_squared(), 0.0, 1.0)
+			if along > 0.05 and along < 0.92 and point.distance_to(eye + sight * along) < TALK_BLOCK_RADIUS:
+				count += 1
+				break
+	return count
 
 
 func _unlock_player(player: Player) -> void:

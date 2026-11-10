@@ -52,9 +52,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0.32)
 mesh = SubResource("Mesh_snout")
 
 [node name="Bubble" type="Label3D" parent="Display"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.75, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.58, 0)
+pixel_size = 0.0012
 billboard = 1
 no_depth_test = true
+fixed_size = true
 modulate = Color(0.25, 0.18, 0.12, 1)
 outline_modulate = Color(1, 0.98, 0.92, 1)
 font_size = 40
@@ -63,19 +65,22 @@ text = "..."
 horizontal_alignment = 1
 vertical_alignment = 2
 autowrap_mode = 3
-width = 420.0
+width = 520.0
 
 [node name="NameTag" type="Label3D" parent="Display"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.58, 0)
 visible = false
+pixel_size = 0.0012
 billboard = 1
 no_depth_test = true
+fixed_size = true
 modulate = Color(0.55, 0.3, 0.2, 1)
 outline_modulate = Color(1, 0.98, 0.92, 1)
-font_size = 26
+font_size = 30
 outline_size = 12
 text = "Name"
 horizontal_alignment = 1
+vertical_alignment = 2
 
 [node name="Meal" type="Node3D" parent="Display"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.34, 0.75)

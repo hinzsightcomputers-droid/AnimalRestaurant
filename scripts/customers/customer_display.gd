@@ -14,6 +14,11 @@ extends Node3D
 
 const SIT_DROP_SPEED := 0.5  # How quickly a model settles into the chair (its "sit_drop").
 const DONE_DOTS_SCALE := 3.0  # The "..." of someone done eating, big enough to spot across the room.
+# The name tag and bubble stay the same size on screen however far the camera is
+# (fixed_size), stacked over their head: the name, then the bubble above it,
+# never on top of each other.
+const LABEL_ABOVE_HEAD := 0.3   # Metres over a model's head (placeholders: the scene's height).
+const BUBBLE_OVER_NAME := 44.0  # Label pixels the bubble sits up from the name tag's bottom.
 
 @onready var customer: Customer = get_parent()
 @onready var bubble: Label3D = $Bubble
@@ -245,6 +250,7 @@ func _update_name_tag() -> void:
 	elif customer.is_regular():
 		var record: Dictionary = GameState.regulars[customer.regular_id]
 		name_tag.text = "%s - %s" % [customer.display_name, RegularMemory.stage_name(record)]
+	bubble.offset.y = BUBBLE_OVER_NAME if name_tag.visible else 0.0
 
 
 # A regular's own line in quotes, or the generic text if they have none.
@@ -273,6 +279,8 @@ func _load_model() -> void:
 		_model.scale = Vector3.ONE * (float(settings.get("height", 1.2)) / height)
 	_emotions.body_root = _body
 	_emotions.position.y = float(settings.get("height", 1.2)) + 0.1
+	name_tag.position.y = float(settings.get("height", 1.2)) + LABEL_ABOVE_HEAD
+	bubble.position.y = name_tag.position.y
 	for child in get_children():  # The placeholder shapes.
 		if child is MeshInstance3D:
 			child.visible = false

@@ -12,6 +12,8 @@ const CLOCK_FADE_SECONDS := 0.4
 const MOVING_SPEED := 0.2  # A player going faster than this (m/s) counts as moving.
 const MESSAGE_TIME := 4.0
 const MAX_MESSAGES := 3
+const MESSAGE_BOTTOM_GAP := 30.0  # Pixels from the bottom of the screen, with nothing below.
+const MESSAGE_SPACING := 8.0      # Pixels kept between the messages and what's under them.
 const MAX_ORDERS_SHOWN := 3  # Then "+2 more", so the list doesn't fill the screen.
 const ORDER_TIMES_EVERY := 1.0  # Seconds between updates of the orders' time left.
 const ORDER_INDENT := "  "
@@ -69,6 +71,7 @@ func _process(delta: float) -> void:
 	_refresh_join_hint()
 	_fit_orders()
 	_keep_clear_of_close_ups()
+	_place_messages()
 	_order_times_left -= delta
 	if _order_times_left <= 0.0:
 		_order_times_left = ORDER_TIMES_EVERY
@@ -159,7 +162,8 @@ func _refresh_join_hint() -> void:
 	if not InputSetup.is_device_used("keys_right"):
 		options.append("Enter (arrow keys)")
 	options.append("A (gamepad)")
-	join_label.visible = InputSetup.active_players().size() < InputSetup.MAX_PLAYERS
+	# Not while anyone's talking: one less thing over the dialogue box.
+	join_label.visible = InputSetup.active_players().size() < InputSetup.MAX_PLAYERS and get_tree().get_nodes_in_group(ConversationBox.GROUP).is_empty()
 	join_label.text = "More players: press %s to join" % " or ".join(options)
 
 
@@ -169,6 +173,30 @@ func _keep_clear_of_close_ups() -> void:
 		control.visible = not close_ups.any(func(r: Rect2): return r.intersects(control.get_global_rect()))
 	streak_label.visible = streak_label.visible and not close_ups.any(func(r: Rect2): return r.intersects(streak_label.get_global_rect()))
 	join_label.visible = join_label.visible and not close_ups.any(func(r: Rect2): return r.intersects(join_label.get_global_rect()))
+
+
+# The messages sit at the bottom of the screen, but above the join hint and
+# above any dialogue box under them, so they never cover what someone's saying.
+func _place_messages() -> void:
+	var bottom := get_viewport().get_visible_rect().size.y - MESSAGE_BOTTOM_GAP
+	if join_label.visible:
+		bottom = minf(bottom, join_label.get_global_rect().position.y - MESSAGE_SPACING)
+	var span := message_label.get_global_rect()
+	for box in get_tree().get_nodes_in_group(ConversationBox.GROUP):
+		var rect := _box_rect(box as Control)
+		if rect.size.x > 0.0 and rect.position.x < span.end.x and rect.end.x > span.position.x:
+			bottom = minf(bottom, rect.position.y - MESSAGE_SPACING)
+	message_label.global_position.y = bottom - message_label.size.y
+
+
+# The visible panel of a dialogue box (the box itself may span its whole view).
+func _box_rect(box: Control) -> Rect2:
+	if box == null or not box.is_visible_in_tree():
+		return Rect2()
+	for child in box.find_children("*", "PanelContainer", true, false):
+		if (child as Control).is_visible_in_tree():
+			return (child as Control).get_global_rect()
+	return box.get_global_rect()
 
 
 # Long order lines wrap before they reach the clock (see _wrap).
