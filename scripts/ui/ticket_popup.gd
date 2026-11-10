@@ -12,6 +12,7 @@ const PAPER := Color(0.99, 0.97, 0.9)
 const INK := Color(0.16, 0.2, 0.42)
 const PENCIL := Color(0.45, 0.43, 0.4)
 const WIDTH := 300.0
+const TICKET_RAIL := "ticket_rail"  # The upgrade that clips tickets for you (data/upgrades.json).
 
 @export var write_seconds := 0.6   # The dish's name writing itself on.
 @export var hold_seconds := 0.9    # How long it stays up once written.
@@ -91,11 +92,22 @@ func _play() -> void:
 	away.tween_property(_paper, "rotation", 0.3, 0.3)
 	_play_sound("whoosh", -12.0, 1.4)
 	await away.finished
-	_player.add_ticket(_order)
+	_hand_over()
 	_player.movement_locked = false
 	_player.ignore_interact_until_released()  # A press to hurry it along shouldn't use the counter.
 	done.emit()
 	queue_free()
+
+
+# Into their pocket, for the ticket wheel. With the Ticket Rail upgrade it goes
+# straight up on the wheel instead: no trip to clip it.
+func _hand_over() -> void:
+	var wheel := get_tree().get_first_node_in_group(TicketWheel.GROUP) as TicketWheel
+	if wheel != null and GameState.has_upgrade(TICKET_RAIL):
+		wheel.clip_now(_order)
+		GameEvents.announce("Ticket #%d went up on the rail: %s." % [_order.number, _order.dish.get("name", "")])
+	else:
+		_player.add_ticket(_order)
 
 
 func _build() -> void:

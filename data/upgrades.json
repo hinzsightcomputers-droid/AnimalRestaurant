@@ -2,7 +2,7 @@
 	"_arrives": "What the end-of-day shop has in stock: each upgrade, dish (unlock upgrade) and drink (unlock upgrade) arrives at the end of this day (GameState.day_number) and can be bought from then on, so new things turn up a few at a time. Anything not listed is in from day 1.",
 	"arrives": {
 		"third_stove": 2, "third_board": 3, "second_oven": 5, "fourth_stove": 8, "fourth_board": 9,
-		"sharp_knife": 1, "cherry_pie": 1, "pupsi": 1, "dr_salt": 1,
+		"sharp_knife": 1, "ticket_rail": 1, "cherry_pie": 1, "pupsi": 1, "dr_salt": 1,
 		"comfy_cushions": 2, "soft_pretzel": 2, "banana_milk": 2, "fawnta": 2,
 		"croissant": 3, "apple_cider": 3, "root_bear": 3,
 		"steady_stove": 4, "pork_dumplings": 4, "mr_dibs": 4,
@@ -19,6 +19,8 @@
 		{ "id": "sharp_knife", "name": "Sharp Knife", "price": 30,
 			"description": "Chopping takes 2 fewer chops.",
 			"bonus": { "chops": -2 } },
+		{ "id": "ticket_rail", "name": "Ticket Rail", "price": 40,
+			"description": "Orders go straight up on the ticket wheel when you take them: no more clipping." },
 		{ "id": "comfy_cushions", "name": "Comfy Cushions", "price": 45,
 			"description": "Food still counts as quick service 15 seconds later.",
 			"bonus": { "patient_seconds": 15 } },
