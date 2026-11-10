@@ -59,6 +59,10 @@ var _secret_glint: Node3D
 
 func _ready() -> void:
 	super._ready()
+	# The chair itself has nothing to do (a secret under it has its own spot
+	# below), so no prompt: it would take the focus from its table when seating
+	# someone or clearing up.
+	interactable.prompt_for_player = func(_player_index: int) -> String: return ""
 	_secret_spot = Interactable.new()
 	_secret_spot.name = "SecretSpot"
 	_secret_spot.radius = 1.0
