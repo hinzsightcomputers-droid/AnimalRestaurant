@@ -90,9 +90,11 @@ func next_step(player: Player, claimed: Dictionary) -> Dictionary:
 	var index := player.player_index
 	var held := player.held_item
 	var leading := customer_manager.leading(index)
-	if leading != null:
-		return _nearest(player, _tables().filter(func(t): return not t.interactable.prompt_for(index).is_empty()),
-				"lead", { "name": leading.display_name })
+	# Only a table they can sit at (a dirty one's prompt asks for the dish bin);
+	# none free, and the arrow goes on to the jobs below (clearing one, say).
+	var seats := _tables().filter(func(t): return t.can_seat(index)) if leading != null else []
+	if not seats.is_empty():
+		return _nearest(player, seats, "lead", { "name": leading.display_name })
 	if held is CookedDish:
 		var order: Order = held.order
 		if order.customer != null and is_instance_valid(order.customer):

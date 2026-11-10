@@ -65,6 +65,11 @@ func make_dirty(at: Vector3, dish: Dictionary = {}) -> void:
 		GameEvents.announce("A table needs clearing.")
 
 
+# Whether the customer `player_index` is leading can sit here now.
+func can_seat(player_index: int) -> bool:
+	return not _seating_prompt(player_index).is_empty()
+
+
 func _prompt_for(player_index: int) -> String:
 	if session != null:
 		return ""
