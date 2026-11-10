@@ -3,7 +3,7 @@
 	"service_days": 7,
 	"guest_points": 2,
 	"stars": [
-		{ "star": 2, "service": 0.6, "menu": 12, "community": 10, "decor": 4 },
+		{ "star": 2, "service": 0.6, "menu": 18, "community": 30, "decor": 8 },
 		{ "star": 3, "service": 0.7, "menu": 20, "community": 75, "decor": 14 },
 		{ "star": 4, "service": 0.8, "menu": 28, "community": 150, "decor": 26 },
 		{ "star": 5, "service": 0.88, "menu": 34, "community": 260, "decor": 38 }
