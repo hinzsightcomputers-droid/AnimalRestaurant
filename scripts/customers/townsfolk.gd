@@ -66,27 +66,54 @@ static func is_in_town(townsfolk_id: String) -> bool:
 # whose talk says "arrives": "late" waits till late_after of the way through
 # (unless there's nobody else), and comes "before_bell" in the last stretch.
 # Someone with a "skip_chance" sometimes doesn't turn up at all (missed).
+# Not everyone comes every day: at most visits_per_day of them, new_per_day of
+# those someone you've never served (so the town's faces arrive a few at a
+# time), and those who've been away longest are likelier.
 static func pick_walk_in(progress := 0.0) -> Dictionary:
 	if GameState.townsfolk.is_empty():
 		rotate(GameState.day_number)  # A save from before townsfolk: they move in now.
+	var today := GameState.day_number
+	var came := GameState.townsfolk.values().filter(func(s): return int(s.get("last_visit", 0)) == today and not s.get("missed", false))
+	if came.size() >= int(settings().get("visits_per_day", 999)):
+		return {}
+	var new_today := came.filter(func(s): return int(s.get("first_day", -1)) == today).size()
+	var allow_new := new_today < int(settings().get("new_per_day", 999))
 	var free := GameData.townsfolk.filter(func(p):
 		var state: Dictionary = GameState.townsfolk.get(p["id"], {})
-		return state.get("in_town", false) and int(state.get("last_visit", 0)) != GameState.day_number)
+		var unmet := int(state.get("visits", 0)) == 0 and not state.has("first_day")
+		return state.get("in_town", false) and int(state.get("last_visit", 0)) != today and (allow_new or not unmet))
 	var late_after := float(settings().get("late_after", 0.6))
 	var on_time := free.filter(func(p): return p.get("talk", {}).get("arrives", "") != "late")
 	if progress < late_after and not on_time.is_empty():
 		free = on_time
 	while not free.is_empty():
-		var person: Dictionary = free.pick_random()
+		var person: Dictionary = _longest_away(free)
 		free.erase(person)
 		var state: Dictionary = GameState.townsfolk[person["id"]]
-		state["last_visit"] = GameState.day_number
+		state["last_visit"] = today
+		if int(state.get("visits", 0)) == 0 and not state.has("first_day"):
+			state["first_day"] = today
 		if randf() < float(person.get("talk", {}).get("skip_chance", 0.0)):
 			state["missed"] = true  # Didn't make it today. Nobody waits; they'll have an excuse.
 			continue
 		state["before_bell"] = progress >= float(settings().get("before_bell_after", 0.9)) and person.get("talk", {}).get("arrives", "") == "late"
 		return person
 	return {}
+
+
+# One of `people` at random, likelier the more days since they were last in
+# (up to MAX_AWAY_WEIGHT; someone never in counts as that).
+const MAX_AWAY_WEIGHT := 4
+static func _longest_away(people: Array) -> Dictionary:
+	var weights := people.map(func(p):
+		var last := int(GameState.townsfolk.get(p["id"], {}).get("last_visit", 0))
+		return MAX_AWAY_WEIGHT if last <= 0 else clampi(GameState.day_number - last, 1, MAX_AWAY_WEIGHT))
+	var roll := randf() * float(weights.reduce(func(a, b): return a + b, 0))
+	for i in people.size():
+		roll -= weights[i]
+		if roll < 0.0:
+			return people[i]
+	return people.back()
 
 
 # Their favorite (when it can be had) favorite_chance of the time, else `fallback`.
