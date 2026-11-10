@@ -46,7 +46,7 @@ const TALK_FACE_HEIGHT := 0.9    # Metres: about where a customer's face is, sea
 const TALK_BLOCK_RADIUS := 0.35  # Metres: a body this close to the line of sight blocks the face.
 const PASSING_REACH := 1.6  # Metres: walking this close past Iddy's table counts as passing.
 const COMPANION_GAP := 2.0  # Seconds behind their friend that a semi-regular walking in with them comes in.
-const SITTING_STATES := [Customer.State.WAITING_DRINK_ORDER, Customer.State.WAITING_FOR_DRINK, Customer.State.WAITING_FOOD_ORDER, Customer.State.WAITING_FOR_FOOD, Customer.State.EATING, Customer.State.DONE_EATING, Customer.State.WANTS_BILL]
+const SITTING_STATES := [Customer.State.WAITING_DRINK_ORDER, Customer.State.WAITING_FOR_DRINK, Customer.State.WAITING_FOOD_ORDER, Customer.State.WAITING_FOR_FOOD, Customer.State.EATING, Customer.State.WANTS_BILL]
 const WAITING_STATES := [Customer.State.ARRIVING, Customer.State.WAITING_TO_BE_SEATED, Customer.State.FOLLOWING, Customer.State.WALKING_TO_SEAT, Customer.State.WAITING_DRINK_ORDER, Customer.State.WAITING_FOR_DRINK, Customer.State.WAITING_FOOD_ORDER, Customer.State.WAITING_FOR_FOOD]  # Waiting for food, as ArrivalPacing's cap counts it.
 
 @export var order_counter: Station  # The host stand.
@@ -1438,9 +1438,6 @@ func _on_customer_interacted(player_index: int, customer: Customer) -> void:
 		Customer.State.EATING:
 			if held == null and customer.can_chat():
 				_eating_chat(player, customer)
-		Customer.State.DONE_EATING:
-			if held == null:
-				_ask_for_bill(player, customer)
 		Customer.State.WANTS_BILL:
 			if held is Receipt:
 				_settle_bill(player, customer)
@@ -1796,26 +1793,17 @@ func _on_customer_getting_going(customer: Customer) -> void:
 	customer.say(line if not line.is_empty() else String(GameData.service.get("regular_get_going", "I should get going soon.")))
 
 
-# Step 7 is over: they wait with "..." over their head for someone to come over.
+# Step 7 is over: they want the bill. They say so in their bubble (their own
+# "bill" line, or a generic one), then a receipt shows over their head until a
+# player prints the bill at the host stand and brings it.
 func _on_customer_finished_eating(customer: Customer) -> void:
 	customer.finish_eating()
-	GameEvents.announce("%s is done eating." % _who(customer).capitalize())
-
-
-# Step 8: `player` came over to chat, and they ask for the bill.
-func _ask_for_bill(player: Player, customer: Customer) -> void:
-	_busy.append(customer)
-	customer.last_chef = Accounts.id_of(player.player_index)
 	var line := ""
 	if customer.is_regular():
 		line = RegularMemory.say(GameState.regulars[customer.regular_id], "bill", _visit_context(customer, customer.served_by_account))
 	if line.is_empty():
 		line = _townsfolk_line(customer, "bill")
-	await _talk(player, customer, line, &"")
-	_busy.erase(customer)
-	if not is_instance_valid(customer) or customer.state != Customer.State.DONE_EATING:
-		return  # Sent home meanwhile.
-	customer.want_bill()
+	customer.say(line)
 	GameEvents.announce("%s would like the bill." % _who(customer).capitalize())
 
 

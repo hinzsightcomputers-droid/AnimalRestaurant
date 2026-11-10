@@ -14,7 +14,9 @@ class_name CustomerDisplay
 extends Node3D
 
 const SIT_DROP_SPEED := 0.5  # How quickly a model settles into the chair (its "sit_drop").
-const DONE_DOTS_SCALE := 3.0  # The "..." of someone done eating, big enough to spot across the room.
+const BILL_SIGN_PIXEL := 0.0016  # The receipt over someone who wants the bill: same size on screen at any distance, big enough to spot across the room.
+const BILL_SIGN_BOB := 0.12      # How far (of its height) it bobs up and down, and how fast.
+const BILL_SIGN_BOB_SPEED := 3.0
 # The name tag and bubble stay the same size on screen however far the camera is
 # (fixed_size), stacked over their head: the name, then the bubble above it,
 # never on top of each other.
@@ -56,6 +58,8 @@ var _emotions := EmotionPlayer.new()  # On top of their head (the placeholder's,
 var _menu_card: MeshInstance3D = null  # On the table until they've ordered their food.
 var _drink: DrinkModel = null          # The drink they were brought, beside their plate.
 var _aura: CPUParticles3D = null       # Sparkles or smoke over their plate while they eat.
+var _bill_sign := Sprite3D.new()       # A receipt over their head while they want the bill.
+var _bill_sign_rest := 0.0             # Its offset when not bobbing.
 
 
 func _ready() -> void:
@@ -64,6 +68,7 @@ func _ready() -> void:
 		label.layers = 1 << (TEXT_LAYER - 1)
 	_emotions.position.y = 1.5
 	_load_model()
+	_build_bill_sign()
 	add_child(_emotions)
 	var ring := WaitRing.new()  # Over the order bubble while they wait for their food.
 	ring.customer = customer
@@ -123,16 +128,14 @@ func _on_state_changed(_customer: Customer) -> void:
 			if _look == null and customer.served_dish != null:  # The real thing, the way it was cooked.
 				_look = customer.served_dish.show_look(meal, Vector3(0.0, PLATE_TOP, 0.0), PLATE_RADIUS)
 			food.visible = _look == null
-		Customer.State.DONE_EATING:
-			bubble.text = "..."  # Come and chat: that's when they ask for the bill.
-			bubble.scale = Vector3.ONE * DONE_DOTS_SCALE
 		Customer.State.WANTS_BILL:
-			bubble.text = "Check, please!"
+			bubble.visible = false  # The receipt over their head says it (after their "Check, please!", see _on_spoke).
 		Customer.State.LEAVING:
 			bubble.visible = false  # Their goodbye was in the dialogue box; what they paid is announced.
 
 	if _no_bubble():
 		bubble.visible = false
+	_bill_sign.visible = customer.state == Customer.State.WANTS_BILL and not bubble.visible
 	_update_name_tag()
 
 
@@ -224,6 +227,7 @@ func _on_spoke(_customer: Customer) -> void:
 	bubble.scale = Vector3.ONE
 	# In a conversation the dialogue box has the words; the bubble just shows they're talking.
 	bubble.text = "..." if customer.talking else _quoted(customer.speech, "")
+	_bill_sign.visible = customer.state == Customer.State.WANTS_BILL and not bubble.visible
 	_speech_timer.start(SPEECH_SECONDS)
 
 
@@ -245,6 +249,39 @@ func _on_speech_timer_timeout() -> void:
 		_on_state_changed(customer)
 
 
+# A little paper receipt (printed lines, a torn zigzag bottom), floating where
+# the bubble would be and bobbing so it catches the eye.
+func _build_bill_sign() -> void:
+	var w := 48
+	var h := 64
+	var image := Image.create(w, h, false, Image.FORMAT_RGBA8)
+	var ink := Color(0.25, 0.18, 0.12)
+	var paper := Color(1.0, 0.99, 0.95)
+	var tooth := 6
+	for y in h:
+		for x in w:
+			var bottom := h - 1 - absi((x % (tooth * 2)) - tooth)  # The torn zigzag edge.
+			if y > bottom:
+				continue
+			var edge := x < 3 or x >= w - 3 or y < 3 or y > bottom - 3
+			image.set_pixel(x, y, ink if edge else paper)
+	for row in [12, 20, 28, 36]:  # Printed lines; the total is bolder.
+		var bold: int = 2 if row == 36 else 1
+		var right := w - 10 if row != 20 else w - 18
+		for y in range(row, row + bold + 1):
+			for x in range(9, right):
+				image.set_pixel(x, y, ink if row == 36 else Color(0.6, 0.55, 0.5))
+	_bill_sign.texture = ImageTexture.create_from_image(image)
+	_bill_sign.pixel_size = BILL_SIGN_PIXEL
+	_bill_sign.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	_bill_sign.fixed_size = true
+	_bill_sign.no_depth_test = true
+	_bill_sign.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	_bill_sign.render_priority = 3
+	_bill_sign.visible = false
+	add_child(_bill_sign)
+
+
 # Regulars wear a name tag showing how well they know you, e.g. "Stitches - Nervous";
 # named townsfolk just their name.
 func _update_name_tag() -> void:
@@ -255,6 +292,8 @@ func _update_name_tag() -> void:
 		var record: Dictionary = GameState.regulars[customer.regular_id]
 		name_tag.text = "%s - %s" % [customer.display_name, RegularMemory.stage_name(record)]
 	bubble.offset.y = BUBBLE_OVER_NAME if name_tag.visible else 0.0
+	_bill_sign.position.y = bubble.position.y
+	_bill_sign_rest = (bubble.offset.y * bubble.pixel_size / BILL_SIGN_PIXEL) + _bill_sign.texture.get_height() * 0.5 + 6.0
 
 
 # A regular's own line in quotes, or the generic text if they have none.
@@ -322,6 +361,9 @@ func _model_settings() -> Dictionary:
 
 
 func _process(delta: float) -> void:
+	if _bill_sign.visible:
+		var bob := sin(Time.get_ticks_msec() / 1000.0 * BILL_SIGN_BOB_SPEED) * BILL_SIGN_BOB
+		_bill_sign.offset.y = _bill_sign_rest + bob * _bill_sign.texture.get_height()
 	if _model == null:
 		return
 	var seated := customer.seat != null and not customer.is_walking() and customer.is_seated()

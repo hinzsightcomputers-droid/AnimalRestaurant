@@ -140,8 +140,6 @@ func next_step(player: Player, claimed: Dictionary) -> Dictionary:
 	for customer in _customers(Customer.State.WAITING_DRINK_ORDER) + _customers(Customer.State.WAITING_FOOD_ORDER):
 		var hint := "drink_order" if customer.state == Customer.State.WAITING_DRINK_ORDER else "food_order"
 		front.append(_job(customer.interactable, hint, customer, { "name": customer.display_name }))
-	for customer in _customers(Customer.State.DONE_EATING):
-		front.append(_job(customer.interactable, "bill_chat", customer, { "name": customer.display_name }))
 	var counter := customer_manager.order_counter.interactable
 	for bill in customer_manager.bills_to_print():
 		front.append(_job(counter, "print_bill", "bill_%d" % bill))
@@ -266,8 +264,6 @@ func _lesson_step(player: Player) -> Dictionary:
 			return _food_step(customer, words)
 		Customer.State.EATING:
 			return _wait("wait_eating", words)
-		Customer.State.DONE_EATING:
-			return _lesson_job(customer.interactable, "bill_chat", words, customer)
 		Customer.State.WANTS_BILL:
 			if customer_manager.bills_to_print() > 0:
 				return _lesson_job(customer_manager.order_counter.interactable, "print_bill", words, "bill_0")

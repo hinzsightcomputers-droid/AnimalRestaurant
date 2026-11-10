@@ -21,10 +21,10 @@ const MAX_WAIT_SECONDS := 2.5 # ...but (outside the line) no longer than this, s
 enum State {
 	ARRIVING, WAITING_TO_BE_SEATED, FOLLOWING, WALKING_TO_SEAT,
 	WAITING_DRINK_ORDER, WAITING_FOR_DRINK, WAITING_FOOD_ORDER, WAITING_FOR_FOOD,
-	EATING, WANTS_BILL, LEAVING, GONE, WAITING_BY_DOOR, DONE_EATING,
+	EATING, WANTS_BILL, LEAVING, GONE, WAITING_BY_DOOR,
 }
 # Sitting at their table, from being seated until they leave.
-const SEATED_STATES: Array[State] = [State.WAITING_DRINK_ORDER, State.WAITING_FOR_DRINK, State.WAITING_FOOD_ORDER, State.WAITING_FOR_FOOD, State.EATING, State.DONE_EATING, State.WANTS_BILL]
+const SEATED_STATES: Array[State] = [State.WAITING_DRINK_ORDER, State.WAITING_FOR_DRINK, State.WAITING_FOOD_ORDER, State.WAITING_FOR_FOOD, State.EATING, State.WANTS_BILL]
 
 signal state_changed(customer: Customer)
 signal finished_eating(customer: Customer)  # Done with the meal: they wait for someone to come and chat.
@@ -161,8 +161,6 @@ func _prompt_for(player_index: int) -> String:
 			return "Check order" if held == null else ""
 		State.EATING:
 			return "Chat" if held == null and can_chat() else ""
-		State.DONE_EATING:
-			return "Chat" if held == null else ""
 		State.WANTS_BILL:
 			if held is Receipt:
 				return "Give the bill"
@@ -270,14 +268,10 @@ func meal_left() -> float:
 	return clampf(_eat_time_left / eat_duration, 0.0, 1.0) if eat_duration > 0.0 else 0.0
 
 
-# Done eating: they show "..." until someone comes over to chat.
+# Done eating: they want the bill straight away (a receipt over their head).
 func finish_eating() -> void:
-	_set_state(State.DONE_EATING)
-
-
-# They've asked: waiting for the bill.
-func want_bill() -> void:
 	_set_state(State.WANTS_BILL)
+
 
 
 # Say a one-off line in the speech bubble.
@@ -523,4 +517,4 @@ func _update_body() -> void:
 # prompt says what), or chat once with a regular who is eating.
 func _update_interactable() -> void:
 	interactable.enabled = state in [State.WAITING_TO_BE_SEATED, State.WAITING_DRINK_ORDER, State.WAITING_FOR_DRINK,
-		State.WAITING_FOOD_ORDER, State.WAITING_FOR_FOOD, State.DONE_EATING, State.WANTS_BILL, State.WAITING_BY_DOOR] or can_chat()
+		State.WAITING_FOOD_ORDER, State.WAITING_FOR_FOOD, State.WANTS_BILL, State.WAITING_BY_DOOR] or can_chat()
