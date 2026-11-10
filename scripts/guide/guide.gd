@@ -164,6 +164,10 @@ func next_step(player: Player, claimed: Dictionary) -> Dictionary:
 		elif table.dishes.is_empty() and not table.spills.is_empty():
 			cleaning.append(_job(table.interactable, "wipe", table))
 	jobs.append(cleaning)
+	var chats: Array = []  # Quiet moment: a regular eating would like a word.
+	for customer in _customers(Customer.State.EATING).filter(func(c): return c.can_chat()):
+		chats.append(_job(customer.interactable, "chat", customer, { "name": customer.display_name }))
+	jobs.append(chats)
 	jobs.append([_job(counter if day_manager.bell_ready() else null, "ring_bell", "bell")])
 	for level in jobs:
 		var open := level.filter(func(job): return job["target"] != null and not claimed.has(job["claim"]))

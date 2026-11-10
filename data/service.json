@@ -71,11 +71,12 @@
 			"wash": "Wash the dishes at the sink",
 			"bin_back": "Put the bin back at the sink",
 			"wipe": "Wipe the table",
+			"chat": "{name} is eating: go and have a chat",
 			"ring_bell": "Everyone's served: ring the bell at the host stand",
 			"wait_sitting": "{name} is finding their seat",
 			"wait_drink": "{name}'s drink is on its way",
 			"wait_food": "{name}'s {dish} is on its way",
-			"wait_eating": "{name} is eating. Go and chat with them when they're done",
+			"wait_eating": "{name} is eating. Have a chat, or wait for the bill",
 			"wait_bill": "{name}'s bill is on its way"
 		}
 	},
