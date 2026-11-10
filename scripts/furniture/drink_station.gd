@@ -7,9 +7,11 @@
 #   pour: hold interact to fill the glass, and let go at the line. The closer
 #         to the line, the better; too far and it spills over.
 #   brew: start it, and it brews for a moment (brew_seconds in
-#         data/drink_kitchen.json) while you do something else. Then come back
-#         and pour it the same way.
-# One brew at a time. The drink goes in your hands (a Drink) to carry to the table.
+#         data/drink_kitchen.json) while you do something else, even grab or
+#         pour another drink here. Then come back and pour it the same way.
+# One brew at a time: while one's going, only grab and pour drinks are on the
+# list. Once it's ready, the next press pours it. The drink goes in your hands
+# (a Drink) to carry to the table.
 class_name DrinkStation
 extends Station
 
@@ -47,9 +49,9 @@ func _prompt_for(player_index: int) -> String:
 	var player := Player.find(get_tree(), player_index)
 	if player == null or _choosing or _pourer != null or player.held_item != null:
 		return ""
-	if not _brewing.is_empty():
-		return "Pour %s" % _brewing["name"] if _brew_left <= 0.0 else ""
-	return "Make a drink" if not _drinks_to_make().is_empty() else ""
+	if not _brewing.is_empty() and _brew_left <= 0.0:
+		return "Pour %s" % _brewing["name"]
+	return "Make a drink" if not _drinks_to_choose().is_empty() else ""
 
 
 func _on_interacted(player_index: int) -> void:
@@ -59,10 +61,7 @@ func _on_interacted(player_index: int) -> void:
 	if player.held_item != null:
 		GameEvents.announce("Your hands are full.")
 		return
-	if not _brewing.is_empty():
-		if _brew_left > 0.0:
-			GameEvents.announce("The %s is still brewing." % _brewing["name"])
-			return
+	if not _brewing.is_empty() and _brew_left <= 0.0:
 		var brewed := _brewing
 		_brewing = {}
 		_start_pour(player, brewed)
@@ -72,9 +71,12 @@ func _on_interacted(player_index: int) -> void:
 
 # Pick one of the drinks customers are waiting on.
 func _choose(player: Player) -> void:
-	var drinks := _drinks_to_make()
+	var drinks := _drinks_to_choose()
 	if drinks.is_empty():
-		GameEvents.announce("Nobody's waiting on a drink.")
+		if not _brewing.is_empty():
+			GameEvents.announce("The %s is still brewing." % _brewing["name"])
+		else:
+			GameEvents.announce("Nobody's waiting on a drink.")
 		return
 	_choosing = true
 	player.movement_locked = true
@@ -100,10 +102,18 @@ func _choose(player: Player) -> void:
 			_brewing = drink
 			_brew_left = float(GameData.drink_settings.get("brew_seconds", 6.0))
 			_show_cup(drink, 0.0)
-			GameEvents.announce("Brewing %s. Come back to pour it in a moment." % drink["name"])
+			GameEvents.announce("Brewing %s. Make something else meanwhile, or come back to pour it in a moment." % drink["name"])
 		_:
 			player.set_held_item(Drink.new(drink, 1.0))
 			GameEvents.announce("Grabbed a %s from the fridge." % drink["name"])
+
+
+# What can be made now: _drinks_to_make, less any brewed ones while the brewer's busy.
+func _drinks_to_choose() -> Array:
+	var drinks := _drinks_to_make()
+	if not _brewing.is_empty():
+		drinks = drinks.filter(func(d): return d.get("prep", "grab") != "brew")
+	return drinks
 
 
 # The drinks seated customers are waiting for that nobody's making or carrying
@@ -163,8 +173,12 @@ func _start_pour(player: Player, drink: Dictionary) -> void:
 func _process(delta: float) -> void:
 	if not _brewing.is_empty() and _brew_left > 0.0:
 		_brew_left -= delta
-		status_label.visible = _pourer == null
-		status_label.text = "Brewing %s... %ds" % [_brewing["name"], ceili(_brew_left)] if _brew_left > 0.0 else "%s is ready to pour!" % _brewing["name"]
+		if _pourer == null:  # While someone pours another drink, the label is theirs.
+			status_label.visible = true
+			status_label.text = "Brewing %s... %ds" % [_brewing["name"], ceili(_brew_left)]
+	elif not _brewing.is_empty() and _pourer == null:
+		status_label.visible = true
+		status_label.text = "%s is ready to pour!" % _brewing["name"]
 	if _pourer == null:
 		if _brewing.is_empty() and _cup != null:
 			_hide_cup()
