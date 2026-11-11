@@ -443,6 +443,16 @@ func make_spatula() -> Node3D:
 	spatula.add_child(blade)
 	var wood := StandardMaterial3D.new()
 	wood.albedo_color = Color(0.45, 0.28, 0.16)
+	# A short metal neck bends up off the back of the blade, so the handle starts
+	# above the food and doesn't run through what's next to the blade.
+	var neck := MeshInstance3D.new()
+	var neck_mesh := BoxMesh.new()
+	neck_mesh.size = Vector3(0.014, 0.004, 0.05)
+	neck_mesh.material = metal
+	neck.mesh = neck_mesh
+	neck.rotation.x = deg_to_rad(-45.0)  # Rising toward the cook.
+	neck.position = Vector3(0.0, 0.017, 0.055 + 0.017)
+	spatula.add_child(neck)
 	var handle := MeshInstance3D.new()
 	var handle_mesh := CylinderMesh.new()
 	handle_mesh.top_radius = 0.009
@@ -450,8 +460,9 @@ func make_spatula() -> Node3D:
 	handle_mesh.height = 0.2
 	handle_mesh.material = wood
 	handle.mesh = handle_mesh
-	handle.rotation.x = deg_to_rad(70.0)  # Lying back toward the cook, rising a little.
-	handle.position = Vector3(0.0, 0.035, 0.055 + 0.094)
+	handle.rotation.x = deg_to_rad(45.0)  # Back toward the cook and well up, clear of the food round the blade.
+	var start := Vector3(0.0, 0.034, 0.089)  # The top of the neck.
+	handle.position = start + Vector3(0.0, cos(handle.rotation.x), sin(handle.rotation.x)) * 0.1
 	spatula.add_child(handle)
 	add_child(spatula)
 	return spatula
