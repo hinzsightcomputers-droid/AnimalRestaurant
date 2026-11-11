@@ -3,9 +3,12 @@
 # GameState.phone_unlocked). Every so often during the meals it rings (sound, shaking, "Ring! Ring!"). Walk up and
 # interact to answer: the call plays in the dialogue box (greeting, order,
 # sometimes one quick reply) and the order goes to DeliveryManager.
-# Nobody is ever punished for missing a call: if it rings out, or someone is
-# talking with a regular when it rings, it goes to voicemail, and voicemails
-# wait on the phone (with a blinking light) to be played back any time.
+# Nobody is ever punished for missing a call: if it rings out, it goes to
+# voicemail, and voicemails wait on the phone (with a blinking light) to be
+# played back any time. A ring that comes while someone is in a conversation
+# keeps ringing (a little quieter) and its time stands still, so another chef
+# can answer it, or whoever was talking can once they're done; after the chat
+# it rings at least ring_after_chat_seconds more before voicemail.
 # The time until the next ring stands still during conversations, and the
 # phone stays quiet while a regular is walking in. Timings: data/phone.json.
 # When it's quiet, you can also pick it up to call a friend of someone Gone and
@@ -24,6 +27,8 @@ const SHAKE_DEGREES := 6.0
 
 var _ringing: Dictionary = {}   # The call ringing right now, {} when quiet.
 var _ring_left := 0.0           # Seconds before it goes to voicemail.
+var _ring_time := 0.0           # Seconds it's been ringing, for the shake (keeps going while _ring_left is held).
+var _held_for_chat := false     # The ring is waiting out a conversation.
 var _until_next_ring := 0.0
 const BUSY_STATES := [Customer.State.WAITING_TO_BE_SEATED, Customer.State.WAITING_DRINK_ORDER, Customer.State.WAITING_FOR_DRINK,
 	Customer.State.WAITING_FOOD_ORDER, Customer.State.WAITING_FOR_FOOD, Customer.State.WANTS_BILL]  # Waiting on a chef (not eating).
@@ -115,9 +120,7 @@ func _process(delta: float) -> void:
 	if _in_call:
 		return
 	if is_ringing():
-		_ring_left -= delta
-		if _ring_left <= 0.0 or _someone_talking():
-			_to_voicemail()
+		_tick_ring(delta)
 		return
 	if not GameState.forced_caller.is_empty():  # Debug panel.
 		_ring_forced(GameState.forced_caller)
@@ -145,6 +148,9 @@ func _ring(call: Dictionary) -> void:
 	_ringing = call
 	_last_caller = call["id"]
 	_ring_left = GameData.phone_settings.get("ring_seconds", 15.0)
+	_ring_time = 0.0
+	_held_for_chat = false
+	_ring_sound.volume_db = 0.0
 	PhoneCalls.start_ringing(call)
 	_ring_sound.play()
 	GameEvents.announce("The phone is ringing!")
@@ -162,7 +168,27 @@ func _ring_forced(caller_id: String) -> void:
 
 func _stop_ringing() -> void:
 	_ringing = {}
+	_held_for_chat = false
 	_ring_sound.stop()
+	_ring_sound.volume_db = 0.0
+
+
+# Counts a ring down to voicemail, except while someone's in a conversation:
+# the ring holds (quieter, so it doesn't drown the chat) and picks up again
+# afterwards with enough time left for them to walk over and answer.
+func _tick_ring(delta: float) -> void:
+	_ring_time += delta
+	var talking := _someone_talking()
+	if talking != _held_for_chat:
+		_held_for_chat = talking
+		_ring_sound.volume_db = float(GameData.phone_settings.get("ring_volume_db_during_chat", -8.0)) if talking else 0.0
+		if not talking:
+			_ring_left = maxf(_ring_left, float(GameData.phone_settings.get("ring_after_chat_seconds", 8.0)))
+	if talking:
+		return
+	_ring_left -= delta
+	if _ring_left <= 0.0:
+		_to_voicemail()
 
 
 func _to_voicemail() -> void:
@@ -260,8 +286,7 @@ func _view_of(player: Player) -> Control:
 # Shakes and shows "Ring! Ring!" in time with the ring; the light blinks while
 # voicemails are waiting.
 func _update_look() -> void:
-	var ring_time: float = GameData.phone_settings.get("ring_seconds", 15.0) - _ring_left
-	var sounding := is_ringing() and fmod(ring_time, 3.0) < 1.2
+	var sounding := is_ringing() and fmod(_ring_time, 3.0) < 1.2
 	visual.rotation.z = deg_to_rad(sin(_time * 45.0) * SHAKE_DEGREES) if sounding else 0.0
 	ring_label.visible = is_ringing()
 	ring_label.position.y = 2.45 + (0.06 * sin(_time * 12.0) if sounding else 0.0)
