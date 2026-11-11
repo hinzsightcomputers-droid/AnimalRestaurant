@@ -29,6 +29,7 @@ blob_radius = 0.02
 spacing = 0.01
 target_coverage = 0.1
 always_full = true
+fade_seconds = 1.5
 
 [sub_resource type="Resource" id="Resource_eggs"]
 script = ExtResource("lay")

@@ -180,9 +180,12 @@ func _crack(spot: Vector3) -> void:
 	var griddle := session.surface(surface)
 	var edge := Vector3(spot.x, griddle.position.y + 0.03, griddle.position.z + griddle.size.y * 0.5 - 0.015)
 	session.frame(edge, crack_view_distance, crack_view_pitch, 0.35)
+	# Like a real egg: turned on its side, lifted, then its middle tapped on the edge.
 	var tween := _hand.create_tween()
 	tween.tween_property(_hand, "position", edge + Vector3(0.0, 0.06, 0.0), 0.3).set_trans(Tween.TRANS_SINE)
-	tween.tween_property(_hand, "position", edge, 0.08).set_ease(Tween.EASE_IN)  # Tap!
+	tween.parallel().tween_property(_hand, "rotation:z", PI * 0.5, 0.3).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(_hand, "position", edge + Vector3(0.0, 0.08, 0.0), 0.12).set_ease(Tween.EASE_OUT)  # A little wind-up.
+	tween.tween_property(_hand, "position", edge + Vector3(0.0, 0.022, 0.0), 0.07).set_ease(Tween.EASE_IN)  # Tap! (its side, half its width, meets the edge)
 	tween.tween_callback(func():
 		_crack_line.visible = true
 		session.play_sound("tick", edge, 0.0, 0.7)
@@ -208,8 +211,11 @@ func _open() -> void:
 	var tween := _hand.create_tween()
 	tween.tween_property(_hand, "position", over, 0.3).set_trans(Tween.TRANS_SINE)
 	tween.tween_callback(func():
-		_top_shell.create_tween().tween_property(_top_shell, "rotation:z", deg_to_rad(-80.0), 0.2)
-		_bottom_shell.create_tween().tween_property(_bottom_shell, "rotation:z", deg_to_rad(60.0), 0.2)
+		# Pulled apart at the crack (the egg's on its side: its halves are left and right), tipping out.
+		for half in [[_top_shell, 1.0], [_bottom_shell, -1.0]]:
+			var open := (half[0] as Node3D).create_tween().set_parallel(true)
+			open.tween_property(half[0], "position:y", 0.03 * half[1], 0.2).set_ease(Tween.EASE_OUT)
+			open.tween_property(half[0], "rotation:z", -0.5 * half[1], 0.2).set_ease(Tween.EASE_OUT)
 		_stream.visible = true
 		_stream.position = _spot + Vector3(0.0, pour_height * 0.5, 0.0)
 		_stream.scale = Vector3(1.0, pour_height, 1.0)

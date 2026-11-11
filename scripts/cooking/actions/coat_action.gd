@@ -26,6 +26,7 @@ extends CookAction
 @export var each_some := false
 @export var keep_on := ""                  # A surface the tool can't leave.
 @export var turn_out := ""                 # A container to turn out onto on_surface afterwards.
+@export var fade_seconds := 0.0           # Above 0: each blob melts away this long after it's put down (butter on a hot griddle).
 
 var _left := 0.0
 var _last = null                           # Where the last blob went (Vector2), or null between strokes.
@@ -164,6 +165,11 @@ func _coat(point: Vector2) -> void:
 		var target: Variant = _target_at(at)
 		blob.position = Vector3(at.x, _height_at(at) + 0.001, at.y)
 		blob.rotation.y = randf() * TAU
+		if fade_seconds > 0.0:  # Sizzles into the griddle and goes.
+			var melt := blob.create_tween()
+			melt.tween_property(blob, "scale", Vector3(1.6, 0.2, 1.6), fade_seconds * 0.4).set_delay(fade_seconds * 0.3).set_ease(Tween.EASE_OUT)
+			melt.tween_property(blob, "scale", Vector3.ZERO, fade_seconds * 0.3).set_ease(Tween.EASE_IN)
+			melt.tween_callback(blob.queue_free)
 		if target is MeshInstance3D:  # Bakes with the piece.
 			session.add_child(blob)
 			blob.reparent(target)
