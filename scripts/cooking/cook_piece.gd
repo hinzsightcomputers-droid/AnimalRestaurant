@@ -4,6 +4,9 @@
 # you can see the underside browning. It can be folded in half (an omelette):
 # then it's a half-moon, twice as thick, its middle at its position. Placeholder
 # shapes only.
+# make_egg and make_bacon give it another look (kind): a sunny-side-up egg (a
+# frilly white that sets as it cooks, a yolk on top) or a strip of bacon (pink
+# to crisp, with stripes of fat).
 class_name CookPiece
 extends Node3D
 
@@ -26,12 +29,27 @@ var busy := false            # Mid-flip or mid-drop: steps leave it alone.
 var folded := false
 var up_shade := 0.0          # The side facing up looks at least this cooked (a fold's outside, already golden).
 var scores := {}             # What each step thought of it, e.g. { "pour": 0.8, "flip": 1.0 }.
+var kind := ""               # "egg" or "bacon" (see make_egg, make_bacon); "" a round piece.
+var side_seconds := 0.0      # Above 0: seconds for the side that's down to be just right (instead of HeatAction's).
 
 var _body := Node3D.new()    # Scaled to the radius.
 var _top_material := StandardMaterial3D.new()
 var _bottom_material := StandardMaterial3D.new()
 var _bubbles: Array[MeshInstance3D] = []
 var _discs: Array[MeshInstance3D] = []
+var _stretch := Vector2.ONE   # An egg isn't quite round.
+var _yolk_material: StandardMaterial3D = null
+var _fat_material: StandardMaterial3D = null
+var _strip: Node3D = null      # Bacon's look (not in the body, which is scaled to the radius).
+
+const YOLK := Color(1.0, 0.68, 0.12)
+const YOLK_SET := Color(0.98, 0.84, 0.45)
+const EGG_RAW := Color(0.84, 0.85, 0.78)     # A raw white, still see-through-ish grey.
+const EGG_WHITE := Color(0.99, 0.98, 0.94)
+const BACON_RAW := Color(0.93, 0.52, 0.52)
+const BACON_DONE := Color(0.7, 0.3, 0.18)
+const FAT := Color(0.98, 0.9, 0.86)
+const FAT_CRISP := Color(0.93, 0.7, 0.42)
 
 const HALF_MOON_MIDDLE := 0.4244  # 4 / 3π: how far a half circle's middle is from its straight edge (of the radius).
 
@@ -58,6 +76,74 @@ func setup(color: Color, piece_thickness: float) -> void:
 	refresh()
 
 
+# A sunny-side-up egg, `white_radius` across its white: a not-quite-round
+# white (raw grey, setting white; its edge browns) with a domed yolk on top.
+# Call after setup.
+func make_egg(white_radius: float, yolk_radius := 0.016) -> void:
+	kind = "egg"
+	raw_color = EGG_RAW
+	done_color = EGG_WHITE
+	_stretch = Vector2(randf_range(1.0, 1.12), randf_range(0.88, 1.0))
+	_body.rotation.y = randf() * TAU
+	_top_material.roughness = 0.25
+	_yolk_material = StandardMaterial3D.new()
+	_yolk_material.roughness = 0.15
+	var yolk := MeshInstance3D.new()
+	var dome := SphereMesh.new()
+	dome.radius = yolk_radius
+	dome.height = yolk_radius * 1.3
+	dome.radial_segments = 20
+	dome.rings = 8
+	dome.material = _yolk_material
+	yolk.mesh = dome
+	var off_middle := Vector2.from_angle(randf() * TAU) * white_radius * 0.15
+	yolk.position = Vector3(off_middle.x, thickness * 0.9, off_middle.y)
+	add_child(yolk)
+	spread_to = white_radius
+	refresh()
+
+
+# A strip of bacon, `length` long and `width` wide (lying along x): a slightly
+# wavy strip, the side facing up on top and the side facing down peeking out
+# round its edge, with two stripes of fat along it. Call after setup.
+func make_bacon(length: float, width: float) -> void:
+	kind = "bacon"
+	raw_color = BACON_RAW
+	done_color = BACON_DONE
+	for disc in _discs:
+		disc.visible = false
+	_fat_material = StandardMaterial3D.new()
+	_fat_material.roughness = 0.4
+	_strip = Node3D.new()
+	add_child(_strip)
+	const SEGMENTS := 4
+	var segment := length / SEGMENTS
+	for i in SEGMENTS:
+		var part := Node3D.new()
+		part.position.x = -length * 0.5 + segment * (i + 0.5)
+		part.rotation.z = deg_to_rad(5.0 if i % 2 == 0 else -5.0)  # A gentle ripple.
+		_strip.add_child(part)
+		_box(part, Vector3(segment * 1.04, thickness * 0.5, width * 1.08), thickness * 0.25, _bottom_material)
+		_box(part, Vector3(segment * 1.02, thickness * 0.55, width), thickness * 0.725, _top_material)
+		for side in [-0.22, 0.22]:
+			var stripe := _box(part, Vector3(segment * 1.02, thickness * 0.08, width * 0.16), thickness, _fat_material)
+			stripe.position.z = width * side
+	set_radius(length * 0.5)  # For getting hold of it (the body itself is hidden).
+	spread_to = width
+	refresh()
+
+
+func _box(parent: Node3D, box_size: Vector3, height: float, material: StandardMaterial3D) -> MeshInstance3D:
+	var mesh := BoxMesh.new()
+	mesh.size = box_size
+	mesh.material = material
+	var box := MeshInstance3D.new()
+	box.mesh = mesh
+	box.position.y = height
+	parent.add_child(box)
+	return box
+
+
 func up_side() -> int:
 	return 1 - down_side
 
@@ -65,15 +151,27 @@ func up_side() -> int:
 func set_radius(value: float) -> void:
 	radius = value
 	var r := maxf(value, 0.001)
-	_body.scale = Vector3(r, 1.0, r)
+	_body.scale = Vector3(r * _stretch.x, 1.0, r * _stretch.y)
 
 
 # Colors from how cooked each side is, and bubbles on a raw top as the
 # underside gets close (the cook's tell that it's nearly time to flip).
 func refresh() -> void:
-	_top_material.albedo_color = cooked_color(raw_color, maxf(doneness[up_side()], up_shade), done_color)
-	_bottom_material.albedo_color = cooked_color(raw_color.darkened(0.08), doneness[down_side], done_color)
-	var tell := 0.0 if flipped or folded else clampf((doneness[down_side] - 0.5) / 0.45, 0.0, 1.0)
+	var down: float = doneness[down_side]
+	match kind:
+		"egg":  # Sunny side up: the heat from below sets the white, and its frilly edge browns.
+			_top_material.albedo_color = cooked_color(raw_color, minf(down, 1.0), done_color)
+			_bottom_material.albedo_color = cooked_color(raw_color, down, done_color)
+			_yolk_material.albedo_color = YOLK.lerp(YOLK_SET, clampf((down - 1.1) / 0.5, 0.0, 1.0))  # Goes pale and hard if overdone.
+		"bacon":
+			var up: float = maxf(doneness[up_side()], up_shade)
+			_top_material.albedo_color = cooked_color(raw_color, up, done_color)
+			_bottom_material.albedo_color = cooked_color(raw_color.darkened(0.08), down, done_color)
+			_fat_material.albedo_color = cooked_color(FAT, up, FAT_CRISP)
+		_:
+			_top_material.albedo_color = cooked_color(raw_color, maxf(doneness[up_side()], up_shade), done_color)
+			_bottom_material.albedo_color = cooked_color(raw_color.darkened(0.08), down, done_color)
+	var tell := 0.0 if flipped or folded or not kind.is_empty() else clampf((down - 0.5) / 0.45, 0.0, 1.0)
 	for i in _bubbles.size():
 		_bubbles[i].visible = i < roundi(tell * BUBBLES)
 

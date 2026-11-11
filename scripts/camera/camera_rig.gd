@@ -18,7 +18,7 @@ extends Node3D
 
 enum Mode { INTRO, FOLLOW, FOCUS }
 
-@export var follow_offset := Vector3(0.0, 6.3, 4.5)    # Camera offset while following.
+@export var follow_offset := Vector3(0.0, 4.4, 3.4)    # Camera offset while following: close on the chef, so you see round you rather than the whole room.
 @export var intro_offset := Vector3(0.0, 14.0, 13.0)   # Camera offset at the start of the intro.
 @export var intro_look_point := Vector3.ZERO           # What the intro looks at (room center).
 @export var intro_delay := 0.75

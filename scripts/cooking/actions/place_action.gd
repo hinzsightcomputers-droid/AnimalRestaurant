@@ -15,11 +15,18 @@ extends CookAction
 @export var target := "Plate"
 @export var auto_plate := false         # Press on a piece and it goes to the target by itself.
 @export var carry := false              # Like auto_plate, but the spatula slides under the piece and carries it over.
+# auto_plate or carry: where each kind of piece lands on the target instead of the
+# middle of the stack, in turn: kind -> [Vector3(x, z off the middle, turned degrees)].
+# E.g. a breakfast face: { "egg": [the eyes], "bacon": [a mustache] }.
+@export var arrange := {}
 @export_group("New item")
 @export var item_size := Vector3(0.055, 0.025, 0.04)
 @export var item_color := Color(1.0, 0.92, 0.55)
 @export var melt_seconds := 0.0           # Above 0, it melts into a puddle over this long.
 @export var anywhere := false             # Fine anywhere on the target (bacon beside the eggs), not just on the food.
+@export_enum("block", "toast_half") var item_shape := "block"  # toast_half: a slice cut corner to corner, its point down the plate.
+@export var aim_at := false              # Score how near a spot on the target it lands (aim, off the middle), marked with a ring.
+@export var aim := Vector2.ZERO
 @export_group("Feel")
 @export var carry_height := 0.09          # How high above the stack things are carried.
 @export var perfect_offset := 0.012       # Off-center (meters) that still gets full marks...
@@ -40,6 +47,8 @@ var _landing := 0  # Drops still falling.
 var _spatula: Node3D = null  # Follows the cursor (carry).
 var _riding: CookPiece = null  # On the spatula, on its way to the target.
 var _scripted_pause := SCRIPTED_PAUSE
+var _ring: MeshInstance3D = null  # aim_at: where it should go.
+var _arranged := {}  # arrange: kind -> how many of its spots are taken.
 
 
 func _begin() -> void:
@@ -47,6 +56,9 @@ func _begin() -> void:
 		_needed = 1
 		_carrying = _make_item()
 		_carrying.position = session.stack_top(target) + Vector3(0.0, carry_height, 0.0)
+		if aim_at:
+			_ring = session.make_ring(maxf(item_size.x, item_size.z) * 0.45)
+			_ring.position = _aim_spot() + Vector3(0.0, 0.003, 0.0)
 	else:
 		_needed = session.pieces_on(from_surface).size()
 		if carry:
@@ -56,6 +68,8 @@ func _begin() -> void:
 
 # Picking pieces up: looking at where they are. A new item: at the stack it goes on.
 func view_point() -> Vector3:
+	if aim_at:
+		return _aim_spot()
 	return session.stack_top(target) if _new_item() else session.surface(from_surface).position  # carry: the griddle, centred.
 
 
@@ -105,6 +119,8 @@ func uses_cursor() -> bool:
 func end() -> void:
 	if _spatula != null:
 		_spatula.queue_free()
+	if _ring != null:
+		_ring.queue_free()
 
 
 func ready_word(piece: CookPiece) -> String:
@@ -115,12 +131,14 @@ func ready_word(piece: CookPiece) -> String:
 func scripted_hold(delta: float, input: CookInput) -> bool:
 	if _new_item():
 		_scripted_pause -= delta
-		var aim := session.stack_top(target)
-		if anywhere:
+		var goal := session.stack_top(target)
+		if aim_at:
+			goal = _aim_spot()
+		elif anywhere:
 			var side := 1.0 if session.stack_of(target).size() % 2 == 0 else -1.0
-			aim = session.surface(target).position + SCRIPTED_BESIDE * Vector3(side, 1.0, 1.0)
-		aim = session.surface(target).keep_inside(aim, maxf(item_size.x, item_size.z) * 0.5)  # Somewhere it can go (a small pan).
-		return input.move_to(aim, delta) and _scripted_pause <= 0.0 and _carrying != null
+			goal = session.surface(target).position + SCRIPTED_BESIDE * Vector3(side, 1.0, 1.0)
+		goal = session.surface(target).keep_inside(goal, maxf(item_size.x, item_size.z) * 0.5)  # Somewhere it can go (a small pan).
+		return input.move_to(goal, delta) and _scripted_pause <= 0.0 and _carrying != null
 	if _riding != null or input.held:
 		return false
 	var left := session.pieces_on(from_surface).filter(func(p): return not p.busy)
@@ -154,7 +172,12 @@ func _drop(spot: Vector3) -> void:
 	if _new_item():
 		var below := session.top_piece(target)
 		var misses := below == null or Vector2(spot.x - below.position.x, spot.z - below.position.z).length() > below.radius
-		if anywhere and on_target:
+		if aim_at and on_target:  # How near its spot (the toast nose, in the middle of the face).
+			var aimed := _aim_spot()
+			offset = Vector2(spot.x - aimed.x, spot.z - aimed.z).length()
+			score = 1.0 - clampf((offset - perfect_offset) / (worst_offset - perfect_offset), 0.0, 1.0)
+			at.y = _height_at(Vector2(spot.x, spot.z))
+		elif anywhere and on_target:
 			score = 1.0  # On the food if it's over it, else beside it on the plate.
 			at.y = _height_at(Vector2(spot.x, spot.z))
 		elif misses or not on_target:
@@ -175,6 +198,16 @@ func _drop(spot: Vector3) -> void:
 func _hop(piece: CookPiece) -> void:
 	var top := session.stack_top(target)
 	var at := Vector3(top.x, top.y, top.z)
+	var turn := piece.rotation.y
+	var spots: Array = arrange.get(piece.kind, [])
+	var taken: int = _arranged.get(piece.kind, 0)
+	if taken < spots.size():  # Its own place on the plate (an eye, half the mustache).
+		_arranged[piece.kind] = taken + 1
+		var spot: Vector3 = spots[taken]
+		var middle := session.surface(target).position
+		at = Vector3(middle.x + spot.x, middle.y, middle.z + spot.y)
+		turn = deg_to_rad(spot.z)
+	var from_turn := piece.rotation.y
 	piece.surface = ""  # Off the heat: it's scored when it lands.
 	piece.busy = true
 	session.stack_push(target, piece, at, piece.thickness)
@@ -188,7 +221,8 @@ func _hop(piece: CookPiece) -> void:
 		_riding = piece
 		tween.tween_interval(0.2)  # The spatula slides under.
 	tween.tween_method(func(t: float):
-		piece.position = from.lerp(at, t) + Vector3(0.0, sin(t * PI) * hop_height, 0.0), 0.0, 1.0, hop_seconds).set_trans(Tween.TRANS_SINE)
+		piece.position = from.lerp(at, t) + Vector3(0.0, sin(t * PI) * hop_height, 0.0)
+		piece.rotation.y = lerp_angle(from_turn, turn, t), 0.0, 1.0, hop_seconds).set_trans(Tween.TRANS_SINE)
 	tween.tween_callback(func():
 		_landing -= 1
 		piece.busy = false
@@ -246,8 +280,15 @@ func _piece_at(spot: Vector3) -> CookPiece:
 	return best
 
 
-# The new item: a block sitting on its bottom middle.
+func _aim_spot() -> Vector3:
+	var middle := session.surface(target).position
+	return Vector3(middle.x + aim.x, middle.y, middle.z + aim.y)
+
+
+# The new item: a block sitting on its bottom middle (or a diagonal half of toast).
 func _make_item() -> Node3D:
+	if item_shape == "toast_half":
+		return _make_toast_half()
 	var item := Node3D.new()
 	var block := MeshInstance3D.new()
 	var mesh := BoxMesh.new()
@@ -259,6 +300,36 @@ func _make_item() -> Node3D:
 	block.mesh = mesh
 	block.position.y = item_size.y * 0.5
 	item.add_child(block)
+	session.add_child(item)
+	return item
+
+
+# A slice of toast cut corner to corner, item_size.x along its cut edge: a
+# triangle with its point down toward the mustache (a nose), browner crust round a golden
+# middle, sitting on its bottom middle.
+func _make_toast_half() -> Node3D:
+	var item := Node3D.new()
+	# Three-sided cylinders, widened: a triangle with its point toward the cook (+z).
+	var tall := item_size.x * 0.5
+	var corner := tall / 1.5  # An even triangle this far to its corners is `tall` from point to base...
+	var widen := item_size.x / (corner * sqrt(3.0))  # ...then widened to item_size.x along the base.
+	for layer in [[1.0, item_size.y, Color(0.72, 0.45, 0.2)], [0.78, item_size.y + 0.002, item_color]]:  # Crust, then the golden middle.
+		var mesh := CylinderMesh.new()
+		mesh.top_radius = corner * layer[0]
+		mesh.bottom_radius = corner * layer[0]
+		mesh.height = layer[1]
+		mesh.radial_segments = 3
+		mesh.rings = 1
+		var material := StandardMaterial3D.new()
+		material.albedo_color = layer[2]
+		material.roughness = 0.7
+		mesh.material = material
+		var slab := MeshInstance3D.new()
+		slab.mesh = mesh
+		slab.position.y = layer[1] * 0.5
+		slab.rotation.y = PI  # Turned so a corner points down the plate.
+		slab.scale.x = widen
+		item.add_child(slab)
 	session.add_child(item)
 	return item
 

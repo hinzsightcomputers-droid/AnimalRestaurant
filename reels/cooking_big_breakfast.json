@@ -1,0 +1,10 @@
+{
+	"title": "Big breakfast face",
+	"meal": "breakfast",
+	"regular": { "id": "cheddar", "relationship": 40, "first_visit": false },
+	"beats": [
+		{ "do": "cook", "recipe": "big_breakfast" },
+		{ "do": "wait", "seconds": 1.5 },
+		{ "do": "end" }
+	]
+}

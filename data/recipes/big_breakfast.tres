@@ -3,59 +3,93 @@
 [ext_resource type="Script" path="res://scripts/cooking/cook_recipe.gd" id="1_recipe"]
 [ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/heat_action.gd" id="heat"]
-[ext_resource type="Script" path="res://scripts/cooking/actions/pour_action.gd" id="pour"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/coat_action.gd" id="coat"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/lay_action.gd" id="lay"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/flip_action.gd" id="flip"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/place_action.gd" id="place"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/squeeze_action.gd" id="squeeze"]
 
-[sub_resource type="Resource" id="Resource_0"]
+[sub_resource type="Resource" id="Resource_heat"]
 script = ExtResource("heat")
 background = true
+first_side_seconds = 8.0
+second_side_seconds = 6.0
 
-[sub_resource type="Resource" id="Resource_1"]
-script = ExtResource("pour")
+[sub_resource type="Resource" id="Resource_butter"]
+script = ExtResource("coat")
+title = "Butter the griddle"
+hint = "Hold [button] and move with [stick] to rub butter over the griddle."
+weight = 0.0
+view_distance = 0.85
+on_surface = "Griddle"
+patch = Vector2(0.9, 0.45)
+coat_color = Color(1, 0.88, 0.45, 0.6)
+seconds = 2.5
+blob_radius = 0.03
+spacing = 0.015
+target_coverage = 0.05
+always_full = true
+
+[sub_resource type="Resource" id="Resource_eggs"]
+script = ExtResource("lay")
 title = "Crack the eggs"
-view_distance = 0.7
-hint = "Aim with [stick] and hold [button] to pour. Let go when it fills the ring."
-batter_color = Color(0.98, 0.97, 0.9, 1)
-done_color = Color(1, 0.84, 0.28, 1)
+hint = "Move with [stick] and press [button] to crack an egg onto the griddle."
+weight = 0.0
+view_distance = 0.75
+kind = "egg"
+side_seconds = 20.0
 
-[sub_resource type="Resource" id="Resource_2"]
+[sub_resource type="Resource" id="Resource_bacon"]
+script = ExtResource("lay")
+title = "Lay the bacon"
+hint = "Move with [stick] and press [button] to lay a strip of bacon down."
+weight = 0.0
+view_distance = 0.75
+kind = "bacon"
+
+[sub_resource type="Resource" id="Resource_flip"]
 script = ExtResource("flip")
-title = "Flip the eggs"
-view_distance = 0.7
-hint = "When \"Flip!\" pops up over one, press [button] on it to slide the spatula under, then [flick_up] to flip it."
+title = "Flip the bacon"
+hint = "When \"Flip!\" pops up over a strip, press [button] on it to slide the spatula under, then [flick_up] to flip it. The eggs stay sunny side up."
+view_distance = 0.75
+only_kind = "bacon"
 
-[sub_resource type="Resource" id="Resource_3"]
+[sub_resource type="Resource" id="Resource_plate"]
 script = ExtResource("place")
-title = "Plate them"
-hint = "When \"Plate it!\" pops up, press [button] on an egg: the spatula slides under it and puts it on the plate."
+title = "Plate it"
+hint = "When \"Plate it!\" pops up, press [button] on it: the spatula takes it to its spot on the plate."
 weight = 0.0
 carry = true
 view_distance = 0.95
+arrange = {
+"bacon": [Vector3(-0.052, 0.028, -18), Vector3(0.052, 0.028, 18)],
+"egg": [Vector3(-0.062, -0.052, 0), Vector3(0.062, -0.052, 0)]
+}
 
-[sub_resource type="Resource" id="Resource_4"]
+[sub_resource type="Resource" id="Resource_toast"]
 script = ExtResource("place")
-title = "Bacon"
-view_distance = 0.45
-hint = "Move the bacon with [stick] and press [button] to lay it anywhere on the plate."
-anywhere = true
-from_surface = ""
-item_size = Vector3(0.1, 0.012, 0.03)
-item_color = Color(0.72, 0.28, 0.2, 1)
-
-[sub_resource type="Resource" id="Resource_5"]
-script = ExtResource("place")
-title = "Toast"
-view_distance = 0.45
-hint = "Move the toast with [stick] and press [button] to put it anywhere on the plate."
-anywhere = true
-from_surface = ""
-item_size = Vector3(0.07, 0.014, 0.07)
-item_color = Color(0.82, 0.58, 0.3, 1)
+title = "Toast nose"
+hint = "Move the toast with [stick] and press [button] to set it in the ring, in the middle of the face."
 weight = 0.5
+view_distance = 0.45
+from_surface = ""
+item_size = Vector3(0.08, 0.012, 0.04)
+item_color = Color(0.92, 0.7, 0.38, 1)
+item_shape = "toast_half"
+aim_at = true
+aim = Vector2(0, -0.014)
+perfect_offset = 0.01
+worst_offset = 0.07
+
+[sub_resource type="Resource" id="Resource_smile"]
+script = ExtResource("squeeze")
+title = "Ketchup smile"
+hint = "Hold [button] and follow the dots with [stick] to squeeze a smile."
+weight = 0.5
+view_distance = 0.45
 
 [resource]
 script = ExtResource("1_recipe")
 display_name = "Big Breakfast"
-pieces = 2
-steps = Array[ExtResource("2_action")]([SubResource("Resource_0"), SubResource("Resource_1"), SubResource("Resource_2"), SubResource("Resource_3"), SubResource("Resource_4"), SubResource("Resource_5")])
+pieces = 4
+steps = Array[ExtResource("2_action")]([SubResource("Resource_heat"), SubResource("Resource_butter"), SubResource("Resource_eggs"), SubResource("Resource_bacon"), SubResource("Resource_flip"), SubResource("Resource_plate"), SubResource("Resource_toast"), SubResource("Resource_smile")])

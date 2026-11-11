@@ -15,6 +15,7 @@ extends CookAction
 @export var lift := 0.012             # How far a held piece rises off the surface.
 @export var grab_margin := 0.02       # How far outside a piece you can still get hold of it.
 @export_range(0.0, 1.0) var up_needed := 0.6  # How straight up the flick must be (1 = exactly).
+@export var only_kind := ""           # Flip only pieces of this kind ("bacon": the sunny-side-up eggs beside it stay put).
 
 const SCRIPTED_FLICK_DELAY := 0.25  # A reel's spatula sits under the piece this long.
 
@@ -66,7 +67,7 @@ func update(delta: float, input: CookInput) -> void:
 	else:
 		_arrow.visible = false
 	var left := session.pieces_on(surface).filter(func(p): return _needs(p) or p.busy)
-	if left.is_empty() and not session.pieces_on(surface).is_empty():
+	if left.is_empty() and not session.pieces_on(surface).filter(func(p): return only_kind.is_empty() or p.kind == only_kind).is_empty():
 		finish(average(_scores))
 
 
@@ -97,7 +98,7 @@ func scripted_hold(delta: float, input: CookInput) -> bool:
 
 # Whether a piece still needs this step (a FoldAction overrides these three).
 func _needs(piece: CookPiece) -> bool:
-	return not piece.flipped
+	return not piece.flipped and (only_kind.is_empty() or piece.kind == only_kind)
 
 
 func _flick_words() -> String:

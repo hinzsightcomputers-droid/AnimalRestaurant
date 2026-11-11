@@ -30,7 +30,7 @@ const LAYOUTS := {
 	2: [Rect2(0, 0, 0.5, 1), Rect2(0.5, 0, 0.5, 1)],
 	4: [Rect2(0, 0, 0.5, 0.5), Rect2(0.5, 0, 0.5, 0.5), Rect2(0, 0.5, 0.5, 0.5), Rect2(0.5, 0.5, 0.5, 0.5)],
 }
-const FOLLOW_ZOOM := { 1: 1.0, 2: 0.88, 4: 0.58 }  # Camera follow distance for each layout.
+const FOLLOW_ZOOM := { 1: 1.0, 2: 0.95, 4: 0.8 }  # Camera follow distance for each layout (the solo view is already close).
 const FOCUS_ZOOM := { 1: 1.0, 2: 0.9, 4: 0.78 }    # Close-up (minigame) distance for each layout.
 const OVERVIEW_LOOK_AT := Vector3(0.0, 0.0, -2.0)  # The overview's camera: the dining room and kitchen.
 const OVERVIEW_OFFSET := Vector3(0.0, 10.0, 6.0)

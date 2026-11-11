@@ -51,6 +51,8 @@ func update(delta: float, input: CookInput) -> void:
 			cooking += 1
 			if not piece.busy:
 				var seconds := second_side_seconds if piece.flipped else first_side_seconds
+				if piece.side_seconds > 0.0:  # Its own timing (a sunny-side-up egg, cooked on one side only).
+					seconds = piece.side_seconds
 				piece.doneness[piece.down_side] += delta * piece.cook_speed / seconds * GameState.difficulty_value("closeup_pace")  # Slower on Easy: more time to flip.
 				piece.refresh()
 			_update_steam(piece, _seen[piece])
