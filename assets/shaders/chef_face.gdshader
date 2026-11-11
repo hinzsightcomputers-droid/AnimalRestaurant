@@ -94,3 +94,6 @@ void fragment() {
 	ALPHA = face.a;
 	ROUGHNESS = 0.9;
 }
+
+// Lit like the skin under it (the art style's soft toon lighting).
+#include "res://assets/shaders/soft_toon_light.gdshaderinc"

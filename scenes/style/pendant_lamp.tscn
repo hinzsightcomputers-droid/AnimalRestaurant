@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/style/pendant_lamp.gd" id="1_lamp"]
+
+[node name="PendantLamp" type="Node3D" groups=["pendant_lamps"]]
+script = ExtResource("1_lamp")

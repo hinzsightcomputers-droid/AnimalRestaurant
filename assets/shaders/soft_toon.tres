@@ -1,0 +1,20 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://assets/shaders/soft_toon.gdshader" id="1_toon"]
+[ext_resource type="Shader" path="res://assets/shaders/soft_toon_outline.gdshader" id="2_outline"]
+
+[sub_resource type="ShaderMaterial" id="Outline"]
+shader = ExtResource("2_outline")
+shader_parameter/outline_thickness = 0.006
+shader_parameter/outline_color = Color(0.314, 0.137, 0.071, 1)
+
+[resource]
+next_pass = SubResource("Outline")
+shader = ExtResource("1_toon")
+shader_parameter/base_color = Color(1, 1, 1, 1)
+shader_parameter/shade_steps = 3
+shader_parameter/step_softness = 0.12
+shader_parameter/shadow_tint = Color(0.42, 0.25, 0.2, 1)
+shader_parameter/felt_sheen = 0.22
+shader_parameter/gloss = 0.0
+shader_parameter/toon_amount = 1.0

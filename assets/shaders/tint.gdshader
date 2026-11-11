@@ -10,3 +10,6 @@ void fragment() {
 	ALBEDO = tint.rgb * texture(shade, UV).r;
 	ROUGHNESS = roughness;
 }
+
+// The art style's soft toon lighting (ToonStyle tunes it; toon_amount 0 = the old look).
+#include "res://assets/shaders/soft_toon_light.gdshaderinc"

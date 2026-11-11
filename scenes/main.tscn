@@ -35,14 +35,9 @@
 [ext_resource type="Script" path="res://scripts/furniture/kitchen_slot.gd" id="33_slot"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/microwave.tscn" id="34_microwave"]
 [ext_resource type="Script" path="res://scripts/furniture/chef_wardrobe.gd" id="35_wardrobe"]
-
-[sub_resource type="Environment" id="Env"]
-background_mode = 1
-background_color = Color(0.55, 0.75, 0.85, 1)
-ambient_light_source = 2
-ambient_light_color = Color(1, 0.94, 0.85, 1)
-ambient_light_energy = 0.6
-tonemap_mode = 2
+[ext_resource type="Environment" path="res://assets/style/warm_environment.tres" id="36_env"]
+[ext_resource type="Script" path="res://scripts/style/toon_style.gd" id="37_toon"]
+[ext_resource type="PackedScene" path="res://scenes/style/pendant_lamp.tscn" id="38_lamp"]
 
 [sub_resource type="Resource" id="Zoom_order_chat"]
 script = ExtResource("14_zoom")
@@ -58,7 +53,7 @@ pitch_degrees = 45.0
 [node name="Main" type="Node3D" unique_id=1251438548]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1666206066]
-environment = SubResource("Env")
+environment = ExtResource("36_env")
 
 [node name="Sun" type="DirectionalLight3D" parent="." unique_id=1445453579]
 transform = Transform3D(0.866, 0, -0.5, -0.383, 0.643, -0.663, 0.321, 0.766, 0.557, 0, 8, 0)
@@ -349,3 +344,25 @@ delivery_manager = NodePath("../DeliveryManager")
 day_manager = NodePath("../DayManager")
 order_board = NodePath("../OrderBoard")
 view_manager = NodePath("../Views")
+
+[node name="ToonStyle" type="Node" parent="." node_paths=PackedStringArray("world_environment")]
+script = ExtResource("37_toon")
+world_environment = NodePath("../WorldEnvironment")
+
+[node name="Lamps" type="Node3D" parent="."]
+
+[node name="PendantLamp1" parent="Lamps" instance=ExtResource("38_lamp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 3, -0.8)
+drop = 0.4
+
+[node name="PendantLamp2" parent="Lamps" instance=ExtResource("38_lamp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2, 3, -0.8)
+drop = 0.4
+
+[node name="PendantLamp3" parent="Lamps" instance=ExtResource("38_lamp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 3, 2.2)
+drop = 0.4
+
+[node name="PendantLamp4" parent="Lamps" instance=ExtResource("38_lamp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2, 3, 2.2)
+drop = 0.4
