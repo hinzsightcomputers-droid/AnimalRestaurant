@@ -1,6 +1,7 @@
 # Settings (autoload): what the players picked on the settings screen
 # (SettingsScreen): volumes, how fast the close-up cursor moves, and whether
-# two players' views join up when they're close (the hybrid camera). Kept in
+# two players' views join up when they're close (the hybrid camera), and whether
+# two players can share the keyboard (off at first: one player, WASD or arrows). Kept in
 # user://settings.json, apart from the save, so it's the same for every save;
 # defaults come from data/settings.json.
 #
@@ -24,6 +25,7 @@ var pad_cursor_speed := 1.0   # Times CookSession.pad_cursor_speed.
 var key_cursor_speed := 1.0   # Times CookSession.cursor_speed.
 var hybrid_camera := true
 var guide_always := false  # Show the Guide's arrow every day, not just to new chefs.
+var two_on_keyboard := false  # Two players can share the keyboard (WASD and the arrows). Off: one player, either set of keys.
 var cursor_speed_range := Vector2(0.4, 2.0)
 
 
@@ -87,6 +89,7 @@ func save() -> void:
 		"pad_cursor_speed": pad_cursor_speed, "key_cursor_speed": key_cursor_speed,
 		"hybrid_camera": hybrid_camera,
 		"guide_always": guide_always,
+		"two_on_keyboard": two_on_keyboard,
 	}, "\t"))
 
 
@@ -98,6 +101,8 @@ func _apply_values(values: Dictionary) -> void:
 	key_cursor_speed = clampf(float(values.get("key_cursor_speed", key_cursor_speed)), cursor_speed_range.x, cursor_speed_range.y)
 	hybrid_camera = bool(values.get("hybrid_camera", hybrid_camera))
 	guide_always = bool(values.get("guide_always", guide_always))
+	two_on_keyboard = bool(values.get("two_on_keyboard", two_on_keyboard))
+	InputSetup.set_two_on_keyboard(two_on_keyboard)
 
 
 func _apply_volumes() -> void:

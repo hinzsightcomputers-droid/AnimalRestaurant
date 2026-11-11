@@ -5,7 +5,8 @@
 # several players waiting are asked one after another. Players keep their
 # account across days, so it only shows once per session.
 # A chef without a look yet (new, or from before looks) goes on to the
-# ChefCustomizer to make one.
+# ChefCustomizer to make one, and one who hasn't said their birthday is asked
+# it (BirthdayPicker), so it never interrupts the day.
 extends CanvasLayer
 
 const DEFAULT_NAME := "Chef"
@@ -174,6 +175,13 @@ func _choose(account_id: String) -> void:
 		# looks): that first.
 		visible = false
 		ChefCustomizer.open(get_parent(), account_id, false).finished.connect(func(_saved: bool):
+			visible = true
+			_choose(account_id))
+		return
+	if not GameState.birthdays.has(account_id) and not ReelSandbox.active():
+		# Their birthday next, before the day starts (not in the middle of it).
+		visible = false
+		BirthdayPicker.open(get_parent(), account_id, Accounts.get_account(account_id).get("name", DEFAULT_NAME)).finished.connect(func():
 			visible = true
 			_choose(account_id))
 		return

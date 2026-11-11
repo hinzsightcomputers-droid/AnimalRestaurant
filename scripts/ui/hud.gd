@@ -159,7 +159,7 @@ func _refresh_join_hint() -> void:
 	var options := PackedStringArray()
 	if not InputSetup.is_device_used("keys_left"):
 		options.append("E (WASD)")
-	if not InputSetup.is_device_used("keys_right"):
+	if InputSetup.two_on_keyboard and not InputSetup.is_device_used("keys_right"):
 		options.append("Enter (arrow keys)")
 	options.append("A (gamepad)")
 	# Not while anyone's talking: one less thing over the dialogue box.

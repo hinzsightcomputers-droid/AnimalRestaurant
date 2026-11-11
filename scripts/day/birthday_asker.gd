@@ -1,5 +1,7 @@
-# BirthdayAsker: asks each chef their birthday on their first day (once the
-# restaurant is open and they're free), in a dialogue box: the month, which
+# BirthdayAsker: a fallback. Chefs are asked their birthday when they're picked
+# (BirthdayPicker, before the day starts); this asks in game anyone who still
+# hasn't said (e.g. after the debug panel's "Forget birthdays"), once the
+# restaurant is open and they're free, in a dialogue box: the month, which
 # part of it, then the day. Saved in GameState.birthdays ("" if they'd rather
 # not say, so they aren't asked again). If it's today, the banner shows. The
 # lines are in design/calendar/calendar.json (birthday_question).

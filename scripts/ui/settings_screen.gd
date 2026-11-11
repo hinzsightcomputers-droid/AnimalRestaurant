@@ -1,7 +1,8 @@
 # SettingsScreen: the settings, opened with Escape or Start from anywhere
 # (see Settings). Sliders for the master, music and sound effects volumes and
 # for how fast the close-up cursor moves on a gamepad and on the keys; a switch
-# for the hybrid camera (two players' views join when they're close); and the
+# for the hybrid camera (two players' views join when they're close) and for two
+# players sharing the keyboard; and the
 # hemisphere, which flips the seasons (kept in the save, not the settings).
 # Any player's up/down (keys, stick, d-pad) picks a row, left/right changes
 # it, interact flips a switch; the mouse works too. Escape, Start or B closes
@@ -118,6 +119,15 @@ func _build() -> void:
 	_heading(grid, "Controls")
 	_speed_row(grid, "Cursor speed (gamepad)", "pad_cursor_speed")
 	_speed_row(grid, "Cursor speed (keys)", "key_cursor_speed")
+	var shared_keys := CheckButton.new()
+	shared_keys.text = "Two players on one keyboard"
+	shared_keys.tooltip_text = "On: a second player can join on the arrow keys + Enter. Off: one keyboard player, who can use WASD + E or the arrows + Enter."
+	shared_keys.button_pressed = Settings.two_on_keyboard
+	shared_keys.add_theme_font_size_override("font_size", 20)
+	shared_keys.toggled.connect(func(on: bool): Settings.set_value("two_on_keyboard", on))
+	_mark(shared_keys, _row_label(grid, "Keyboard"))
+	grid.add_child(shared_keys)
+	_label(grid, "", 18, TEXT)
 	_heading(grid, "Screen and world")
 	var hybrid := CheckButton.new()
 	hybrid.text = "Hybrid camera with two players"

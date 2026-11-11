@@ -47,6 +47,9 @@ const PAD_BUTTONS := {
 }
 
 var _devices: Dictionary = {}  # player_index -> device name. Lasts across days (this is an autoload).
+# Two players sharing the keyboard (Settings, set from there). Off: nobody joins on
+# the arrow keys, and Player 1 on the keyboard can use WASD + E or the arrows + Enter.
+var two_on_keyboard := false
 
 
 # Builds the full action name for one player, e.g. action_name(1, "interact") -> "p1_interact".
@@ -98,6 +101,10 @@ func assign_device(player_index: int, device: String) -> void:
 		InputMap.action_erase_events(action_id)
 		for event in _events_for(device, action):
 			InputMap.action_add_event(action_id, event)
+	if device == "keys_right":  # The arrows are someone else's now (see _events_for).
+		for other in _devices:
+			if _devices[other] == "keys_left":
+				assign_device(other, "keys_left")
 
 
 # If `event` is an interact press, the device it came from ("" otherwise).
@@ -105,7 +112,7 @@ func device_of_interact_press(event: InputEvent) -> String:
 	if event is InputEventKey and event.pressed and not event.echo:
 		for device in KEYBOARD_LAYOUTS:
 			if event.physical_keycode == KEYBOARD_LAYOUTS[device]["interact"]:
-				return device
+				return device if two_on_keyboard or device != "keys_right" else "keys_left"
 	if event is InputEventJoypadButton and event.pressed and event.button_index == PAD_BUTTONS["interact"]:
 		return "pad_%d" % event.device
 	return ""
@@ -153,6 +160,12 @@ func _events_for(device: String, action: String) -> Array[InputEvent]:
 		key.device = -1  # -1 = any keyboard
 		key.physical_keycode = KEYBOARD_LAYOUTS[device][action]
 		events.append(key)
+		if device == "keys_left" and not two_on_keyboard and not is_device_used("keys_right"):
+			# One keyboard player: the arrows and Enter work too.
+			var other := InputEventKey.new()
+			other.device = -1
+			other.physical_keycode = KEYBOARD_LAYOUTS["keys_right"][action]
+			events.append(other)
 	elif device.begins_with("pad_"):
 		var pad := int(device.trim_prefix("pad_"))
 		if PAD_AXES.has(action):
@@ -166,3 +179,12 @@ func _events_for(device: String, action: String) -> Array[InputEvent]:
 		button.button_index = PAD_BUTTONS[action]
 		events.append(button)
 	return events
+
+
+# Settings turned two players on the keyboard on or off: rebind whoever is on
+# the left half (they get or lose the arrow keys too).
+func set_two_on_keyboard(on: bool) -> void:
+	two_on_keyboard = on
+	for player_index in _devices:
+		if _devices[player_index] == "keys_left":
+			assign_device(player_index, "keys_left")
