@@ -33,6 +33,7 @@ var day_tag := ""
 var step_title := ""
 var step_began := 0.0
 var stuck_shot := false
+var slow_noted := false
 
 
 func note(text: String) -> void:
@@ -325,6 +326,10 @@ func cook_step(session: CookSession) -> void:
 			note("   cook step '%s' took %.1fs" % [step_title, t - step_began])
 		step_title = title
 		step_began = t
+		slow_noted = false
+	elif t - step_began > 20.0 and not slow_noted:  # A step that won't finish: what it's doing, to see why.
+		slow_noted = true
+		note("   SLOW STEP '%s' (%s): held %s  cursor %s  status '%s'" % [title, session.current.get_script().resource_path.get_file() if session.current else "-", session.input.held, session.input.cursor, session._status])
 
 
 # Clipping tickets: press E as an empty clip comes to the front.

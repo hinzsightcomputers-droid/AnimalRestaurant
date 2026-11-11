@@ -135,10 +135,29 @@ func scripted_hold(delta: float, input: CookInput) -> bool:
 		goal += Vector3(-half.x + egg_radius + 0.008 + _laid * (egg_radius * 2.0 + GAP + 0.004), 0.0, 0.0)
 	else:
 		goal += Vector3(half.x - bacon_size.x * 0.5 - 0.008, 0.0, (_laid - (count - 1) / 2.0) * (bacon_size.y + GAP + 0.012))
-	if input.move_to(goal, delta) and not input.held:
+	goal = _scripted_free_spot(goal)
+	if input.move_to(goal, delta) and not input.held and _fits(Vector3(input.cursor.x, goal.y, input.cursor.z)):
 		_scripted_wait = SCRIPTED_WAIT
 		return true
 	return false
+
+
+# For a reel: the planned spot, or if what's already down crowds it (the last
+# one landed a few millimetres off its mark), the nearest one that's clear,
+# looking along the row first.
+func _scripted_free_spot(goal: Vector3) -> Vector3:
+	goal.y = session.surface(surface).position.y
+	if _fits(goal):
+		return goal
+	var along := Vector3(1.0, 0.0, 0.0) if kind == "egg" else Vector3(0.0, 0.0, 1.0)
+	var across := Vector3(0.0, 0.0, 1.0) if kind == "egg" else Vector3(1.0, 0.0, 0.0)
+	for step in range(1, 60):
+		for sideways in [0.0, 0.02, -0.02, 0.04, -0.04]:
+			for sign in [1.0, -1.0]:
+				var spot: Vector3 = goal + along * sign * step * 0.004 + across * sideways
+				if _fits(spot):
+					return spot
+	return goal
 
 
 func _half() -> Vector2:
