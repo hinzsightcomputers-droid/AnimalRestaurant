@@ -145,16 +145,18 @@ static func line(townsfolk_id: String, step: String, context: Dictionary, chef_i
 	var met: bool = chef_id in GameState.townsfolk.get(townsfolk_id, {}).get("met", [])
 	var usable := func(options) -> Array:
 		return Array(options if options is Array else []).filter(func(text): return met or not "{chef}" in String(text))
+	var bag := "townsfolk:%s:%s:seasonal" % [townsfolk_id, step]
 	var options: Array = usable.call(lines.get("seasonal", {}).get(GameClock.season(), {}).get(step, []))
 	if options.is_empty() or randf() < 0.5:
 		var own: Array = usable.call(lines.get(step, []))
 		if not own.is_empty():
 			options = own
+			bag = "townsfolk:%s:%s" % [townsfolk_id, step]
 	if options.is_empty():
 		return ""
 	var filled := context.duplicate()
 	filled["chef"] = Accounts.get_account(chef_id).get("name", "")
-	return String(options.pick_random()).format(filled)
+	return String(LineBag.pick(bag, options)).format(filled)
 
 
 # Their eating bubble for how the food came out (perfect, great, okay, burnt), or "".

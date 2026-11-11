@@ -514,7 +514,7 @@ func _townsfolk_line(customer: Customer, step: String, context: Dictionary = {})
 		if not own.is_empty():
 			return own
 	var lines: Array = GameData.service.get("townsfolk", {}).get(step, [])
-	return String(lines.pick_random()).format(context) if not lines.is_empty() else ""
+	return String(LineBag.pick("townsfolk:" + step, lines)).format(context) if not lines.is_empty() else ""
 
 
 # --- The host stand ------------------------------------------------------------
@@ -1824,7 +1824,7 @@ func _settle_bill(player: Player, customer: Customer) -> void:
 	var save_percent := float(ServiceStreak.settings().get("just_in_time_tip_percent", 10)) if customer.just_in_time else 0.0
 	var amount := Satisfaction.bill_for(customer.dish, customer.served_drink, reaction, streak_percent + save_percent)
 	var lines: Array = reaction.get("lines", ["Thank you!"])
-	var line: String = lines.pick_random()
+	var line: String = LineBag.pick("reaction:" + String(reaction.get("id", "")), lines)
 	var feeling := &"happy" if satisfaction >= 0.75 else (&"sad" if satisfaction < 0.4 else &"")
 	var asks_delivery := false
 	if customer.is_regular():

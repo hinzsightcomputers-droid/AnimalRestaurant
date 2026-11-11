@@ -184,6 +184,7 @@ func begin_day() -> void:
 	house_day = {}
 	cheddar_left_on = ""
 	ServiceStreak.reset()
+	LineBag.reset()
 	town_news = Townsfolk.rotate(day_number)
 	replan_today()
 
