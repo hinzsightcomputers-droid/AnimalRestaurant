@@ -14,6 +14,9 @@ script = ExtResource("heat")
 background = true
 first_side_seconds = 8.0
 second_side_seconds = 6.0
+plating_pace = 0.35
+perfect_to = 1.3
+burnt_at = 1.9
 
 [sub_resource type="Resource" id="Resource_butter"]
 script = ExtResource("coat")

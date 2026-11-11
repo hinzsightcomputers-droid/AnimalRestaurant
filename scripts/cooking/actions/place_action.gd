@@ -46,6 +46,7 @@ var _scores: Array[float] = []
 var _landing := 0  # Drops still falling.
 var _spatula: Node3D = null  # Follows the cursor (carry).
 var _riding: CookPiece = null  # On the spatula, on its way to the target.
+var _queued: CookPiece = null  # Pressed on while the spatula was busy: it goes next.
 var _scripted_pause := SCRIPTED_PAUSE
 var _ring: MeshInstance3D = null  # aim_at: where it should go.
 var _arranged := {}  # arrange: kind -> how many of its spots are taken.
@@ -94,6 +95,11 @@ func update(delta: float, input: CookInput) -> void:
 		_carrying.position = _carrying.position.lerp(goal, 1.0 - exp(-18.0 * delta))
 		if (input.just_pressed if _new_item() else input.just_released):
 			_drop(spot)
+	elif input.just_pressed and not _new_item() and _riding != null and (auto_plate or carry):
+		var next := _piece_at(spot)  # The spatula's busy: this one goes as soon as it's free.
+		if next != null and next != _riding:
+			_queued = next
+			session.wobble(next, 0.08)
 	elif input.just_pressed and not _new_item() and _riding == null:
 		var piece := _piece_at(spot)
 		if piece != null and (auto_plate or carry):
@@ -229,6 +235,11 @@ func _hop(piece: CookPiece) -> void:
 		piece.surface = target
 		if _riding == piece:
 			_riding = null
+			if _queued != null and is_instance_valid(_queued) and _queued.surface == from_surface and not _queued.busy:
+				var next := _queued
+				_queued = null
+				_hop(next)
+			_queued = null
 		session.wobble(piece, 0.18)
 		session.play_sound("plop", at)
 		session.burst(at + Vector3(0.0, 0.01, 0.0), Color(1.0, 0.95, 0.8), 8, 0.2))
