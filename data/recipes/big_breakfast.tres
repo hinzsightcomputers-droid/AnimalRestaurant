@@ -18,40 +18,42 @@ second_side_seconds = 6.0
 [sub_resource type="Resource" id="Resource_butter"]
 script = ExtResource("coat")
 title = "Butter the griddle"
-hint = "Hold [button] and move with [stick] to rub butter over the griddle."
+hint = "Hold [button] and move with [stick] to rub butter over the box on the griddle."
 weight = 0.0
-view_distance = 0.85
+view_distance = 0.6
 on_surface = "Griddle"
-patch = Vector2(0.9, 0.45)
+patch = Vector2(0.44, 0.2)
 coat_color = Color(1, 0.88, 0.45, 0.6)
 seconds = 2.5
-blob_radius = 0.03
-spacing = 0.015
-target_coverage = 0.05
+blob_radius = 0.02
+spacing = 0.01
+target_coverage = 0.1
 always_full = true
 
 [sub_resource type="Resource" id="Resource_eggs"]
 script = ExtResource("lay")
 title = "Crack the eggs"
-hint = "Move with [stick] and press [button] to crack an egg onto the griddle."
+hint = "Move with [stick] to a spot in the box and press [button] to crack the egg, then press [button] again to open it."
 weight = 0.0
-view_distance = 0.75
+view_distance = 0.6
 kind = "egg"
+zone_size = Vector2(0.44, 0.2)
 side_seconds = 20.0
 
 [sub_resource type="Resource" id="Resource_bacon"]
 script = ExtResource("lay")
 title = "Lay the bacon"
-hint = "Move with [stick] and press [button] to lay a strip of bacon down."
+hint = "Move with [stick] to a spot in the box and press [button] to lay a strip down."
 weight = 0.0
-view_distance = 0.75
+view_distance = 0.6
 kind = "bacon"
+zone_size = Vector2(0.44, 0.2)
 
 [sub_resource type="Resource" id="Resource_flip"]
 script = ExtResource("flip")
 title = "Flip the bacon"
 hint = "When \"Flip!\" pops up over a strip, press [button] on it to slide the spatula under, then [flick_up] to flip it. The eggs stay sunny side up."
-view_distance = 0.75
+view_distance = 0.6
 only_kind = "bacon"
 
 [sub_resource type="Resource" id="Resource_plate"]

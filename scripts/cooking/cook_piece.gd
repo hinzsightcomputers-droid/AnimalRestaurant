@@ -41,6 +41,7 @@ var _stretch := Vector2.ONE   # An egg isn't quite round.
 var _yolk_material: StandardMaterial3D = null
 var _fat_material: StandardMaterial3D = null
 var _strip: Node3D = null      # Bacon's look (not in the body, which is scaled to the radius).
+var _yolk: MeshInstance3D = null
 
 const YOLK := Color(1.0, 0.68, 0.12)
 const YOLK_SET := Color(0.98, 0.84, 0.45)
@@ -99,6 +100,7 @@ func make_egg(white_radius: float, yolk_radius := 0.016) -> void:
 	var off_middle := Vector2.from_angle(randf() * TAU) * white_radius * 0.15
 	yolk.position = Vector3(off_middle.x, thickness * 0.9, off_middle.y)
 	add_child(yolk)
+	_yolk = yolk
 	spread_to = white_radius
 	refresh()
 
@@ -131,6 +133,12 @@ func make_bacon(length: float, width: float) -> void:
 	set_radius(length * 0.5)  # For getting hold of it (the body itself is hidden).
 	spread_to = width
 	refresh()
+
+
+# An egg's yolk shown or not (it drops in last as the egg pours out).
+func show_yolk(on: bool) -> void:
+	if _yolk != null:
+		_yolk.visible = on
 
 
 func _box(parent: Node3D, box_size: Vector3, height: float, material: StandardMaterial3D) -> MeshInstance3D:
