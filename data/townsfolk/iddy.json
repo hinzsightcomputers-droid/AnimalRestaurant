@@ -83,7 +83,7 @@
 		"leaving": [
 			{ "text": "THANK you, [name]! You good? Good. Good night, restaurant!" },
 			{ "text": "I gotta go. Amy texted 'where are you.' No emoji. That's bad." },
-			{ "fav": true, "text": "Best mac in the city. I'm not just saying that. I'm also saying it loud." }
+			{ "fav": true, "text": "Best mac in town. I'm not just saying that. I'm also saying it loud." }
 		],
 		"seasons": {
 			"chef_birthday": "HAPPY BIRTHDAY, [name]! EVERYBODY SING! ...Okay, just me then.",
