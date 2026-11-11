@@ -22,7 +22,9 @@ extends CookAction
 @export_range(0.0, 1.0) var least_score := 0.4
 @export var blob_radius := 0.006
 @export var spacing := 0.004
-@export var bottle_height := 0.12
+@export var bottle_height := 0.04          # How high the nozzle is over the plate (lower still while squeezing).
+@export var bottle_lean := 55.0           # Degrees the bottle leans away (up and to the right of the plate), so it never hides the guide.
+@export var bottle_scale := 0.5          # A small squeeze bottle: the camera's close.
 
 var _guide: Array[Vector3] = []
 var _ticked: Array[bool] = []
@@ -48,7 +50,7 @@ func cursor_height() -> float:
 
 
 func uses_cursor() -> bool:
-	return false  # The bottle shows the spot.
+	return true  # The dot shows where the sauce lands (the bottle leans out of the way).
 
 
 func _begin() -> void:
@@ -83,6 +85,8 @@ func _begin() -> void:
 	_blob_mesh.material = sauce
 	_bottle = session.make_bottle(sauce_color)
 	_bottle.position = _guide[0] + Vector3(0.0, bottle_height, 0.0)
+	_bottle.scale = Vector3.ONE * bottle_scale
+	_bottle.rotation = Vector3(-deg_to_rad(bottle_lean), deg_to_rad(-40.0), 0.0)  # Its tip stays on the spot; its body leans up and to the right.
 	_sound = session.loop_sound("drizzle", -12.0)
 
 
@@ -96,9 +100,8 @@ func end() -> void:
 func update(delta: float, input: CookInput) -> void:
 	var spot := Vector2(input.cursor.x, input.cursor.z)
 	var squeezing := input.held
-	var tip := Vector3(spot.x, _top() + (bottle_height * 0.7 if squeezing else bottle_height), spot.y)
+	var tip := Vector3(spot.x, _top() + (bottle_height * 0.4 if squeezing else bottle_height), spot.y)
 	_bottle.position = _bottle.position.lerp(tip, 1.0 - exp(-22.0 * delta))
-	_bottle.rotation.z = lerp_angle(_bottle.rotation.z, 0.0 if squeezing else deg_to_rad(-30.0), 1.0 - exp(-14.0 * delta))
 	if squeezing:
 		if _last == null:
 			_squeeze(spot)

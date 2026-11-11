@@ -87,6 +87,7 @@ title = "Ketchup smile"
 hint = "Hold [button] and follow the dots with [stick] to squeeze a smile."
 weight = 0.5
 view_distance = 0.45
+view_pitch = 78.0
 
 [resource]
 script = ExtResource("1_recipe")
