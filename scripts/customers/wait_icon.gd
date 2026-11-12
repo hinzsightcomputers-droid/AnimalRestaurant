@@ -2,13 +2,13 @@
 # a covered plate while they wait for their food, a cup with a straw while they
 # wait for their drink. There's no timer: it just says what they're waiting
 # for, so you can see at a glance who still needs something. Bobs gently.
-# Hidden otherwise. Display only.
+# Hidden otherwise. Display only: CustomerDisplay sets its size and puts it
+# over the text above their head (rest_offset).
 class_name WaitIcon
 extends Sprite3D
 
-const SIZE := 0.45        # Meters across.
 const PIXELS := 64
-const BOB := 0.04         # Meters up and down...
+const BOB := 0.1          # Of its height, up and down...
 const BOB_SPEED := 2.5    # ...and how fast.
 const INK := Color(0.25, 0.18, 0.12)
 const BADGE := Color(1.0, 0.99, 0.95)
@@ -17,20 +17,19 @@ static var _food_texture: Texture2D
 static var _drink_texture: Texture2D
 
 var customer: Customer
-var _rest := 0.0
+var rest_offset := 0.0    # Its offset (pixels) when not bobbing.
 
 
 func _ready() -> void:
 	if _food_texture == null:
 		_food_texture = ImageTexture.create_from_image(_draw(true))
 		_drink_texture = ImageTexture.create_from_image(_draw(false))
-	pixel_size = SIZE / PIXELS
 	billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	fixed_size = true
 	no_depth_test = true
 	render_priority = 2
 	texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR
 	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_rest = position.y
 	visible = false
 
 
@@ -40,7 +39,7 @@ func _process(_delta: float) -> void:
 	if not visible:
 		return
 	texture = _food_texture if state == Customer.State.WAITING_FOR_FOOD else _drink_texture
-	position.y = _rest + sin(Time.get_ticks_msec() / 1000.0 * BOB_SPEED) * BOB
+	offset.y = rest_offset + sin(Time.get_ticks_msec() / 1000.0 * BOB_SPEED) * BOB * PIXELS
 
 
 # A round badge with the symbol on it.
