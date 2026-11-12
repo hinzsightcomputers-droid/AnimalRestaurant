@@ -15,7 +15,11 @@ enum Phase { PICK, SOAK, SCRUB, RACK }  # SOAK: dishes in the water, waiting to 
 @export var rack_surface := "Rack"
 @export var dish_size := 0.26
 @export var carry_height := 0.16
-@export var sink_depth := -0.07            # How far below the counter top a dish sits in the sink.
+@export var water_level := -0.035          # The soapy water's top, below the counter top: the sink's half full.
+@export var water_size := Vector2(0.62, 0.3)
+@export var water_offset := Vector2(0.0, -0.07)  # From the sink surface's middle.
+@export var soak_tilt := 0.6               # Radians: dishes in the water lean on their sides, one against the next.
+@export var soak_spacing := 0.1           # Between dishes in the water (closer when there are lots, to fit).
 @export var spots_per_dish := 3
 @export var spot_radius := 0.035
 @export var scrub_needed := 0.45           # Meters of rubbing over a spot to clean it.
@@ -34,6 +38,7 @@ var _water: AudioStreamPlayer3D
 var _soaking: Array[Node3D] = []           # Tipped into the sink, still dirty, top last.
 var _carrying_bin := false
 var _bin_home := Vector3.ZERO
+var _suds: Node3D                          # The water and its foam.
 
 
 func _begin() -> void:
@@ -41,12 +46,14 @@ func _begin() -> void:
 	_left = _bin.contents.get_child_count()
 	_bin_home = _bin.position
 	_build_sponge()
+	_build_suds()
 	_water = session.loop_sound("pour", -40.0)
 	_water.play()
 
 
 func end() -> void:
 	_sponge.queue_free()
+	_suds.queue_free()
 	_water.queue_free()
 
 
@@ -107,7 +114,7 @@ func _update_pick(delta: float, input: CookInput, spot: Vector3) -> void:
 
 func _update_scrub(delta: float, input: CookInput, spot: Vector3) -> void:
 	var sink := session.surface(sink_surface).position
-	var goal := Vector3(spot.x, sink.y + sink_depth + (0.03 if input.held else 0.07), spot.z)
+	var goal := Vector3(spot.x, sink.y + _scrub_height() + (0.03 if input.held else 0.07), spot.z)
 	_sponge.position = _sponge.position.lerp(goal, 1.0 - exp(-22.0 * delta))
 	var moved := Vector2(_sponge.position.x - _last.x, _sponge.position.z - _last.z).length() if input.held else 0.0
 	_last = _sponge.position
@@ -160,7 +167,9 @@ func _into_sink() -> void:
 	_busy = true
 	var sink := session.surface(sink_surface).position
 	var tween := _dish.create_tween()
-	tween.tween_property(_dish, "position", Vector3(sink.x, sink.y + sink_depth, sink.z), 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.set_parallel(true)
+	tween.tween_property(_dish, "position", Vector3(sink.x, sink.y + _scrub_height(), sink.z), 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.tween_property(_dish, "rotation", Vector3.ZERO, 0.18)  # Out of the water, held flat to scrub.
 	await tween.finished
 	session.burst(_dish.position + Vector3(0.0, 0.03, 0.0), Color(0.75, 0.9, 1.0, 0.8), 14, 0.4)
 	session.play_sound("plop", _dish.position, -4.0, 0.8)
@@ -192,7 +201,7 @@ func _back_to_sink() -> void:
 	var sink := session.surface(sink_surface).position
 	_busy = true
 	var tween := _dish.create_tween()
-	tween.tween_property(_dish, "position", Vector3(sink.x, sink.y + sink_depth, sink.z), 0.2).set_trans(Tween.TRANS_QUAD)
+	tween.tween_property(_dish, "position", Vector3(sink.x, sink.y + _scrub_height(), sink.z), 0.2).set_trans(Tween.TRANS_QUAD)
 	await tween.finished
 	_busy = false
 	session.pop_text("Onto the rack!", session.surface(rack_surface).position, 0)
@@ -232,10 +241,10 @@ func _tip_into_sink() -> void:
 	for i in dishes.size():
 		var dish := dishes[dishes.size() - 1 - i] as Node3D  # The top one first, so it ends up at the bottom.
 		dish.reparent(session)
-		var goal := _soak_spot(i)
+		var goal := _soak_spot(i, dishes.size())
 		var slide := dish.create_tween().set_parallel(true)
 		slide.tween_property(dish, "position", goal, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN).set_delay(i * 0.06)
-		slide.tween_property(dish, "rotation", Vector3(0.0, randf() * TAU, 0.0), 0.22).set_delay(i * 0.06)
+		slide.tween_property(dish, "rotation", Vector3(0.0, 0.0, soak_tilt), 0.22).set_delay(i * 0.06)
 		_soaking.push_front(dish)
 	await session.get_tree().create_timer(0.22 + dishes.size() * 0.06).timeout
 	session.burst(sink + Vector3(0.0, 0.03, 0.0), Color(0.75, 0.9, 1.0, 0.8), 24, 0.5)
@@ -252,12 +261,53 @@ func _bin_back_home() -> void:
 	back.tween_property(_bin, "rotation:z", 0.0, 0.25).set_trans(Tween.TRANS_SINE)
 
 
-# Where the i-th tipped dish settles in the water: under the one being
-# scrubbed, a little apart from the others.
-func _soak_spot(i: int) -> Vector3:
+# Where the i-th of n tipped dishes settles: in a row across the sink, each on
+# its side leaning on the next like dominoes, its top edge peeking out of the
+# water. The first (rightmost, lying on the rest) is grabbed first.
+func _soak_spot(i: int, n: int) -> Vector3:
 	var sink := session.surface(sink_surface).position
-	var side := -1.0 if i % 2 == 0 else 1.0  # Left and right, so the ones waiting peek out round the one being scrubbed.
-	return sink + Vector3(side * (0.06 + randf() * 0.015), sink_depth - 0.035 + mini(i, 4) * 0.006, sin(i * 2.4) * 0.025)
+	var gap := minf(soak_spacing, (water_size.x - dish_size * 0.9) / maxf(n - 1, 1))
+	return sink + Vector3(((n - 1) * 0.5 - i) * gap, water_level - 0.03, water_offset.y)
+
+
+# Out of the water, flat, just over it: where a dish is scrubbed.
+func _scrub_height() -> float:
+	return water_level + 0.02
+
+
+# Half a sink of soapy water, with foam round the edges.
+func _build_suds() -> void:
+	_suds = Node3D.new()
+	var sink := session.surface(sink_surface).position
+	_suds.position = sink + Vector3(water_offset.x, water_level, water_offset.y)
+	var water := MeshInstance3D.new()
+	var sheet := BoxMesh.new()
+	sheet.size = Vector3(water_size.x, 0.004, water_size.y)
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color(0.72, 0.86, 0.96, 0.92)  # Cloudy with soap: you can't see what's under.
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED  # Stays soapy blue under the warm kitchen light.
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.roughness = 0.15
+	sheet.material = material
+	water.mesh = sheet
+	_suds.add_child(water)
+	var foam := StandardMaterial3D.new()
+	foam.albedo_color = Color(0.97, 0.98, 1.0)
+	foam.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	for i in 18:
+		var bubble := MeshInstance3D.new()
+		var ball := SphereMesh.new()
+		ball.radius = randf_range(0.012, 0.028)
+		ball.height = ball.radius * 0.9
+		ball.material = foam
+		bubble.mesh = ball
+		# Mostly round the edges, where suds gather.
+		var edge := Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0))
+		if absf(edge.x) < 0.75 and absf(edge.y) < 0.75:
+			edge = edge.normalized() * 0.85 if edge != Vector2.ZERO else Vector2(0.85, 0.0)
+		bubble.position = Vector3(edge.x * water_size.x * 0.46, 0.003, edge.y * water_size.y * 0.42)
+		_suds.add_child(bubble)
+	session.add_child(_suds)
 
 
 func _bin_spot() -> Vector3:
@@ -310,6 +360,7 @@ func _build_sponge() -> void:
 # --- For a reel -----------------------------------------------------------------
 
 var _scripted_angle := 0.0
+var _scripted_soak := 0.0  # A reel lets the dishes sit in the water a moment before grabbing one.
 
 
 # The bin tipped into the sink (or a lone dish dropped in), then each dish:
@@ -323,7 +374,13 @@ func scripted_hold(delta: float, input: CookInput) -> bool:
 				return not input.move_to(session.surface(sink_surface).position, delta, 0.9)
 			return input.move_to(session.surface(bin_surface).position, delta, 1.0) and not input.held and _bin.top() != null
 		Phase.SOAK:
-			return input.move_to(session.surface(sink_surface).position, delta, 1.0) and not input.held
+			_scripted_soak += delta
+			if _scripted_soak < 0.8:
+				return false
+			if input.move_to(session.surface(sink_surface).position, delta, 1.0) and not input.held:
+				_scripted_soak = 0.0
+				return true
+			return false
 		Phase.SCRUB:
 			for entry in _spots:
 				if entry["dirt"] > 0.0:
