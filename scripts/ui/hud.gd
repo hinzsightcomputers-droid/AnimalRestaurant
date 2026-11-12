@@ -210,9 +210,9 @@ func _fit_orders() -> void:
 		_refresh_orders()
 
 
-# The first MAX_ORDERS_SHOWN orders, then "+2 more": the most urgent first. A
-# seated customer's order starts with how long is left to keep the serving
-# streak going (as their WaitRing shows).
+# The first MAX_ORDERS_SHOWN orders, then "+2 more": the most urgent first.
+# With a serving time limit (ServiceStreak.timed), a seated customer's order
+# starts with how long is left to keep the streak going; without one, nothing.
 func _refresh_orders() -> void:
 	var lines := PackedStringArray(["Orders"])
 	if order_board.orders.is_empty():
@@ -240,6 +240,8 @@ func _urgency(order: Order) -> float:
 # can't keep the streak going; nothing for others.
 func _time_left(order: Order) -> String:
 	if not is_instance_valid(order.customer) or order.customer.state != Customer.State.WAITING_FOR_FOOD:
+		return ""
+	if not ServiceStreak.timed():
 		return ""
 	var left := ServiceStreak.seconds_left(order.customer)
 	return "(%ds) " % ceili(left) if left > 0.0 else "(late) "

@@ -34,7 +34,7 @@ const SPEECH_SECONDS := 6.0  # How long a one-off line stays up before the bubbl
 const PLATE_TOP := 0.046     # The meal's plate model: its top above its bottom, and its size.
 const PLATE_RADIUS := 0.22
 
-const RING_HEIGHT := 2.6  # The WaitRing, above the order bubble (two lines for a long dish name).
+const WAIT_ICON_HEIGHT := 2.6  # The WaitIcon, above the order bubble (two lines for a long dish name).
 const AURA_HEIGHT := 0.12      # Sparkles or smoke start just over the food.
 const MID_MEAL := 0.5           # How far through the meal (of eat_duration) they react to it again.
 
@@ -70,10 +70,10 @@ func _ready() -> void:
 	_load_model()
 	_build_bill_sign()
 	add_child(_emotions)
-	var ring := WaitRing.new()  # Over the order bubble while they wait for their food.
-	ring.customer = customer
-	ring.position.y = RING_HEIGHT
-	add_child(ring)
+	var icon := WaitIcon.new()  # A food or drink symbol over the order bubble while they wait for it.
+	icon.customer = customer
+	icon.position.y = WAIT_ICON_HEIGHT
+	add_child(icon)
 	food.material_override = _food_material
 	customer.state_changed.connect(_on_state_changed)
 	customer.spoke.connect(_on_spoke)

@@ -1,5 +1,5 @@
 # ServiceStreak: the restaurant's run of good serves (a dish cooked well enough,
-# brought quickly enough), shared by everyone in the kitchen. Each serve in the
+# and brought quickly enough if there's a time limit), shared by everyone in the kitchen. Each serve in the
 # run after the first adds to that customer's tip; a poor or slow serve ends
 # it. Starts again each day. Settings in data/reactions.json "streak".
 class_name ServiceStreak
@@ -14,7 +14,13 @@ static func settings() -> Dictionary:
 
 # Whether this serve keeps the run going.
 static func is_good(quality: float, wait_seconds: float) -> bool:
-	return quality >= float(settings().get("min_quality", 0.7)) and wait_seconds <= max_wait()
+	return quality >= float(settings().get("min_quality", 0.7)) and (not timed() or wait_seconds <= max_wait())
+
+
+# Whether serving has a time limit at all (max_wait_seconds above 0). Without
+# one there's no rush: no countdown, no saves, only the cooking counts.
+static func timed() -> bool:
+	return float(settings().get("max_wait_seconds", 0.0)) > 0.0
 
 
 # The longest a dish can take (from ordering) and still keep the run going.
@@ -24,13 +30,13 @@ static func max_wait() -> float:
 
 # How long a customer waiting for food has left before a serve can't keep the run going.
 static func seconds_left(customer: Customer) -> float:
-	return maxf(max_wait() - customer.wait_seconds, 0.0)
+	return maxf(max_wait() - customer.wait_seconds, 0.0) if timed() else INF
 
 
 # Served in the last few seconds before max_wait: a save, worth a bit extra
 # (just_in_time_tip_percent on their bill).
 static func in_the_nick_of_time(wait_seconds: float) -> bool:
-	return wait_seconds <= max_wait() and wait_seconds > max_wait() - float(settings().get("just_in_time_seconds", 12.0))
+	return timed() and wait_seconds <= max_wait() and wait_seconds > max_wait() - float(settings().get("just_in_time_seconds", 12.0))
 
 
 # A dish just reached its table: the run grows or ends. Returns the new count (0 = ended).
