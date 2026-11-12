@@ -12,7 +12,7 @@ extends CookAction
 @export var first_side_seconds := 10.0   # Seconds for the first side to be just right.
 @export var second_side_seconds := 6.0   # The second side is quicker (the piece is already hot).
 @export_range(0.0, 0.5) var timer_variation := 0.15  # Each piece is up to this much faster or slower.
-@export var plating_pace := 1.0          # How fast things cook while you're plating (below 1: time to plate everything just right).
+@export var plating_pace := 1.0          # How fast things that are already done cook while you're plating (below 1: time to plate everything just right). Anything still cooking keeps full speed.
 @export_group("Scoring")
 @export var raw_at := 0.45       # Doneness that scores 0 for being raw...
 @export var perfect_from := 0.9  # ...full marks from here...
@@ -41,8 +41,7 @@ func uses_cursor() -> bool:
 func update(delta: float, input: CookInput) -> void:
 	if input.scripted and (session.current is FlipAction or session.current is PlaceAction):
 		delta *= SCRIPTED_PACE
-	if session.current is PlaceAction and not (session.current as PlaceAction).from_surface.is_empty():
-		delta *= plating_pace
+	var plating := session.current is PlaceAction and not (session.current as PlaceAction).from_surface.is_empty()
 	var cooking := 0
 	for piece in session.pieces:
 		if piece.surface == surface:
@@ -56,7 +55,8 @@ func update(delta: float, input: CookInput) -> void:
 				var seconds := second_side_seconds if piece.flipped else first_side_seconds
 				if piece.side_seconds > 0.0:  # Its own timing (a sunny-side-up egg, cooked on one side only).
 					seconds = piece.side_seconds
-				piece.doneness[piece.down_side] += delta * piece.cook_speed / seconds * GameState.difficulty_value("closeup_pace")  # Slower on Easy: more time to flip.
+				var pace := plating_pace if plating and piece.doneness[piece.down_side] >= perfect_from else 1.0  # Done ones hold while you plate; the rest catch up.
+				piece.doneness[piece.down_side] += delta * pace * piece.cook_speed / seconds * GameState.difficulty_value("closeup_pace")  # Slower on Easy: more time to flip.
 				piece.refresh()
 			_update_steam(piece, _seen[piece])
 			_update_marker(piece)
