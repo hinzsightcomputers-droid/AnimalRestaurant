@@ -180,7 +180,7 @@
 		{ "event": "served", "priority": 200, "conditions": { "stage": 4 }, "text": "[name], this is as good as anything I ever served. I mean that. I don't say things I don't mean.", "emotion": "joyful" },
 		{ "event": "served", "id": "mabel_served_new_chef_4_okay", "priority": 200, "conditions": { "stage": 4, "knows_player_name": false, "served_quality_min": 0.4, "served_quality_max": 0.7 }, "text": "Thank you, chef. A fair effort. The other chef adds a pinch more salt, but I won't tell.", "emotion": "neutral" },
 		{ "event": "served", "id": "mabel_served_new_chef_4_good", "priority": 200, "conditions": { "stage": 4, "knows_player_name": false, "served_quality_min": 0.7 }, "text": "Well, chef. I don't know you yet, but this tells me plenty. Very good indeed.", "emotion": "happy" },
-		{ "event": "served", "priority": 200, "conditions": { "max_stage": -1 }, "text": "Thank you, dear.", "emotion": "neutral" },
+		{ "event": "served", "priority": 200, "conditions": { "max_stage": -1 }, "text": "Thanks.", "emotion": "neutral" },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Your stove runs hot on the left side. Turn it down a notch. Trust me." },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "I ran a diner for fifty years. Don't look so surprised. I wasn't always this slow. ...I was always this slow.", "emotion": "happy" },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 3, "friends_with": { "stitches": false } }, "text": "That bear with the patches. Stitches. He sits alone every time. Someone ought to say hello to him." },

@@ -184,8 +184,8 @@
 		{ "event": "served", "id": "zakk_served_new_chef_3_other", "priority": 200, "conditions": { "stage": 3, "knows_player_name": false, "served_quality_max": 0.7 }, "text": "Bit overdone, man. Still eating every bite.", "emotion": "happy" },
 		{ "event": "served", "id": "zakk_served_new_chef_4_good", "priority": 200, "conditions": { "stage": 4, "knows_player_name": false, "served_quality_min": 0.7 }, "text": "Dude. Anyone cooking in this kitchen is family to me.", "emotion": "joyful" },
 		{ "event": "served", "id": "zakk_served_new_chef_4_other", "priority": 200, "conditions": { "stage": 4, "knows_player_name": false, "served_quality_max": 0.7 }, "text": "Wiped out a little, huh? Happens to the best of us, man.", "emotion": "happy" },
-		{ "event": "served", "id": "zakk_served_food_low", "priority": 200, "conditions": { "stage": -1 }, "text": "Thanks, bro.", "emotion": "neutral" },
-		{ "event": "served", "id": "zakk_served_food_lower", "priority": 200, "conditions": { "stage": -2 }, "text": "Thanks, man.", "emotion": "neutral" },
+		{ "event": "served", "id": "zakk_served_food_low", "priority": 200, "conditions": { "stage": -1 }, "text": "Thanks, man.", "emotion": "neutral" },
+		{ "event": "served", "id": "zakk_served_food_lower", "priority": 200, "conditions": { "stage": -2 }, "text": "Thanks.", "emotion": "neutral" },
 
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "Ever surfed? You should. I'll teach you. Free lessons. Payment in stew.", "emotion": "excited" },
 		{ "event": "eating_chat", "priority": 200, "conditions": { "stage": 1 }, "text": "I've been to, like, twenty beaches. This town's got a good one. Not the best one. But good.", "emotion": "happy" },
