@@ -141,9 +141,11 @@ func release_focus() -> void:
 func _process(delta: float) -> void:
 	var goal := _goal()  # [point, offset]
 	if _blend < 1.0:
-		# Mid-tween: the tween eases _blend, so no extra smoothing.
+		# Mid-tween: the tween eases _blend, so no extra smoothing. The offset
+		# swings round on an arc (slerp) rather than cutting across, so a turn
+		# keeps its distance instead of diving in toward what it looks at.
 		global_position = _from_point.lerp(goal[0], _blend)
-		_offset = _from_offset.lerp(goal[1], _blend)
+		_offset = _from_offset.slerp(goal[1], _blend)
 	elif mode == Mode.FOLLOW:
 		var weight := 1.0 - exp(-smoothing * delta)
 		global_position = global_position.lerp(goal[0], weight)
