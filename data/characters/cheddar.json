@@ -140,7 +140,6 @@
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 2 }, "text": "Bye, [nickname]! Don't miss me too much. Actually, miss me a normal amount.", "emotion": "happy" },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 3 }, "text": "Thanks, [name]. ...See? I used your real name. That's how you know I mean it.", "emotion": "shy" },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 4 }, "text": "Bye, partner! Don't burn anything while I'm gone. Except maybe Mabel's toast. She likes it that way.", "emotion": "happy" },
-		{ "event": "farewell", "priority": 200, "conditions": { "stage": -1 }, "text": "Wow. Food. Incredible.", "emotion": "neutral" },
 
 		{ "event": "served", "priority": 260, "conditions": { "min_stage": 1, "served_disliked": true }, "text": "...Wow. Okay. Betrayal. Served on a plate.", "emotion": "surprised" },
 		{ "event": "served", "priority": 220, "conditions": { "stage": 1, "served_quality_min": 0.7 }, "text": "Oh, chef, you've outdone yourself! I'd give you a standing ovation but I'm very small.", "emotion": "excited" },
