@@ -23,7 +23,8 @@ extends CookAction
 @export var blob_radius := 0.006
 @export var spacing := 0.004
 @export var bottle_height := 0.04          # How high the nozzle is over the plate (lower still while squeezing).
-@export var bottle_lean := 55.0           # Degrees the bottle leans away (up and to the right of the plate), so it never hides the guide.
+@export var bottle_lean := 55.0           # Degrees the bottle leans away from the cook, so it never hides the guide...
+@export var bottle_side_turn := 40.0      # ...and toward the side already drawn (it swings over when you go the other way).
 @export var bottle_scale := 0.5          # A small squeeze bottle: the camera's close.
 
 var _guide: Array[Vector3] = []
@@ -35,6 +36,7 @@ var _last = null   # Where the last blob went (Vector2), or null between squeeze
 var _blobs := 0
 var _stray := 0
 var _sound: AudioStreamPlayer3D
+var _side := -1.0  # Which way the bottle leans: -1 left, 1 right. It starts at the left corner, the smile ahead to the right.
 
 
 func view_point() -> Vector3:
@@ -86,7 +88,7 @@ func _begin() -> void:
 	_bottle = session.make_bottle(sauce_color)
 	_bottle.position = _guide[0] + Vector3(0.0, bottle_height, 0.0)
 	_bottle.scale = Vector3.ONE * bottle_scale
-	_bottle.rotation = Vector3(-deg_to_rad(bottle_lean), deg_to_rad(-40.0), 0.0)  # Its tip stays on the spot; its body leans up and to the right.
+	_turn_bottle()
 	_sound = session.loop_sound("drizzle", -12.0)
 
 
@@ -101,7 +103,11 @@ func update(delta: float, input: CookInput) -> void:
 	var spot := Vector2(input.cursor.x, input.cursor.z)
 	var squeezing := input.held
 	var tip := Vector3(spot.x, _top() + (bottle_height * 0.4 if squeezing else bottle_height), spot.y)
+	var moved := tip.x - _bottle.position.x
 	_bottle.position = _bottle.position.lerp(tip, 1.0 - exp(-22.0 * delta))
+	if absf(moved) > 0.002:  # Lean back over what's drawn, away from where it's going.
+		_side = move_toward(_side, -signf(moved), delta * 4.0)
+		_turn_bottle()
 	if squeezing:
 		if _last == null:
 			_squeeze(spot)
@@ -134,6 +140,11 @@ func scripted_hold(delta: float, input: CookInput) -> bool:
 			var arrived := input.move_to(_guide[i], delta, 0.25)
 			return input.held or arrived
 	return false
+
+
+# Its tip stays on the spot; its body leans away and to one side (_side).
+func _turn_bottle() -> void:
+	_bottle.rotation = Vector3(-deg_to_rad(bottle_lean), deg_to_rad(-bottle_side_turn) * _side, 0.0)
 
 
 func _squeeze(point: Vector2) -> void:
