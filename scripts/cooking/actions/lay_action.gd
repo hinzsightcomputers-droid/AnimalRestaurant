@@ -4,8 +4,8 @@
 # go: red where it won't fit). It starts cooking as it lands (HeatAction).
 #   - egg: press to crack it: the camera comes in close as it taps on the edge
 #     of the griddle and cracks; then pick its spot and press again to open it
-#     there, and it pours out like batter, the white running out to size and
-#     the yolk dropping in last (sunny side up).
+#     there, and the egg drops out: the white falls in a glob and splats,
+#     running out to size, and the yolk drops in on top (sunny side up).
 #   - bacon: press to lay a strip down, lengthways (pointing away from the cook).
 # Nothing to get wrong here: give it weight 0. A pancake's batter is PourAction.
 class_name LayAction
@@ -24,7 +24,7 @@ extends CookAction
 @export_group("Cracking")
 @export var crack_view_distance := 0.32    # The close-up on the egg cracking.
 @export var crack_view_pitch := 30.0
-@export var pour_seconds := 0.8            # The egg running out of its shell.
+@export var pour_seconds := 0.8            # The white running out to size once it's landed.
 @export var pour_height := 0.07            # How high over the spot it's held open.
 
 enum Phase { READY, CRACKING, AIM, POURING }  # An egg: whole, being cracked, cracked (pick a spot), pouring. Bacon is always AIM.
@@ -38,7 +38,8 @@ var _bottom_shell: Node3D
 var _crack_line: MeshInstance3D
 var _ring: MeshInstance3D
 var _outline: Node3D
-var _stream: MeshInstance3D
+var _glob: MeshInstance3D      # The white, falling out of the shell.
+var _yolk_drop: MeshInstance3D  # The yolk, falling just after.
 var _laid := 0
 var _phase := Phase.AIM
 var _spot := Vector3.ZERO     # Where the egg being opened goes.
@@ -70,21 +71,12 @@ func _begin() -> void:
 		_ring.scale = Vector3(bacon_size.y / bacon_size.x * 1.6, 0.3, 1.0)  # Flattened to the strip, lengthways.
 	if zone_size != Vector2.ZERO:
 		_outline = _make_outline()
-	_stream = MeshInstance3D.new()
-	var mesh := CylinderMesh.new()
-	mesh.top_radius = 0.007
-	mesh.bottom_radius = 0.01
-	mesh.height = 1.0
-	var material := StandardMaterial3D.new()
-	material.albedo_color = CookPiece.EGG_RAW.lerp(Color.WHITE, 0.3)
-	mesh.material = material
-	_stream.mesh = mesh
-	_stream.visible = false
-	session.add_child(_stream)
+	_glob = _drop(0.013, CookPiece.EGG_RAW.lerp(Color.WHITE, 0.3), 0.25)
+	_yolk_drop = _drop(0.009, CookPiece.YOLK, 0.15)
 
 
 func end() -> void:
-	for node in [_hand, _ring, _outline, _stream]:
+	for node in [_hand, _ring, _outline, _glob, _yolk_drop]:
 		if node != null:
 			node.queue_free()
 
@@ -224,7 +216,8 @@ func _crack(spot: Vector3) -> void:
 		_phase = Phase.AIM)
 
 
-# Over the spot, the shell comes apart and the egg pours out like batter.
+# Over the spot, the shell comes apart and the egg drops out: the white in a
+# glob that stretches as it falls and splats, running out to size, then the yolk.
 func _open(spot: Vector3) -> void:
 	_phase = Phase.POURING
 	_spot = spot
@@ -238,7 +231,10 @@ func _open(spot: Vector3) -> void:
 	piece.show_yolk(false)
 	piece.busy = true  # Not cooking till it's all out.
 	piece.set_radius(0.004)
+	piece.visible = false  # Till the white lands.
 	var seconds := pour_seconds
+	var from := over - Vector3(0.0, 0.012, 0.0)  # Just under the shell.
+	var land := _spot + Vector3(0.0, thickness, 0.0)
 	var tween := _hand.create_tween()
 	tween.tween_property(_hand, "position", over, 0.3).set_trans(Tween.TRANS_SINE)
 	tween.tween_callback(func():
@@ -248,18 +244,26 @@ func _open(spot: Vector3) -> void:
 			var open := (half[0] as Node3D).create_tween().set_parallel(true)
 			open.tween_property(half[0], "position:y", 0.03 * half[1], 0.2).set_ease(Tween.EASE_OUT)
 			open.tween_property(half[0], "rotation:z", -0.5 * half[1], 0.2).set_ease(Tween.EASE_OUT)
-		_stream.visible = true
-		_stream.position = _spot + Vector3(0.0, pour_height * 0.5, 0.0)
-		_stream.scale = Vector3(1.0, pour_height, 1.0)
-		session.play_sound("plop", _spot, -6.0, 1.4))
+		_glob.visible = true)
+	tween.tween_interval(0.08)  # It hangs in the shell a moment...
+	tween.tween_method(func(t: float):  # ...then lets go: faster as it falls, stretching out.
+		_fall(_glob, from, land, t), 0.0, 1.0, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.tween_callback(func():  # Splat.
+		_glob.visible = false
+		piece.visible = true
+		session.wobble(piece, 0.2)
+		session.play_sound("plop", _spot, -6.0, 1.4)
+		_yolk_drop.visible = true)
 	tween.tween_method(func(t: float):
-		piece.set_radius(lerpf(0.004, egg_radius, ease(t, 0.6))), 0.0, 1.0, seconds)
-	tween.parallel().tween_callback(func():  # The yolk drops in near the end.
+		piece.set_radius(lerpf(0.012, egg_radius, ease(t, 0.4))), 0.0, 1.0, seconds)
+	tween.parallel().tween_method(func(t: float):  # The yolk follows it down.
+		_fall(_yolk_drop, from, land + Vector3(0.0, 0.004, 0.0), t), 0.0, 1.0, 0.2).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.parallel().tween_callback(func():
+		_yolk_drop.visible = false
 		piece.show_yolk(true)
 		session.wobble(piece, 0.15)
-		session.play_sound("plop", _spot, -4.0, 1.1)).set_delay(seconds * 0.7)
+		session.play_sound("plop", _spot, -4.0, 1.1)).set_delay(0.2)
 	tween.tween_callback(func():
-		_stream.visible = false
 		piece.busy = false
 		_laid += 1
 		session.pop_text("Sunny side up!", _spot, 1)
@@ -268,6 +272,28 @@ func _open(spot: Vector3) -> void:
 		_hand.position = _spot + Vector3(0.0, hand_height, 0.0)
 		session.frame(view_point(), view_distance, view_pitch, 0.35)
 		_phase = Phase.READY)
+
+
+# A drop of egg (the white, or the yolk), hidden till it falls.
+func _drop(radius: float, color: Color, roughness: float) -> MeshInstance3D:
+	var drop := MeshInstance3D.new()
+	var ball := SphereMesh.new()
+	ball.radius = radius
+	ball.height = radius * 2.0
+	var material := StandardMaterial3D.new()
+	material.albedo_color = color
+	material.roughness = roughness
+	ball.material = material
+	drop.mesh = ball
+	drop.visible = false
+	session.add_child(drop)
+	return drop
+
+
+# A drop t of the way down (0 to 1): long and thin as it speeds up.
+func _fall(drop: Node3D, from: Vector3, to: Vector3, t: float) -> void:
+	drop.position = from.lerp(to, t)
+	drop.scale = Vector3(1.0 - 0.3 * t, 1.0 + 0.9 * t, 1.0 - 0.3 * t)
 
 
 func _lay_bacon(spot: Vector3) -> void:
