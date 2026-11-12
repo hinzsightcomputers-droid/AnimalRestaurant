@@ -152,13 +152,14 @@ func _flip(piece: CookPiece, direction: Vector2) -> void:
 	session.play_sound("whoosh", piece.position, -4.0)
 	var axis := Vector3(direction.y, 0.0, -direction.x).normalized()  # Turns over toward the flick.
 	var base := piece.position
+	var turned := piece.quaternion  # Bacon lies lengthways: it lands the way it lay.
 	var tween := piece.create_tween()
 	tween.tween_method(func(t: float):
 		piece.position = base + Vector3(0.0, sin(t * PI) * flip_height, 0.0)
-		piece.quaternion = Quaternion(axis, t * PI), 0.0, 1.0, flip_seconds).set_trans(Tween.TRANS_SINE)
+		piece.quaternion = Quaternion(axis, t * PI) * turned, 0.0, 1.0, flip_seconds).set_trans(Tween.TRANS_SINE)
 	tween.tween_callback(func():
 		piece.position = base
-		piece.quaternion = Quaternion.IDENTITY
+		piece.quaternion = turned
 		piece.down_side = piece.up_side()
 		piece.flipped = true
 		piece.busy = false

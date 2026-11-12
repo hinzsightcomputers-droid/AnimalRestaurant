@@ -37,7 +37,7 @@ fade_seconds = 1.5
 [sub_resource type="Resource" id="Resource_eggs"]
 script = ExtResource("lay")
 title = "Crack the eggs"
-hint = "Move with [stick] to a spot in the box and press [button] to crack the egg, then press [button] again to open it."
+hint = "Press [button] to crack the egg, then move with [stick] to a spot in the box and press [button] again to open it there."
 weight = 0.0
 view_distance = 0.6
 kind = "egg"
@@ -47,7 +47,7 @@ side_seconds = 20.0
 [sub_resource type="Resource" id="Resource_bacon"]
 script = ExtResource("lay")
 title = "Lay the bacon"
-hint = "Move with [stick] to a spot in the box and press [button] to lay a strip down."
+hint = "Move with [stick] to a spot in the box and press [button] to lay a strip down, lengthways."
 weight = 0.0
 view_distance = 0.6
 kind = "bacon"
