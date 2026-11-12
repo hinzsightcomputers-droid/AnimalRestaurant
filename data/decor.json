@@ -146,6 +146,29 @@
 				{ "cylinder": [0.05, 0.6], "color": "#7f5634", "at": [0, 0, 0] },
 				{ "cylinder": [0.24, 0.05], "color": "#9a6b43", "at": [0, 0.6, 0] }
 			] },
+		{ "id": "umbrella_stand", "name": "Umbrella Stand", "description": "For rainy days, and for nobody's umbrella in particular.", "category": "counters", "kind": "floor", "tier": 1, "price": 15, "points": 2, "size": [0.5, 0.5],
+			"parts": [
+				{ "cylinder": [0.15, 0.55], "color": "#4f7ca8", "at": [0, 0, 0] },
+				{ "cylinder": [0.02, 0.35], "color": "#c0392b", "at": [0.05, 0.55, 0] },
+				{ "cylinder": [0.02, 0.3], "color": "#f2d16b", "at": [-0.05, 0.55, 0.03] }
+			] },
+		{ "id": "menu_stand", "name": "Menu Stand", "description": "Shows today's specials. All of them.", "category": "counters", "kind": "floor", "tier": 1, "price": 20, "points": 2, "size": [0.5, 0.5],
+			"parts": [
+				{ "box": [0.3, 0.04, 0.3], "color": "#7f5634", "at": [0, 0, 0] },
+				{ "box": [0.04, 1.0, 0.04], "color": "#7f5634", "at": [0, 0.04, 0] },
+				{ "box": [0.45, 0.6, 0.04], "color": "#2f3b32", "at": [0, 0.75, 0.03] }
+			] },
+		{ "id": "herb_pots", "name": "Herb Pots", "description": "Basil, mint and one mystery herb.", "category": "plants", "kind": "floor", "tier": 1, "price": 15, "points": 2, "size": [0.5, 0.5],
+			"parts": [
+				{ "box": [0.45, 0.2, 0.25], "color": "#b5683c", "at": [0, 0, 0] },
+				{ "model": "res://design/assets/KayKit_Forest_Nature_Pack_1.0_FREE/Assets/gltf/Bush_1_C_Color1.gltf", "size": [0.45, 0.3, 0.25], "at": [0, 0.18, 0] }
+			] },
+		{ "id": "little_cactus", "name": "Little Cactus", "description": "Needs nothing. Asks for nothing.", "category": "plants", "kind": "floor", "tier": 1, "price": 10, "points": 2, "size": [0.5, 0.5],
+			"parts": [
+				{ "cylinder": [0.16, 0.22], "color": "#d08a5a", "at": [0, 0, 0] },
+				{ "cylinder": [0.09, 0.45], "color": "#5f9a4e", "at": [0, 0.22, 0] },
+				{ "cylinder": [0.04, 0.18], "color": "#5f9a4e", "at": [0.1, 0.4, 0] }
+			] },
 		{ "id": "barrel_stand", "name": "Barrel Stand", "description": "A barrel with a job.", "category": "counters", "kind": "floor", "tier": 2, "price": 35, "points": 3, "size": [0.5, 0.5],
 			"parts": [
 				{ "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Prototype Bits/Assets/gltf/Barrel_A.gltf", "size": [0.55, 0.9, 0.55], "at": [0, 0, 0] }

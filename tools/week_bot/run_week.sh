@@ -26,7 +26,10 @@ fi
 [ $# -eq 0 ] && set -- --seconds=1800 --after=180
 echo "=== week bot: days $FIRST to $LAST, started $(date +%H:%M)"
 for d in $(seq "$FIRST" "$LAST"); do
-	bash "$HERE/run_day.sh" "$d" "$@" || { echo "!!! stopping after day $d"; exit 1; }
+	bash "$HERE/run_day.sh" "$d" "$@"
+	code=$?
+	# 2: the real save changed while it ran (someone playing). Warned; carry on.
+	[ $code -ne 0 ] && [ $code -ne 2 ] && { echo "!!! stopping after day $d"; exit 1; }
 	if ! grep -q "END OF RUN" "$DIR/out/d${d}_log.txt" 2>/dev/null; then
 		echo "!!! day $d didn't finish (see $DIR/out/d${d}_raw.txt); stopping"
 		exit 1
