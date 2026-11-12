@@ -7,7 +7,7 @@
 [sub_resource type="Resource" id="Resource_wash"]
 script = ExtResource("3_wash")
 title = "Wash the dishes"
-hint = "Hold [grip] on the bin and drop a dish in the sink. Hold [grip] and scrub it clean with [stick], then carry it to the rack."
+hint = "Hold [grip] on the bin and let go over the sink to tip the dishes in. Press [grip] in the sink to grab one, hold [grip] and scrub it clean with [stick], then carry it to the rack."
 
 [resource]
 script = ExtResource("1_recipe")
