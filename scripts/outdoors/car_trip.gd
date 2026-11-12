@@ -49,6 +49,7 @@ func _ready() -> void:
 	_zoom.distance = 4.2
 	_zoom.pitch_degrees = 28.0
 	_zoom.duration = 0.5
+	_zoom.yaw_degrees = CameraRig.VIEW_YAW  # From the side the follow camera's on.
 	beach = Beach.new()
 	beach.name = "Beach"
 	beach.car_trip = self

@@ -53,6 +53,7 @@ func _ready() -> void:
 	zoom.distance = float(look.get("distance", 15.0))
 	zoom.pitch_degrees = float(look.get("pitch", 62.0))
 	zoom.duration = 0.5
+	zoom.yaw_degrees = CameraRig.VIEW_YAW  # From the side the room's seen from.
 	var center: Array = look.get("center", [0, 0, 0])
 	player.decorating = true
 	player.movement_locked = true
@@ -118,7 +119,9 @@ func _process(delta: float) -> void:
 	if move.length() > 0.4 and _move_left <= 0.0:
 		_move_left = MOVE_REPEAT if _drag.is_empty() else DRAG_REPEAT
 		var cell := float(Decor.settings()["grid"]["cell"])
-		_move_cursor(cursor + Vector2(signf(move.x) if absf(move.x) > 0.4 else 0.0, signf(move.y) if absf(move.y) > 0.4 else 0.0) * cell)
+		var step := Vector2(signf(move.x) if absf(move.x) > 0.4 else 0.0, signf(move.y) if absf(move.y) > 0.4 else 0.0)
+		var turned := CameraRig.screen_to_world(Vector3(step.x, 0.0, step.y))  # Up the screen, whichever side the camera's on.
+		_move_cursor(cursor + Vector2(roundf(turned.x), roundf(turned.z)) * cell)
 
 
 func _move_cursor(to: Vector2) -> void:

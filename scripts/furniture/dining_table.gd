@@ -122,7 +122,7 @@ func _open_closeup(player: Player, recipe: CookRecipe, bin: DishBin) -> void:
 	session = closeup_scene.instantiate()
 	session.position = Vector3(0.0, TOP_HEIGHT, 0.0)
 	add_child(session)
-	session.global_rotation = Vector3.ZERO  # Lined up with the camera, however the table turns.
+	session.global_rotation = Vector3(0.0, deg_to_rad(CameraRig.VIEW_YAW), 0.0)  # Lined up with the camera, however the table turns.
 	if bin != null:
 		player.set_held_item(null)  # It's on the table now.
 		var model := DishBinModel.new()
@@ -142,7 +142,9 @@ func _open_closeup(player: Player, recipe: CookRecipe, bin: DishBin) -> void:
 	cleanliness_changed.emit(self)  # The mess display hides: the close-up shows it now.
 	player.movement_locked = true
 	player.interactor.lock_to(interactable)
-	player.request_camera_focus(global_position + closeup_look_offset, closeup_zoom)
+	var zoom: CameraZoomSettings = closeup_zoom.duplicate()
+	zoom.yaw_degrees += CameraRig.VIEW_YAW  # From the side the room's seen from.
+	player.request_camera_focus(global_position + CameraRig.screen_to_world(closeup_look_offset), zoom)
 	session.finished.connect(_on_done)
 	var views := view_manager if view_manager != null else get_tree().root.find_children("*", "ViewManager", true, false).front() as ViewManager
 	session.start(recipe, player, views)

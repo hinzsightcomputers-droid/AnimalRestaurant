@@ -150,7 +150,11 @@ func _chef_for(record: Dictionary) -> Player:
 func _hold(player: Player, visitor: Customer) -> void:
 	player.movement_locked = true
 	player.interactor.lock_to(visitor.interactable)  # Not usable: presses only move the scene on.
-	player.request_camera_focus((player.global_position + visitor.global_position) * 0.5 + Vector3.UP * 1.2, camera_zoom)
+	if customer_manager != null:  # Framed like any chat with a customer: the smallest turn that shows them both.
+		var view := customer_manager._talk_view(player, visitor, camera_zoom)
+		player.request_camera_focus(view[0], view[1])
+	else:
+		player.request_camera_focus((player.global_position + visitor.global_position) * 0.5 + Vector3.UP * 1.2, camera_zoom)
 
 
 func _open_box(player: Player, record: Dictionary) -> ConversationBox:

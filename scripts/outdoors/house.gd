@@ -82,6 +82,8 @@ func _ready() -> void:
 	_room_zoom.distance = 4.2
 	_room_zoom.pitch_degrees = 48.0
 	_room_zoom.duration = 0.5
+	_zoom.yaw_degrees = CameraRig.VIEW_YAW  # From the side the follow camera's on.
+	_room_zoom.yaw_degrees = CameraRig.VIEW_YAW
 	_build_outside()
 	_build_room()
 	_refresh()
@@ -784,7 +786,8 @@ func _build_room() -> void:
 	_box(_room, Vector3(0.0, -0.05, 0.0), Vector3(_room_size.x, 0.1, _room_size.y), _color(room_data.get("floor"), Color(0.6, 0.45, 0.3)))
 	_box(_room, Vector3(0.0, height / 2.0, -half.y - 0.075), Vector3(_room_size.x + 0.3, height, 0.15), walls)
 	for side in [-1.0, 1.0]:
-		_box(_room, Vector3(side * (half.x + 0.075), height / 2.0, 0.0), Vector3(0.15, height, _room_size.y), walls.darkened(0.08))
+		var tall := low if side > 0.0 and CameraRig.VIEW_YAW > 45.0 else height  # The side the camera looks in over is low, like the front.
+		_box(_room, Vector3(side * (half.x + 0.075), tall / 2.0, 0.0), Vector3(0.15, tall, _room_size.y), walls.darkened(0.08))
 		var piece := (_room_size.x - door_width) / 2.0
 		_box(_room, Vector3(side * (door_width / 2.0 + piece / 2.0), low / 2.0, half.y + 0.075), Vector3(piece + 0.15, low, 0.15), walls.darkened(0.15))
 	_box(_room, Vector3(0.0, 0.005, half.y - 0.35), Vector3(1.0, 0.01, 0.55), Color(0.55, 0.36, 0.24))  # Doormat.
