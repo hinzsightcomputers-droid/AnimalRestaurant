@@ -14,13 +14,15 @@ class_name CustomerDisplay
 extends Node3D
 
 const SIT_DROP_SPEED := 0.5  # How quickly a model settles into the chair (its "sit_drop").
-const BILL_SIGN_PIXEL := 0.0016  # The receipt over someone who wants the bill: same size on screen at any distance, big enough to spot across the room.
+const ICON_PIXEL := 0.0012  # The receipt and the WaitIcon: fixed size on screen like the text, so the stack over a head looks the same however close the camera is.
+const ICON_GAP := 6.0       # Icon pixels between the text and an icon over it.
 const BILL_SIGN_BOB := 0.12      # How far (of its height) it bobs up and down, and how fast.
 const BILL_SIGN_BOB_SPEED := 3.0
 # The name tag and bubble stay the same size on screen however far the camera is
 # (fixed_size), stacked over their head: the name, then the bubble above it,
 # never on top of each other.
-const LABEL_ABOVE_HEAD := 0.3   # Metres over a model's head (placeholders: the scene's height).
+const LABEL_ABOVE_HEAD := 0.15  # Metres over the top of their head (placeholders: the scene's height), sitting or standing.
+const SEATED_SINK := 0.2        # A placeholder without animations sinks this far into its chair.
 const BUBBLE_OVER_NAME := 44.0  # Label pixels the bubble sits up from the name tag's bottom.
 const TEXT_LAYER := 17  # Render layer of the bubble and name tag: a camera in a minigame leaves it out (CameraRig).
 
@@ -34,7 +36,6 @@ const SPEECH_SECONDS := 6.0  # How long a one-off line stays up before the bubbl
 const PLATE_TOP := 0.046     # The meal's plate model: its top above its bottom, and its size.
 const PLATE_RADIUS := 0.22
 
-const WAIT_ICON_HEIGHT := 2.6  # The WaitIcon, above the order bubble (two lines for a long dish name).
 const AURA_HEIGHT := 0.12      # Sparkles or smoke start just over the food.
 const MID_MEAL := 0.5           # How far through the meal (of eat_duration) they react to it again.
 
@@ -60,6 +61,13 @@ var _drink: DrinkModel = null          # The drink they were brought, beside the
 var _aura: CPUParticles3D = null       # Sparkles or smoke over their plate while they eat.
 var _bill_sign := Sprite3D.new()       # A receipt over their head while they want the bill.
 var _bill_sign_rest := 0.0             # Its offset when not bobbing.
+var _wait_icon := WaitIcon.new()       # A food or drink symbol over the order bubble while they wait for it.
+var _height := 1.2                     # How tall they stand.
+var _skeleton: Skeleton3D = null       # A rigged model's, to find the top of its head as it sits and stands.
+var _head_bone := -1
+var _head_above_bone := 0.0            # The top of the head over the head bone.
+var _measured := ""                    # The bubble text last measured, and how tall it came out (label pixels).
+var _measured_height := 0.0
 
 
 func _ready() -> void:
@@ -70,10 +78,9 @@ func _ready() -> void:
 	_load_model()
 	_build_bill_sign()
 	add_child(_emotions)
-	var icon := WaitIcon.new()  # A food or drink symbol over the order bubble while they wait for it.
-	icon.customer = customer
-	icon.position.y = WAIT_ICON_HEIGHT
-	add_child(icon)
+	_wait_icon.customer = customer
+	_wait_icon.pixel_size = ICON_PIXEL
+	add_child(_wait_icon)
 	food.material_override = _food_material
 	customer.state_changed.connect(_on_state_changed)
 	customer.spoke.connect(_on_spoke)
@@ -272,7 +279,7 @@ func _build_bill_sign() -> void:
 			for x in range(9, right):
 				image.set_pixel(x, y, ink if row == 36 else Color(0.6, 0.55, 0.5))
 	_bill_sign.texture = ImageTexture.create_from_image(image)
-	_bill_sign.pixel_size = BILL_SIGN_PIXEL
+	_bill_sign.pixel_size = ICON_PIXEL
 	_bill_sign.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_bill_sign.fixed_size = true
 	_bill_sign.no_depth_test = true
@@ -292,8 +299,6 @@ func _update_name_tag() -> void:
 		var record: Dictionary = GameState.regulars[customer.regular_id]
 		name_tag.text = "%s - %s" % [customer.display_name, RegularMemory.stage_name(record)]
 	bubble.offset.y = BUBBLE_OVER_NAME if name_tag.visible else 0.0
-	_bill_sign.position.y = bubble.position.y
-	_bill_sign_rest = (bubble.offset.y * bubble.pixel_size / BILL_SIGN_PIXEL) + _bill_sign.texture.get_height() * 0.5 + 6.0
 
 
 # A regular's own line in quotes, or the generic text if they have none.
@@ -321,9 +326,17 @@ func _load_model() -> void:
 	if height > 0.0:
 		_model.scale = Vector3.ONE * (float(settings.get("height", 1.2)) / height)
 	_emotions.body_root = _body
-	_emotions.position.y = float(settings.get("height", 1.2)) + 0.1
-	name_tag.position.y = float(settings.get("height", 1.2)) + LABEL_ABOVE_HEAD
-	bubble.position.y = name_tag.position.y
+	_height = float(settings.get("height", 1.2))
+	var skeletons := _model.find_children("*", "Skeleton3D", true, false)
+	if not skeletons.is_empty():
+		_skeleton = skeletons[0]
+		for bone_name in HeadTurn.HEAD_BONES:
+			_head_bone = _skeleton.find_bone(bone_name)
+			if _head_bone >= 0:
+				break
+		if _head_bone >= 0:  # Standing at rest, the top of the head is _height up.
+			var rest := _skeleton.get_bone_global_rest(_head_bone).origin
+			_head_above_bone = _height - (_skeleton_to_display() * rest).y
 	for child in get_children():  # The placeholder shapes.
 		if child is MeshInstance3D:
 			child.visible = false
@@ -361,6 +374,7 @@ func _model_settings() -> Dictionary:
 
 
 func _process(delta: float) -> void:
+	_place_overhead()
 	if _bill_sign.visible:
 		var bob := sin(Time.get_ticks_msec() / 1000.0 * BILL_SIGN_BOB_SPEED) * BILL_SIGN_BOB
 		_bill_sign.offset.y = _bill_sign_rest + bob * _bill_sign.texture.get_height()
@@ -393,6 +407,52 @@ func _process(delta: float) -> void:
 		_walk_time = 0.0
 		_model.position.y = -0.2 if seated else 0.0
 		_model.rotation.z = 0.0
+
+
+# Everything over their head, stacked up from the top of it: the feelings, then
+# the name tag, the bubble over that, and the receipt or WaitIcon over whichever
+# text is showing. The text and icons are a fixed size on screen, so they're
+# stacked in pixels and stay together however close the camera is.
+func _place_overhead() -> void:
+	var top := _head_top()
+	_emotions.position.y = top + 0.1
+	name_tag.position.y = top + LABEL_ABOVE_HEAD
+	bubble.position.y = name_tag.position.y
+	_bill_sign.position.y = bubble.position.y
+	_wait_icon.position.y = bubble.position.y
+	var text_top := 0.0  # Label pixels up from the name tag's bottom.
+	if bubble.visible:
+		text_top = bubble.offset.y + _bubble_height()
+	elif name_tag.visible:
+		text_top = name_tag.font_size * 1.2
+	var over_text := text_top * bubble.pixel_size / ICON_PIXEL + ICON_GAP
+	_bill_sign_rest = over_text + _bill_sign.texture.get_height() * 0.5
+	_wait_icon.rest_offset = over_text + WaitIcon.PIXELS * 0.5
+
+
+# The top of their head, in this node's space: from a rigged model's head bone
+# (so it follows them down into a chair), else how tall they are, sunk a little
+# when a placeholder sits.
+func _head_top() -> float:
+	if _skeleton != null and _head_bone >= 0:
+		return (_skeleton_to_display() * _skeleton.get_bone_global_pose(_head_bone).origin).y + _head_above_bone
+	var seated := customer.seat != null and not customer.is_walking() and customer.is_seated()
+	return _height - (SEATED_SINK if seated and _model != null and _animations == null else 0.0)
+
+
+func _skeleton_to_display() -> Transform3D:
+	return global_transform.affine_inverse() * _skeleton.global_transform
+
+
+# How tall the bubble's text is (label pixels), wrapped the way the label wraps it.
+func _bubble_height() -> float:
+	if bubble.text != _measured:
+		_measured = bubble.text
+		var font: Font = bubble.font if bubble.font != null else ThemeDB.fallback_font
+		var size := font.get_multiline_string_size(bubble.text, HORIZONTAL_ALIGNMENT_CENTER, bubble.width, bubble.font_size, -1,
+				TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE)
+		_measured_height = size.y
+	return _measured_height
 
 
 # Play one of the model's animations, by what it's for (walk, idle, sit, talk, sit_talk), looping.
