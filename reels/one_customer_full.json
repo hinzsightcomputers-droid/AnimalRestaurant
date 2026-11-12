@@ -1,0 +1,20 @@
+{
+	"title": "One customer, the whole visit",
+	"meal": "lunch",
+	"wide_seconds": 3,
+	"regular": { "id": "mabel", "stage": 1, "relationship": 15, "first_visit": false },
+	"extras": [
+		{ "table": "window", "species": "cow", "dish": "honey_pancakes" },
+		{ "table": "kitchen", "species": "rabbit", "dish": "honey_pancakes" }
+	],
+	"beats": [
+		{ "do": "walk_in", "table": "corner" },
+		{ "do": "line", "line": "mabel_order_1b" },
+		{ "do": "choices", "read": 1.5, "highlight": [{ "tone": "playful", "hold": 0.8 }], "pick": "straight", "hold": 0.8 },
+		{ "do": "reaction" },
+		{ "do": "cook", "recipe": "soup", "speed": 1.4 },
+		{ "do": "serve", "dish": "vegetable_soup", "quality": 1.0 },
+		{ "do": "wait", "seconds": 28 },
+		{ "do": "end" }
+	]
+}
