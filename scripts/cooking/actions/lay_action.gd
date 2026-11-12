@@ -243,6 +243,7 @@ func _open(spot: Vector3) -> void:
 	tween.tween_property(_hand, "position", over, 0.3).set_trans(Tween.TRANS_SINE)
 	tween.tween_callback(func():
 		# Pulled apart at the crack (the egg's on its side: its halves are left and right), tipping out.
+		_crack_line.visible = false  # The crack is now the gap between the halves.
 		for half in [[_top_shell, 1.0], [_bottom_shell, -1.0]]:
 			var open := (half[0] as Node3D).create_tween().set_parallel(true)
 			open.tween_property(half[0], "position:y", 0.03 * half[1], 0.2).set_ease(Tween.EASE_OUT)
