@@ -18,6 +18,18 @@ extends Node3D
 
 enum Mode { INTRO, FOLLOW, FOCUS }
 
+# Which side the room is seen from, in degrees round from the front (0: from the
+# street, kitchen at the back). 90: from the right-hand side, so the kitchen's on
+# the right of the screen and the dining room on the left; the wall on that side
+# is hidden from inside views (RestaurantGrounds.SIDE_WALL_LAYER) and the stick
+# turns with it (Player). Close-ups keep their own angles.
+const VIEW_YAW := 90.0
+
+
+# Turns a direction from how the screen sees it (up the screen is -Z) to the world.
+static func screen_to_world(direction: Vector3) -> Vector3:
+	return direction.rotated(Vector3.UP, deg_to_rad(VIEW_YAW))
+
 @export var follow_offset := Vector3(0.0, 4.4, 3.4)    # Camera offset while following: close on the chef, so you see round you rather than the whole room.
 @export var intro_offset := Vector3(0.0, 14.0, 13.0)   # Camera offset at the start of the intro.
 @export var intro_look_point := Vector3.ZERO           # What the intro looks at (room center).
@@ -54,6 +66,8 @@ func _ready() -> void:
 	camera.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	if default_zoom == null:
 		default_zoom = CameraZoomSettings.new()
+	follow_offset = screen_to_world(follow_offset)
+	intro_offset = screen_to_world(intro_offset)
 	global_position = intro_look_point
 	_offset = intro_offset
 	_place_camera()
@@ -191,6 +205,7 @@ func _place_camera() -> void:
 	var outside := not targets.is_empty() and targets.all(func(t): return RestaurantGrounds.outdoors(t.global_position))
 	camera.set_cull_mask_value(RestaurantGrounds.TALL_FRONT_LAYER, outside)
 	camera.set_cull_mask_value(RestaurantGrounds.LOW_FRONT_LAYER, not outside)
+	camera.set_cull_mask_value(RestaurantGrounds.SIDE_WALL_LAYER, outside or VIEW_YAW == 0.0)  # The wall the camera looks in over.
 	if player != null:
 		# Zoomed in on a close-up their own chef would block: leave them out of this view.
 		camera.set_cull_mask_value(player.own_view_layer(), not (player.hidden_from_own_view and mode == Mode.FOCUS))

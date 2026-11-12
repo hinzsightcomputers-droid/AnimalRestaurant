@@ -108,11 +108,13 @@ func _exit_tree() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	# The camera always looks toward -Z, so "up" on the stick is -Z in the world.
+	# "Up" on the stick is up the screen, whichever side the camera sees the room
+	# from (CameraRig.VIEW_YAW). A reel's scripted move is already in the world.
 	var input_vector := Vector2.ZERO if movement_locked else input.get_move_vector()
+	var direction := CameraRig.screen_to_world(Vector3(input_vector.x, 0.0, input_vector.y))
 	if scripted_move != Vector2.ZERO:
 		input_vector = scripted_move
-	var direction := Vector3(input_vector.x, 0.0, input_vector.y)
+		direction = Vector3(input_vector.x, 0.0, input_vector.y)
 
 	var target_velocity := direction * move_speed * decor_carry.speed_share()
 	velocity.x = move_toward(velocity.x, target_velocity.x, acceleration * delta)

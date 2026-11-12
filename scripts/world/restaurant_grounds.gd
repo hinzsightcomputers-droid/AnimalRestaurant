@@ -24,6 +24,8 @@ const FRONT_WALL_MODEL := "res://design/assets/KayKit_Bits_Bundle1_1.1/Restauran
 const FRONT_WINDOW_MODEL := "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/wall_window_closed_curtains_red.gltf"
 const TALL_FRONT_LAYER := 15  # Render layers: the full-height front wall, for views outside...
 const LOW_FRONT_LAYER := 16   # ...and the room's low one, for views inside.
+const SIDE_WALL_LAYER := 18   # The right-hand walls, hidden from inside views when the camera looks in over them (CameraRig.VIEW_YAW).
+const SIDE_WALLS := ["RestaurantRoom/Walls/RightWall", "RestaurantRoom/Kitchen/RightWall"]
 # Inside the restaurant (x and z): the dining room, then the kitchen.
 const INDOORS: Array[Rect2] = [Rect2(-7.15, -5.15, 14.3, 10.3), Rect2(0.85, -11.45, 6.3, 6.3)]
 
@@ -208,6 +210,10 @@ func _build_tall_front_wall() -> void:
 	var low := get_parent().get_node_or_null("RestaurantRoom/Walls/FrontWall")
 	if low != null:
 		_put_on_layer(low, LOW_FRONT_LAYER)
+	for path in SIDE_WALLS:
+		var side := get_parent().get_node_or_null(path)
+		if side != null:
+			_put_on_layer(side, SIDE_WALL_LAYER)
 
 
 func _wall_grid(parent: Node3D, model: PackedScene, at: Vector3, count: int, width: float) -> void:
