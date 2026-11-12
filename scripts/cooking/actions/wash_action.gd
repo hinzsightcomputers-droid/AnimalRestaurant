@@ -272,7 +272,9 @@ func _soak_spot(i: int, n: int) -> Vector3:
 
 # Out of the water, flat, just over it: where a dish is scrubbed.
 func _scrub_height() -> float:
-	return water_level + 0.02
+	# Clear of the rims peeking out of the water: their top edges come up to
+	# water_level - 0.03 + half a dish times sin(soak_tilt).
+	return water_level - 0.03 + dish_size * 0.5 * sin(soak_tilt) + 0.025
 
 
 # Half a sink of soapy water, with foam round the edges.
