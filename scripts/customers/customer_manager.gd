@@ -44,6 +44,15 @@ const LAUGH_STEP := 0.35   # Seconds between each one joining in.
 const LAUGH_MOOD := 0.02   # What joining in does for their visit.
 const TALK_FACE_HEIGHT := 0.9    # Metres: about where a customer's face is, seated or standing.
 const TALK_BLOCK_RADIUS := 0.35  # Metres: a body this close to the line of sight blocks the face.
+const TALK_FACE_BLOCK_COST := 25.0  # Degrees of extra turn worth one person in front of the customer's face.
+const TALK_FACE_ANGLE := 80.0      # Degrees: the chat camera is at most this far round from the way the customer faces.
+const TALK_LINE_ANGLE := 40.0      # Degrees: and at least this far off the line through the chef and the customer.
+const TALK_YAW_STEP := 5.0         # Degrees between the chat camera angles tried.
+const TALK_CLEAR_PART := 0.65       # How much of the line from the chat camera toward the pair must be clear.
+const TALK_WALL_GAP := 0.6         # Metres the chat camera keeps from the room's walls.
+const TALK_CRAMPED_COST := 30.0    # Degrees of extra turn worth keeping the chat camera out of tight spots...
+const TALK_ELBOW_ROOM := 0.9       # ...less than this many metres from something solid.
+const TALK_CAMERA_ROOM := 0.35      # Metres of clear space round the chat camera.
 const PASSING_REACH := 1.6  # Metres: walking this close past Iddy's table counts as passing.
 const COMPANION_GAP := 2.0  # Seconds behind their friend that a semi-regular walking in with them comes in.
 const SITTING_STATES := [Customer.State.WAITING_DRINK_ORDER, Customer.State.WAITING_FOR_DRINK, Customer.State.WAITING_FOOD_ORDER, Customer.State.WAITING_FOR_FOOD, Customer.State.EATING, Customer.State.WANTS_BILL]
@@ -66,7 +75,6 @@ var reel_box: ConversationBox = null  # The box open in a reel, for ReelDirector
 @export_group("Talking view")  # Any chat with a customer: side on to the pair (_talk_view).
 @export var talk_distance := 2.2              # Meters back from the pair (more when they're far apart).
 @export var talk_pitch_degrees := 18.0        # How far it looks down: low, to see faces.
-@export_range(0.0, 2.0) var talk_face_turn := 0.35  # How far it swings from side on toward the customer's face.
 @export var talk_look_height := 0.55          # Looks this high: below their heads, so they sit over the dialogue box.
 
 var day_manager: DayManager         # Set by the DayManager: rings the bell.
@@ -1337,45 +1345,108 @@ func _lock_player(player: Player, point: Vector3, settings: CameraZoomSettings, 
 	player.request_camera_focus(point, settings)
 
 
-# [point, zoom] for a chef and a customer talking: the camera low and side on
-# to the pair, swung round toward the way the customer faces so their face is
-# clear, and looking a little below their heads so they sit in the top of the
-# view, over the dialogue box along the bottom.
+# [point, zoom] for a chef and a customer talking: the camera low, looking a
+# little below their heads so they sit in the top of the view, over the dialogue
+# box along the bottom. Of all the angles round the pair, the one that turns
+# this player's camera least from where it is now, so it doesn't swing right
+# round; whether the chef ends up on the left or the right doesn't matter. The
+# angle must show the customer's face (within TALK_FACE_ANGLE of the way they
+# face) and see the two of them apart (not within TALK_LINE_ANGLE of the line
+# through them, where one hides the other), and the camera mustn't be in or
+# behind a wall, the counter or furniture. If nothing meets all of that, the
+# closest that misses the least.
 func _talk_view(player: Player, customer: Customer, settings: CameraZoomSettings) -> Array:
 	var between := customer.global_position - player.global_position
 	between.y = 0.0
 	if between.length() < 0.05:
 		between = -customer.global_basis.z
-	var side := Vector3(between.z, 0.0, -between.x).normalized()
+	var line := between.normalized()
 	var face := customer.global_basis.z
 	face.y = 0.0
-	face = face.normalized() if face.length() > 0.01 else side
-	var facing_side := side.dot(face)
-	if facing_side < -0.1 or (facing_side <= 0.1 and side.z < 0.0):
-		side = -side  # The side the customer's facing (or, face to face, the usual camera side).
+	face = face.normalized() if face.length() > 0.01 else -line
 	var middle := (player.global_position + customer.global_position) * 0.5
 	var look := middle + Vector3.UP * talk_look_height
 	var zoom := CameraZoomSettings.new()
 	zoom.duration = settings.duration if settings != null else 0.4
 	zoom.pitch_degrees = talk_pitch_degrees
 	zoom.distance = clampf(between.length() * 1.2 + talk_distance, talk_distance, talk_distance * 1.8)
-	# The customer's side first, then the other one. A side through a wall is out
-	# (unless both are); of the rest, the one with fewest people (the chef, other
-	# customers) in front of the customer's face.
+	var rig := view_manager.rig_for(player.player_index) if view_manager != null else null
+	var now_yaw := 0.0  # The follow camera looks from the front (yaw 0).
+	var shrink := 1.0
+	if rig != null:
+		var from := rig.camera.global_position - rig.global_position
+		if Vector2(from.x, from.z).length() > 0.05:
+			now_yaw = rad_to_deg(atan2(from.x, from.z))
+		shrink = rig.focus_zoom
+	var face_ok := cos(deg_to_rad(TALK_FACE_ANGLE))
+	var line_ok := cos(deg_to_rad(TALK_LINE_ANGLE))
 	var best_yaw := 0.0
 	var best_score := INF
-	for way in [side, -side]:
-		var toward: Vector3 = (way + face * talk_face_turn).normalized()
-		zoom.yaw_degrees = rad_to_deg(atan2(toward.x, toward.z))
-		var eye := look + zoom.offset()
-		var score := float(_faces_blocked(eye, customer))
-		if not RestaurantGrounds.outdoors(middle) and RestaurantGrounds.outdoors(Vector3(eye.x, middle.y, eye.z)):
-			score += 100.0  # Through a wall.
+	for step in roundi(360.0 / TALK_YAW_STEP):
+		var yaw := now_yaw + step * TALK_YAW_STEP
+		var toward := Vector3(sin(deg_to_rad(yaw)), 0.0, cos(deg_to_rad(yaw)))
+		var score := absf(rad_to_deg(angle_difference(deg_to_rad(now_yaw), deg_to_rad(yaw))))
+		if toward.dot(face) < face_ok:
+			score += 500.0 + 4.0 * rad_to_deg(acos(clampf(toward.dot(face), -1.0, 1.0)))  # Can't see their face.
+		if absf(toward.dot(line)) > line_ok:
+			score += 300.0  # One stands in front of the other.
+		if score >= best_score:
+			continue  # Can't win, so skip the costly checks.
+		zoom.yaw_degrees = wrapf(yaw, -180.0, 180.0)
+		var eye := look + zoom.offset() * shrink
+		if _talk_camera_blocked(look, eye):
+			score += 1000.0
+		score += TALK_FACE_BLOCK_COST * _faces_blocked(eye, customer)
+		if _talk_camera_near_something(eye):
+			score += TALK_CRAMPED_COST  # Close to a wall or a door: the other way, if it turns about as far.
 		if score < best_score:
 			best_score = score
 			best_yaw = zoom.yaw_degrees
 	zoom.yaw_degrees = best_yaw
 	return [look, zoom]
+
+
+# Whether a chat camera at `eye`, looking at `look`, would be in or behind
+# something solid: outside the room's walls, or with a wall, the counter or a
+# piece of furniture at the camera or between it and the pair. The last part of
+# the line, by the pair, is left out: that's their own table and chairs.
+func _talk_camera_blocked(look: Vector3, eye: Vector3) -> bool:
+	if not RestaurantGrounds.outdoors(look):
+		for nudge in [Vector3.ZERO, Vector3.RIGHT, Vector3.LEFT, Vector3.FORWARD, Vector3.BACK]:
+			if RestaurantGrounds.outdoors(eye + nudge * TALK_WALL_GAP):
+				return true  # In or right up against a wall.
+	var space := get_viewport().world_3d.direct_space_state if is_inside_tree() else null
+	if space == null:
+		return false
+	var chefs := _chef_bodies()
+	var ray := PhysicsRayQueryParameters3D.create(eye, eye.lerp(look, TALK_CLEAR_PART), 1, chefs)
+	if not space.intersect_ray(ray).is_empty():
+		return true
+	return _talk_camera_near_something(eye, TALK_CAMERA_ROOM)
+
+
+# Whether anything solid (not a chef) is within `radius` of a chat camera at `eye`.
+func _talk_camera_near_something(eye: Vector3, radius := TALK_ELBOW_ROOM) -> bool:
+	var space := get_viewport().world_3d.direct_space_state if is_inside_tree() else null
+	if space == null:
+		return false
+	var chefs := _chef_bodies()
+	var room := PhysicsShapeQueryParameters3D.new()
+	var ball := SphereShape3D.new()
+	ball.radius = radius
+	room.shape = ball
+	room.transform = Transform3D(Basis(), eye)
+	room.collision_mask = 1
+	room.exclude = chefs
+	return not space.intersect_shape(room, 1).is_empty()
+
+
+func _chef_bodies() -> Array[RID]:
+	var chefs: Array[RID] = []
+	for chef in get_tree().get_nodes_in_group(Player.GROUP):
+		if chef is CollisionObject3D:
+			chefs.append((chef as CollisionObject3D).get_rid())
+	return chefs
 
 
 # How many chefs and other customers stand between a camera at `eye` and
