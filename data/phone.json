@@ -1,6 +1,8 @@
 {
 	"settings": {
 		"ring_seconds": 15,
+		"ring_after_chat_seconds": 8,
+		"ring_volume_db_during_chat": -8,
 		"first_ring_delay": { "min": 12, "max": 20 },
 		"seconds_between_calls": { "min": 45, "max": 80 },
 		"max_voicemails": 6,
