@@ -168,6 +168,9 @@ func next_step(player: Player, claimed: Dictionary) -> Dictionary:
 	for customer in _customers(Customer.State.EATING).filter(func(c): return c.can_chat()):
 		chats.append(_job(customer.interactable, "chat", customer, { "name": customer.display_name }))
 	jobs.append(chats)
+	# Also a quiet-moment job: voicemails are orders waiting, and a full mailbox
+	# stops the day's calls (see Phone), which nothing else points out.
+	jobs.append([_job(phone.interactable if phone != null and phone.voicemail_to_play() else null, "voicemail", "phone")])
 	jobs.append([_job(counter if day_manager.bell_ready() else null, "ring_bell", "bell")])
 	for level in jobs:
 		var open := level.filter(func(job): return job["target"] != null and not claimed.has(job["claim"]))

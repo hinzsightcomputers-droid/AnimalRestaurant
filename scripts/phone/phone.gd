@@ -12,6 +12,8 @@
 # ask them to talk to that regular for you (see Redemption).
 # The night shift after closing (see DayManager) is phone orders only: a few
 # calls (night in data/phone.json), closer together, then it goes quiet.
+# With max_voicemails waiting, the day's calls stop until some are played
+# back (the Guide points at them in a quiet moment); the night's still ring.
 class_name Phone
 extends Station
 
@@ -90,6 +92,11 @@ func _on_interacted(player_index: int) -> void:
 		_call_friend(player)
 
 
+# Voicemails waiting that someone could play back right now (for the Guide).
+func voicemail_to_play() -> bool:
+	return not _in_call and not is_ringing() and not GameState.voicemails.is_empty() and not TicketWheel.is_full(get_tree())
+
+
 # The night's calls have all rung and nobody's on the phone.
 func quiet_for_tonight() -> bool:
 	return GameState.night_calls_used >= GameState.night_calls_total and not is_ringing() and not _in_call
@@ -134,8 +141,10 @@ func _process(delta: float) -> void:
 	if DayCycle.is_night():
 		GameState.night_calls_used += 1  # Counts even if it doesn't ring, so the night always ends.
 		SaveGame.save_game()
-	if GameState.voicemails.size() >= _max_voicemails():
+	if GameState.voicemails.size() >= _max_voicemails() and not DayCycle.is_night():
 		return  # Plenty waiting already: this call just doesn't happen.
+	# (At night it rings anyway: the night shift is only calls, so skipping them
+	# with a full mailbox left a minute and a half of nothing, then the day over.)
 	var call := PhoneCalls.next_call(_last_caller, DayCycle.is_night())
 	if not call.is_empty():
 		_ring(call)
@@ -168,9 +177,12 @@ func _stop_ringing() -> void:
 func _to_voicemail() -> void:
 	var call := _ringing
 	_stop_ringing()
+	var caller_name: String = PhoneCalls.caller_info(call)["name"]
 	if GameState.voicemails.size() < _max_voicemails():
 		GameState.voicemails.append(call)
-		GameEvents.announce("Missed a call from %s. They left a voicemail." % PhoneCalls.caller_info(call)["name"])
+		GameEvents.announce("Missed a call from %s. They left a voicemail." % caller_name)
+	else:  # Said out loud, so a full mailbox isn't a silent mystery.
+		GameEvents.announce("Missed a call from %s. The voicemail's full!" % caller_name)
 
 
 # Answer `call` (or play it back from voicemail): the lines in a dialogue box,
