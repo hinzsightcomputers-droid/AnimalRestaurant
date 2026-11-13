@@ -12,8 +12,10 @@ const FOV := 42.0
 const CLOSE_UP_FOV := 60.0   # Across the view, not up it.
 const GLIDE_SPEED := 2.5     # Higher = gets to the next shot sooner.
 const UI_SCALE := 2.0        # The dialogue box and replies, big enough to read on a phone.
-const WIDE_POSITION := Vector3(2.6, 14.0, 15.5)  # The room from over the front, door included.
-const WIDE_LOOK := Vector3(2.6, 0.0, 1.2)
+# The room shots are from the side the game sees it from (CameraRig.VIEW_YAW):
+# these offsets are as the screen sees them, turned in _goal.
+const WIDE_OFFSET := Vector3(0.0, 14.0, 14.3)  # The whole room, door included.
+const WIDE_LOOK := Vector3(0.5, 0.0, 2.0)
 const FOLLOW_OFFSET := Vector3(0.0, 4.0, 6.0)
 const FOLLOW_LOOK_HEIGHT := 0.4
 const TABLE_DISTANCE := 4.2  # In front of the regular, across their table.
@@ -50,7 +52,7 @@ var close_up := false : set = _set_close_up  # The game's own close-up camera is
 var close_up_fov := CLOSE_UP_FOV
 
 var _shot := Shot.WIDE
-var _position := WIDE_POSITION
+var _position := WIDE_LOOK + CameraRig.screen_to_world(WIDE_OFFSET)
 var _look := WIDE_LOOK
 
 
@@ -95,7 +97,7 @@ func _set_close_up(on: bool) -> void:
 func _goal() -> Array:
 	match _shot:
 		Shot.FOLLOW:
-			return [subject.global_position + FOLLOW_OFFSET, subject.global_position + Vector3.UP * FOLLOW_LOOK_HEIGHT]
+			return [subject.global_position + CameraRig.screen_to_world(FOLLOW_OFFSET), subject.global_position + Vector3.UP * FOLLOW_LOOK_HEIGHT]
 		Shot.TABLE:
 			return _at_table(TABLE_DISTANCE, TABLE_HEIGHT, TABLE_SIDE, 0.0)
 		Shot.SERVE:
@@ -116,7 +118,7 @@ func _goal() -> Array:
 			return [house.reel_door() + PORCH_OFFSET, house.reel_door() + PORCH_LOOK]
 		Shot.ROOM:
 			return [house.reel_room() + ROOM_OFFSET, house.reel_room() + ROOM_LOOK]
-	return [WIDE_POSITION, WIDE_LOOK]
+	return [WIDE_LOOK + CameraRig.screen_to_world(WIDE_OFFSET), WIDE_LOOK]
 
 
 # From in front of the regular, moved `side` toward the chef's side of them.
