@@ -389,6 +389,7 @@ func _spawn(next: Dictionary, paced: bool) -> void:
 	customer.state_changed.connect(_on_customer_state_changed)
 
 	_queue.append(customer)
+	customer.line_place = _queue.size() - 1
 	var path: Array[Vector3] = [door_point.global_position, _on_front_lane(_queue_spot(0)), _queue_spot(_queue.size() - 1)]
 	customer.walk_to(path, Customer.State.WAITING_TO_BE_SEATED)
 	if customer.is_critic:
@@ -2061,6 +2062,7 @@ func _on_customer_state_changed(customer: Customer) -> void:
 # Everyone still in line steps up one spot.
 func _move_queue_forward() -> void:
 	for i in _queue.size():
+		_queue[i].line_place = i
 		_queue[i].set_destination(_queue_spot(i))
 
 

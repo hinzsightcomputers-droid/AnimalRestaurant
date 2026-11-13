@@ -32,6 +32,7 @@ signal getting_going(customer: Customer)    # A regular nobody chatted with will
 signal spoke(customer: Customer)  # Said a one-off line (see say()).
 signal talking_changed(customer: Customer)  # A conversation started or ended.
 signal emoted(customer: Customer, emotion: StringName)  # Showed a feeling (see emote()).
+signal line_place_changed(customer: Customer)  # Moved up the line at the host stand.
 
 @export var walk_speed := 2.0
 @export var turn_speed := 10.0
@@ -71,6 +72,11 @@ var talking := false:         # In a conversation: their wait and meal timers pa
 		if talking != value:
 			talking = value
 			talking_changed.emit(self)
+var line_place := 0:          # Place in line at the host stand: 0 is at the front. Only the front one asks for a table.
+	set(value):
+		if line_place != value:
+			line_place = value
+			line_place_changed.emit(self)
 
 var wait_seconds := 0.0       # From ordering food until it arrives.
 var plan_index := -1          # Which of the meal's planned customers this is (-1: not from the plan).

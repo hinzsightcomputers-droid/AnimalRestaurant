@@ -85,6 +85,7 @@ func _ready() -> void:
 	customer.state_changed.connect(_on_state_changed)
 	customer.spoke.connect(_on_spoke)
 	customer.talking_changed.connect(_on_talking_changed)
+	customer.line_place_changed.connect(_on_line_place_changed)
 	customer.emoted.connect(func(_customer, emotion): _emotions.play_emotion(emotion))
 	_speech_timer.one_shot = true
 	_speech_timer.timeout.connect(_on_speech_timer_timeout)
@@ -113,6 +114,7 @@ func _on_state_changed(_customer: Customer) -> void:
 			bubble.text = "..."
 		Customer.State.WAITING_TO_BE_SEATED:
 			bubble.text = "Table, please!"  # A regular's greeting is said in the dialogue box when you seat them.
+			bubble.visible = customer.line_place == 0  # One asking at a time: a line of bubbles runs together.
 		Customer.State.WAITING_DRINK_ORDER:
 			bubble.text = "Ready for a drink!"
 		Customer.State.WAITING_FOR_DRINK:
@@ -248,6 +250,11 @@ func _no_bubble() -> bool:
 func _on_talking_changed(_customer: Customer) -> void:
 	if not customer.talking:
 		_speech_timer.stop()
+		_on_state_changed(customer)
+
+
+func _on_line_place_changed(_customer: Customer) -> void:
+	if customer.state == Customer.State.WAITING_TO_BE_SEATED and _speech_timer.is_stopped() and not customer.talking:
 		_on_state_changed(customer)
 
 

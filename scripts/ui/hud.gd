@@ -68,6 +68,7 @@ func _process(delta: float) -> void:
 	_refresh_day_and_money()
 	_refresh_streak()
 	_refresh_clock(delta)
+	_place_clock()
 	_refresh_join_hint()
 	_fit_orders()
 	_keep_clear_of_close_ups()
@@ -134,6 +135,18 @@ func _refresh_clock(delta: float) -> void:
 		_still_seconds += delta
 		if _still_seconds >= CLOCK_STILL_SECONDS:
 			_show_clock(true)
+
+
+# Centred at the top, but slid left when the day-and-money line is long
+# enough to run under it ("Day 9  Breakfast  Opening 2:53  $1673" at 1080p).
+func _place_clock() -> void:
+	var box := clock.get_global_rect()
+	var text_width := clock.get_combined_minimum_size().x * clock.get_global_transform().get_scale().x
+	var centre := get_viewport().get_visible_rect().size.x / 2.0
+	var text_right := centre + text_width / 2.0
+	var room_right := money_label.get_global_rect().position.x - 24.0
+	var shift := minf(0.0, room_right - text_right)
+	clock.global_position.x = centre - box.size.x / 2.0 + shift
 
 
 func _anyone_moving() -> bool:
