@@ -33,7 +33,8 @@ const LAYOUTS := {
 const FOLLOW_ZOOM := { 1: 1.0, 2: 0.95, 4: 0.8 }  # Camera follow distance for each layout (the solo view is already close).
 const FOCUS_ZOOM := { 1: 1.0, 2: 0.9, 4: 0.78 }    # Close-up (minigame) distance for each layout.
 const OVERVIEW_LOOK_AT := Vector3(0.0, 0.0, -2.0)  # The overview's camera: the dining room and kitchen.
-const OVERVIEW_OFFSET := Vector3(0.0, 10.0, 6.0)
+const OVERVIEW_OFFSET := Vector3(0.0, 10.0, 6.0)  # As the screen sees it: turned to the side the room is seen from (CameraRig.VIEW_YAW).
+const OVERVIEW_EVERY := 3  # Frames per redraw of the overview: it shows the whole grounds, trees and all, which costs more than a player's view.
 
 @export var player_manager: PlayerManager
 @export var fixed_split_players := 3  # This many players or more: the fixed four-way split.
@@ -49,6 +50,7 @@ var _groups: Array = []         # Current groups, e.g. [[0, 2], [1]], each sorte
 var _layout_tween: Tween = null
 var _fixed := false             # Using the fixed four-way split.
 var _overview: SubViewportContainer = null  # The whole room, in a quarter of the split nobody has.
+var _overview_frames := 0
 var ui_scale := 1.0             # Size of the UI for the current layout (UiScale).
 
 
@@ -71,6 +73,10 @@ func _process(_delta: float) -> void:
 	var groups := _find_groups()
 	if groups != _groups:
 		_apply_groups(groups)
+	if _overview.visible:
+		_overview_frames += 1
+		if _overview_frames % OVERVIEW_EVERY == 0:
+			(_overview.get_child(0) as SubViewport).render_target_update_mode = SubViewport.UPDATE_ONCE
 
 
 # The camera rig belonging to a player (null if they have none yet).
@@ -233,7 +239,12 @@ func _make_overview() -> SubViewportContainer:
 	viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
 	container.add_child(viewport)
 	var camera := Camera3D.new()
-	camera.transform = Transform3D(Basis.looking_at(-OVERVIEW_OFFSET), OVERVIEW_LOOK_AT + OVERVIEW_OFFSET)
+	var offset := CameraRig.screen_to_world(OVERVIEW_OFFSET)
+	camera.transform = Transform3D(Basis.looking_at(-offset), OVERVIEW_LOOK_AT + offset)
+	# Walls as the chefs see them from inside: the front one low, the side it looks in over hidden.
+	camera.set_cull_mask_value(RestaurantGrounds.TALL_FRONT_LAYER, false)
+	camera.set_cull_mask_value(RestaurantGrounds.LOW_FRONT_LAYER, true)
+	camera.set_cull_mask_value(RestaurantGrounds.SIDE_WALL_LAYER, CameraRig.VIEW_YAW == 0.0)
 	viewport.add_child(camera)
 	return container
 
@@ -253,7 +264,7 @@ func _show_overview(layout: Array, owners: Array) -> void:
 		return
 	_set_rect(_overview, layout[free_corner], layout.size())
 	_overview.visible = true
-	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE  # Then again every OVERVIEW_EVERY frames (_process).
 
 
 # Where on screen views are zoomed in on something (a minigame, a chat), in
