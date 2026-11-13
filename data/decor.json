@@ -1,5 +1,5 @@
 {
-	"_about": "Decor (see Decor, DecorRoom, DecorateMode). The shop sells shop_per_day items a day, picked from those whose tier (stars needed) has been reached. An item: kind is floor or wall, size is its [width, depth] in meters on the floor, points count toward the Decor area of the star rating, set (optional) names a set. parts are what it looks like: { box: [x, y, z] } or { cylinder: [radius, height] } with a color, or { model: path, size: [x, y, z] }, each with at: [x, y, z] (the bottom middle of the part, from the item's bottom middle). ALL OF THIS IS PLACEHOLDER ART AND PLACEHOLDER PRICES. Scoring: each item id counts up to max_copies times, a category is worth at most category_cap points (so one category can't do it all), and a whole set placed adds set_points. grid is the floor's squares (cell meters each; min and max are the middles of the corner squares): floor decor always fills whole squares, so a floor item's size should be whole squares; keep_clear rectangles [x1, z1, x2, z2] keep the customers' lanes, the tables, the line, the doors and the pass free, and nothing goes within station_gap meters of a station. wall_spots are where wall decor hangs (turn in degrees).",
+	"_about": "Decor (see Decor, DecorRoom, DecorateMode). The shop sells shop_per_day items a day, picked from those whose tier (stars needed) has been reached. An item: kind is floor or wall, size is its [width, depth] in meters on the floor, points count toward the Decor area of the star rating, set (optional) names a set. parts are what it looks like: { box: [x, y, z] } or { cylinder: [radius, height] } with a color, or { model: path, size: [x, y, z] }, each with at: [x, y, z] (the bottom middle of the part, from the item's bottom middle). ALL OF THIS IS PLACEHOLDER ART AND PLACEHOLDER PRICES. Scoring: each item id counts up to max_copies times, a category is worth at most category_cap points (so one category can't do it all), and a whole set placed adds set_points. grid is the floor's squares (cell meters each; min and max are the middles of the corner squares): floor decor always fills whole squares, so a floor item's size should be whole squares; keep_clear rectangles [x1, z1, x2, z2] keep the customers' lanes, the tables, the line, the doors and the pass free, and nothing goes within station_gap meters of a station. wall_spots are where wall decor hangs (turn in degrees); placed decor remembers its spot by number, so move a spot rather than removing it, and keep spots off the right-hand walls (x near 7), which the camera looks in over (CameraRig.VIEW_YAW).",
 	"shop_per_day": 6,
 	"max_copies": 2,
 	"category_cap": 8,
@@ -19,9 +19,9 @@
 		{ "at": [-1.8, 1.7, -4.97], "turn": 0 },
 		{ "at": [-0.9, 1.7, -4.97], "turn": 0 },
 		{ "at": [-6.2, 1.7, -4.97], "turn": 0 },
-		{ "at": [6.97, 1.7, -2.5], "turn": -90 },
-		{ "at": [6.97, 1.7, 0.0], "turn": -90 },
-		{ "at": [6.97, 1.7, 2.5], "turn": -90 },
+		{ "at": [-6.97, 2.0, 0.0], "turn": 90 },
+		{ "at": [-4.75, 1.7, -4.97], "turn": 0 },
+		{ "at": [1.02, 1.9, -7.1], "turn": 90 },
 		{ "at": [-6.97, 1.7, -2.5], "turn": 90 },
 		{ "at": [-6.97, 1.7, 2.5], "turn": 90 }
 	],
