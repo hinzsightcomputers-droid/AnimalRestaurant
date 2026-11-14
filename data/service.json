@@ -1,7 +1,7 @@
 {
 	"_about": "The steps of a walk-in's visit (see CustomerManager): waiting at the host stand, being led to a table, the drink order, the drink, the food order, eating, the bill. Townsfolk say one of these lines at each step ({drink}, {dish} fill in). Regulars use their own lines from their character file instead (events seating, drink_order, drink_served, served, farewell). Done eating, a customer asks for the bill (bill) and shows a receipt over their head until it comes. A chef can chat with a regular or townsfolk while they eat. Townsfolk say the host stand, drink order, drink arriving, food order, food arriving, asking for the bill and paying in a dialogue box, the rest in a speech bubble. regular_stay_seconds: a regular who hasn't been chatted with stays this long after their food arrives before asking for the bill, saying a get_going line get_going_warning_seconds before. delivery_question: what a townsfolk asks at the bill once the restaurant has been open delivery_question_day days, which puts a phone on the wall the next morning; phone_installed is the news that morning.",
 	"_pay_scale": "Every price (dish and drink base_price) times this when a customer or delivery pays: lower to make money come slower.",
-	"pay_scale": 0.7,
+	"pay_scale": 0.6,
 	"regular_stay_seconds": 180,
 	"get_going_warning_seconds": 20,
 	"delivery_question_day": 3,
