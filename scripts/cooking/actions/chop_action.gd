@@ -16,7 +16,8 @@ extends CookAction
 @export var piece_color := Color(0.95, 0.55, 0.15)  # When there are no ingredients to take the color from.
 @export_group("Feel")
 @export var beat_seconds := 0.45           # The rhythm to chop to.
-@export var beat_tolerance := 0.16         # Seconds off the beat that scores nothing.
+@export var beat_tolerance := 0.18         # Seconds off the beat that scores nothing.
+@export var perfect_seconds := 0.06        # This close to the beat (either side) is a perfect chop; the score falls off from here to beat_tolerance.
 @export var knife_height := 0.08           # How high the knife hovers between chops.
 @export var knife_tilt := 25.0             # Degrees the knife leans, so you see the blade from above.
 @export var chop_seconds := 0.1            # The knife's way down (and twice that back up).
@@ -123,7 +124,7 @@ func _chop() -> void:
 	var x: float = _piece["marks"][0]
 	var off_beat := fmod(_time, beat_seconds)  # Judged when you press, not when the knife lands.
 	off_beat = minf(off_beat, beat_seconds - off_beat)
-	var on_beat := 1.0 - clampf(off_beat / beat_tolerance, 0.0, 1.0)
+	var on_beat := 1.0 - clampf((off_beat - perfect_seconds) / (beat_tolerance - perfect_seconds), 0.0, 1.0)
 	var tween := _knife.create_tween()
 	tween.tween_property(_knife, "position", Vector3(x, _board_y, _piece["z"]), chop_seconds).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	tween.tween_callback(_land.bind(x, on_beat))
