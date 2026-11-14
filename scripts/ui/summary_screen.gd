@@ -233,6 +233,7 @@ func _build_upgrade_list() -> void:
 		var button := _shop_button(upgrade["name"], upgrade["description"], int(upgrade["price"]), GameState.has_upgrade(upgrade["id"]), "Owned")
 		button.pressed.connect(_buy.bind(upgrade["id"]))
 		buttons.append(button)
+	_stage_entry(buttons)
 	_shop_heading("New dishes")
 	for dish in GameData.shop_dishes().filter(func(d): return GameData.in_stock(d["id"]) or GameData.is_unlocked(d["id"])):
 		var button := _shop_button(dish["name"], dish["description"], int(dish["unlock_cost"]), GameData.is_unlocked(dish["id"]), "On the menu")
@@ -252,6 +253,35 @@ func _build_upgrade_list() -> void:
 	_coming_tomorrow()
 	var buyable := buttons.filter(func(b): return not b.disabled)
 	(buyable[0] if not buyable.is_empty() else shop_button).grab_focus()
+
+
+# The next restaurant stage, under its own heading: bought now, the crew
+# builds it overnight (see Stages).
+func _stage_entry(buttons: Array[Button]) -> void:
+	var building := GameState.stage_building > GameState.stage
+	var record := Stages.info(GameState.stage_building) if building else Stages.next()
+	if record.is_empty():
+		return
+	_shop_heading("Renovation")
+	var button := Button.new()
+	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	button.custom_minimum_size = Vector2(0, 60)
+	button.add_theme_font_size_override("font_size", 18)
+	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var why := "" if building else Stages.why_not(record)
+	var status := "The crew builds it tonight" if building else (why if not why.is_empty() else "Buy for $%d" % int(record.get("fee", 0)))
+	button.text = "%s  -  %s
+%s" % [record.get("name", "?"), status, record.get("description", "")]
+	button.disabled = building or not why.is_empty()
+	button.pressed.connect(_buy_stage)
+	upgrade_list.add_child(button)
+	buttons.append(button)
+
+
+func _buy_stage() -> void:
+	if GameState.buy_stage():
+		GameEvents.announce("The crew will work on it tonight.")
+		_refresh_page()
 
 
 # "Arriving tomorrow: Croissant, Apple Cider" under the list, if anything is.

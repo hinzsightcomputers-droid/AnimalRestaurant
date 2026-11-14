@@ -68,6 +68,11 @@ var forced_scene := ""
 var delivery_asked := false
 var phone_unlocked := false
 var phone_news := false  # The phone went up this morning: say so once the day starts. Not saved.
+# The restaurant's stage (see Stages, data/stages.json): the one built, and
+# the one the crew builds tonight (0 when none). Saved.
+var stage := 1
+var stage_building := 0
+var stage_news := false  # A stage was finished overnight: announce it once the day starts. Not saved.
 var town_news: Array[String] = []  # Townsfolk who moved in or away this morning, said once the day starts. Not saved.
 # Tonight's night shift: how many calls it gets (picked when it starts) and how
 # many have rung so far. Saved, so a night picked up again doesn't start over.
@@ -169,6 +174,10 @@ func begin_day() -> void:
 		return
 	date = today
 	day_number += 1
+	if stage_building > stage:  # The crew worked through the night.
+		stage = stage_building
+		stage_news = true
+	stage_building = 0
 	DayCycle.start_day()
 	phase_done.clear()
 	night_calls_total = 0
@@ -253,6 +262,18 @@ func buy_upgrade(upgrade_id: String) -> bool:
 	upgrades.append(upgrade_id)
 	add_money(-int(upgrade["price"]))
 	upgrades_changed.emit()
+	SaveGame.save_game()
+	return true
+
+
+# Pay for the next stage: the crew builds it overnight. False if it can't be
+# bought yet (see Stages.why_not).
+func buy_stage() -> bool:
+	var record := Stages.next()
+	if not Stages.why_not(record).is_empty():
+		return false
+	stage_building = int(record["stage"])
+	add_money(-int(record.get("fee", 0)))
 	SaveGame.save_game()
 	return true
 
@@ -401,6 +422,8 @@ func to_save_data() -> Dictionary:
 		"services_today": services_today,
 		"chef_actions_today": chef_actions_today,
 		"upgrades": upgrades,
+		"stage": stage,
+		"stage_building": stage_building,
 		"voicemails": voicemails,
 		"unlocks": unlocks,
 		"delivery_asked": delivery_asked,
@@ -439,6 +462,8 @@ func apply_save_data(data: Dictionary) -> void:
 	date = data.get("date", date)  # Saves from before real dates had a "day" number instead; it's dropped.
 	day_number = int(data.get("day_number", day_number))
 	difficulty = String(data.get("difficulty", "normal"))
+	stage = int(data.get("stage", 1))
+	stage_building = int(data.get("stage_building", 0))
 	if data.get("day_cycle") is Dictionary:
 		DayCycle.apply_save_data(data["day_cycle"])
 	elif data.has("phase"):  # Saves from before version 6: one number for the phase.

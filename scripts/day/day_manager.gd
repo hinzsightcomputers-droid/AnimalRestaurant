@@ -57,6 +57,10 @@ func _ready() -> void:
 	if GameState.phone_news:
 		GameState.phone_news = false
 		get_tree().create_timer(2.0, false).timeout.connect(func(): GameEvents.announce(String(GameData.service.get("phone_installed", "There's a phone on the wall now."))))
+	if GameState.stage_news:  # The crew finished a stage overnight.
+		GameState.stage_news = false
+		var reveal := String(Stages.info(GameState.stage).get("reveal", "The restaurant's been renovated!"))
+		get_tree().create_timer(1.0, false).timeout.connect(GameEvents.announce.bind(reveal))
 	for i in GameState.town_news.size():  # Who moved in or away.
 		get_tree().create_timer(3.5 + i * 2.5, false).timeout.connect(GameEvents.announce.bind(GameState.town_news[i]))
 	GameState.town_news.clear()

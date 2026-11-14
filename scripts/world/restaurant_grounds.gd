@@ -26,7 +26,8 @@ const TALL_FRONT_LAYER := 15  # Render layers: the full-height front wall, for v
 const LOW_FRONT_LAYER := 16   # ...and the room's low one, for views inside.
 const SIDE_WALL_LAYER := 18   # The right-hand walls, hidden from inside views when the camera looks in over them (CameraRig.VIEW_YAW).
 const SIDE_WALLS := ["RestaurantRoom/Walls/RightWall", "RestaurantRoom/Kitchen/RightWall"]
-# Inside the restaurant (x and z): the dining room, then the kitchen.
+# Inside the restaurant (x and z): the dining room, then the kitchen (before
+# any stage: outdoors() adds what Stages.grown_left knocked through).
 const INDOORS: Array[Rect2] = [Rect2(-7.15, -5.15, 14.3, 10.3), Rect2(0.85, -11.45, 6.3, 6.3)]
 
 @export var day_manager: DayManager
@@ -39,6 +40,7 @@ var _doors_open := false
 
 
 func _ready() -> void:
+	StageLayout.apply(get_parent())  # First: the walls a stage adds get their layers below.
 	_build_ground()
 	_build_fence()
 	_barriers.append(_door_barrier(FRONT_DOOR, FRONT_DOOR_WIDTH))
@@ -194,10 +196,11 @@ func _build_tall_front_wall() -> void:
 	add_child(tall)
 	var window: PackedScene = load(FRONT_WINDOW_MODEL)
 	var wall: PackedScene = load(FRONT_WALL_MODEL)
-	var left_end := -7.3
+	var left_end := -7.3 - Stages.grown_left()
 	var door_left := FRONT_DOOR.x - FRONT_DOOR_WIDTH / 2.0
 	var door_right := FRONT_DOOR.x + FRONT_DOOR_WIDTH / 2.0
-	_wall_grid(tall, window, Vector3((left_end + door_left) / 2.0, 0.0, FRONT_DOOR.z), 4, (door_left - left_end) / 4.0)
+	var windows := 4 + roundi(Stages.grown_left() / 3.0)  # About 3 m a window, as before a stage.
+	_wall_grid(tall, window, Vector3((left_end + door_left) / 2.0, 0.0, FRONT_DOOR.z), windows, (door_left - left_end) / windows)
 	_wall_grid(tall, wall, Vector3((door_right + 7.3) / 2.0, 0.0, FRONT_DOOR.z), 1, 7.3 - door_right)
 	var lintel := MeshInstance3D.new()
 	var mesh := BoxMesh.new()
@@ -235,7 +238,10 @@ static func _put_on_layer(node: Node, layer: int) -> void:
 
 # Whether a point's outdoors (not in the dining room or the kitchen).
 static func outdoors(point: Vector3) -> bool:
+	var grown := Stages.grown_left()
 	for area: Rect2 in INDOORS:
+		if grown > 0.0 and area == INDOORS[0]:
+			area = Rect2(area.position.x - grown, area.position.y, area.size.x + grown, area.size.y)
 		if area.has_point(Vector2(point.x, point.z)):
 			return false
 	return true

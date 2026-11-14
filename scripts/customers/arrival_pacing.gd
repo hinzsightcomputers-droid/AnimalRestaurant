@@ -94,7 +94,7 @@ static func cap(meal: int, elapsed: float) -> int:
 # What the hooks add to the cap: hired staff and the star rating.
 static func bonus() -> int:
 	var bonuses: Dictionary = settings().get("bonuses", {})
-	return staff_count() * int(bonuses.get("per_staff", 1)) + int(bonuses.get("stars", {}).get(str(GameState.stars), 0))
+	return staff_count() * int(bonuses.get("per_staff", 1)) + int(bonuses.get("stars", {}).get(str(GameState.stars), 0)) 		+ Stages.arrival_bonus()  # Each stage's own (data/stages.json).
 
 
 # Hired staff members (a hook: none can be hired yet).
