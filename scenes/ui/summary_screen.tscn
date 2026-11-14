@@ -3,16 +3,16 @@
 [ext_resource type="Script" path="res://scripts/ui/summary_screen.gd" id="1_summary"]
 
 [sub_resource type="StyleBoxFlat" id="Style_panel"]
-bg_color = Color(0.99, 0.95, 0.86, 1)
-border_width_left = 6
-border_width_top = 6
-border_width_right = 6
-border_width_bottom = 6
-border_color = Color(0.55, 0.38, 0.25, 1)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
+bg_color = Color(0.984314, 0.839216, 0.627451, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.443137, 0.254902, 0.172549, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
 content_margin_left = 36.0
 content_margin_top = 28.0
 content_margin_right = 36.0
@@ -49,14 +49,14 @@ theme_override_styles/panel = SubResource("Style_panel")
 theme_override_constants/separation = 16
 
 [node name="Title" type="Label" parent="Panel/Content"]
-theme_override_colors/font_color = Color(0.45, 0.28, 0.16, 1)
+theme_override_colors/font_color = Color(0.443137, 0.254902, 0.172549, 1)
 theme_override_font_sizes/font_size = 34
 text = "Day 1 complete!"
 horizontal_alignment = 1
 
 [node name="Body" type="Label" parent="Panel/Content"]
 size_flags_vertical = 3
-theme_override_colors/font_color = Color(0.3, 0.22, 0.15, 1)
+theme_override_colors/font_color = Color(0.313726, 0.137255, 0.0705882, 1)
 theme_override_font_sizes/font_size = 20
 text = "Customers served: 0"
 

@@ -37,9 +37,9 @@ const LETTERS_PER_SECOND := 32.0
 const FAST_SCALE := 3.5          # How much faster text types while interact is held.
 const PAUSES := { ".": 0.22, "!": 0.22, "?": 0.22, ",": 0.1, "—": 0.15 }  # Seconds after these letters.
 const REPLY_SECONDS := 8.0       # A finished reply moves on by itself after this, if nobody presses.
-const TEXT_COLOR := Color(0.25, 0.18, 0.12)
-const DIM_COLOR := Color(0.25, 0.18, 0.12, 0.55)
-const PICKED_COLOR := Color(0.75, 0.33, 0.12)
+const TEXT_COLOR := Color("#502312")
+const DIM_COLOR := Color("#502312", 0.55)
+const PICKED_COLOR := Color("#C2542A")
 const PLAYER_NAME_COLOR := Color("#2f7fd8")
 const BLIP_VOICES := 3  # Blips that can ring at once.
 const VOWEL_BLIPS := { "a": ["a", "ah"], "e": ["e", "eh"], "i": ["i"], "y": ["i"], "o": ["o", "oh"], "u": ["u"] }
@@ -118,13 +118,7 @@ func _ready() -> void:
 	panel.anchor_bottom = 1.0
 	panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	panel.offset_bottom = -bottom_gap  # Above the announcement line at the bottom of the screen.
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(1.0, 0.97, 0.9, 0.96)
-	style.border_color = Color(0.55, 0.4, 0.28)
-	style.set_border_width_all(3)
-	style.set_corner_radius_all(14)
-	style.set_content_margin_all(18)
-	panel.add_theme_stylebox_override("panel", style)
+	panel.add_theme_stylebox_override("panel", UiStyle.panel(18))
 	add_child(panel)
 
 	var column := VBoxContainer.new()

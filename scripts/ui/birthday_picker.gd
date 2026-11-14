@@ -12,7 +12,7 @@ extends CanvasLayer
 
 signal finished
 
-const TEXT_COLOR := Color(0.25, 0.18, 0.12)
+const TEXT_COLOR := Color("#502312")
 const BUTTON_SIZE := Vector2(132, 46)
 const DAY_BUTTON_SIZE := Vector2(64, 46)
 
@@ -45,13 +45,7 @@ func _ready() -> void:
 	panel.set_anchors_preset(Control.PRESET_CENTER)
 	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(1.0, 0.97, 0.9, 0.97)
-	style.border_color = Color(0.55, 0.4, 0.28)
-	style.set_border_width_all(3)
-	style.set_corner_radius_all(14)
-	style.set_content_margin_all(22)
-	panel.add_theme_stylebox_override("panel", style)
+	panel.add_theme_stylebox_override("panel", UiStyle.panel(22))
 	add_child(panel)
 
 	var column := VBoxContainer.new()

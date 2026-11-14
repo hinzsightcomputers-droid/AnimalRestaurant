@@ -1,0 +1,35 @@
+{
+	"_about": "The look of the HUD and menus, from the GDD's Art Style Guide (UI style: rounded cream and wood panels with a thin darker outline). Colors are the guide's palette, by name. Read by scripts/ui/ui_style.gd.",
+	"palette": {
+		"dark_wood": "#502312",
+		"wood": "#71412C",
+		"warm_wood": "#90523C",
+		"light_wood": "#A97251",
+		"brick": "#9A3A1B",
+		"rust_red": "#C2542A",
+		"orange": "#E07228",
+		"peach": "#FAA562",
+		"rose": "#DB7B60",
+		"tan": "#E2AA7B",
+		"cream": "#FBD6A0",
+		"sage": "#94A189",
+		"moss": "#6A7156",
+		"dark_olive": "#494433",
+		"lantern_yellow": "#FFD15C",
+		"leaf_green": "#8DBE3E",
+		"gingham_red": "#D63C3C"
+	},
+	"panel": { "fill": "cream", "outline": "wood", "outline_width": 4, "corner_radius": 16, "opacity": 1.0 },
+	"text": { "title": "wood", "body": "dark_wood", "warning": "brick" },
+	"button": {
+		"fill": "tan", "outline": "wood", "text": "dark_wood",
+		"pressed_fill": "warm_wood", "pressed_text": "cream",
+		"outline_width": 3, "corner_radius": 12
+	},
+	"focus": { "ring": "orange", "fill": "lantern_yellow", "fill_alpha": 0.35, "text": "dark_wood" },
+	"hud": { "text": "cream", "outline": "dark_wood", "money": "lantern_yellow", "streak": "leaf_green" },
+	"fonts": {
+		"_todo": "TODO(developer): the guide only proposes fonts (a rounded display font for titles, a readable rounded sans for dialogue). Put a .ttf/.otf under assets/fonts/ and its res:// path here; empty keeps Godot's default font.",
+		"body": ""
+	}
+}

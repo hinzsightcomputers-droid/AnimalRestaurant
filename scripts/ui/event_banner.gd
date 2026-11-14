@@ -31,11 +31,7 @@ func _show(text: String) -> void:
 	panel.anchor_right = 0.5
 	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	panel.offset_top = 120  # Below the clock.
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(1.0, 0.97, 0.9, 0.96)
-	style.border_color = Color(0.55, 0.4, 0.28)
-	style.set_border_width_all(3)
-	style.set_corner_radius_all(14)
+	var style := UiStyle.panel()
 	style.content_margin_left = 32
 	style.content_margin_right = 32
 	style.content_margin_top = 12
@@ -45,7 +41,7 @@ func _show(text: String) -> void:
 	label.text = text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.add_theme_font_size_override("font_size", 32)
-	label.add_theme_color_override("font_color", Color(0.4, 0.26, 0.16))
+	label.add_theme_color_override("font_color", Color("#71412C"))
 	panel.add_child(label)
 	add_child(panel)
 

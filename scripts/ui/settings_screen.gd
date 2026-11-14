@@ -11,8 +11,8 @@ class_name SettingsScreen
 extends CanvasLayer
 
 const GROUP := "settings_screen"
-const BROWN := Color(0.45, 0.28, 0.16)
-const TEXT := Color(0.3, 0.22, 0.15)
+const BROWN := Color("#71412C")
+const TEXT := Color("#502312")
 const PANEL_MAX := Vector2(760, 600)
 const SCREEN_MARGIN := 24.0
 
@@ -92,13 +92,7 @@ func _build() -> void:
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(dim)
 	_panel = PanelContainer.new()
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.99, 0.95, 0.86)
-	style.set_border_width_all(6)
-	style.border_color = Color(0.55, 0.38, 0.25)
-	style.set_corner_radius_all(18)
-	style.set_content_margin_all(28)
-	_panel.add_theme_stylebox_override("panel", style)
+	_panel.add_theme_stylebox_override("panel", UiStyle.panel(28))
 	_panel.theme = _theme()
 	add_child(_panel)
 	var content := VBoxContainer.new()

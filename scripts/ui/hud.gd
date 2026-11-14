@@ -50,6 +50,7 @@ var _order_times_left := 0.0
 
 
 func _ready() -> void:
+	_apply_style()
 	order_board.changed.connect(_refresh_orders)
 	GameEvents.message.connect(_show_message)
 	_refresh_orders()
@@ -299,3 +300,13 @@ func _refresh_messages() -> void:
 	for message in _messages:
 		lines.append(message["text"])
 	message_label.text = "\n".join(lines)
+
+
+# The palette from data/ui_style.json: cream text on a dark wood outline, the
+# money and the date in lantern yellow, a streak in leaf green.
+func _apply_style() -> void:
+	for label in [orders_label, message_label, join_label, time_label]:
+		UiStyle.hud_label(label)
+	for label in [money_label, date_label]:
+		UiStyle.hud_label(label, "money")
+	UiStyle.hud_label(streak_label, "streak")

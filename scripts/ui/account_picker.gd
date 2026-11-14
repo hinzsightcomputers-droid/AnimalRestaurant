@@ -33,6 +33,7 @@ var _typed_on_keyboard := false  # True once this player typed on a real keyboar
 
 
 func _ready() -> void:
+	UiStyle.restyle_panel($Panel)
 	visible = false
 	name_edit.text_submitted.connect(func(_text): _create_new())
 	new_button.pressed.connect(_create_new)

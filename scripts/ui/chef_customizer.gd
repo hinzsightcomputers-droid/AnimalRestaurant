@@ -20,8 +20,7 @@ const MAX_FACE_PAINT := 3
 const SPIN_SPEED := 0.5  # Radians a second while spinning and nobody's turning them.
 const BODY_VIEW := [Vector3(0, 1.0, 3.6), Vector3(0, 0.85, 0)]  # Camera position, looking at.
 const FACE_VIEW := [Vector3(0, 1.3, 2.4), Vector3(0, 1.22, 0)]
-const INK := Color(0.3, 0.22, 0.15)
-const PAPER := Color(0.99, 0.95, 0.86)
+const INK := Color("#502312")
 
 var account_id := ""
 var can_cancel := true
@@ -268,7 +267,7 @@ func _slot_options(slot: String, none_text: String) -> void:
 
 func _heading(text: String) -> void:
 	var label := _label(text, 22)
-	label.add_theme_color_override("font_color", Color(0.45, 0.28, 0.16))
+	label.add_theme_color_override("font_color", Color("#71412C"))
 
 
 func _label(text: String, font_size: int) -> Label:
@@ -377,13 +376,7 @@ func _build() -> void:
 		margin.add_theme_constant_override("margin_" + side, 24)
 	add_child(margin)
 	var panel := PanelContainer.new()
-	var style := StyleBoxFlat.new()
-	style.bg_color = PAPER
-	style.set_border_width_all(6)
-	style.border_color = Color(0.55, 0.38, 0.25)
-	style.set_corner_radius_all(18)
-	style.set_content_margin_all(20)
-	panel.add_theme_stylebox_override("panel", style)
+	panel.add_theme_stylebox_override("panel", UiStyle.panel(20))
 	margin.add_child(panel)
 	panel.theme = _theme()
 	_layout.add_theme_constant_override("separation", 20)
@@ -398,7 +391,7 @@ func _build() -> void:
 	_layout.add_child(side)
 	_title.text = "Make your chef" if not Accounts.has_appearance(account_id) else "%s's look" % Accounts.get_account(account_id).get("name", "Chef")
 	_title.add_theme_font_size_override("font_size", 30)
-	_title.add_theme_color_override("font_color", Color(0.45, 0.28, 0.16))
+	_title.add_theme_color_override("font_color", Color("#71412C"))
 	side.add_child(_title)
 	var tabs := HFlowContainer.new()
 	tabs.add_theme_constant_override("h_separation", 6)

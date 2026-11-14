@@ -16,8 +16,8 @@ const CARD_SIZE := Vector2(150, 150)
 const PREVIEW_SIZE := Vector2i(150, 110)
 const PANEL_MAX := Vector2(1000, 680)
 const SCREEN_MARGIN := 24.0
-const BROWN := Color(0.45, 0.28, 0.16)
-const TEXT := Color(0.3, 0.22, 0.15)
+const BROWN := Color("#71412C")
+const TEXT := Color("#502312")
 const WHERE_WORDS := { "oak": "under the oaks", "pine": "under the pines", "meadow": "in the grass", "pond": "by the pond", "beach": "on the beach" }
 
 signal closed
@@ -103,13 +103,7 @@ func _build() -> void:
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(dim)
 	_panel = PanelContainer.new()
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.99, 0.95, 0.86)
-	style.set_border_width_all(6)
-	style.border_color = Color(0.55, 0.38, 0.25)
-	style.set_corner_radius_all(18)
-	style.set_content_margin_all(24)
-	_panel.add_theme_stylebox_override("panel", style)
+	_panel.add_theme_stylebox_override("panel", UiStyle.panel(24))
 	add_child(_panel)
 	var content := VBoxContainer.new()
 	content.add_theme_constant_override("separation", 12)
@@ -218,7 +212,7 @@ func _add_card(entry: Dictionary) -> void:
 	normal.border_color = normal.bg_color
 	normal.set_content_margin_all(4)
 	var focused: StyleBoxFlat = normal.duplicate()
-	focused.border_color = Color(0.85, 0.45, 0.15)
+	focused.border_color = Color("#E07228")
 	card.add_theme_stylebox_override("panel", normal)
 	card.focus_entered.connect(func():
 		card.add_theme_stylebox_override("panel", focused)

@@ -6,23 +6,23 @@
 class_name MenuTheme
 extends RefCounted
 
-const RING_COLOR := Color(1.0, 0.62, 0.12)
-const FILL_COLOR := Color(1.0, 0.8, 0.3, 0.35)
-const PICKED_TEXT := Color(1.0, 0.97, 0.85)
 const FOCUSABLE := ["Button", "CheckBox", "CheckButton", "OptionButton", "LineEdit", "HSlider", "VSlider", "SpinBox", "ItemList", "TabBar"]
 
 
 static func apply() -> void:
 	var theme := ThemeDB.get_default_theme()
+	UiStyle.apply_to(theme)  # The palette's buttons first; the highlight goes over them.
+	var focus: Dictionary = UiStyle.data().get("focus", {})
 	var ring := StyleBoxFlat.new()
-	ring.bg_color = FILL_COLOR
+	ring.bg_color = UiStyle.role("focus", "fill")
+	ring.bg_color.a = float(focus.get("fill_alpha", 0.35))
 	ring.set_border_width_all(4)
-	ring.border_color = RING_COLOR
+	ring.border_color = UiStyle.role("focus", "ring")
 	ring.set_corner_radius_all(6)
 	ring.set_expand_margin_all(3)
 	for type in FOCUSABLE:
 		theme.set_stylebox("focus", type, ring)
-	theme.set_color("font_focus_color", "Button", PICKED_TEXT)
+	theme.set_color("font_focus_color", "Button", UiStyle.role("focus", "text"))
 	# Hovering looks like the button's normal self: the ring is the only highlight.
 	theme.set_stylebox("hover", "Button", theme.get_stylebox("normal", "Button"))
 	theme.set_color("font_hover_color", "Button", theme.get_color("font_color", "Button"))

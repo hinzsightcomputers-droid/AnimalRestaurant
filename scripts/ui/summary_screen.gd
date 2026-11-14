@@ -48,6 +48,7 @@ var _rating_button: Button
 
 
 func _ready() -> void:
+	UiStyle.restyle_panel(panel)
 	visible = false
 	day_manager.day_ended.connect(_show_summary)
 	day_manager.summary_requested.connect(func(): _show_summary(DayCycle.summary, true))

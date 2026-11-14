@@ -19,7 +19,7 @@ const DELETE_KEY := "Del"
 # Mid-tone colors that read both on the sign and in the cream dialogue box.
 # (No sky blue: that's the chef's own name in the dialogue box.)
 const COLORS := ["#d1453b", "#e0780f", "#c99a06", "#3f8a3a", "#1f8f8a", "#3a5bc7", "#8a4fc4", "#d14f8f"]
-const TEXT_COLOR := Color(0.25, 0.18, 0.12)
+const TEXT_COLOR := Color("#502312")
 
 var _name_edit := LineEdit.new()
 var _letters := GridContainer.new()
@@ -40,13 +40,7 @@ func _ready() -> void:
 	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	panel.offset_bottom = -16
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(1.0, 0.97, 0.9, 0.96)
-	style.border_color = Color(0.55, 0.4, 0.28)
-	style.set_border_width_all(3)
-	style.set_corner_radius_all(14)
-	style.set_content_margin_all(18)
-	panel.add_theme_stylebox_override("panel", style)
+	panel.add_theme_stylebox_override("panel", UiStyle.panel(18))
 	add_child(panel)
 
 	var column := VBoxContainer.new()
@@ -219,6 +213,6 @@ func _swatch_style(color: Color, selected: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = color
 	style.set_corner_radius_all(8)
-	style.border_color = Color(0.25, 0.18, 0.12) if selected else Color(1, 1, 1, 0.6)
+	style.border_color = Color("#502312") if selected else Color(1, 1, 1, 0.6)
 	style.set_border_width_all(4 if selected else 2)
 	return style
