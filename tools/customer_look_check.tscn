@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tools/customer_look_check.gd" id="1"]
+
+[node name="CustomerLookCheck" type="Node"]
+script = ExtResource("1")
