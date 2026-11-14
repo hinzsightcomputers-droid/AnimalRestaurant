@@ -1,0 +1,22 @@
+{
+	"_about": "The restaurant's stages (see the GDD's Restaurant stages). Each needs its star rating ('stars') and a fee, bought in the shop at the host stand (or the end-of-day shop) once you have both; the crew builds it overnight and the next day opens on it ('reveal' is announced). Names, fees, descriptions and what each adds are PLACEHOLDERS until the user sets them. 'built': false means the layout isn't made yet, so the shop shows it but can't sell it. 'arrival_bonus' adds to the customer cap (ArrivalPacing). Layout (stage 2): 'grow_left' meters the dining room is knocked through to the left (its left wall moves out, and so do the decor spots on it and the furniture and plants standing against it; the floor decor grid grows to match), and 'tables' are new tables there: at [x, z], with a 'spot' name (said in 'got the nook table' and used by regulars' favourite tables).",
+	"stages": [
+		{ "stage": 1, "name": "Corner Diner", "stars": 1, "fee": 0, "built": true,
+			"description": "Where it all started." },
+		{ "stage": 2, "name": "Cozy Bistro", "stars": 2, "fee": 800, "built": true,
+			"description": "The crew knocks through the dining room's left wall overnight: two more tables, and room for more decor on the new wall.",
+			"reveal": "The crew worked through the night: welcome to the Cozy Bistro!",
+			"arrival_bonus": 1,
+			"grow_left": 3.0,
+			"tables": [
+				{ "at": [-6.6, -0.8], "spot": "nook" },
+				{ "at": [-6.6, 2.2], "spot": "bay" }
+			] },
+		{ "stage": 3, "name": "Neighborhood Restaurant", "stars": 3, "fee": 3000, "built": false,
+			"description": "A bigger kitchen with a second prep area, counter seats and dining by the pond." },
+		{ "stage": 4, "name": "Town Favorite", "stars": 4, "fee": 7000, "built": false,
+			"description": "An upstairs room, the restaurant's own delivery car, and decor outside." },
+		{ "stage": 5, "name": "Landmark", "stars": 5, "fee": 15000, "built": false,
+			"description": "A full renovation with a signature look, event nights and visitors from out of town." }
+	]
+}

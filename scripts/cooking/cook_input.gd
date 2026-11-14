@@ -25,6 +25,11 @@ var using_mouse := false       # The mouse moved the cursor last (rather than th
 var scripted := false          # A reel is playing: the step plays itself (CookAction.scripted_hold), and nothing real counts.
 
 const SCRIPTED_HAND_SPEED := 0.9  # Meters a second a reel's chef moves the cursor.
+# The keys start the cursor slow, so a tap can aim to a few millimeters (a
+# perfect topping or cover is within about 6 mm), and speed up to full while held.
+const KEY_START_SHARE := 0.15     # Of the full key speed, at first...
+const KEY_SLOW_SECONDS := 0.2     # ...for this long...
+const KEY_FULL_SECONDS := 0.55    # ...reaching full speed by this long held.
 
 var _session: CookSession
 var _player_index: int
@@ -37,6 +42,7 @@ var _mouse_trail: Array = []   # [time, point on the surface] for the last momen
 var _mouse_flicked := false
 var _wait_for_release := true  # Until every button's been let go once.
 var _keys_down := {}           # Direction keys held at the last update (for _key_flick).
+var _key_move_time := 0.0      # Seconds the direction keys have been moving the cursor.
 var _scripted_step: CookAction = null  # The step a reel's hand was last on: a new one starts with the button up.
 
 
@@ -68,8 +74,11 @@ func update(delta: float) -> void:
 		using_mouse = true
 	elif raw.length() > InputSetup.DEADZONE:
 		using_mouse = false
+		_key_move_time += delta
 		var move := _on_surface(raw) * _cursor_speed(raw) * delta
 		cursor += Vector3(move.x, 0.0, move.y)
+	if raw.length() <= InputSetup.DEADZONE:
+		_key_move_time = 0.0
 	cursor = _session.clamp_to_bounds(cursor)
 	cursor.y = height
 	stick = _on_surface(raw).limit_length(1.0) if raw.length() > InputSetup.DEADZONE else Vector2.ZERO
@@ -107,10 +116,12 @@ func _press(now_held: bool) -> void:
 
 # Meters a second for this push: on a gamepad, from nothing at the edge of the
 # deadzone up to pad_cursor_speed at full tilt (so a light touch can still aim);
-# the keys, always cursor_speed. Both times the player's setting (Settings).
+# the keys, slow at first and up to cursor_speed while held (KEY_*). Both
+# times the player's setting (Settings).
 func _cursor_speed(raw: Vector2) -> float:
 	if InputSetup.pad_of(_player_index) < 0:
-		return _session.cursor_speed * Settings.key_cursor_speed
+		var ramp := clampf((_key_move_time - KEY_SLOW_SECONDS) / (KEY_FULL_SECONDS - KEY_SLOW_SECONDS), 0.0, 1.0)
+		return _session.cursor_speed * Settings.key_cursor_speed * lerpf(KEY_START_SHARE, 1.0, ramp * ramp)
 	var tilt := clampf((raw.length() - InputSetup.DEADZONE) / (1.0 - InputSetup.DEADZONE), 0.0, 1.0)
 	return _session.pad_cursor_speed * Settings.pad_cursor_speed * tilt / maxf(raw.length(), 0.001)  # / length: _on_surface(raw) is already that long.
 

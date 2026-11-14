@@ -7,8 +7,30 @@ class_name Decor
 extends RefCounted
 
 
+# data/decor.json, with the floor grow by what stages knocked through
+# (Stages.grown_left): the grid and the paths along the room reach the new
+# left wall, and the new tables are kept clear.
+static var _staged: Dictionary = {}
+static var _staged_for := -1.0
+
 static func settings() -> Dictionary:
-	return GameData.decor
+	var grown := Stages.grown_left()
+	if grown <= 0.0:
+		return GameData.decor
+	if _staged_for != grown or _staged.is_empty():
+		_staged_for = grown
+		_staged = GameData.decor.duplicate(true)
+		_staged["grid"]["min"][0] = float(_staged["grid"]["min"][0]) - grown
+		var clear: Array = _staged.get("keep_clear", [])
+		for rect in clear:
+			if float(rect[0]) <= LEFT_WALL_X:
+				rect[0] = float(rect[0]) - grown
+		for stage in range(2, GameState.stage + 1):
+			for table in Stages.info(stage).get("tables", []):
+				var at: Array = table.get("at", [0.0, 0.0])
+				clear.append([float(at[0]) - 1.6, float(at[1]) - 0.9, float(at[0]) + 1.6, float(at[1]) + 0.9])
+		_staged["keep_clear"] = clear
+	return _staged
 
 
 static func items() -> Array:
@@ -184,9 +206,15 @@ static func spot_taken(spot: int) -> bool:
 	return GameState.decor_placed.any(func(placed): return int(placed.get("spot", -1)) == spot)
 
 
+# Spots on the dining room's left wall move out with it when a stage knocks it through (Stages.grown_left).
+const LEFT_WALL_X := -6.5
+
 static func spot_position(spot: int) -> Vector3:
 	var at: Array = settings().get("wall_spots", [])[spot]["at"]
-	return Vector3(at[0], at[1], at[2])
+	var x := float(at[0])
+	if x < LEFT_WALL_X:
+		x -= Stages.grown_left()
+	return Vector3(x, at[1], at[2])
 
 
 static func spot_turn(spot: int) -> int:

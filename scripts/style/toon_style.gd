@@ -28,6 +28,7 @@ const SLOW_SYNC_SECONDS := 0.1
 const SOURCE := &"toon_source"     # Meta on a toon material: a WeakRef to the material it copies.
 const FROM_MESH := &"toon_from_mesh"  # Meta on a toon material: its original was the mesh's own (not an override).
 const TWINS := [&"toon_twin", &"toon_twin_mesh"]  # Meta on an original: its toon material (as an override, as the mesh's own).
+const ORIGINALS := &"toon_originals"  # Meta on a mesh: the override materials its toon ones replaced, {slot: material} (-1: the whole mesh's), so they live on for switching back.
 const THIN := &"toon_thin"  # Meta on a mesh in a close-up, and on its toon materials: a thinner outline.
 const CLOSE_UP_OUTLINE := 0.5  # Close-ups are seen from very near: half the outline.
 
@@ -133,6 +134,7 @@ static func _convert(mesh: MeshInstance3D) -> void:
 		if whole.has_meta(SOURCE):
 			_sync(whole)
 		elif _convertible(whole):
+			_keep(mesh, -1, whole)
 			mesh.material_override = _toon_for(whole, false, thin)
 		elif whole is ShaderMaterial:
 			_tune(whole)
@@ -147,6 +149,7 @@ static func _convert(mesh: MeshInstance3D) -> void:
 				_sync(override)
 		elif override != null:
 			if _convertible(override):
+				_keep(mesh, surface, override)
 				mesh.set_surface_override_material(surface, _toon_for(override, false, thin))
 			elif override is ShaderMaterial:
 				_tune(override)
@@ -154,6 +157,15 @@ static func _convert(mesh: MeshInstance3D) -> void:
 			mesh.set_surface_override_material(surface, _toon_for(own, true, thin))
 		elif own is ShaderMaterial:
 			_tune(own)
+
+
+# An override the game made for this mesh (a customer's color, say) is held
+# only by the mesh, so once its toon twin takes its place nothing else would
+# keep it: the mesh holds it instead (a node, so no reference loop).
+static func _keep(mesh: MeshInstance3D, slot: int, original: Material) -> void:
+	var kept: Dictionary = mesh.get_meta(ORIGINALS, {})
+	kept[slot] = original
+	mesh.set_meta(ORIGINALS, kept)
 
 
 # Lit, opaque, ordinary materials. Not see-through ones, unshaded ones, ones
