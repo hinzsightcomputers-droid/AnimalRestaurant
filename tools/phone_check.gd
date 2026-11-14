@@ -47,6 +47,13 @@ var speaker_id := \"\"
 	# It held with its time left (the whole ring here), and gets at least ring_after_chat_seconds.
 	await get_tree().create_timer(maxf(ring, float(GameData.phone_settings.get("ring_after_chat_seconds", 8.0))) - 4.0 + 1.0).timeout
 	ok = _check("voicemail once it rang out", not phone.is_ringing() and GameState.voicemails.size() == before + 1) and ok
+	# Whoever rang doesn't ring again this meal, even with the phone forgetting
+	# who rang last (as after a restart).
+	if call["kind"] == "townsfolk":
+		var again := false
+		for i in 200:
+			again = again or PhoneCalls.next_call("", false).get("id", "") == call["id"]
+		ok = _check("%s doesn't phone again this meal" % call["id"], not again) and ok
 	print("PHONE ", "ALL OK" if ok else "FAILED")
 	get_tree().quit(0 if ok else 1)
 

@@ -16,6 +16,8 @@ extends RefCounted
 # Who rings next (Withdrawn regulars first, sometimes a friend just to chat,
 # otherwise someone from town), or {} if nobody. Skips anyone already waiting
 # in voicemail, and `last_id` so the same townsfolk don't call twice in a row.
+# Townsfolk phone at most once a meal (and once a night), saved, so a restart
+# or a new day's reload doesn't let them straight back on the line.
 # Regulars mostly call at `night` (in the day their chance is scaled by
 # regular_day_call_factor); townsfolk marked night_only only call at night,
 # and are likelier then (night_only_weight).
@@ -28,7 +30,9 @@ static func next_call(last_id := "", night := false) -> Dictionary:
 		var ids := GameState.regulars.keys().filter(func(id): return _calls_today(id, kind) and not id in waiting)
 		if not ids.is_empty() and randf() < chance:
 			return { "kind": kind, "id": ids.pick_random() }
-	var awake := GameData.callers.filter(func(c): return (night or not c.get("night_only", false)) and Townsfolk.is_in_town(c["id"]))
+	var slot := _call_slot()
+	var awake := GameData.callers.filter(func(c): return (night or not c.get("night_only", false)) and Townsfolk.is_in_town(c["id"]) \
+			and GameState.townsfolk.get(c["id"], {}).get("phoned", "") != slot)
 	var townsfolk := awake.filter(func(c): return c["id"] != last_id and not c["id"] in waiting)
 	if townsfolk.is_empty():
 		townsfolk = awake
@@ -65,9 +69,17 @@ static func _right_stage(regular_id: String, kind: String) -> bool:
 
 
 # The phone starts ringing for `call`: a regular counts as having called today.
+# Townsfolk count as having called this meal (see next_call).
 static func start_ringing(call: Dictionary) -> void:
 	if call["kind"] != "townsfolk" and GameState.regulars.has(call["id"]):
 		GameState.regulars[call["id"]]["last_called"] = GameState.date
+	elif call["kind"] == "townsfolk" and GameState.townsfolk.has(call["id"]):
+		GameState.townsfolk[call["id"]]["phoned"] = _call_slot()
+
+
+# Today's date and the part of the day, e.g. "2026-11-13 breakfast" or "2026-11-13 night".
+static func _call_slot() -> String:
+	return "%s %s" % [GameState.date, DayCycle.phase_id()]
 
 
 # Everything said on `call`, for chef `chef_id` (live or played back from
