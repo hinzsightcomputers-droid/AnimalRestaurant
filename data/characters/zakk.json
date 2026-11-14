@@ -3,6 +3,7 @@
 	"name": "Zakk",
 	"them": "him",
 	"species": "penguin",
+	"model": { "path": "res://design/characters/Zakk/zakk.tscn", "height": 1.0, "sit_drop": 0.12, "lean_keep": 0.3, "line_up": ["sit_down"], "clip_parts": { "sit_down": [5.3, 6.8], "stand_up": [0.6, 2.27], "sit": [0.0, 2.4], "idle": [2.2, 2.3] }, "animations": { "sit_down": "Walk_to_Sit", "stand_up": "Sit_to_standTransition_Female_2", "walk": "Walking", "idle": "Sit_to_standTransition_Female_2", "talk": "Talk_with_Left_Hand_on_Hip", "sit": "Sit_and_Doze_Off", "sit_talk": "Sitting_Answering_Questions" } },
 	"visit_window": ["dinner_rush"],
 	"name_color": "#2f5f8a",
 	"color": "#2b2f3a",

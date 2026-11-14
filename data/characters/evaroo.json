@@ -3,6 +3,7 @@
 	"name": "Evaroo",
 	"them": "him",
 	"species": "kangaroo",
+	"model": { "path": "res://design/characters/Evaroo/evaroo.tscn", "height": 1.35, "sit_drop": 0.12, "lean_keep": 0.3, "line_up": ["sit_down"], "clip_parts": { "sit_down": [5.3, 6.8], "stand_up": [0.6, 2.27], "idle": [2.2, 2.3] }, "animations": { "sit_down": "Walk_to_Sit", "stand_up": "Sit_to_standTransition_Female_2", "walk": "Walking", "idle": "Sit_to_standTransition_Female_2", "talk": "Talk_Passionately", "sit": "_01a1aa81_c510_7065_b92d_e7893f844577", "sit_talk": "Sitting_Answering_Questions" } },
 	"visit_window": ["afternoon"],
 	"name_color": "#a8642a",
 	"color": "#c9a26e",

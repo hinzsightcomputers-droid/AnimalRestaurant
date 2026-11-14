@@ -361,10 +361,53 @@ func _load_model() -> void:
 	_sit_drop = float(settings.get("sit_drop", 0.0))
 	_sit_forward = float(settings.get("sit_forward", 0.0))
 	_talk_turn = deg_to_rad(float(settings.get("talk_turn", 0.0)))
+	for what in settings.get("line_up", []):
+		_line_up(what, "sit")
 	HeadTurn.attach(_model)  # Looks at a chef nearby.
 
 
-# { path, height, animations, hold, clip_parts, lean_keep, sit_drop, sit_forward, talk_turn }: the regular's (or named townsfolk's) own
+# A clip that travels as it goes (Meshy's Walk_to_Sit walks a metre and turns
+# before it sits) is moved so the end of the part used ("what", in clip_parts)
+# has the hips where the `onto` clip has them, and the model sits on the chair,
+# not a metre past it. Only across the floor: heights are the clip's own. Done
+# once per clip; every model loaded from that file shares it.
+func _line_up(what: String, onto: String) -> void:
+	if _animations == null or _skeleton == null:
+		return
+	var moving_name: String = _clips.get(what, what)
+	var onto_name: String = _clips.get(onto, onto)
+	if not _animations.has_animation(moving_name) or not _animations.has_animation(onto_name):
+		return
+	var moving := _animations.get_animation(moving_name)
+	if moving.has_meta("lined_up"):
+		return
+	var onto_clip := _animations.get_animation(onto_name)
+	var moving_track := _hips_track(moving)
+	var onto_track := _hips_track(onto_clip)
+	if moving_track < 0 or onto_track < 0:
+		return
+	var part: Array = _clip_parts.get(what, [])
+	var onto_part: Array = _clip_parts.get(onto, [])
+	var end: Vector3 = moving.position_track_interpolate(moving_track, float(part[1]) if not part.is_empty() else moving.length)
+	var target: Vector3 = onto_clip.position_track_interpolate(onto_track, float(onto_part[0]) if not onto_part.is_empty() else 0.0)
+	var shift := Vector3(end.x - target.x, 0.0, end.z - target.z)
+	for key in moving.track_get_key_count(moving_track):
+		moving.track_set_key_value(moving_track, key, moving.track_get_key_value(moving_track, key) - shift)
+	moving.set_meta("lined_up", true)
+
+
+# The clip's track moving the hips bone (the root of a Mixamo rig), or -1.
+func _hips_track(clip: Animation) -> int:
+	for track in clip.get_track_count():
+		if clip.track_get_type(track) != Animation.TYPE_POSITION_3D:
+			continue
+		var bone := String(clip.track_get_path(track).get_concatenated_subnames())
+		if bone in ["mixamorig_Hips", "Hips", "hips"]:
+			return track
+	return -1
+
+
+# { path, height, animations, hold, clip_parts, line_up, lean_keep, sit_drop, sit_forward, talk_turn }: the regular's (or named townsfolk's) own
 # model, or one of their species'. "animations" names its clips, if not as in
 # regular_settings.model_animations.
 func _model_settings() -> Dictionary:
