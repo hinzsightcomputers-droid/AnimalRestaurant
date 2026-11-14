@@ -30,6 +30,16 @@ var _chopping := false
 var _time := 0.0
 var _last_beat := -1
 var _rhythm: Array[float] = []
+var _tick_at := 0.0                        # When the last tick was played (_time).
+
+# How long after a tick is played the player hears it and presses: the sound
+# card's delay (much more with Bluetooth headphones) plus how they hear the
+# beat. Learned from their chops, so pressing right on the sound is perfect
+# whatever they're listening on. Kept for the whole run.
+static var _heard_after := -1.0
+const HEARD_AFTER_START := 0.04            # Before anything's learned, on top of the reported output latency.
+const HEARD_AFTER_MAX := 0.3
+const HEARD_AFTER_LEARN := 0.5             # How much each close chop moves it.
 
 
 # Lay `node` along the board from x `left` to `right` (radius `left_radius` to
@@ -91,6 +101,7 @@ func update(delta: float, input: CookInput) -> void:
 	var beat := int(_time / beat_seconds)
 	if beat != _last_beat and not marks.is_empty():
 		_last_beat = beat
+		_tick_at = _time
 		session.play_sound("tick", _knife.position, -10.0, 0.8)
 		if not _piece["mark_nodes"].is_empty():
 			_pulse(_piece["mark_nodes"][0])
@@ -122,14 +133,25 @@ func _over_next() -> Vector3:
 func _chop() -> void:
 	_chopping = true
 	var x: float = _piece["marks"][0]
-	var off_beat := fmod(_time, beat_seconds)  # Judged when you press, not when the knife lands.
-	off_beat = minf(off_beat, beat_seconds - off_beat)
+	var off_beat := _off_beat()
 	var on_beat := 1.0 - clampf((off_beat - perfect_seconds) / (beat_tolerance - perfect_seconds), 0.0, 1.0)
 	var tween := _knife.create_tween()
 	tween.tween_property(_knife, "position", Vector3(x, _board_y, _piece["z"]), chop_seconds).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	tween.tween_callback(_land.bind(x, on_beat))
 	tween.tween_property(_knife, "position:y", _board_y + knife_height, chop_seconds * 2.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	tween.tween_callback(func(): _chopping = false)
+
+
+# Seconds between this press and the nearest tick as the player hears it
+# (judged when you press, not when the knife lands), learning their delay.
+func _off_beat() -> float:
+	if _heard_after < 0.0:
+		_heard_after = AudioServer.get_output_latency() + HEARD_AFTER_START
+	# Early (negative) or late against the last tick heard, or the next one.
+	var off := wrapf(_time - _tick_at - _heard_after, -beat_seconds * 0.5, beat_seconds * 0.5)
+	if absf(off) < beat_seconds * 0.49:  # Any press in a rhythm is a try at the beat: learn from it (not one dead between two ticks).
+		_heard_after = clampf(_heard_after + off * HEARD_AFTER_LEARN, 0.0, HEARD_AFTER_MAX)
+	return absf(off)
 
 
 func _land(x: float, on_beat: float) -> void:
