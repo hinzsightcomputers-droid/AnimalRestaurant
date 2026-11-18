@@ -36,7 +36,7 @@ signal line_place_changed(customer: Customer)  # Moved up the line at the host s
 
 @export var walk_speed := 2.0
 @export var turn_speed := 10.0
-@export var eat_duration := 4.0  # Regulars stay longer (eating_seconds in data/regulars.json).
+@export var eat_duration := 4.0  # Set from walk_in_eating_seconds (data/service.json); regulars stay longer (eating_seconds in data/regulars.json).
 
 var state: State = State.ARRIVING
 var species: Dictionary = {}  # From data/species.json
@@ -116,6 +116,7 @@ func setup(species_data: Dictionary, dish_data: Dictionary, reserved_seat: Seat)
 	dish = dish_data
 	seat = reserved_seat
 	display_name = species.get("name", "Customer")
+	eat_duration = float(GameData.service.get("walk_in_eating_seconds", eat_duration))  # Regulars get their own after this.
 
 
 func is_regular() -> bool:
@@ -156,14 +157,17 @@ func _prompt_for(player_index: int) -> String:
 		State.WAITING_DRINK_ORDER:
 			return "Take drink order" if held == null else ""
 		State.WAITING_FOR_DRINK:
-			if held is Drink:
-				return "Give %s" % held.display_name()
+			var drinks := player.carried().filter(func(item): return item is Drink)
+			if not drinks.is_empty():
+				var theirs := drinks.filter(func(item): return not drink_secret and item.id() == drink.get("id", ""))
+				return "Give %s" % (theirs[0] if not theirs.is_empty() else drinks[0]).display_name()
 			return "Check drink" if held == null else ""
 		State.WAITING_FOOD_ORDER:
 			return "Take order" if held == null else ""
 		State.WAITING_FOR_FOOD:
 			if held is CookedDish:
-				return interactable.prompt if held.order.customer == self else ""
+				var mine := player.carried().any(func(item): return item is CookedDish and item.order != null and item.order.customer == self)
+				return interactable.prompt if mine else ""
 			return "Check order" if held == null else ""
 		State.EATING:
 			return "Chat" if held == null and can_chat() else ""

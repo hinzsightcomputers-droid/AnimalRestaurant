@@ -52,11 +52,12 @@ func is_wiping() -> bool:
 
 
 # Called when a customer leaves; `at` is where their plate was, `dish` what they ate.
-func make_dirty(at: Vector3, dish: Dictionary = {}) -> void:
+# `spilled` false: they wiped up after themselves (Stitches), so just the plate.
+func make_dirty(at: Vector3, dish: Dictionary = {}, spilled := true) -> void:
 	var was_clean := is_clean()
 	dishes.append({ "at": at, "model": dish.get("dirty_model", PLATE_MODEL) })
 	var toward_middle := Vector3(global_position.x - at.x, 0.0, global_position.z - at.z).normalized()
-	for i in spills_per_dish:
+	for i in (spills_per_dish if spilled else 0):
 		var side := toward_middle.rotated(Vector3.UP, randf_range(0.6, 1.4) * (1.0 if i % 2 == 0 else -1.0))
 		spills.append(at + side * randf_range(0.22, 0.3))
 	_update_interactable()

@@ -2,9 +2,11 @@
 # a ketchup smile under a breakfast face. Hold the button to squeeze: a line of
 # sauce follows the bottle; let go to stop, hold again to carry on. Each dot
 # the line passes close to is ticked off. Done once they're all ticked, or once
-# you let go with at least done_share of them. It scores the share of dots
-# ticked, less a little for sauce that wandered off the guide, from
-# least_score up: it's meant to be easy.
+# you've let go for finish_after seconds with at least done_share of them (so
+# letting go to line up the next bit never ends it early). The guide is a dark
+# dotted line drawn over everything, so it shows on the pale plate in any
+# light. It scores the share of dots ticked, less a little for sauce that
+# wandered off the guide, from least_score up: it's meant to be easy.
 class_name SqueezeAction
 extends CookAction
 
@@ -20,6 +22,8 @@ extends CookAction
 @export var stray_from := 0.024                  # Sauce further than this from the guide is wasted.
 @export_range(0.0, 1.0) var done_share := 0.6
 @export_range(0.0, 1.0) var least_score := 0.4
+@export var finish_after := 1.5                  # Seconds let go (with done_share drawn) before it's done.
+@export var guide_color := Color(0.36, 0.2, 0.1, 0.85)
 @export var blob_radius := 0.006
 @export var spacing := 0.004
 @export var bottle_height := 0.04          # How high the nozzle is over the plate (lower still while squeezing).
@@ -30,6 +34,8 @@ extends CookAction
 var _guide: Array[Vector3] = []
 var _ticked: Array[bool] = []
 var _dot_nodes: Array[MeshInstance3D] = []
+var _dashes: Array[MeshInstance3D] = []  # The guide line between dots i and i + 1.
+var _let_go := 0.0  # Seconds since the button was let go.
 var _blob_mesh: CylinderMesh
 var _bottle: Node3D
 var _last = null   # Where the last blob went (Vector2), or null between squeezes.
@@ -65,17 +71,25 @@ func _begin() -> void:
 		_ticked.append(false)
 		var dot := MeshInstance3D.new()
 		var ball := SphereMesh.new()
-		ball.radius = 0.004
-		ball.height = 0.004
-		var material := StandardMaterial3D.new()
-		material.albedo_color = Color(1.0, 1.0, 1.0, 0.8)
-		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		ball.material = material
+		ball.radius = 0.005
+		ball.height = 0.005
+		ball.material = _guide_material()
 		dot.mesh = ball
 		dot.position = _guide[i] + Vector3(0.0, 0.002, 0.0)
 		session.add_child(dot)
 		_dot_nodes.append(dot)
+	for i in _guide.size() - 1:  # A thin line joining the dots.
+		var a := _guide[i] + Vector3(0.0, 0.002, 0.0)
+		var b := _guide[i + 1] + Vector3(0.0, 0.002, 0.0)
+		var dash := MeshInstance3D.new()
+		var bar := BoxMesh.new()
+		bar.size = Vector3(0.0018, 0.0008, a.distance_to(b))
+		bar.material = _guide_material(0.55)
+		dash.mesh = bar
+		session.add_child(dash)
+		dash.position = (a + b) * 0.5
+		dash.look_at(dash.global_transform * Vector3.ZERO + (session.global_transform.basis * (b - a)), Vector3.UP)
+		_dashes.append(dash)
 	_blob_mesh = CylinderMesh.new()
 	_blob_mesh.top_radius = blob_radius
 	_blob_mesh.bottom_radius = blob_radius
@@ -93,7 +107,7 @@ func _begin() -> void:
 
 
 func end() -> void:
-	for dot in _dot_nodes:
+	for dot in _dot_nodes + _dashes:
 		dot.queue_free()
 	_bottle.queue_free()
 	_sound.queue_free()
@@ -125,8 +139,9 @@ func update(delta: float, input: CookInput) -> void:
 		if _sound.playing:
 			_sound.stop()
 	var share := _share()
+	_let_go = 0.0 if squeezing or _blobs == 0 else _let_go + delta
 	session.set_status("%s: %d%% of the smile" % [sauce_name, roundi(share * 100.0)])
-	if share >= 1.0 or (input.just_released and share >= done_share):
+	if share >= 1.0 or (_let_go >= finish_after and share >= done_share):
 		var waste := float(_stray) / maxf(_blobs, 1)
 		var score := lerpf(least_score, 1.0, share) * (1.0 - 0.4 * waste)
 		session.pop_text("What a smile!" if score >= 0.85 else ("Cheeky grin" if score >= 0.6 else "A wonky smile"), view_point(), CookSession.mood_of(score))
@@ -160,8 +175,22 @@ func _squeeze(point: Vector2) -> void:
 		if gap <= tick_within and not _ticked[i]:
 			_ticked[i] = true
 			_dot_nodes[i].visible = false
+			for d in [i - 1, i]:  # A bit of line goes once both its ends are done.
+				if d >= 0 and d < _dashes.size() and _ticked[d] and _ticked[d + 1]:
+					_dashes[d].visible = false
 	if nearest > stray_from and _distance_to_curve(point) > stray_from:
 		_stray += 1
+
+
+# Dark, see-through and drawn over the food and the plate.
+func _guide_material(alpha := 1.0) -> StandardMaterial3D:
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color(guide_color, guide_color.a * alpha)
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.no_depth_test = true
+	material.render_priority = 1
+	return material
 
 
 func _share() -> float:

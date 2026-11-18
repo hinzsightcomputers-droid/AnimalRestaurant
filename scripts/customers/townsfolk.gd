@@ -101,6 +101,28 @@ static func pick_walk_in(progress := 0.0) -> Dictionary:
 	return {}
 
 
+# When pick_walk_in has nobody (today's visits are used up, or everyone in town
+# has been in): someone already met comes in again, so the walk-ins are always
+# the town's own and never a stranger. Those not in today first, then anyone
+# not inside right now (`inside`: townsfolk ids in the restaurant). {} if
+# there's nobody at all.
+static func pick_again(inside: Array) -> Dictionary:
+	var today := GameState.day_number
+	var met := GameData.townsfolk.filter(func(p):
+		var state: Dictionary = GameState.townsfolk.get(p["id"], {})
+		return state.get("in_town", false) and (int(state.get("visits", 0)) > 0 or state.has("first_day")) and not p["id"] in inside)
+	var not_today := met.filter(func(p): return int(GameState.townsfolk[p["id"]].get("last_visit", 0)) != today)
+	var pool := not_today if not not_today.is_empty() else met
+	if pool.is_empty():
+		return {}
+	var person: Dictionary = _longest_away(pool)
+	var state: Dictionary = GameState.townsfolk[person["id"]]
+	state["last_visit"] = today
+	state.erase("missed")
+	state["before_bell"] = false
+	return person
+
+
 # One of `people` at random, likelier the more days since they were last in
 # (up to MAX_AWAY_WEIGHT; someone never in counts as that).
 const MAX_AWAY_WEIGHT := 4

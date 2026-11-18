@@ -3,6 +3,10 @@
 	"_pay_scale": "Every price (dish and drink base_price) times this when a customer or delivery pays: lower to make money come slower.",
 	"pay_scale": 0.6,
 	"regular_stay_seconds": 180,
+	"_walk_in_eating_seconds": "How long townsfolk and other walk-ins (not regulars, see data/regulars.json eating_seconds) take over their food before they ask for the bill.",
+	"walk_in_eating_seconds": 15,
+	"_trays": "How many drinks or plates a chef can carry at once: the drink tray is there from the start, the food tray (1 = none) comes from the shop. Upgrades add to these with a drink_tray or food_tray bonus (data/upgrades.json).",
+	"trays": { "drinks": 2, "food": 1 },
 	"get_going_warning_seconds": 20,
 	"delivery_question_day": 3,
 	"delivery_question": "Do you deliver? I'd order every night if you did.",
@@ -24,7 +28,7 @@
 		"bill": ["Could I get the check?", "I'm all done. The bill, please!", "Check, please!"],
 		"get_going": ["I should get going soon..."]
 	},
-	"_semi_regulars": "Named townsfolk (data/townsfolk/, see Townsfolk and TownsfolkTalk). season_line_chance, last_meal_line_chance and eating_choice_chance are how often those lines come up; playful_miss_chance is how often a gamble like Odette's misses; away_real_days is how long before they mention you being closed. pair_chance: how often someone from their pairs walks in right behind them (if they're in town and haven't been in today); friend_line_chance: how often an eating line is a mention of a friend you've met (see TownsfolkFriends). Who walks in is one of those in town (not been yet today), else an unnamed walk-in. Anyone with no model is a plain body in their color. in_town: how many non-residents live here at once; visits_per_day: at most this many of them come in a day (the rest of the walk-ins are unnamed), new_per_day of those someone never served before, so the town is met a few at a time; stay_days and away_days: [min, max] days one stays before moving away, and is away before they can come back. favorite_chance: how often they order their favorite dish or drink when it can be had. moved_in and moved_away are the morning news ({name}).",
+	"_semi_regulars": "Named townsfolk (data/townsfolk/, see Townsfolk and TownsfolkTalk). season_line_chance, last_meal_line_chance and eating_choice_chance are how often those lines come up; playful_miss_chance is how often a gamble like Odette's misses; away_real_days is how long before they mention you being closed. pair_chance: how often someone from their pairs walks in right behind them (if they're in town and haven't been in today); friend_line_chance: how often an eating line is a mention of a friend you've met (see TownsfolkFriends). Who walks in is one of those in town (not been yet today), else someone already met comes in again (Townsfolk.pick_again). Anyone with no model is a plain body in their color. in_town: how many non-residents live here at once; visits_per_day: at most this many different ones come in a day (after that, someone already met comes in again: never a stranger), new_per_day of those someone never served before, so the town is met a few at a time; stay_days and away_days: [min, max] days one stays before moving away, and is away before they can come back. favorite_chance: how often they order their favorite dish or drink when it can be had. moved_in and moved_away are the morning news ({name}).",
 	"semi_regulars": {
 		"in_town": 3,
 		"visits_per_day": 8,

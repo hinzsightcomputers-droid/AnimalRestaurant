@@ -8,6 +8,7 @@ const OWN_VIEW_LAYER := 11  # Render layers 11-14: each player's own, see hide_f
 
 signal held_item_changed(item: RefCounted)
 signal tickets_changed
+signal tray_changed
 # Asks this player's camera to zoom in on a point / go back to following.
 # Stations and conversations use these so they never touch cameras directly.
 signal camera_focus_requested(point: Vector3, settings: CameraZoomSettings)
@@ -24,6 +25,7 @@ var decorating := false           # In Decorate mode: interact belongs to that, 
 var hidden_from_own_view := false  # In a close-up: their own camera leaves them out.
 var has_acted := false            # Becomes true the first time this player moves or interacts.
 var held_item: RefCounted = null  # What the player is carrying, e.g. a CookedDish.
+var tray: Array[RefCounted] = []  # More drinks or plates on a tray behind held_item (see tray_room).
 var tickets: Array[Order] = []    # Order tickets in their pocket, for the TicketWheel (hands stay free).
 var _interact_blocked := false    # See ignore_interact_until_released().
 var decor_carry := DecorCarry.new()  # Hold interact by placed decor to move it.
@@ -76,9 +78,86 @@ func own_view_layer() -> int:
 	return OWN_VIEW_LAYER + player_index
 
 
+# What's in their hands. Putting it down (null) brings up the next thing on
+# their tray, if they have one going.
 func set_held_item(item: RefCounted) -> void:
+	if item == null and not tray.is_empty():
+		item = tray.pop_front()
+		tray_changed.emit()
 	held_item = item
 	held_item_changed.emit(item)
+
+
+# Drinks or plates carried on a tray: "drinks", "food", or "" for anything else
+# (one thing at a time).
+static func tray_kind(item: RefCounted) -> String:
+	if item is Drink:
+		return "drinks"
+	if item is CookedDish:
+		return "food"
+	return ""
+
+
+# How many a tray of this kind holds: the drink tray's there from the start
+# and the food tray comes from the shop (data/service.json "trays", plus the
+# upgrades' "drink_tray"/"food_tray" bonuses). 1 means no tray.
+static func tray_capacity(kind: String) -> int:
+	if kind.is_empty():
+		return 1
+	var base := int(GameData.service.get("trays", {}).get(kind, 1))
+	return maxi(1, base + int(GameState.upgrade_bonus(kind.trim_suffix("s") + "_tray")))
+
+
+# How many things they're carrying (in hand and on the tray).
+func carrying() -> int:
+	return (0 if held_item == null else 1) + tray.size()
+
+
+# Whether the item can be picked up too: hands free, or it goes on the tray
+# with the same kind of thing while there's room.
+func can_take(item: RefCounted) -> bool:
+	if held_item == null:
+		return true
+	return tray_room(tray_kind(item))
+
+
+# Whether something of this kind could still go on their tray.
+func tray_room(kind: String) -> bool:
+	if held_item == null:
+		return true
+	return not kind.is_empty() and tray_kind(held_item) == kind and carrying() < tray_capacity(kind)
+
+
+# Pick it up: into free hands, else onto the tray (check can_take first).
+func take(item: RefCounted) -> void:
+	if held_item == null:
+		set_held_item(item)
+	else:
+		tray.append(item)
+		tray_changed.emit()
+
+
+# Everything they're carrying, the one in hand first.
+func carried() -> Array:
+	var all := [] if held_item == null else [held_item]
+	all.append_array(tray)
+	return all
+
+
+# Bring the first carried thing that passes the test into their hands (the
+# one there goes on the tray in its place). Whether there was one.
+func bring_to_hand(test: Callable) -> bool:
+	if held_item != null and test.call(held_item):
+		return true
+	for i in tray.size():
+		if test.call(tray[i]):
+			var item: RefCounted = tray[i]
+			tray[i] = held_item
+			held_item = item
+			tray_changed.emit()
+			held_item_changed.emit(item)
+			return true
+	return false
 
 
 func add_ticket(order: Order) -> void:

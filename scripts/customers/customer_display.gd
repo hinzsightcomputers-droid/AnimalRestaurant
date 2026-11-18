@@ -96,7 +96,9 @@ func _ready() -> void:
 
 func _on_state_changed(_customer: Customer) -> void:
 	var dish_name: String = customer.dish.get("name", "something")
-	meal.visible = customer.state == Customer.State.EATING
+	# Their plate stays in front of them, empty, while they wait for the bill;
+	# once they've paid the table has the dirty one (DiningTable.make_dirty).
+	meal.visible = customer.state in [Customer.State.EATING, Customer.State.WANTS_BILL]
 	bubble.visible = true
 	bubble.scale = Vector3.ONE
 	if _look != null and not meal.visible:
@@ -138,6 +140,13 @@ func _on_state_changed(_customer: Customer) -> void:
 				_look = customer.served_dish.show_look(meal, Vector3(0.0, PLATE_TOP, 0.0), PLATE_RADIUS)
 			food.visible = _look == null
 		Customer.State.WANTS_BILL:
+			food.visible = false  # All eaten.
+			if _look != null:
+				_look.queue_free()
+				_look = null
+			if _aura != null:
+				_aura.queue_free()
+				_aura = null
 			bubble.visible = false  # The receipt over their head says it (after their "Check, please!", see _on_spoke).
 		Customer.State.LEAVING:
 			bubble.visible = false  # Their goodbye was in the dialogue box; what they paid is announced.

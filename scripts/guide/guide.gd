@@ -151,7 +151,7 @@ func next_step(player: Player, claimed: Dictionary) -> Dictionary:
 			front.append(_job(counter, "seat", "seat_%d" % i))
 	jobs.append(front)
 	var pass_counter := _first(PassCounter) as PassCounter
-	jobs.append([_job(pass_counter.interactable if pass_counter != null and pass_counter.held_item != null else null, "pick_up", "pass")])
+	jobs.append([_job(pass_counter.interactable if pass_counter != null and pass_counter.has_items() else null, "pick_up", "pass")])
 	var freezer := _first(Freezer) as Freezer
 	jobs.append([_job(freezer.interactable if freezer != null and order_board.next_to_gather() != null else null, "freezer", "freezer")])
 	var drinks := _first(DrinkStation) as DrinkStation
@@ -294,7 +294,7 @@ func _food_step(customer: Customer, words: Dictionary) -> Dictionary:
 	if order.state == Order.State.WAITING and order.on_wheel:
 		return _lesson_job(_spot(Freezer), "freezer", words, "freezer")
 	var pass_counter := _first(PassCounter) as PassCounter
-	if pass_counter != null and pass_counter.held_item is CookedDish and pass_counter.held_item.order == order:
+	if pass_counter != null and pass_counter.holds_order(order):
 		return _lesson_job(pass_counter.interactable, "pick_up", words, "pass")
 	return _wait("wait_food", words)
 

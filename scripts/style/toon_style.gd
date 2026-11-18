@@ -101,7 +101,11 @@ func _on_node_added(node: Node) -> void:
 		_fast.append(mesh)
 		mesh.set_meta(THIN, true)
 	if enabled:
-		_convert.call_deferred(mesh)  # Once the game has finished setting it up.
+		var ref: WeakRef = weakref(mesh)  # Once the game has finished setting it up (unless it's gone again by then).
+		(func():
+			var still: Object = ref.get_ref()
+			if still != null:
+				_convert(still as MeshInstance3D)).call_deferred()
 
 
 # Which watched thing `node` is part of, or &"".

@@ -47,7 +47,7 @@ func _ready() -> void:
 
 func _prompt_for(player_index: int) -> String:
 	var player := Player.find(get_tree(), player_index)
-	if player == null or _choosing or _pourer != null or player.held_item != null:
+	if player == null or _choosing or _pourer != null or not player.tray_room("drinks"):
 		return ""
 	if not _brewing.is_empty() and _brew_left <= 0.0:
 		return "Pour %s" % _brewing["name"]
@@ -58,8 +58,8 @@ func _on_interacted(player_index: int) -> void:
 	var player := Player.find(get_tree(), player_index)
 	if player == null or _choosing or _pourer != null or player.movement_locked:
 		return
-	if player.held_item != null:
-		GameEvents.announce("Your hands are full.")
+	if not player.tray_room("drinks"):
+		GameEvents.announce("Your hands are full." if Player.tray_kind(player.held_item) != "drinks" else "Your tray is full.")
 		return
 	if not _brewing.is_empty() and _brew_left <= 0.0:
 		var brewed := _brewing
@@ -104,7 +104,7 @@ func _choose(player: Player) -> void:
 			_show_cup(drink, 0.0)
 			GameEvents.announce("Brewing %s. Make something else meanwhile, or come back to pour it in a moment." % drink["name"])
 		_:
-			player.set_held_item(Drink.new(drink, 1.0))
+			player.take(Drink.new(drink, 1.0))
 			GameEvents.announce("Grabbed a %s from the fridge." % drink["name"])
 
 
@@ -136,9 +136,9 @@ func _drinks_to_make() -> Array:
 	if _pourer != null:
 		made.append(_pour_drink.get("id", ""))
 	for node in get_tree().get_nodes_in_group(Player.GROUP):
-		var held = (node as Player).held_item
-		if held is Drink:
-			made.append(held.id())
+		for held in (node as Player).carried():
+			if held is Drink:
+				made.append(held.id())
 	for id in made:
 		if id in wanted:
 			wanted.erase(id)
@@ -208,7 +208,7 @@ func _finish_pour(spilled: bool) -> void:
 	var quality := 0.2 if spilled else clampf(1.0 - absf(_fill - LINE) / 0.4, 0.1, 1.0)
 	_pourer = null
 	_pour = Pour.NONE
-	player.set_held_item(Drink.new(_pour_drink, quality))
+	player.take(Drink.new(_pour_drink, quality))
 	player.ignore_interact_until_released()
 	player.movement_locked = false
 	player.interactor.unlock()
