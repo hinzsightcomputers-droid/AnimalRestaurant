@@ -55,6 +55,8 @@ func _prompt_for(player_index: int) -> String:
 	var player := Player.find(get_tree(), player_index)
 	if player == null:
 		return ""
+	if _burner_tip_here(player):
+		return String(GameState.burner_tip.get("burner_prompt", "Turn the left burner down"))
 	var ingredients := player.held_item as Ingredients
 	if ingredients != null:
 		if not makes(ingredients.order.dish):
@@ -75,7 +77,35 @@ func _on_interacted(player_index: int) -> void:
 		if _cook != null and player_index == _cook.player_index:
 			minigame.press()
 		return
+	var player := Player.find(get_tree(), player_index)
+	if player != null and _burner_tip_here(player):
+		_turn_burner_down(player)
+		return
 	_try_start_cooking(player_index)
+
+
+# Someone told you to turn the left burner down, and this chef has free hands
+# at a stove: they can go and do it.
+func _burner_tip_here(player: Player) -> bool:
+	return not GameState.burner_tip.is_empty() and player.held_item == null and station_id == "stove" and not player.movement_locked
+
+
+# They turn it down, and say to themselves the line's "burner_reply".
+func _turn_burner_down(player: Player) -> void:
+	var tip: Dictionary = GameState.burner_tip
+	GameState.burner_tip = {}
+	_play_bounce()
+	var reply := String(tip.get("burner_reply", ""))
+	if reply.is_empty():
+		return
+	player.movement_locked = true
+	player.interactor.lock_to(interactable)
+	var box := ConversationBox.open(ConversationBox.parent_for(view_manager, player.player_index, self), player.player_index, "")
+	await box.tell(Accounts.name_of(player.player_index), reply)
+	box.close()
+	player.ignore_interact_until_released()
+	player.movement_locked = false
+	player.interactor.unlock()
 
 
 func _physics_process(delta: float) -> void:

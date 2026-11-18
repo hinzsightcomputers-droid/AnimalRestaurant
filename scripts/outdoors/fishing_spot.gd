@@ -16,8 +16,7 @@ const ROD_GRIP := Vector3(0.22, 0.8, -0.1)     # Where the rod is held, from the
 const ROD_TIP := Vector3(0.0, 0.55, -1.35)      # The tip, from the grip.
 const SHOW_OFF_DELAY := 0.9                     # Seconds after the catch before the chef holds it up...
 const SHOW_OFF_SECONDS := 2.4                   # ...and how long they do.
-const HOLD_UP := Vector3(0.3, 1.05, 0.3)        # Where the line's held: up by their hand, the fish hanging beside them.
-const LINE_DROP := 0.08                         # How much line between their hands and the fish.
+const HOLD_UP := Vector3(0.0, 0.78, 0.42)       # Where the fish is held: in both hands out in front, like a carried plate.
 
 @export var habitat := "pond"
 @export var water_y := -0.03                   # The water's surface, from the spot.
@@ -131,24 +130,14 @@ func _show_off(caught: Dictionary) -> void:
 	player.visual.rotation.y += PI
 	var chef := player.visual.get_node_or_null("Chef") as ChefModel
 	if chef != null:
-		chef.carrying = true  # Arms out, holding it up.
+		chef.carrying = true  # Arms out in front, holding it.
 	var length := clampf(caught["size"] / 100.0 * 2.0, 0.5, 0.9)  # Bigger than life, for the photo.
-	var held := Node3D.new()  # The line in their hands, the fish hanging off it nose up.
+	var held := Node3D.new()  # The fish lying level across their hands.
 	held.position = HOLD_UP
 	player.visual.add_child(held)
-	var line := MeshInstance3D.new()
-	var line_mesh := CylinderMesh.new()
-	line_mesh.top_radius = 0.004
-	line_mesh.bottom_radius = 0.004
-	line_mesh.height = LINE_DROP
-	line_mesh.material = _material(Color(0.95, 0.95, 0.9))
-	line.mesh = line_mesh
-	line.position.y = -LINE_DROP / 2.0
-	held.add_child(line)
 	var fish := Fishing.make_model(GameData.get_fish(caught["id"]), length)
-	# Nose up (it points along -z), then turned so its side faces the camera.
-	fish.basis = Basis(Vector3.UP, PI / 2.0) * Basis(Vector3.RIGHT, PI / 2.0)
-	fish.position.y = -LINE_DROP - length * 0.45
+	# It points along -z: turned to lie across them, its side to the camera in front.
+	fish.basis = Basis(Vector3.UP, PI / 2.0)
 	held.add_child(fish)
 	var zoom: CameraZoomSettings = _zoom.duplicate()
 	zoom.distance = 2.4
@@ -156,11 +145,11 @@ func _show_off(caught: Dictionary) -> void:
 	zoom.yaw_degrees = rad_to_deg(global_rotation.y)  # Where it was, behind them: now in front.
 	player.request_camera_focus(player.global_position + Vector3(0.0, 0.9, 0.0), zoom)
 	catch_held.emit()
-	var swing := held.create_tween()  # It swings on the line, slowing down.
+	var wiggle := held.create_tween()  # It flaps a little in their hands, settling down.
 	for i in 4:
-		var angle := 0.35 * pow(0.55, i)
-		swing.tween_property(held, "rotation:z", angle if i % 2 == 0 else -angle, 0.32).set_trans(Tween.TRANS_SINE)
-	swing.tween_property(held, "rotation:z", 0.0, 0.3).set_trans(Tween.TRANS_SINE)
+		var angle := 0.18 * pow(0.55, i)
+		wiggle.tween_property(fish, "rotation:x", angle if i % 2 == 0 else -angle, 0.2).set_trans(Tween.TRANS_SINE)
+	wiggle.tween_property(fish, "rotation:x", 0.0, 0.2).set_trans(Tween.TRANS_SINE)
 	await get_tree().create_timer(SHOW_OFF_SECONDS).timeout
 	held.queue_free()
 	if chef != null:

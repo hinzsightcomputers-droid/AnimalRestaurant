@@ -15,7 +15,7 @@ static var show_debug_line := false  # The debug panel's "Pacing line": shown li
 # from CustomerManager.status().
 static func debug_line(status: Dictionary) -> String:
 	var next := "next in %.1fs" % status["next"] if status["next"] >= 0.0 else ("full" if status["waiting"] >= status["cap"] else "nobody coming")
-	var line := "%s | %d player%s | cap %d | waiting %d | %s" % [status["phase"], status["players"], "" if status["players"] == 1 else "s", status["cap"], status["waiting"], next]
+	var line := "%s | %d player%s | cap %d | %s %d | %s" % [status["phase"], status["players"], "" if status["players"] == 1 else "s", status["cap"], status.get("counting", "waiting"), status["waiting"], next]
 	if status["regulars_to_come"] > 0:
 		line += " | %d regular%s to come" % [status["regulars_to_come"], "" if status["regulars_to_come"] == 1 else "s"]
 	return line
@@ -89,6 +89,12 @@ static func player_row(count := -1) -> Dictionary:
 # How many can be waiting for food at once at `elapsed` into meal `meal`.
 static func cap(meal: int, elapsed: float) -> int:
 	return maxi(1, int(player_row().get("cap", 2)) + int(phase_at(meal, elapsed).get("cap_add", 0)) + bonus())
+
+
+# Whether the cap counts everyone inside (till they've paid and left) at
+# `elapsed` into meal `meal`, rather than only those waiting for food.
+static func counts_inside(meal: int, elapsed: float) -> bool:
+	return String(phase_at(meal, elapsed).get("counts", "waiting")) == "inside"
 
 
 # What the hooks add to the cap: hired staff and the star rating.

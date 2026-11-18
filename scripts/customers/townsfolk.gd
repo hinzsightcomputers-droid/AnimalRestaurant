@@ -101,6 +101,41 @@ static func pick_walk_in(progress := 0.0) -> Dictionary:
 	return {}
 
 
+# When pick_walk_in has nobody (today's visits are used up, or everyone in town
+# has been in): someone already met comes in again, so the walk-ins are always
+# the town's own and never a stranger. Whoever's been in the fewest times
+# today (so it's spread around, not the same one over and over), and not
+# anyone inside right now (`inside`: townsfolk ids in the restaurant), and
+# nobody more than most_visits_each times a day. {} if there's nobody (the
+# doors stay quiet then).
+static func pick_again(inside: Array) -> Dictionary:
+	var today := GameState.day_number
+	var met := GameData.townsfolk.filter(func(p):
+		var state: Dictionary = GameState.townsfolk.get(p["id"], {})
+		return state.get("in_town", false) and (int(state.get("visits", 0)) > 0 or state.has("first_day")) and not p["id"] in inside)
+	if met.is_empty():
+		return {}
+	var times := func(p) -> int:
+		var state: Dictionary = GameState.townsfolk[p["id"]]
+		if int(state.get("last_visit", 0)) != today:
+			return 0
+		return int(state.get("again_today", 0)) + 1 if int(state.get("again_day", 0)) == today else 1
+	met = met.filter(func(p): return times.call(p) < int(settings().get("most_visits_each", 999)))
+	if met.is_empty():
+		return {}
+	var fewest: int = met.map(times).min()
+	var pool := met.filter(func(p): return times.call(p) == fewest)
+	var person: Dictionary = _longest_away(pool)
+	var state: Dictionary = GameState.townsfolk[person["id"]]
+	if int(state.get("last_visit", 0)) == today:  # Back again: counted, to spread the next ones around.
+		state["again_today"] = int(state.get("again_today", 0)) + 1 if int(state.get("again_day", 0)) == today else 1
+		state["again_day"] = today
+	state["last_visit"] = today
+	state.erase("missed")
+	state["before_bell"] = false
+	return person
+
+
 # One of `people` at random, likelier the more days since they were last in
 # (up to MAX_AWAY_WEIGHT; someone never in counts as that).
 const MAX_AWAY_WEIGHT := 4

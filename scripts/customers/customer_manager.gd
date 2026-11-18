@@ -238,13 +238,15 @@ func cap() -> int:
 	return ArrivalPacing.cap(_meal, meal_clock)
 
 
-# How many arrivals are waiting for food: walking in, at the host stand, being
-# seated, or at the table not served yet. Eating doesn't count, nor does a
-# friend who walked in with them.
+# How many arrivals the cap counts: those waiting for food (walking in, at the
+# host stand, being seated, or at the table not served yet), or in a phase
+# that counts everyone inside, eating and waiting for the bill too. A friend
+# who walked in with someone doesn't count.
 func waiting_count() -> int:
+	var inside := ArrivalPacing.counts_inside(_meal, meal_clock)
 	var count := 0
 	for child in get_children():
-		if child is Customer and child.paced and not child.is_queued_for_deletion() and child.state in WAITING_STATES:
+		if child is Customer and child.paced and not child.is_queued_for_deletion() and (child.state in WAITING_STATES or (inside and child.state in [Customer.State.EATING, Customer.State.WANTS_BILL])):
 			count += 1
 	return count
 
@@ -289,6 +291,7 @@ func status() -> Dictionary:
 		"players": ArrivalPacing.player_count(),
 		"cap": cap(),
 		"waiting": waiting_count(),
+		"counting": "inside" if ArrivalPacing.counts_inside(_meal, meal_clock) else "waiting",
 		"next": _next_in,
 		"regulars_to_come": _pending.size(),
 	}
@@ -352,6 +355,13 @@ func _spawn_next() -> bool:
 	var next := _next_customer()
 	if next.is_empty():
 		return false
+	if next["regular"].is_empty() and not next.get("critic", false):  # A walk-in: whoever from town is free. Nobody left today: nobody comes.
+		var person := Townsfolk.pick_walk_in(clampf(meal_clock / maxf(ArrivalPacing.arrivals_close_at(_meal), 1.0), 0.0, 1.0))
+		if person.is_empty():
+			person = Townsfolk.pick_again(get_children().filter(func(c): return c is Customer and c.is_townsfolk()).map(func(c): return c.townsfolk_id))
+		if person.is_empty():
+			return false
+		next["townsfolk"] = person
 	_spawn(next, true)
 	return true
 
@@ -367,6 +377,8 @@ func _spawn(next: Dictionary, paced: bool) -> void:
 	var person: Dictionary = next.get("townsfolk", {})
 	if person.is_empty() and regular.is_empty() and not critic:
 		person = Townsfolk.pick_walk_in(clampf(meal_clock / maxf(ArrivalPacing.arrivals_close_at(_meal), 1.0), 0.0, 1.0))
+		if person.is_empty():  # Never a stranger: someone from town comes in again.
+			person = Townsfolk.pick_again(get_children().filter(func(c): return c is Customer and c.is_townsfolk()).map(func(c): return c.townsfolk_id))
 	if paced and not person.is_empty() and _companion_in < 0.0:
 		_companion = TownsfolkFriends.pair_for(person["id"], ArrivalPacing.pair_scale())
 		if not _companion.is_empty():
@@ -578,7 +590,7 @@ func bills_to_print() -> int:
 			wanted += 1
 	for node in get_tree().get_nodes_in_group(Player.GROUP):
 		if node is Player and node.held_item is Receipt:
-			wanted -= 1
+			wanted -= (node.held_item as Receipt).count
 	return wanted
 
 
@@ -596,9 +608,10 @@ func _on_order_counter_used(_station: Station, player_index: int) -> void:
 	var player := Player.find(get_tree(), player_index)
 	if player == null or player.held_item != null:
 		return
-	if bills_to_print() > 0:
-		player.set_held_item(Receipt.new())
-		GameEvents.announce("%s printed the bill." % Accounts.name_of(player_index))
+	var bills := bills_to_print()
+	if bills > 0:  # Every bill that is waiting, in one go.
+		player.set_held_item(Receipt.new(bills))
+		GameEvents.announce("%s printed the bill." % Accounts.name_of(player_index) if bills == 1 else "%s printed %d bills." % [Accounts.name_of(player_index), bills])
 		return
 	var next := next_to_seat()
 	if next != null:
@@ -1488,6 +1501,12 @@ func _on_customer_interacted(player_index: int, customer: Customer) -> void:
 	# Not while still held in a moment, so one extra press doesn't use up the next step.
 	if player == null or player.movement_locked or customer in _busy:
 		return
+	# Carrying a tray: what's theirs comes to hand first.
+	if customer.state == Customer.State.WAITING_FOR_DRINK:
+		if not player.bring_to_hand(func(item): return item is Drink and not customer.drink_secret and item.id() == customer.drink.get("id", "")):
+			player.bring_to_hand(func(item): return item is Drink)
+	elif customer.state == Customer.State.WAITING_FOR_FOOD:
+		player.bring_to_hand(func(item): return item is CookedDish and item.order != null and item.order.customer == customer)
 	var held := player.held_item
 	match customer.state:
 		Customer.State.WAITING_TO_BE_SEATED:
@@ -1886,7 +1905,12 @@ func _on_customer_finished_eating(customer: Customer) -> void:
 # you deliver (the phone goes up the next morning).
 func _settle_bill(player: Player, customer: Customer) -> void:
 	_busy.append(customer)
-	player.set_held_item(null)
+	var receipt := player.held_item as Receipt
+	if receipt != null and receipt.count > 1:
+		receipt.count -= 1  # The rest stay in hand for the next table.
+		player.set_held_item(receipt)
+	else:
+		player.set_held_item(null)
 	var satisfaction := Satisfaction.calculate(customer.served_quality, customer.wait_seconds)
 	satisfaction = clampf(satisfaction + Satisfaction.drink_mood(customer.drink, customer.served_drink) + customer.visit_mood, 0.0, 1.0)
 	var reaction := Satisfaction.reaction_for(satisfaction)
@@ -1899,8 +1923,10 @@ func _settle_bill(player: Player, customer: Customer) -> void:
 	var line: String = LineBag.pick("reaction:" + String(reaction.get("id", "")), lines)
 	var feeling := &"happy" if satisfaction >= 0.75 else (&"sad" if satisfaction < 0.4 else &"")
 	var asks_delivery := false
+	var wiped_table := false  # A farewell line with "wipes_table" (Stitches): no spills left behind.
 	if customer.is_regular():
 		var goodbye := _remember_visit(customer, reaction.get("id", ""))
+		wiped_table = goodbye.get("line", {}).get("wipes_table", false)
 		line = goodbye["text"]
 		feeling = goodbye["emotion"]
 	elif customer.is_townsfolk():
@@ -1963,7 +1989,7 @@ func _settle_bill(player: Player, customer: Customer) -> void:
 	# They leave their dirty dish behind; the seat isn't reused until the table is cleared and wiped.
 	_seat_owners.erase(customer.seat)
 	if customer.seat.table != null:
-		customer.seat.table.make_dirty(customer.seat.meal_position(), customer.dish)
+		customer.seat.table.make_dirty(customer.seat.meal_position(), customer.dish, not wiped_table)
 
 	var approach := customer.seat.approach_point.global_position
 	var path: Array[Vector3] = [

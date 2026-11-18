@@ -3,13 +3,13 @@
 
 	"meal_seconds": { "breakfast": 210, "lunch": 330, "dinner": 330 },
 
-	"_phases": "The day curve, in order. Each sits in one meal, from..to seconds of that meal's clock. cap_add is added to the player-count cap; gap_scale multiplies its gap (smaller = closer together). rush: true calls out the rush as it starts (rush_text) and allows surprises. quiet_last: no arrivals in that many seconds at the end of the phase.",
+	"_phases": "The day curve, in order. Each sits in one meal, from..to seconds of that meal's clock. cap_add is added to the player-count cap; gap_scale multiplies its gap (smaller = closer together). counts: what the cap counts in this phase: 'waiting' (default) is only those waiting for food, so a customer who's been served frees a place at once; 'inside' is everyone in the restaurant until they've paid and left, so nobody new comes in till someone's completely done (calm). rush: true calls out the rush as it starts (rush_text) and allows surprises. quiet_last: no arrivals in that many seconds at the end of the phase. Ids are used in regulars' visit_window, so keep them; names are what's shown. Dinner is the only rush (it's the game's name); the rest of the day is spaced out.",
 	"phases": [
-		{ "id": "opening", "name": "Opening", "meal": "breakfast", "from": 0, "to": 210, "cap_add": 0, "gap_scale": 1.3 },
-		{ "id": "lunch_rush", "name": "Lunch rush", "meal": "lunch", "from": 0, "to": 200, "cap_add": 1, "gap_scale": 0.6, "rush": true },
-		{ "id": "afternoon", "name": "Afternoon", "meal": "lunch", "from": 200, "to": 330, "cap_add": 0, "gap_scale": 1.0 },
+		{ "id": "opening", "name": "Opening", "meal": "breakfast", "from": 0, "to": 210, "cap_add": 0, "gap_scale": 1.3, "counts": "inside" },
+		{ "id": "lunch_rush", "name": "Lunch", "meal": "lunch", "from": 0, "to": 200, "cap_add": 1, "gap_scale": 1.0, "counts": "inside" },
+		{ "id": "afternoon", "name": "Afternoon", "meal": "lunch", "from": 200, "to": 330, "cap_add": 0, "gap_scale": 1.2, "counts": "inside" },
 		{ "id": "dinner_rush", "name": "Dinner rush", "meal": "dinner", "from": 0, "to": 200, "cap_add": 1, "gap_scale": 0.6, "rush": true },
-		{ "id": "closing", "name": "Closing", "meal": "dinner", "from": 200, "to": 330, "cap_add": 0, "gap_scale": 1.4, "quiet_last": 60 }
+		{ "id": "closing", "name": "Closing", "meal": "dinner", "from": 200, "to": 330, "cap_add": 0, "gap_scale": 1.4, "quiet_last": 60, "counts": "inside" }
 	],
 	"rush_text": "Here comes the {phase}!",
 

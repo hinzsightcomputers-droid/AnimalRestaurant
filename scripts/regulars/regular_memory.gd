@@ -224,6 +224,8 @@ static func dialogue_context(record: Dictionary, chef_id: String, extra: Diction
 # Remembers it in seen_lines, so they say something else next time.
 static func pick_line(record: Dictionary, event: String, context: Dictionary) -> Dictionary:
 	var line := DialoguePicker.pick_line(event, context)
+	if line.get("burner_tip", false):  # Mabel: now a chef can go and turn it down (CookingStation).
+		GameState.burner_tip = line
 	if not line.is_empty():
 		var seen: Array = record.get_or_add("seen_lines", [])
 		var key := DialoguePicker.line_key(line)
@@ -243,7 +245,7 @@ static func say_feeling(record: Dictionary, event: String, context: Dictionary) 
 	var line := pick_line(record, event, context)
 	if line.is_empty():
 		return { "text": "", "emotion": &"" }
-	return { "text": DialoguePicker.fill(line["text"], context), "emotion": Conversation.emotion_of(line) }
+	return { "text": DialoguePicker.fill(line["text"], context), "emotion": Conversation.emotion_of(line), "line": line }
 
 
 static func _dish_name(dish_id: String) -> String:

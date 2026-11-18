@@ -154,9 +154,9 @@
 		{ "event": "greeting", "priority": 200, "conditions": { "stage": -1 }, "text": "Hi... um. Did I do something wrong last time? You can tell me. I'll fix it.", "emotion": "nervous" },
 		{ "event": "greeting", "priority": 200, "conditions": { "stage": -2 }, "text": "...Hi.", "emotion": "sad" },
 
-		{ "event": "farewell", "priority": 200, "conditions": { "stage": 1 }, "text": "Thank you. Sorry for the trouble. I wiped the table already.", "emotion": "nervous" },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 1 }, "text": "Thank you. Sorry for the trouble. I wiped the table already.", "emotion": "nervous", "wipes_table": true },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 1 }, "text": "I'll... maybe come back? If that's okay.", "emotion": "nervous" },
-		{ "event": "farewell", "priority": 200, "conditions": { "stage": 2 }, "text": "See you soon, [name]. I still wiped the table. Old habits.", "emotion": "happy" },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 2 }, "text": "See you soon, [name]. I still wiped the table. Old habits.", "emotion": "happy", "wipes_table": true },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 3 }, "text": "Can I leave the table for you this time? ...I trust you not to mind.", "emotion": "happy" },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 4 }, "text": "Bye, [name]! Same time tomorrow? I'm not asking. I'm telling you.", "emotion": "joyful" },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": -1 }, "text": "Thank you. Sorry.", "emotion": "sad" },

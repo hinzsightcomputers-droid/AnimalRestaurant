@@ -125,6 +125,7 @@ var critic_last_day := 0
 var star_earned := false
 var star_awarded_on := ""
 var forced_critic := false  # Debug panel: the critic comes in next. Not saved.
+var burner_tip := {}  # A regular told you to turn the left burner down (a line with "burner_tip"): that line, till a chef does it at a stove. Not saved.
 # Decor bought (see Decor): how many of each id are in storage, and what's
 # placed: { id, x, z, turn, spot }. Saved.
 var decor_stored: Dictionary = {}

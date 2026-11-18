@@ -164,7 +164,7 @@
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 1, "memory": { "name_test_passed": false } }, "text": "Thank you, [wrong name]. Same time next week. Maybe sooner." },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 2 }, "text": "Goodnight, [name]. Taste everything.", "emotion": "happy" },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": 3 }, "text": "Goodnight, [name]. Thank you for listening to an old lady ramble.", "emotion": "happy" },
-		{ "event": "farewell", "priority": 200, "conditions": { "stage": 4 }, "text": "Goodnight, dear. Turn the left burner down.", "emotion": "happy" },
+		{ "event": "farewell", "priority": 200, "conditions": { "stage": 4 }, "text": "Goodnight, dear. Turn the left burner down.", "emotion": "happy", "burner_tip": true, "burner_reply": "Huh... she really was right." },
 		{ "event": "farewell", "priority": 200, "conditions": { "stage": -1 }, "text": "Thank you." },
 
 		{ "event": "served", "priority": 260, "conditions": { "min_stage": 1, "served_disliked": true }, "text": "Foam? On a plate? In my day we called that a mistake.", "emotion": "confused" },
@@ -280,7 +280,7 @@
 		{ "event": "phone_greeting", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "text": "Good evening. Mabel speaking. Delivery, please." },
 		{ "event": "phone_order", "priority": 250, "conditions": { "min_stage": -4, "max_stage": -3, "memory": { "last_note": "straight" } }, "set": { "last_note": "" }, "text": "Received. Thank you for not making excuses. ...[dish], please." },
 		{ "event": "phone_order", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "dish": "soup", "text": "Soup. No bread. Thank you." },
-		{ "event": "phone_order", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "text": "[dish]. The left burner still runs hot." },
+		{ "event": "phone_order", "priority": 200, "conditions": { "min_stage": -4, "max_stage": -3 }, "text": "[dish]. The left burner still runs hot.", "burner_tip": true, "burner_reply": "Huh... she really was right." },
 		{ "event": "phone_note", "id": "mabel_phone_note", "priority": 200, "conditions": { "stage": -3 }, "text": "That will be all.",
 			"choices": [
 				{ "tone": "straight", "text": "(Tuck a note in her bag: \"I was wrong, and I'm sorry.\")", "change": 5, "set": { "last_note": "straight" } },
@@ -289,7 +289,7 @@
 				{ "tone": "rude", "invented": true, "text": "(Tuck a note in the bag: \"Find another diner.\")", "quote": "Find another diner." }
 			]
 		},
-		{ "event": "phone_chat", "id": "mabel_phone_chat_placeholder", "priority": 200, "conditions": { "stage": 4 }, "text": "It's Mabel, dear. Nothing to order. I only wanted to hear how my kitchen's doing. ...Your kitchen. Turn the left burner down. Goodnight." },
+		{ "event": "phone_chat", "id": "mabel_phone_chat_placeholder", "priority": 200, "conditions": { "stage": 4 }, "text": "It's Mabel, dear. Nothing to order. I only wanted to hear how my kitchen's doing. ...Your kitchen. Turn the left burner down. Goodnight.", "burner_tip": true, "burner_reply": "Huh... she really was right." },
 
 		{ "event": "return_scene", "id": "mabel_return", "priority": 200, "text": "Well. I'm here. Say what you came to say, and say it plainly.", "choices": [ { "text": "I was cruel to you. I'm sorry. No excuses.", "reply": "...Thank you. That's how it's done.", "emotion": "happy", "change": 0 },{ "text": "I've missed you, Mabel. This place isn't the same.", "reply": "Hm. It isn't. I could tell from the floors.", "emotion": "happy", "change": 0 },{ "text": "Can I make you some soup?", "reply": "...Yes. You can.", "emotion": "happy", "change": 0 } ]},
 		{ "event": "return_closing", "id": "mabel_return_closing", "priority": 200, "text": "We'll start again. Afternoon, Gerald.", "emotion": "happy", "set": { "name_test_passed": false}},
