@@ -55,8 +55,8 @@ func _begin() -> void:
 	_top_y = _surface_of(_foods[0]) if not _foods.is_empty() else session.stack_top(target).y
 	var material := StandardMaterial3D.new()
 	material.albedo_color = syrup_color
-	material.roughness = 0.28
-	material.metallic_specular = 0.7
+	material.roughness = 0.55         # A soft sheen: any shinier and the lamp's glint turned the middle of the line white.
+	material.metallic_specular = 0.3
 	material.set_meta(ToonStyle.SKIP, true)  # Stays glossy: toon bands and outlines made the lines look like brown worms.
 	_blob_mesh.top_radius = line_radius
 	_blob_mesh.bottom_radius = line_radius * 0.9
