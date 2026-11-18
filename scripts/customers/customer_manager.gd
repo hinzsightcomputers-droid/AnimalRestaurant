@@ -355,6 +355,13 @@ func _spawn_next() -> bool:
 	var next := _next_customer()
 	if next.is_empty():
 		return false
+	if next["regular"].is_empty() and not next.get("critic", false):  # A walk-in: whoever from town is free. Nobody left today: nobody comes.
+		var person := Townsfolk.pick_walk_in(clampf(meal_clock / maxf(ArrivalPacing.arrivals_close_at(_meal), 1.0), 0.0, 1.0))
+		if person.is_empty():
+			person = Townsfolk.pick_again(get_children().filter(func(c): return c is Customer and c.is_townsfolk()).map(func(c): return c.townsfolk_id))
+		if person.is_empty():
+			return false
+		next["townsfolk"] = person
 	_spawn(next, true)
 	return true
 
