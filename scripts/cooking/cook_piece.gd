@@ -10,8 +10,8 @@
 class_name CookPiece
 extends Node3D
 
-const GOLDEN := Color(0.88, 0.6, 0.25)
-const BROWN := Color(0.55, 0.32, 0.14)
+const GOLDEN := Color(0.95, 0.63, 0.2)   # Saturated and warm (the style guide: food is the brightest thing on screen).
+const BROWN := Color(0.62, 0.33, 0.12)
 const BURNT := Color(0.16, 0.1, 0.07)
 const BUBBLES := 8
 

@@ -15,7 +15,8 @@ extends Node3D
 @export_range(0.0, 1.0) var ingredient_tint := 0.0  # How much it takes on the ingredients' color (a pot's broth).
 @export var slides_in := false            # Out of sight until a step uses it.
 @export var ledge := Vector3.ZERO          # Above zero: a counter top this big (x, thickness, z) under it.
-@export var ledge_color := Color(0.55, 0.36, 0.22)
+@export var ledge_color := Color("#B07A52")  # Honey wood (the style guide's light wood, a touch lit).
+@export_enum("plain", "griddle") var look := "plain"  # griddle: seasoned warm steel with a heat glow and a raised rim.
 @export var depth := 0.0                  # A container (a saucepan, a bowl): how high liquid can come up in it.
 
 var contents: Array[Node3D] = []  # What's been dropped in (e.g. chopped carrots in a pot).
@@ -51,6 +52,44 @@ func _ready() -> void:
 		mesh_instance.mesh = slab
 	mesh_instance.position.y = -thickness * 0.5
 	add_child(mesh_instance)
+	if look == "griddle" and not round:
+		_dress_griddle(mesh_instance)
+
+
+# The griddle's look: its top in the griddle shader, and a rounded steel rim
+# just outside its edges (so food never sits under it), lower at the front
+# where the spatula comes in.
+const GRIDDLE_SHADER := preload("res://assets/shaders/griddle.gdshader")
+const RIM_STEEL := Color("#A9B3A4")  # The style guide's soft sage steel, lit.
+func _dress_griddle(top: MeshInstance3D) -> void:
+	var shader := ShaderMaterial.new()
+	shader.shader = GRIDDLE_SHADER
+	shader.set_shader_parameter("size", size)
+	top.material_override = shader
+	var steel := StandardMaterial3D.new()
+	steel.albedo_color = RIM_STEEL
+	steel.roughness = 0.45
+	steel.metallic = 0.3
+	var rim := 0.022
+	var sides := [  # [middle x, middle z, length, along x?, height]
+		[0.0, -size.y * 0.5 - rim * 0.5, size.x + rim * 2.0, true, 0.03],
+		[0.0, size.y * 0.5 + rim * 0.5, size.x + rim * 2.0, true, 0.012],
+		[-size.x * 0.5 - rim * 0.5, 0.0, size.y, false, 0.03],
+		[size.x * 0.5 + rim * 0.5, 0.0, size.y, false, 0.03],
+	]
+	for side in sides:
+		var bar := MeshInstance3D.new()
+		var capsule := CapsuleMesh.new()  # Rounded ends and edges: chunky, no sharp corners.
+		capsule.radius = rim * 0.5
+		capsule.height = side[2]
+		capsule.radial_segments = 12
+		capsule.rings = 2
+		capsule.material = steel
+		bar.mesh = capsule
+		bar.scale = Vector3(side[4] / rim, 1.0, 1.0)  # Taller than it is wide (local x points up after the turn below).
+		bar.rotation = Vector3(0.0, 0.0 if side[3] else PI * 0.5, PI * 0.5)
+		bar.position = Vector3(side[0], side[4] * 0.5 - thickness * 0.3, side[1])
+		add_child(bar)
 
 
 func tint(new_color: Color) -> void:
