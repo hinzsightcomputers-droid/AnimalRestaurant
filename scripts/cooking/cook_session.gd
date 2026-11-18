@@ -83,6 +83,7 @@ func _exit_tree() -> void:
 
 
 func _process(delta: float) -> void:
+	_follow_blur()
 	if is_finished or input == null:
 		return
 	input.update(delta)
@@ -154,7 +155,7 @@ func _finish() -> void:
 # The style guide's close-up: the station sharp, the kitchen behind it a warm
 # blur, on the cook's own camera while they cook (put back after).
 const SPARKLE_FROM := 0.85     # A dish this good gets a sparkle as it's done.
-const BLUR_FROM := 0.9         # Meters from the camera where the blur starts (just past the station's back edge)...
+const BLUR_FROM := 0.45        # Meters past the station's middle where the blur starts (just behind its back edge: all of the cooking stays sharp)...
 const BLUR_OVER := 0.5         # ...and how far it takes to reach full.
 const BLUR_AMOUNT := 0.12
 var _blur: CameraAttributesPractical = null
@@ -164,11 +165,18 @@ func _blur_background(rig: CameraRig) -> void:
 		return
 	_blur = CameraAttributesPractical.new()
 	_blur.dof_blur_far_enabled = true
-	_blur.dof_blur_far_distance = BLUR_FROM
 	_blur.dof_blur_far_transition = BLUR_OVER
 	_blur.dof_blur_amount = BLUR_AMOUNT
 	_blurred = rig.camera
 	_blurred.attributes = _blur
+	_follow_blur()
+
+
+# The camera moves between views (and back out for the whole station), so the
+# blur's start follows it: always just behind the station, never on the food.
+func _follow_blur() -> void:
+	if _blur != null and is_instance_valid(_blurred):
+		_blur.dof_blur_far_distance = _blurred.global_position.distance_to(global_position) + BLUR_FROM
 
 
 # Move the cook's camera to look at `at` (session coordinates) from in front,
