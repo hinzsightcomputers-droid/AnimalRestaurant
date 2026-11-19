@@ -54,7 +54,10 @@ enum Mode { IDLE, TYPING, CHOOSING, WAITING }
 var player_index := 0
 var speaker_id := ""  # Regular id, for their voice.
 
-var _speaker := Label.new()
+var _speaker := Label.new()  # Inside the name tag.
+var _name_tag := PanelContainer.new()  # The guide's bold orange pill on the box's top edge.
+var _panel: PanelContainer
+var _arrow: ContinueArrow  # Bobs in the corner while the box waits for a press.
 var _line := RichTextLabel.new()
 var _options := VBoxContainer.new()
 var _hint := Label.new()
@@ -121,19 +124,28 @@ func _ready() -> void:
 	panel.add_theme_stylebox_override("panel", UiStyle.panel(18))
 	add_child(panel)
 
+	_panel = panel
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 8)
 	panel.add_child(column)
-	_speaker.add_theme_font_size_override("font_size", 20)
-	_speaker.add_theme_color_override("font_color", PICKED_COLOR)
+	_build_name_tag()
+	_arrow = ContinueArrow.new()
+	_arrow.color = UiStyle.role("dialogue", "arrow")
+	_arrow.visible = false
+	add_child(_arrow)
 	_set_up_rich_text(_line, 22)
 	_line.visible_characters_behavior = TextServer.VC_CHARS_AFTER_SHAPING  # Words don't jump lines as they type.
 	_options.add_theme_constant_override("separation", 2)
 	_hint.add_theme_font_size_override("font_size", 15)
 	_hint.add_theme_color_override("font_color", DIM_COLOR)
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	var arrow_room := StyleBoxEmpty.new()
+	arrow_room.content_margin_right = 26  # The continue arrow sits just right of the hint.
+	_hint.add_theme_stylebox_override("normal", arrow_room)
 	_hint.visible = show_hint
-	for node in [_speaker, _line, _options, _hint]:
+	column.add_child(Control.new())  # Room under the name tag, which sits on the box's top edge.
+	column.get_child(0).custom_minimum_size.y = 6
+	for node in [_line, _options, _hint]:
 		column.add_child(node)
 	add_child(_voice)
 	for i in BLIP_VOICES:
@@ -141,6 +153,38 @@ func _ready() -> void:
 		add_child(_blip_players[i])
 	_load_voice()
 	_find_highlights()
+
+
+# The speaker's name on a rounded orange pill, in the title font.
+func _build_name_tag() -> void:
+	var pill := StyleBoxFlat.new()
+	pill.bg_color = UiStyle.role("dialogue", "name_tag")
+	pill.border_color = UiStyle.role("dialogue", "name_outline")
+	pill.set_border_width_all(3)
+	pill.set_corner_radius_all(40)
+	pill.content_margin_left = 18
+	pill.content_margin_right = 18
+	pill.content_margin_top = 2
+	pill.content_margin_bottom = 4
+	_name_tag.add_theme_stylebox_override("panel", pill)
+	_name_tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_name_tag.visible = false
+	_speaker.add_theme_font_size_override("font_size", 22)
+	_speaker.add_theme_color_override("font_color", UiStyle.role("dialogue", "name_text"))
+	UiStyle.title(_speaker)
+	_name_tag.add_child(_speaker)
+	add_child(_name_tag)
+
+
+# The name tag half over the box's top edge near its left end, and the arrow in
+# its bottom right corner (the box grows upward with longer lines, so every frame).
+func _place_decorations() -> void:
+	if _panel == null:
+		return
+	var box := _panel.get_rect()
+	_name_tag.size = _name_tag.get_combined_minimum_size()
+	_name_tag.position = box.position + Vector2(28.0, -_name_tag.size.y * 0.55)
+	_arrow.position = box.end - Vector2(31.0, 28.0)
 
 
 func _set_up_rich_text(label: RichTextLabel, font_size: int) -> void:
@@ -280,6 +324,9 @@ func _process(delta: float) -> void:
 	if not _armed and not holding:
 		_armed = true
 	var pressed := _armed and Input.is_action_just_pressed(interact)
+	_place_decorations()
+	if _mode != Mode.WAITING:
+		_arrow.visible = false
 
 	match _mode:
 		Mode.TYPING:
@@ -307,8 +354,8 @@ func _start_typing(speaker: String, text: String, then_choose: bool, emotion: St
 	_mood_pitch = EMOTION_PITCH.get(emotion, 1.0)
 	_silent = speaker.is_empty() or text.begins_with("(")  # Narration and messages type out without a voice.
 	_speaker.text = speaker
-	# In their name color ("Pip (voicemail)" is colored as Pip).
-	_speaker.add_theme_color_override("font_color", _highlights.get(speaker.get_slice(" (", 0), PICKED_COLOR))
+	_name_tag.visible = not speaker.is_empty()  # Narration has no one to name.
+	_arrow.visible = false
 	_line.text = _highlighted(text if text.begins_with("(") else "\"%s\"" % text)  # "(He waves.)" is narration, not speech.
 	_plain = _line.get_parsed_text()  # What's shown, without the color tags, for the letter-by-letter typing.
 	_line.visible_characters = 0
@@ -358,6 +405,7 @@ func _finish_typing() -> void:
 		_hint.text = "%s  Continue" % _button()
 		_wait_left = REPLY_SECONDS
 		_mode = Mode.WAITING
+		_arrow.visible = true
 
 
 func _on_letter(at: int, speed_scale: float) -> void:
@@ -466,3 +514,22 @@ func _refresh_options() -> void:
 
 func _button() -> String:
 	return "[%s]" % InputSetup.interact_hint(player_index)
+
+
+# A small rounded down-pointing triangle that bobs, to say "press to continue".
+class ContinueArrow extends Control:
+	var color := Color("#E07228")
+	var _time := 0.0
+
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _process(delta: float) -> void:
+		_time += delta
+		queue_redraw()
+
+	func _draw() -> void:
+		var bob := sin(_time * 5.0) * 3.0
+		var points := PackedVector2Array([Vector2(-9, -6 + bob), Vector2(9, -6 + bob), Vector2(0, 6 + bob)])
+		draw_colored_polygon(points, color)
+		draw_polyline(PackedVector2Array([points[0], points[1], points[2], points[0]]), color.darkened(0.35), 2.0, true)
