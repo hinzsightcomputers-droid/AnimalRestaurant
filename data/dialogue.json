@@ -1,4 +1,5 @@
 {
+	"_about": "Shared lines any regular can fall back on when their own file has nothing for the moment. A regular at a negative stage (upset with you) only uses the shared lines with a stage condition or \"any_stage\": true, so they never sound cheerful by accident (DialoguePicker.fits_mood). The max_stage -1 lines are plain placeholders; the character files should have their own.",
 	"lines": [
 		{ "event": "greeting", "priority": 100, "conditions": { "knows_player_name": true, "returned_after_away": true }, "text": "{player}! It's been {days} days! I was starting to worry about you." },
 		{ "event": "greeting", "priority": 95, "conditions": { "returned_after_away": true, "personality": "dramatic" }, "text": "{days} days! Do you know how long {days} days is without your cooking?!" },
@@ -13,20 +14,23 @@
 		{ "event": "greeting", "priority": 20, "conditions": { "personality": "shy" }, "text": "H-hello again..." },
 		{ "event": "greeting", "priority": 20, "conditions": { "personality": "chatty" }, "text": "Back again! Did you hear about Frog's new hat?" },
 		{ "event": "greeting", "priority": 0, "conditions": {}, "text": "Hello again!" },
+		{ "event": "greeting", "priority": 0, "conditions": { "max_stage": -1 }, "text": "...Hi.", "emotion": "neutral" },
 
 		{ "event": "order", "priority": 50, "conditions": { "ordered_favorite": true, "min_visits": 2 }, "text": "The usual, please! {dish}." },
 		{ "event": "order", "priority": 30, "conditions": { "ordered_favorite": true }, "text": "{dish}, please! It's my favorite." },
 		{ "event": "order", "priority": 25, "conditions": { "knows_player_name": true }, "text": "Oh, {player}'s taking my order! {dish}, please." },
 		{ "event": "order", "priority": 20, "conditions": { "personality": "picky" }, "text": "{dish}. And keep that {disliked} away from me." },
 		{ "event": "order", "priority": 0, "conditions": {}, "text": "{dish}, please!" },
+		{ "event": "order", "priority": 0, "conditions": { "max_stage": -1 }, "text": "{dish}.", "emotion": "neutral" },
 
 		{ "event": "farewell", "priority": 100, "conditions": { "learned_name": true }, "text": "Oh, what's your name, by the way? ...{player}! I'll remember that." },
-		{ "event": "farewell", "priority": 60, "conditions": { "reaction": "unhappy", "personality": "picky" }, "text": "That was... not your best work." },
-		{ "event": "farewell", "priority": 50, "conditions": { "reaction": "unhappy" }, "text": "Hmm. I hope it's better next time." },
+		{ "event": "farewell", "priority": 60, "any_stage": true, "conditions": { "reaction": "unhappy", "personality": "picky" }, "text": "That was... not your best work." },
+		{ "event": "farewell", "priority": 50, "any_stage": true, "conditions": { "reaction": "unhappy" }, "text": "Hmm. I hope it's better next time." },
 		{ "event": "farewell", "priority": 45, "conditions": { "reaction": "delighted", "knows_player_name": true }, "text": "Wonderful as always, {player}!" },
 		{ "event": "farewell", "priority": 40, "conditions": { "reaction": "delighted" }, "text": "Perfect! I'll be back soon!" },
 		{ "event": "farewell", "priority": 35, "conditions": { "new_chef_for_them": true }, "text": "You're new in the kitchen, aren't you? Thank you!" },
 		{ "event": "farewell", "priority": 30, "conditions": { "personality": "shy" }, "text": "Th-thank you. That was nice." },
+		{ "event": "farewell", "priority": 0, "conditions": { "max_stage": -1 }, "text": "...Bye.", "emotion": "neutral" },
 		{ "event": "farewell", "priority": 0, "conditions": {}, "text": "Thanks! See you next time." }
 	]
 }

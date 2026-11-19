@@ -29,6 +29,8 @@ static func pick_line(event: String, context: Dictionary) -> Dictionary:
 			continue
 		if line.get("once", false) and line_key(line) in context.get("seen_lines", []):
 			continue  # Said already, and it's a one-time line.
+		if not fits_mood(line, context):
+			continue
 		var priority: float = line.get("priority", 0)
 		if priority > best_priority:
 			best_priority = priority
@@ -39,6 +41,19 @@ static func pick_line(event: String, context: Dictionary) -> Dictionary:
 	if best.is_empty():
 		return _name_free_fallback(event, context)
 	return _least_seen(best, context.get("seen_lines", []))
+
+
+# A regular who's upset with you (a negative stage) never falls back on the
+# shared, cheerful lines in data/dialogue.json ("Perfect! I'll be back soon!"):
+# only their own lines, or shared ones written for any mood ("any_stage": true)
+# or for low moods (a stage condition), fit.
+static func fits_mood(line: Dictionary, context: Dictionary) -> bool:
+	if context.get("stage", 0) >= 0 or line.get("any_stage", false):
+		return true
+	var conditions: Dictionary = line.get("conditions", {})
+	if conditions.has("regular"):
+		return true  # The character's own line: its conditions say when.
+	return conditions.has("stage") or conditions.has("max_stage")
 
 
 # Nothing fits only because every line names a chef this regular doesn't know
@@ -53,7 +68,7 @@ static func _name_free_fallback(event: String, context: Dictionary) -> Dictionar
 	var lines: Array = []
 	var top := -INF
 	for line in GameData.dialogue:
-		if line["event"] != event or not line.get("needs_name", false) or not conditions_met(line.get("conditions", {}), known):
+		if line["event"] != event or not line.get("needs_name", false) or not conditions_met(line.get("conditions", {}), known) or not fits_mood(line, known):
 			continue
 		if line.get("once", false) and line_key(line) in context.get("seen_lines", []):
 			continue
