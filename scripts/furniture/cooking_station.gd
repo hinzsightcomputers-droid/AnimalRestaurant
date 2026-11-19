@@ -62,7 +62,7 @@ func _prompt_for(player_index: int) -> String:
 		if not makes(ingredients.order.dish):
 			return "Use the %s!" % station_of(ingredients.order.dish)
 		if ingredients.needs_chopping():
-			return "%s first!" % ingredients.chop_verb()
+			return "%s first!" % ingredients.prep_verb()
 		if _needs_plate(ingredients.order) and _sink().plates <= 0:
 			return "No clean plates!"
 		return "%s %s" % [verb, ingredients.order.dish.get("name", "")]
@@ -125,7 +125,7 @@ func _try_start_cooking(player_index: int) -> void:
 			GameEvents.announce("Grab ingredients from the freezer first.")
 		return
 	if ingredients.needs_chopping():
-		GameEvents.announce("%s the %s first. Use the chopping board!" % [ingredients.chop_verb(), ingredients.display_name().to_lower()])
+		GameEvents.announce("%s the %s first. Use the chopping board!" % [ingredients.prep_verb(), ingredients.display_name().to_lower()])
 		return
 	var order := ingredients.order
 	if not makes(order.dish):

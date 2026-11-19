@@ -43,8 +43,9 @@ var _told_direction := false               # Said "Left to right!" this stroke.
 var _strokes := 0
 var _wander: Array[float] = []
 var _scores: Array[float] = []
-var _skin: StandardMaterial3D
+var _skins: Array[StandardMaterial3D] = []
 var _flesh_color := Color.WHITE
+var _greens := false                      # A carrot: its green top shows at the thick end.
 var _scripted_stroke := false             # A reel's peeler is on its way along, pressed.
 
 
@@ -65,10 +66,13 @@ func _begin() -> void:
 	_z = board.z
 	var color := session.ingredients.color() if session.ingredients != null else carrot_color
 	_flesh_color = color.lightened(flesh_lighten)
-	_skin = StandardMaterial3D.new()
-	_skin.albedo_color = color.darkened(skin_darken)
-	_skin.roughness = 0.9
-	_skin.cull_mode = BaseMaterial3D.CULL_DISABLED
+	_greens = session.ingredients == null or session.ingredients.leafy_top()
+	for shade in [0.0, 0.025, -0.02]:  # A few skin tones, so it isn't one flat orange.
+		var skin := StandardMaterial3D.new()
+		skin.albedo_color = color.darkened(skin_darken + shade)
+		skin.roughness = 0.9
+		skin.cull_mode = BaseMaterial3D.CULL_DISABLED
+		_skins.append(skin)
 	_carrot = Node3D.new()
 	session.add_child(_carrot)
 	ChopAction.lay_along(_carrot, _left, _right, radius, radius * (1.0 - taper), _z, _board_y)
@@ -82,11 +86,13 @@ func _begin() -> void:
 	core_mesh.rings = 1
 	var flesh := StandardMaterial3D.new()
 	flesh.albedo_color = _flesh_color
-	flesh.roughness = 0.6
+	flesh.roughness = 0.45  # Fresh and a touch glossy where it's peeled.
 	core_mesh.material = flesh
 	core.mesh = core_mesh
 	core.rotation.z = -PI * 0.5  # Its thin end to the right.
 	_spin.add_child(core)
+	if _greens:
+		ChopAction.add_greens(_spin, -length * 0.5, radius)
 	for side in sides:
 		var strips := []
 		for i in segments:
@@ -148,7 +154,7 @@ func update(delta: float, input: CookInput) -> void:
 	_was_peeling = peeling
 	if _side >= sides and not _rolling:
 		session.context["carrot"] = { "node": _carrot, "left": _left, "right": _right, "z": _z,
-			"radius": radius, "taper": taper, "color": _flesh_color }
+			"radius": radius, "taper": taper, "color": _flesh_color, "greens": _greens }
 		finish(average(_scores))
 
 
@@ -173,10 +179,12 @@ func _peel_off(strip: MeshInstance3D) -> void:
 	session.add_child(pivot)
 	pivot.global_position = strip.global_transform * (strip.get_meta("centre") as Vector3)
 	strip.reparent(pivot)
-	var land := Vector3(pivot.position.x + randf_range(-0.02, 0.02), _board_y + 0.004, _z - radius - randf_range(0.04, 0.1))
+	var land := Vector3(pivot.position.x + randf_range(-0.03, 0.03), _board_y + 0.004, _z - radius - randf_range(0.04, 0.11))
 	var tween := pivot.create_tween().set_parallel(true)
 	tween.tween_property(pivot, "position:y", pivot.position.y + 0.045, 0.14).set_ease(Tween.EASE_OUT)
 	tween.tween_property(pivot, "rotation:x", -PI * randf_range(0.7, 1.0), 0.42)
+	tween.tween_property(pivot, "rotation:y", randf_range(-0.9, 0.9), 0.42)  # Lands every which way, a loose pile of curls.
+	tween.tween_property(pivot, "scale", Vector3(randf_range(0.9, 1.2), 1.0, 0.42), 0.42)  # Curls into a thin ribbon as it comes off.
 	tween.tween_property(pivot, "position:z", land.z, 0.42).set_trans(Tween.TRANS_SINE)
 	tween.chain().tween_property(pivot, "position", land, 0.18).set_ease(Tween.EASE_IN)
 	session.play_sound("whoosh", pivot.position, -16.0, randf_range(1.6, 2.0))
@@ -212,7 +220,7 @@ func _strip_mesh(i: int, side: int) -> ArrayMesh:
 	var steps := 5
 	var tool := SurfaceTool.new()
 	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
-	tool.set_material(_skin)
+	tool.set_material(_skins[(i * 7 + side * 3) % _skins.size()])
 	for s in steps:
 		var a0 := middle - arc * 0.5 + arc * s / steps
 		var a1 := a0 + arc / steps
@@ -273,20 +281,54 @@ func _make_peeler() -> Node3D:
 		prong.position = Vector3(0.0, 0.015, end_z)
 		peeler.add_child(prong)
 	var plastic := StandardMaterial3D.new()
-	plastic.albedo_color = Color(0.3, 0.62, 0.42)
-	var handle := MeshInstance3D.new()
-	var handle_mesh := BoxMesh.new()
-	handle_mesh.size = Vector3(0.016, 0.014, 0.1)
+	plastic.albedo_color = Color("#94A189")  # The guide's sage.
+	plastic.roughness = 0.6
+	var handle := MeshInstance3D.new()  # A rounded, chunky grip.
+	var handle_mesh := CapsuleMesh.new()
+	handle_mesh.radius = 0.011
+	handle_mesh.height = 0.1
+	handle_mesh.radial_segments = 10
+	handle_mesh.rings = 3
 	handle_mesh.material = plastic
 	handle.mesh = handle_mesh
-	handle.position = Vector3(0.0, 0.034, 0.075)
+	handle.rotation.x = PI * 0.5
+	handle.scale = Vector3(1.0, 1.0, 0.7)
+	handle.position = Vector3(0.0, 0.036, 0.08)
 	peeler.add_child(handle)
-	var yoke := MeshInstance3D.new()
-	var yoke_mesh := BoxMesh.new()
-	yoke_mesh.size = Vector3(0.006, 0.006, 0.056)
+	var band := MeshInstance3D.new()  # A cream band where the grip meets the steel.
+	var band_mesh := CylinderMesh.new()
+	band_mesh.top_radius = 0.012
+	band_mesh.bottom_radius = 0.012
+	band_mesh.height = 0.01
+	band_mesh.radial_segments = 10
+	var cream := StandardMaterial3D.new()
+	cream.albedo_color = Color("#FBD6A0")
+	band_mesh.material = cream
+	band.mesh = band_mesh
+	band.rotation.x = PI * 0.5
+	band.position = Vector3(0.0, 0.036, 0.034)
+	peeler.add_child(band)
+	var yoke := MeshInstance3D.new()  # The Y's top: a rounded steel bar over the blade.
+	var yoke_mesh := CapsuleMesh.new()
+	yoke_mesh.radius = 0.0035
+	yoke_mesh.height = 0.06
+	yoke_mesh.radial_segments = 8
+	yoke_mesh.rings = 2
 	yoke_mesh.material = steel
 	yoke.mesh = yoke_mesh
+	yoke.rotation.x = PI * 0.5
 	yoke.position = Vector3(0.0, 0.03, 0.0)
 	peeler.add_child(yoke)
+	var neck := MeshInstance3D.new()  # From the yoke back into the grip.
+	var neck_mesh := CylinderMesh.new()
+	neck_mesh.top_radius = 0.003
+	neck_mesh.bottom_radius = 0.003
+	neck_mesh.height = 0.03
+	neck_mesh.radial_segments = 8
+	neck_mesh.material = steel
+	neck.mesh = neck_mesh
+	neck.rotation.x = PI * 0.5
+	neck.position = Vector3(0.0, 0.033, 0.017)
+	peeler.add_child(neck)
 	session.add_child(peeler)
 	return peeler

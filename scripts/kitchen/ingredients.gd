@@ -38,9 +38,10 @@ func color() -> Color:
 	return Color.html(_ingredient().get("color", "#cccccc"))
 
 
-# What the chopping board does to them, e.g. "Chop" or "Fillet".
-func chop_verb() -> String:
-	return _chop().get("verb", "Chop")
+# The word for getting them ready at the board, in reminders and its prompt:
+# "Prepare" (peel and chop), or the dish's own verb when it has one ("Fillet").
+func prep_verb() -> String:
+	return _chop().get("verb", "Prepare")
 
 
 # The close-up recipe at the chopping board (data/recipes/), e.g. "filleting".
@@ -51,6 +52,11 @@ func chop_recipe() -> String:
 # True until they've been chopped, for ingredients that need it.
 func needs_chopping() -> bool:
 	return not chopped and not _chop().is_empty()
+
+
+# True for a vegetable that shows its green top on the board (a carrot).
+func leafy_top() -> bool:
+	return bool(_chop().get("leafy_top", false))
 
 
 # How many presses at the chopping board (a Sharp Knife takes fewer, but always at least 1).
