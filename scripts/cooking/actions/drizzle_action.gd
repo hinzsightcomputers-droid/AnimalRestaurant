@@ -11,7 +11,7 @@ extends CookAction
 
 @export var target := "Plate"
 @export var syrup_seconds := 3.0              # How long the bottle lasts while held.
-@export var syrup_color := Color(0.56, 0.24, 0.03)  # Amber, glossy: the food is the brightest thing on screen.
+@export var syrup_color := Color(0.38, 0.17, 0.04)  # Deep amber maple: any redder and it read as ketchup.
 @export var line_radius := 0.013              # How thick the line is.
 @export var spacing := 0.007                  # Gap between the blobs that make up the line.
 @export_range(0.0, 1.0) var target_coverage := 0.45  # Share of the top to cover for full marks.
@@ -55,8 +55,8 @@ func _begin() -> void:
 	_top_y = _surface_of(_foods[0]) if not _foods.is_empty() else session.stack_top(target).y
 	var material := StandardMaterial3D.new()
 	material.albedo_color = syrup_color
-	material.roughness = 0.55         # A soft sheen: any shinier and the lamp's glint turned the middle of the line white.
-	material.metallic_specular = 0.3
+	material.roughness = 0.4          # A small glossy glint (shinier, on a lighter syrup, washed the line white).
+	material.metallic_specular = 0.45
 	material.set_meta(ToonStyle.SKIP, true)  # Stays glossy: toon bands and outlines made the lines look like brown worms.
 	_blob_mesh.top_radius = line_radius
 	_blob_mesh.bottom_radius = line_radius * 0.9

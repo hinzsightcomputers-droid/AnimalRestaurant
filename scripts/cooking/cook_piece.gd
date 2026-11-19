@@ -10,8 +10,8 @@
 class_name CookPiece
 extends Node3D
 
-const GOLDEN := Color(0.95, 0.63, 0.2)   # Saturated and warm (the style guide: food is the brightest thing on screen).
-const BROWN := Color(0.62, 0.33, 0.12)
+const GOLDEN := Color(0.84, 0.55, 0.27)  # Golden brown, like a real pancake: any yellower and it read as egg.
+const BROWN := Color(0.56, 0.31, 0.13)
 const BURNT := Color(0.16, 0.1, 0.07)
 const BUBBLES := 8
 
@@ -64,7 +64,7 @@ func setup(color: Color, piece_thickness: float) -> void:
 	var top := _disc(1.0, thickness * 0.55, _top_material)
 	top.position.y = thickness * 0.725
 	_discs.assign([bottom, top])
-	_top_material.roughness = 0.35
+	_top_material.roughness = 0.75  # Matte, like cooked cake: shinier, the toon highlight made a round yellow "yolk" in the middle.
 	var bubble_material := StandardMaterial3D.new()
 	bubble_material.albedo_color = color.darkened(0.25)
 	for i in BUBBLES:
