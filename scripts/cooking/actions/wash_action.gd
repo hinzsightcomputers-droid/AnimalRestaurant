@@ -342,19 +342,14 @@ func _add_spots() -> void:
 		_spots.append({ "node": blob, "dirt": 1.0, "offset": place })
 
 
-# A yellow sponge with a green scrubby top.
+# A soft yellow sponge with a green scrubby top.
 func _build_sponge() -> void:
-	for part in [[Vector3(0.1, 0.03, 0.065), Color(1.0, 0.85, 0.3), 0.015], [Vector3(0.1, 0.012, 0.065), Color(0.3, 0.65, 0.35), 0.036]]:
-		var material := StandardMaterial3D.new()
-		material.albedo_color = part[1]
-		material.roughness = 0.95
-		var box := BoxMesh.new()
-		box.size = part[0]
-		box.material = material
-		var pad := MeshInstance3D.new()
-		pad.mesh = box
-		pad.position.y = part[2]
-		_sponge.add_child(pad)
+	var body := KitchenProps.soft_block(Vector3(0.1, 0.032, 0.066), KitchenProps.BRASS)
+	body.position.y = 0.016
+	_sponge.add_child(body)
+	var scrub := KitchenProps.soft_block(Vector3(0.096, 0.014, 0.062), Color("#7FAE4A"))
+	scrub.position.y = 0.036
+	_sponge.add_child(scrub)
 	_sponge.visible = false
 	session.add_child(_sponge)
 

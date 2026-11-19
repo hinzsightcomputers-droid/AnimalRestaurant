@@ -101,17 +101,13 @@ func _make_spill(at: Vector3) -> Dictionary:
 
 # A folded cloth: a soft blue pad with a fold on top.
 func _build_cloth() -> void:
-	var material := StandardMaterial3D.new()
-	material.albedo_color = Color(0.45, 0.72, 0.95)
-	material.roughness = 0.95
-	for part in [[Vector3(0.13, 0.018, 0.1), 0.009], [Vector3(0.13, 0.014, 0.05), 0.025]]:
-		var pad := MeshInstance3D.new()
-		var box := BoxMesh.new()
-		box.size = part[0]
-		box.material = material
-		pad.mesh = box
-		pad.position = Vector3(0.0, part[1], -0.025 if part[1] > 0.01 else 0.0)
-		_cloth.add_child(pad)
+	var blue := Color("#7FB8E0")
+	var pad := KitchenProps.soft_block(Vector3(0.13, 0.018, 0.1), blue)
+	pad.position.y = 0.009
+	_cloth.add_child(pad)
+	var fold := KitchenProps.soft_block(Vector3(0.13, 0.014, 0.05), blue.lightened(0.08))
+	fold.position = Vector3(0.0, 0.025, -0.025)
+	_cloth.add_child(fold)
 	_cloth.position = Vector3(0.0, 0.05, 0.3)
 	_last = _cloth.position
 	session.add_child(_cloth)
