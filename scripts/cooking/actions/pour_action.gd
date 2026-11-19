@@ -12,6 +12,7 @@ extends CookAction
 @export var perfect_within := 0.012       # Size error that still gets full marks...
 @export var worst_error := 0.06           # ...and the error that gets none.
 @export_range(0.0, 1.0) var least_share := 0.8  # Once started, it pours at least this much of the target size.
+@export var most_over := 0.03            # Holding on, it stops by itself this far past the ring ("Too big!"): the bottle doesn't pour forever.
 @export var spread_speed := 5.0           # How quickly batter spreads out to its size.
 @export var batter_color := Color(0.96, 0.88, 0.66)
 @export var done_color := CookPiece.GOLDEN  # What it cooks to when just right (yellow for eggs).
@@ -21,6 +22,7 @@ extends CookAction
 @export var stack := false                # Poured straight onto a plate: it starts the plate's stack, so toppings and drizzles go on it.
 
 const SCRIPTED_GAP := 0.26  # A reel pours its pieces this far apart, in a row.
+const GAP_BETWEEN := 0.004  # Pieces stop growing this far from each other, so they touch without overlapping.
 
 var _bottle: Node3D
 var _stream: MeshInstance3D
@@ -74,7 +76,10 @@ func update(delta: float, input: CookInput) -> void:
 			_try_start(spot)
 	elif input.held or _pouring.spread_to < target_radius * least_share:  # A quick press still pours enough to flip.
 		_area += PI * target_radius * target_radius / seconds_to_target * delta * GameState.difficulty_value("closeup_pace")  # Slower on Easy: easier to stop at the right size.
-		_pouring.spread_to = sqrt(_area / PI)
+		var largest := minf(target_radius + most_over, _room_at(_pouring.position, _pouring))  # Never into the next one.
+		_pouring.spread_to = minf(sqrt(_area / PI), largest)
+		if _pouring.spread_to >= largest:
+			_stop_pouring()
 	else:
 		_stop_pouring()
 
@@ -126,16 +131,26 @@ func _try_start(spot: Vector3) -> void:
 		session.pop_text("Pour it on the %s!" % surface.to_lower(), spot, -1)
 		session.wobble(_bottle)
 		return
-	for piece in session.pieces:
-		var gap := Vector2(piece.position.x - spot.x, piece.position.z - spot.z).length()
-		if gap < piece.spread_to + 0.02:
-			session.pop_text("No room there", spot, -1)
-			session.wobble(_bottle)
-			return
+	if _room_at(spot) < target_radius * least_share:  # Not even a small one fits between the others.
+		session.pop_text("No room there", spot, -1)
+		session.wobble(_bottle)
+		return
 	_pouring = session.add_piece(batter_color, thickness, spot, surface)
 	_pouring.done_color = done_color
 	_area = 0.0
 	session.wobble(_bottle, 0.12)
+
+
+# How big a piece poured at `spot` can get before it touches another (whatever
+# size that one is spreading to), so two never run into each other.
+func _room_at(spot: Vector3, skip: CookPiece = null) -> float:
+	var room := INF
+	for piece in session.pieces:
+		if piece == skip:
+			continue
+		var gap := Vector2(piece.position.x - spot.x, piece.position.z - spot.z).length()
+		room = minf(room, gap - piece.spread_to - GAP_BETWEEN)
+	return room
 
 
 func _stop_pouring() -> void:
@@ -143,7 +158,7 @@ func _stop_pouring() -> void:
 	_pouring = null
 	var error := absf(piece.spread_to - target_radius)
 	var score := 1.0 - clampf((error - perfect_within) / (worst_error - perfect_within), 0.0, 1.0)
-	var words := "Perfect size!" if error <= perfect_within else ("Too small" if piece.spread_to < target_radius else "Too much!")
+	var words := "Perfect size!" if error <= perfect_within else ("Too small" if piece.spread_to < target_radius else "Too big!")
 	if score >= 0.8 and error > perfect_within:
 		words = "Nice!"
 	if not session.surface(surface).contains(piece.position, -piece.spread_to):
