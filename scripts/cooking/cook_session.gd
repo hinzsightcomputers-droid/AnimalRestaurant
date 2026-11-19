@@ -728,6 +728,26 @@ func make_tongs() -> Node3D:
 
 
 # A flat ring on the surface, e.g. to show how big a pour should be.
+# A thin white box outline lying on a surface at height `y`: a zone to put
+# things in (Rect2 on x/z, like a cursor area).
+func make_box_outline(box: Rect2, y: float, color := Color(1.0, 1.0, 1.0, 0.55)) -> Node3D:
+	var outline := Node3D.new()
+	var paint := _flat_material(color)
+	var middle := Vector3(box.get_center().x, y + 0.002, box.get_center().y)
+	for side in 4:
+		var across := side < 2
+		var bar := MeshInstance3D.new()
+		var mesh := BoxMesh.new()
+		mesh.size = Vector3(box.size.x + 0.006 if across else 0.006, 0.002, 0.006 if across else box.size.y)
+		mesh.material = paint
+		bar.mesh = mesh
+		var way := -1.0 if side % 2 == 0 else 1.0
+		bar.position = middle + (Vector3(0.0, 0.0, way * box.size.y * 0.5) if across else Vector3(way * box.size.x * 0.5, 0.0, 0.0))
+		outline.add_child(bar)
+	add_child(outline)
+	return outline
+
+
 func make_ring(ring_radius: float, color := Color(1.0, 1.0, 1.0, 0.55)) -> MeshInstance3D:
 	var ring := MeshInstance3D.new()
 	var mesh := TorusMesh.new()
