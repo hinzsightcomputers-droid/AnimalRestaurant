@@ -362,6 +362,7 @@ func pop_text(text: String, at: Vector3, mood := 0) -> void:
 	label.no_depth_test = true
 	label.font_size = 48
 	label.outline_size = 14
+	UiStyle.title(label)
 	label.pixel_size = text_size * _text_scale
 	label.modulate = [Color(1.0, 0.55, 0.45), Color.WHITE, Color(0.6, 1.0, 0.55)][clampi(mood + 1, 0, 2)]
 	label.outline_modulate = Color(0.2, 0.12, 0.08)
@@ -798,6 +799,7 @@ func _build_hint(view_manager: ViewManager) -> void:
 	_hint.add_theme_color_override("font_color", Color(1.0, 0.97, 0.88))
 	_hint.add_theme_color_override("font_outline_color", Color(0.2, 0.13, 0.08))
 	_hint.add_theme_constant_override("outline_size", 8)
+	UiStyle.title(_hint)
 	_screen.add_child(_hint)
 	_hint.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
 	# With 2+ players a cook always has a view of their own, a small one.
