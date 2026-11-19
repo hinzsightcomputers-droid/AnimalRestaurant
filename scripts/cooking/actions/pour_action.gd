@@ -23,6 +23,7 @@ extends CookAction
 
 const SCRIPTED_GAP := 0.26  # A reel pours its pieces this far apart, in a row.
 const GAP_BETWEEN := 0.004  # Pieces stop growing this far from each other, so they touch without overlapping.
+const EDGE_GAP := 0.02      # ...and this far in from the surface's edge.
 
 var _bottle: Node3D
 var _stream: MeshInstance3D
@@ -67,8 +68,10 @@ func _begin() -> void:
 
 func update(delta: float, input: CookInput) -> void:
 	var spot := input.cursor
-	var top := session.surface(surface).position.y
-	spot.y = top
+	var place := session.surface(surface)
+	spot.y = place.position.y
+	if _pouring == null and place.contains(spot):  # Aim no nearer the edge than the biggest pour could reach.
+		spot = place.keep_inside(spot, target_radius + most_over + EDGE_GAP)
 	if _pouring == null:
 		_guide.visible = show_guide
 		_guide.position = spot + Vector3(0.0, 0.002, 0.0)
@@ -76,7 +79,7 @@ func update(delta: float, input: CookInput) -> void:
 			_try_start(spot)
 	elif input.held or _pouring.spread_to < target_radius * least_share:  # A quick press still pours enough to flip.
 		_area += PI * target_radius * target_radius / seconds_to_target * delta * GameState.difficulty_value("closeup_pace")  # Slower on Easy: easier to stop at the right size.
-		var largest := minf(target_radius + most_over, _room_at(_pouring.position, _pouring))  # Never into the next one.
+		var largest := minf(target_radius + most_over, _room_at(_pouring.position, _pouring))  # Never into the next one or off the edge.
 		_pouring.spread_to = minf(sqrt(_area / PI), largest)
 		if _pouring.spread_to >= largest:
 			_stop_pouring()
@@ -141,10 +144,10 @@ func _try_start(spot: Vector3) -> void:
 	session.wobble(_bottle, 0.12)
 
 
-# How big a piece poured at `spot` can get before it touches another (whatever
-# size that one is spreading to), so two never run into each other.
+# How big a piece poured at `spot` can get before it reaches the edge or touches
+# another (whatever size that one is spreading to), so it never runs off or into another.
 func _room_at(spot: Vector3, skip: CookPiece = null) -> float:
-	var room := INF
+	var room := session.surface(surface).edge_room(spot) - EDGE_GAP
 	for piece in session.pieces:
 		if piece == skip:
 			continue
