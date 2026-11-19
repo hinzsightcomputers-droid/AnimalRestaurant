@@ -12,6 +12,7 @@ extends CookAction
 @export var perfect_within := 0.012       # Size error that still gets full marks...
 @export var worst_error := 0.06           # ...and the error that gets none.
 @export_range(0.0, 1.0) var least_share := 0.8  # Once started, it pours at least this much of the target size.
+@export var most_over := 0.03            # Holding on, it stops by itself this far past the ring ("Too big!"): the bottle doesn't pour forever.
 @export var spread_speed := 5.0           # How quickly batter spreads out to its size.
 @export var batter_color := Color(0.96, 0.88, 0.66)
 @export var done_color := CookPiece.GOLDEN  # What it cooks to when just right (yellow for eggs).
@@ -74,7 +75,9 @@ func update(delta: float, input: CookInput) -> void:
 			_try_start(spot)
 	elif input.held or _pouring.spread_to < target_radius * least_share:  # A quick press still pours enough to flip.
 		_area += PI * target_radius * target_radius / seconds_to_target * delta * GameState.difficulty_value("closeup_pace")  # Slower on Easy: easier to stop at the right size.
-		_pouring.spread_to = sqrt(_area / PI)
+		_pouring.spread_to = minf(sqrt(_area / PI), target_radius + most_over)
+		if _pouring.spread_to >= target_radius + most_over:
+			_stop_pouring()
 	else:
 		_stop_pouring()
 
@@ -143,7 +146,7 @@ func _stop_pouring() -> void:
 	_pouring = null
 	var error := absf(piece.spread_to - target_radius)
 	var score := 1.0 - clampf((error - perfect_within) / (worst_error - perfect_within), 0.0, 1.0)
-	var words := "Perfect size!" if error <= perfect_within else ("Too small" if piece.spread_to < target_radius else "Too much!")
+	var words := "Perfect size!" if error <= perfect_within else ("Too small" if piece.spread_to < target_radius else "Too big!")
 	if score >= 0.8 and error > perfect_within:
 		words = "Nice!"
 	if not session.surface(surface).contains(piece.position, -piece.spread_to):
