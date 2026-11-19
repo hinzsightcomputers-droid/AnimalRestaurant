@@ -30,22 +30,22 @@
 			{ "when": "last_burnt", "text": "Last time was a little dark. Very moody. I drew it anyway." }
 		],
 		"order": [
-			{ "fav": true, "text": "Coffee first. Then food. Then thoughts.", "choices": [
-				{ "tone": "warm", "text": "Coffee's already brewing. I saw you coming.", "reply": "(Opens her eyes fully for the first time.) ...You're an angel. Hotteok, please.", "mood": 0.05 },
+			{ "text": "Coffee first. Then food. Then thoughts.", "choices": [
+				{ "tone": "warm", "text": "Coffee's already brewing. I saw you coming.", "reply": "(Opens her eyes fully for the first time.) ...You're an angel. [dish], please.", "mood": 0.05 },
 				{ "tone": "playful", "text": "Should I just hook you up to the coffee machine?", "reply": "Please. Directly.", "mood": 0.05, "day": { "reply": "...Huh?", "mood": 0 } },
-				{ "tone": "straight", "text": "Coffee and what else?", "reply": "Hotteok. Please. Thank you. Coffee.", "mood": 0 },
+				{ "tone": "straight", "text": "Coffee and what else?", "reply": "[dish]. Please. Thank you. Coffee.", "mood": 0 },
 				{ "tone": "rude", "text": "You look terrible.", "reply": "(Slow blink.) Wow. Okay. I'm too tired for that.", "mood": -0.05 }
 			] },
-			{ "fav": true, "text": "Can I draw you while I wait? Just keep doing what you're doing. Pretend I'm not here.", "choices": [
-				{ "tone": "warm", "text": "I'd be honoured.", "reply": "(Smiles sleepily.) Good. You have a nice face for drawing. Very... round. Hotteok, please.", "mood": 0.05 },
+			{ "text": "Can I draw you while I wait? Just keep doing what you're doing. Pretend I'm not here.", "choices": [
+				{ "tone": "warm", "text": "I'd be honoured.", "reply": "(Smiles sleepily.) Good. You have a nice face for drawing. Very... round. [dish], please.", "mood": 0.05 },
 				{ "tone": "playful", "text": "Only if you draw me taller.", "reply": "I'll draw you as a giant. Cooking for tiny people.", "mood": 0.05 },
-				{ "tone": "straight", "text": "Sure. What can I get you?", "reply": "Hotteok. And coffee.", "mood": 0 },
+				{ "tone": "straight", "text": "Sure. What can I get you?", "reply": "[dish]. And coffee.", "mood": 0 },
 				{ "tone": "rude", "text": "Please don't.", "reply": "...Okay. (She closes the sketchbook.)", "mood": -0.05 }
 			] },
-			{ "only": "night", "fav": true, "text": "Everyone's asleep. This is the best time. Everything's softer at night. Even the lights.", "choices": [
-				{ "tone": "warm", "text": "I'm glad you're here to share it.", "reply": "Me too. ...That was very honest of me. It's late. Hotteok, please.", "mood": 0.05 },
+			{ "only": "night", "text": "Everyone's asleep. This is the best time. Everything's softer at night. Even the lights.", "choices": [
+				{ "tone": "warm", "text": "I'm glad you're here to share it.", "reply": "Me too. ...That was very honest of me. It's late. [dish], please.", "mood": 0.05 },
 				{ "tone": "playful", "text": "Some of us have to wake up at 5 AM, you know.", "reply": "Not me. Never me. Couldn't be me.", "mood": 0.05 },
-				{ "tone": "straight", "text": "What can I get you?", "reply": "Hotteok and coffee. Night coffee.", "mood": 0 },
+				{ "tone": "straight", "text": "What can I get you?", "reply": "[dish] and coffee. Night coffee.", "mood": 0 },
 				{ "tone": "rude", "text": "Go home and sleep.", "reply": "I just woke up. (She turns to the window.)", "mood": -0.05 }
 			] }
 		],

@@ -41,14 +41,14 @@
 				{ "tone": "straight", "text": "Same as usual?", "reply": "Yeahhh. The [dish], please.", "mood": 0 },
 				{ "tone": "rude", "text": "Just look at the menu.", "reply": "...Wow. Okay. (No gasp.) The [dish].", "mood": -0.05 }
 			] },
-			{ "fav": true, "text": "Rate my fit. Be honest.", "choices": [
-				{ "tone": "warm", "text": "Ten out of ten. You always look amazing.", "reply": "AAHH, stop! ...No, keep going. Kidding. Salad, please.", "mood": 0.05 },
+			{ "text": "Rate my fit. Be honest.", "choices": [
+				{ "tone": "warm", "text": "Ten out of ten. You always look amazing.", "reply": "AAHH, stop! ...No, keep going. Kidding. [dish], please.", "mood": 0.05 },
 				{ "tone": "playful", "text": "Eleven out of ten. You broke the scale.", "reply": "OHH, the scale is BROKEN? Iconic.", "mood": 0.05 },
 				{ "tone": "straight", "text": "It's nice. What can I get you?", "reply": "Nice. I'll take it. The [dish].", "mood": 0 },
 				{ "tone": "rude", "text": "Bit much, honestly.", "reply": "...Wow. Okay. (She pulls her hat down.)", "mood": -0.05 }
 			] },
-			{ "fav": true, "text": "Me looking at the menu like the 'confused raccoon doing maths' meme. You know the one.", "choices": [
-				{ "tone": "warm", "text": "Let me help. You'll love the salad.", "reply": "OHH, a guided tour. Love that. Salad.", "mood": 0.05 },
+			{ "text": "Me looking at the menu like the 'confused raccoon doing maths' meme. You know the one.", "choices": [
+				{ "tone": "warm", "text": "Let me help. You'll love the [dish].", "reply": "OHH, a guided tour. Love that. [dish].", "mood": 0.05 },
 				{ "tone": "playful", "text": "Classic. That raccoon's still my favourite.", "reply": "WOOWW. You KNOW the raccoon? We're best friends now.", "mood": 0.05 },
 				{ "tone": "straight", "text": "I don't know that one.", "reply": "Tragic. Okay, the [dish].", "mood": 0 },
 				{ "tone": "rude", "text": "Memes are cringe.", "reply": "...Wow. Okay.", "mood": -0.05 }

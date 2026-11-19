@@ -49,10 +49,10 @@
 				{ "tone": "straight", "text": "What can I get you?", "reply": "The [dish], please.", "mood": 0 },
 				{ "tone": "rude", "text": "Seems like a waste of gas.", "reply": "(Covers her eyes.) ...I like it here, though.", "mood": -0.05 }
 			] },
-			{ "fav": true, "text": "Seth says he can eat a Big Breakfast faster than me. He can't.", "choices": [
+			{ "text": "Seth says he can eat a Big Breakfast faster than me. He can't.", "choices": [
 				{ "tone": "warm", "text": "My money's on you.", "reply": "(Completely flat.) Correct. (She's thrilled.)", "mood": 0.05 },
 				{ "tone": "playful", "text": "Want me to time you?", "reply": "Yes. Perhaps start now.", "mood": 0, "familiar": { "reply": "(She bursts out laughing.) Ooh, good one, [name].", "mood": 0.05 } },
-				{ "tone": "straight", "text": "Same order as usual?", "reply": "Yes. Omurice.", "mood": 0 },
+				{ "tone": "straight", "text": "Same order as usual?", "reply": "Yes. [dish].", "mood": 0 },
 				{ "tone": "rude", "text": "Eating fast isn't a sport.", "reply": "(Covers her eyes.) ...It is to me.", "mood": -0.05 }
 			] }
 		],

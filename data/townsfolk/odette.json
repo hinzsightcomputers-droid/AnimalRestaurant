@@ -41,10 +41,10 @@
 				{ "tone": "straight", "text": "What can I get you?", "reply": "The [dish], please. And black tea.", "mood": 0.05 },
 				{ "tone": "rude", "text": "Writing about the weather is weird.", "reply": "Perhaps. (She closes the notebook firmly.)", "mood": -0.05 }
 			] },
-			{ "fav": true, "text": "I dined at a very famous restaurant last week. Seven courses. I preferred your soup.", "choices": [
+			{ "text": "I dined at a very famous restaurant last week. Seven courses. I preferred your soup.", "choices": [
 				{ "tone": "warm", "text": "That means the world, coming from you.", "reply": "It was meant to. Do not let it go to your head.", "mood": 0.05 },
 				{ "tone": "playful", "text": "So we're officially better than famous?", "reply": "In soup. Only in soup.", "mood": 0.05, "misses": { "reply": "Let us not be hasty.", "mood": 0 } },
-				{ "tone": "straight", "text": "Thank you. What can I get you today?", "reply": "Croissants. Naturally.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Thank you. What can I get you today?", "reply": "[dish]. Naturally.", "mood": 0.05 },
 				{ "tone": "rude", "text": "Why tell me that?", "reply": "Because it was true. (She doesn't say anything nice again this visit.)", "mood": -0.05 }
 			] }
 		],

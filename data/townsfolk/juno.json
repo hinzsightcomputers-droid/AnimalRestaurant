@@ -32,22 +32,22 @@
 			{ "when": "last_burnt", "text": "Last time was a little crispy! I'm not judging. I literally set things on fire weekly." }
 		],
 		"order": [
-			{ "fav": true, "text": "So, totally unrelated, but are you hiring? I can wash dishes. I can chop. I can... mostly chop.", "choices": [
-				{ "tone": "warm", "text": "Not yet, but you'll be first on my list.", "reply": "FIRST? Okay. Okay! I'm going to be so ready. Dumplings, please!", "mood": 0.05 },
+			{ "text": "So, totally unrelated, but are you hiring? I can wash dishes. I can chop. I can... mostly chop.", "choices": [
+				{ "tone": "warm", "text": "Not yet, but you'll be first on my list.", "reply": "FIRST? Okay. Okay! I'm going to be so ready. [dish], please!", "mood": 0.05 },
 				{ "tone": "playful", "text": "Can you juggle plates?", "reply": "Yes! (She tries with two salt shakers. Drops both.) ...Not yet!", "mood": 0.05 },
-				{ "tone": "straight", "text": "Not right now. What can I get you?", "reply": "That's okay! Dumplings, please.", "mood": 0 },
-				{ "tone": "rude", "text": "I'd never hire you.", "reply": "Oh! Okay! Noted! (She smiles a bit too hard.) Dumplings.", "mood": -0.05 }
+				{ "tone": "straight", "text": "Not right now. What can I get you?", "reply": "That's okay! [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "I'd never hire you.", "reply": "Oh! Okay! Noted! (She smiles a bit too hard.) [dish].", "mood": -0.05 }
 			] },
-			{ "fav": true, "text": "I have an exam on marine biology next week. I'm an otter. You'd think I'd know this stuff already.", "choices": [
+			{ "text": "I have an exam on marine biology next week. I'm an otter. You'd think I'd know this stuff already.", "choices": [
 				{ "tone": "warm", "text": "You're going to do great. You work so hard.", "reply": "You think so? Okay. I'm putting that in my brain for exam day.", "mood": 0.05 },
 				{ "tone": "playful", "text": "Just tell them you're a professional otter.", "reply": "Ha! 'Field experience.' I'm writing that on the test.", "mood": 0.05 },
-				{ "tone": "straight", "text": "Good luck. What are you having?", "reply": "Thanks! Dumplings, please!", "mood": 0 },
+				{ "tone": "straight", "text": "Good luck. What are you having?", "reply": "Thanks! [dish], please!", "mood": 0 },
 				{ "tone": "rude", "text": "Sounds like you'll fail.", "reply": "Ha! Maybe! (She laughs it off, but she's quiet after.)", "mood": -0.05 }
 			] },
-			{ "fav": true, "text": "I noticed table two has a spill. Want me to get it? I'm already standing. I mean, I'm sitting. But I could stand.", "choices": [
+			{ "text": "I noticed table two has a spill. Want me to get it? I'm already standing. I mean, I'm sitting. But I could stand.", "choices": [
 				{ "tone": "warm", "text": "That's so kind. I've got it, but thank you.", "reply": "Okay! But if you ever need a hand, I've got two!", "mood": 0.05 },
 				{ "tone": "playful", "text": "Careful, or I'll start charging you rent for that stool.", "reply": "I'd pay it! In dish washing!", "mood": 0.05 },
-				{ "tone": "straight", "text": "I've got it. What can I get you?", "reply": "Dumplings! Please!", "mood": 0 },
+				{ "tone": "straight", "text": "I've got it. What can I get you?", "reply": "[dish]! Please!", "mood": 0 },
 				{ "tone": "rude", "text": "Mind your own business.", "reply": "Oh. Right. Sorry! (She sits on her paws.)", "mood": -0.05 }
 			] }
 		],

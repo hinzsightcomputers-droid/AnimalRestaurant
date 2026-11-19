@@ -48,10 +48,10 @@
 				{ "tone": "straight", "text": "Egg tarts and water.", "reply": "Yes.", "mood": 0.05 },
 				{ "tone": "rude", "text": "Boring.", "reply": "Ok.", "mood": -0.05 }
 			] },
-			{ "fav": true, "text": "How's your day. (Not quite a question. She means it, though.)", "choices": [
+			{ "text": "How's your day. (Not quite a question. She means it, though.)", "choices": [
 				{ "tone": "warm", "text": "Better now. Thanks for asking.", "reply": "Good. (She actually looks pleased.)", "mood": 0.05 },
 				{ "tone": "playful", "text": "Busy. Want to wash dishes?", "reply": "Haha, nice. No.", "mood": 0 },
-				{ "tone": "straight", "text": "Busy. What can I get you?", "reply": "Tarts. Water.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Busy. What can I get you?", "reply": "[dish]. Water.", "mood": 0.05 },
 				{ "tone": "rude", "text": "Why do you care?", "reply": "Ok.", "mood": -0.05 }
 			] }
 		],

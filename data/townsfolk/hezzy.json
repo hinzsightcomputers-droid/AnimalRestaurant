@@ -38,16 +38,16 @@
 				{ "tone": "straight", "text": "One strudel.", "reply": "Yes.", "mood": 0.05 },
 				{ "tone": "rude", "text": "You're very boring, you know that?", "reply": "Hm.", "mood": -0.05 }
 			] },
-			{ "fav": true, "text": "Is the Dr Salt cold today?", "choices": [
+			{ "text": "Is the Dr Salt cold today?", "choices": [
 				{ "tone": "warm", "text": "I'll get you the coldest one in the fridge.", "reply": "Thank you.", "mood": 0.05, "familiar": { "reply": "You're a good person, [name]. (Then, quietly: ding.)", "mood": 0.05 } },
 				{ "tone": "playful", "text": "It's so cold it has its own weather.", "reply": "Ha. Okay.", "mood": 0, "familiar": { "reply": "(A low, impressed whistle.)", "mood": 0.05 } },
-				{ "tone": "straight", "text": "Yes.", "reply": "Good. Strudel too.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Yes.", "reply": "Good. [dish] too.", "mood": 0.05 },
 				{ "tone": "rude", "text": "It's a fridge. Obviously.", "reply": "Right.", "mood": -0.05 }
 			] },
-			{ "only": "familiar", "fav": true, "text": "I've been working on a new noise. Want to hear it?", "choices": [
-				{ "tone": "warm", "text": "Absolutely. I'm honoured.", "reply": "(He makes the strangest noise you've ever heard (a dial-up modem, a kettle, a goose). Then.) Strudel, please.", "mood": 0.05 },
+			{ "only": "familiar", "text": "I've been working on a new noise. Want to hear it?", "choices": [
+				{ "tone": "warm", "text": "Absolutely. I'm honoured.", "reply": "(He makes the strangest noise you've ever heard (a dial-up modem, a kettle, a goose). Then.) [dish], please.", "mood": 0.05 },
 				{ "tone": "playful", "text": "Only if I can rate it out of ten.", "reply": "(He does it.) Score? (Whatever you'd say, he nods.) Fair.", "mood": 0.05 },
-				{ "tone": "straight", "text": "Maybe after your order.", "reply": "Fair. Strudel. (He does it on the way out instead.)", "mood": 0.05 },
+				{ "tone": "straight", "text": "Maybe after your order.", "reply": "Fair. [dish]. (He does it on the way out instead.)", "mood": 0.05 },
 				{ "tone": "rude", "text": "Please don't.", "reply": "Okay. (He looks very slightly sad.)", "mood": -0.05 }
 			] }
 		],

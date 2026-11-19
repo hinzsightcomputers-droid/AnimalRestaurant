@@ -41,16 +41,16 @@
 				{ "tone": "straight", "text": "So, churros?", "reply": "Yes! Churros!", "mood": 0 },
 				{ "tone": "rude", "text": "Ugh. Just pick something.", "reply": "", "mood": -0.05, "crash_out": true }
 			] },
-			{ "fav": true, "text": "Okay so did you hear? Miles is off on another trip, and Juno's back from college, and Odette was seen at the bakery downtown and she DIDN'T EVEN FINISH HER CROISSANT.", "choices": [
-				{ "tone": "warm", "text": "How do you know everything? Tell me more.", "reply": "People just tell me things! I'm a good listener. Okay, churros, and THEN more.", "mood": 0.05 },
+			{ "text": "Okay so did you hear? Miles is off on another trip, and Juno's back from college, and Odette was seen at the bakery downtown and she DIDN'T EVEN FINISH HER CROISSANT.", "choices": [
+				{ "tone": "warm", "text": "How do you know everything? Tell me more.", "reply": "People just tell me things! I'm a good listener. Okay, [dish], and THEN more.", "mood": 0.05 },
 				{ "tone": "playful", "text": "Gasp. Not the croissant.", "reply": "I KNOW! It was a whole scandal! ...It was a medium scandal.", "mood": 0.05 },
-				{ "tone": "straight", "text": "Interesting. What can I get you?", "reply": "Churros! And I'll tell you the rest later.", "mood": 0 },
+				{ "tone": "straight", "text": "Interesting. What can I get you?", "reply": "[dish]! And I'll tell you the rest later.", "mood": 0 },
 				{ "tone": "rude", "text": "I don't care about gossip.", "reply": "", "mood": -0.05, "crash_out": true }
 			] },
-			{ "fav": true, "text": "Iddy and I are doing a cake tasting next week! He says he wants to 'be involved.' He means eat.", "choices": [
+			{ "text": "Iddy and I are doing a cake tasting next week! He says he wants to 'be involved.' He means eat.", "choices": [
 				{ "tone": "warm", "text": "You two are so cute together.", "reply": "Stop! We ARE, though. Don't tell him I said that.", "mood": 0.05 },
 				{ "tone": "playful", "text": "Want me to bake the cake? I'll make it hamster-sized.", "reply": "(Shrieks with laughter.) He would be SO offended! Do it!", "mood": 0.05 },
-				{ "tone": "straight", "text": "Congrats. What are you having?", "reply": "Thank you! Churros, please!", "mood": 0 },
+				{ "tone": "straight", "text": "Congrats. What are you having?", "reply": "Thank you! [dish], please!", "mood": 0 },
 				{ "tone": "rude", "text": "Good luck putting up with him.", "reply": "", "mood": -0.05, "crash_out": true }
 			] }
 		],

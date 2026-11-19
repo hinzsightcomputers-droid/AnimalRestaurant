@@ -40,16 +40,16 @@
 				{ "tone": "straight", "text": "What can I get you?", "reply": "Straight to business. Okay. You good, though? ...Okay. The [dish].", "mood": 0 },
 				{ "tone": "rude", "text": "Can you not do a whole bit right now?", "reply": "...Wow. Okay. That's going in the act. (He orders quietly.)", "mood": -0.05 }
 			] },
-			{ "fav": true, "text": "So Amy wants me to 'eat more vegetables.' I said I'm a hamster, I eat seeds and cheese. She said that's not a food group. She's out of control.", "choices": [
-				{ "tone": "warm", "text": "She sounds like she really cares about you.", "reply": "...Yeah. She does. Don't tell her I said that. Mac, please.", "mood": 0.05 },
-				{ "tone": "playful", "text": "Want me to hide a vegetable in your mac?", "reply": "You WOULDN'T. ...You would. Don't. ...Okay, a tiny one.", "mood": 0.05 },
-				{ "tone": "straight", "text": "So, mac and cheese?", "reply": "Obviously. Mac and cheese.", "mood": 0 },
+			{ "text": "So Amy wants me to 'eat more vegetables.' I said I'm a hamster, I eat seeds and cheese. She said that's not a food group. She's out of control.", "choices": [
+				{ "tone": "warm", "text": "She sounds like she really cares about you.", "reply": "...Yeah. She does. Don't tell her I said that. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Want me to hide a vegetable in your [dish]?", "reply": "You WOULDN'T. ...You would. Don't. ...Okay, a tiny one.", "mood": 0.05 },
+				{ "tone": "straight", "text": "So, [dish]?", "reply": "Obviously. [dish].", "mood": 0 },
 				{ "tone": "rude", "text": "Maybe she's right and you're just annoying.", "reply": "Ha! ...Ha. Yeah. (He laughs, but his ears droop.)", "mood": -0.05 }
 			] },
-			{ "fav": true, "text": "I stayed up till 3 playing games. I'm running on Hamster Energy and spite.", "choices": [
-				{ "tone": "warm", "text": "Sounds like you need a good meal. I've got you.", "reply": "You've GOT me. Okay. I'm safe now. Mac, please.", "mood": 0.05 },
+			{ "text": "I stayed up till 3 playing games. I'm running on Hamster Energy and spite.", "choices": [
+				{ "tone": "warm", "text": "Sounds like you need a good meal. I've got you.", "reply": "You've GOT me. Okay. I'm safe now. [dish], please.", "mood": 0.05 },
 				{ "tone": "playful", "text": "Did you at least win?", "reply": "WIN? I was carrying the whole team. On my tiny back.", "mood": 0.05 },
-				{ "tone": "straight", "text": "What can I get you?", "reply": "Mac. And a Hamster Energy. Please. Urgently.", "mood": 0 },
+				{ "tone": "straight", "text": "What can I get you?", "reply": "[dish]. And a Hamster Energy. Please. Urgently.", "mood": 0 },
 				{ "tone": "rude", "text": "That's not my problem.", "reply": "Tough crowd. Tough, tough crowd.", "mood": -0.05 }
 			] }
 		],

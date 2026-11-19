@@ -34,14 +34,14 @@
 			{ "text": "It's raining. I don't mind rain. It's water I can't fall into.", "later": "Rainy day" }
 		],
 		"order": [
-			{ "fav": true, "text": "I just started a new book. It's called [book]. It's about... oh, sorry, you're working.", "choices": [
-				{ "tone": "warm", "text": "No, tell me. What's it about?", "reply": "(She lights up and explains the whole first chapter.) ...So anyway, the fish stew, please.", "mood": 0.05 },
+			{ "text": "I just started a new book. It's called [book]. It's about... oh, sorry, you're working.", "choices": [
+				{ "tone": "warm", "text": "No, tell me. What's it about?", "reply": "(She lights up and explains the whole first chapter.) ...So anyway, the [dish], please.", "mood": 0.05 },
 				{ "tone": "playful", "text": "No spoilers. I'm on chapter zero.", "reply": "(Giggles.) Chapter zero. I like that. I'll save the twist for you.", "mood": 0.05 },
 				{ "tone": "straight", "text": "What can I get you?", "reply": "Oh, sorry. The [dish], please.", "mood": 0 },
 				{ "tone": "rude", "text": "Nobody asked.", "reply": "(She closes the book and holds it tight.) ...The [dish].", "mood": -0.05 }
 			] },
-			{ "fav": true, "text": "Everyone thinks penguins love swimming. I've never liked it. Is that strange?", "choices": [
-				{ "tone": "warm", "text": "Not at all. You like what you like.", "reply": "...Thank you. People usually laugh. The fish stew, please.", "mood": 0.05 },
+			{ "text": "Everyone thinks penguins love swimming. I've never liked it. Is that strange?", "choices": [
+				{ "tone": "warm", "text": "Not at all. You like what you like.", "reply": "...Thank you. People usually laugh. The [dish], please.", "mood": 0.05 },
 				{ "tone": "playful", "text": "Same. I'm a chef who's scared of soup.", "reply": "You are not! (She laughs.) ...Are you?", "mood": 0.05 },
 				{ "tone": "straight", "text": "A little. What are you having?", "reply": "I suppose it is. The [dish], please.", "mood": 0 },
 				{ "tone": "rude", "text": "Yeah, that's weird for a penguin.", "reply": "...I know. (She looks out at the water and doesn't say much else.)", "mood": -0.05 }

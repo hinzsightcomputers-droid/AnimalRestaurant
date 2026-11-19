@@ -39,10 +39,10 @@
 				{ "tone": "straight", "text": "One Big Breakfast.", "reply": "Thanks, [name]!", "mood": 0 },
 				{ "tone": "rude", "text": "Then go somewhere faster.", "reply": "(His tail stops.) ...Okay.", "mood": -0.05, "grudge": true }
 			] },
-			{ "fav": true, "text": "Hey. You okay? You seem a bit off today.", "choices": [
-				{ "tone": "warm", "text": "Long day. Thanks for noticing.", "reply": "I always notice. Take a breather after this, okay? Big Breakfast, please.", "mood": 0.05 },
+			{ "text": "Hey. You okay? You seem a bit off today.", "choices": [
+				{ "tone": "warm", "text": "Long day. Thanks for noticing.", "reply": "I always notice. Take a breather after this, okay? [dish], please.", "mood": 0.05 },
 				{ "tone": "playful", "text": "How do you DO that?", "reply": "It's a gift! And a curse. Mostly a gift.", "mood": 0.05 },
-				{ "tone": "straight", "text": "I'm fine. What can I get you?", "reply": "Okay. If you say so. Big Breakfast. (He doesn't quite believe you.)", "mood": 0 },
+				{ "tone": "straight", "text": "I'm fine. What can I get you?", "reply": "Okay. If you say so. [dish]. (He doesn't quite believe you.)", "mood": 0 },
 				{ "tone": "rude", "text": "Stay out of my business.", "reply": "(Quietly.) Sorry. Just checking.", "mood": -0.05, "grudge": true }
 			] },
 			{ "only": "grudge", "fav": true, "text": "Big Breakfast. Thanks.", "choices": [

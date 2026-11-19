@@ -39,14 +39,14 @@
 				{ "tone": "straight", "text": "One pretzel.", "reply": "Thanks.", "mood": 0 },
 				{ "tone": "rude", "text": "Same as always. Predictable.", "reply": "Hm. Okay.", "mood": -0.05 }
 			] },
-			{ "fav": true, "text": "You notice the shirt? Night Moose. First edition design.", "choices": [
-				{ "tone": "warm", "text": "Love it. Who's Night Moose?", "reply": "(He lights up and explains the whole origin story.) ...Anyway. Pretzel.", "mood": 0.05 },
+			{ "text": "You notice the shirt? Night Moose. First edition design.", "choices": [
+				{ "tone": "warm", "text": "Love it. Who's Night Moose?", "reply": "(He lights up and explains the whole origin story.) ...Anyway. [dish].", "mood": 0.05 },
 				{ "tone": "playful", "text": "Is Night Moose the one with the antler cape?", "reply": "Ha. Close.", "mood": 0, "familiar": { "reply": "It's an ANTLER BOOMERANG. Did you even watch the movie? I'm disappointed in you.", "mood": 0.05 } },
 				{ "tone": "straight", "text": "Nice. What can I get you?", "reply": "The [dish].", "mood": 0 },
 				{ "tone": "rude", "text": "Aren't you a bit old for superheroes?", "reply": "(Calmly.) Nope. (He doesn't elaborate.)", "mood": -0.05 }
 			] },
-			{ "only": "familiar", "fav": true, "text": "Okay, real question. If you were a superhero, what would your power be?", "choices": [
-				{ "tone": "warm", "text": "Making people's day better, one plate at a time.", "reply": "...Okay, that was actually kind of good. I hate it. Pretzel.", "mood": 0.05 },
+			{ "only": "familiar", "text": "Okay, real question. If you were a superhero, what would your power be?", "choices": [
+				{ "tone": "warm", "text": "Making people's day better, one plate at a time.", "reply": "...Okay, that was actually kind of good. I hate it. [dish].", "mood": 0.05 },
 				{ "tone": "playful", "text": "Flipping pancakes with my mind.", "reply": "Captain Spatula. I'd watch that. Mid-budget. Cult classic.", "mood": 0.05 },
 				{ "tone": "straight", "text": "I don't know. Flying?", "reply": "Classic. Safe. Respectable.", "mood": 0 },
 				{ "tone": "rude", "text": "That's a childish question.", "reply": "Hm. Okay. (No more teasing this visit.)", "mood": -0.05 }

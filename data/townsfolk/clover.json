@@ -37,10 +37,10 @@
 				{ "tone": "straight", "text": "One mochi, coming up.", "reply": "Okay! Thank you!", "mood": 0 },
 				{ "tone": "rude", "text": "Sit down properly.", "reply": "(Eyes go big.) ...okay. (She sits very still.)", "mood": -0.05 }
 			] },
-			{ "fav": true, "text": "Why is the stove hot? Does it hurt it? Can I touch it? I won't touch it. Can I look at it?", "choices": [
+			{ "text": "Why is the stove hot? Does it hurt it? Can I touch it? I won't touch it. Can I look at it?", "choices": [
 				{ "tone": "warm", "text": "It's hot so it can cook your food. You can watch from the window.", "reply": "WHOA. Okay. I'm gonna watch the whole time.", "mood": 0.05 },
 				{ "tone": "playful", "text": "The stove's just grumpy. It needs a hug, but don't give it one.", "reply": "A grumpy stove! Ha! I won't hug it. Promise.", "mood": 0.05 },
-				{ "tone": "straight", "text": "It's hot so it can cook. What would you like?", "reply": "Oh! Mochi, please!", "mood": 0 },
+				{ "tone": "straight", "text": "It's hot so it can cook. What would you like?", "reply": "Oh! [dish], please!", "mood": 0 },
 				{ "tone": "rude", "text": "Too many questions.", "reply": "...sorry. (She stops asking for the rest of the visit.)", "mood": -0.05 }
 			] },
 			{ "text": "When I grow up I'm gonna be a chef. Like you! Is it hard?", "choices": [

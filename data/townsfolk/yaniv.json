@@ -37,16 +37,16 @@
 				{ "tone": "straight", "text": "They're good. Want them?", "reply": "Simple. Direct. I respect it. Yes.", "mood": 0 },
 				{ "tone": "rude", "text": "I'm not doing a pitch. Just order.", "reply": "Whoa, okay. Tough crowd tonight. (He orders and turns to the next customer.)", "mood": -0.05 }
 			] },
-			{ "fav": true, "text": "So remember where I left off? [story]. Okay, so THEN...", "choices": [
-				{ "tone": "warm", "text": "I've been waiting all week for this. Go on.", "reply": "(Delighted, he tells the next part. Ends on a cliffhanger.) ...And that's all you get today. Noodles, please.", "mood": 0.05 },
+			{ "text": "So remember where I left off? [story]. Okay, so THEN...", "choices": [
+				{ "tone": "warm", "text": "I've been waiting all week for this. Go on.", "reply": "(Delighted, he tells the next part. Ends on a cliffhanger.) ...And that's all you get today. [dish], please.", "mood": 0.05 },
 				{ "tone": "playful", "text": "Is this the one with the goat?", "reply": "There's NO goat. ...There might be a goat later.", "mood": 0.05 },
-				{ "tone": "straight", "text": "Tell me while I take your order.", "reply": "Multitasking! Okay, so... (He tells it fast.) Noodles.", "mood": 0 },
-				{ "tone": "rude", "text": "I don't care how it ends.", "reply": "Ouch. Okay. Noodles. (He saves the story for someone else.)", "mood": -0.05 }
+				{ "tone": "straight", "text": "Tell me while I take your order.", "reply": "Multitasking! Okay, so... (He tells it fast.) [dish].", "mood": 0 },
+				{ "tone": "rude", "text": "I don't care how it ends.", "reply": "Ouch. Okay. [dish]. (He saves the story for someone else.)", "mood": -0.05 }
 			] },
-			{ "fav": true, "text": "Card night last night. I was on a streak. Five hands in a row. Then I lost to a tortoise. A tortoise, [name].", "choices": [
-				{ "tone": "warm", "text": "Five in a row is still amazing.", "reply": "Thank you! See, you get it. Fire noodles.", "mood": 0.05 },
+			{ "text": "Card night last night. I was on a streak. Five hands in a row. Then I lost to a tortoise. A tortoise, [name].", "choices": [
+				{ "tone": "warm", "text": "Five in a row is still amazing.", "reply": "Thank you! See, you get it. [dish].", "mood": 0.05 },
 				{ "tone": "playful", "text": "Was it Olive? She's ruthless.", "reply": "It WAS Olive! How do you know? Is everyone losing to Olive?", "mood": 0.05 },
-				{ "tone": "straight", "text": "What can I get you?", "reply": "Fire noodles. And a Moose-tain Dew.", "mood": 0 },
+				{ "tone": "straight", "text": "What can I get you?", "reply": "[dish]. And a Moose-tain Dew.", "mood": 0 },
 				{ "tone": "rude", "text": "Maybe you're just bad at cards.", "reply": "Wow. Okay. I'll take that to Olive.", "mood": -0.05 }
 			] }
 		],

@@ -37,16 +37,16 @@
 				{ "tone": "straight", "text": "One vegetable soup.", "reply": "Yes, please. Thank you.", "mood": 0 },
 				{ "tone": "rude", "text": "Bit of a weird order for a croc.", "reply": "...Yeah. I know. (He shrinks into the booth.)", "mood": -0.05 }
 			] },
-			{ "fav": true, "text": "Did you know crocodiles can't stick out their tongues? Sorry. I just think about that a lot.", "choices": [
+			{ "text": "Did you know crocodiles can't stick out their tongues? Sorry. I just think about that a lot.", "choices": [
 				{ "tone": "warm", "text": "I didn't know that! Tell me more facts anytime.", "reply": "Really? Okay. I have... a lot. I'll ration them.", "mood": 0.05 },
 				{ "tone": "playful", "text": "That explains why you never make faces at me.", "reply": "(A nervous laugh.)", "mood": 0, "familiar": { "reply": "(He tries. He can't.) See? Tragic.", "mood": 0.05 } },
-				{ "tone": "straight", "text": "Interesting. What can I get you?", "reply": "The soup, please. And hot chocolate.", "mood": 0 },
+				{ "tone": "straight", "text": "Interesting. What can I get you?", "reply": "The [dish], please. And hot chocolate.", "mood": 0 },
 				{ "tone": "rude", "text": "Nobody asked.", "reply": "Right. Sorry. (He doesn't share another fact this visit.)", "mood": -0.05 }
 			] },
-			{ "fav": true, "text": "Sorry. I know I take up a lot of the booth.", "choices": [
+			{ "text": "Sorry. I know I take up a lot of the booth.", "choices": [
 				{ "tone": "warm", "text": "The booth's yours. Take all the space you need.", "reply": "(Long pause.) ...Nobody says that.", "mood": 0.05 },
 				{ "tone": "playful", "text": "That's why we built it. Kyle- sized.", "reply": "Oh. Ha.", "mood": 0, "familiar": { "reply": "Kyle- sized. I'll put that on my tombstone.", "mood": 0.05 } },
-				{ "tone": "straight", "text": "You're fine. What can I get you?", "reply": "The soup, please.", "mood": 0 },
+				{ "tone": "straight", "text": "You're fine. What can I get you?", "reply": "The [dish], please.", "mood": 0 },
 				{ "tone": "rude", "text": "Yeah, you kind of do.", "reply": "...Sorry. (He hunches even smaller.)", "mood": -0.05 }
 			] }
 		],
