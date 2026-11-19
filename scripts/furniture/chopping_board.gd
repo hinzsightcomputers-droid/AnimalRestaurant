@@ -8,13 +8,16 @@ class_name ChoppingBoard
 extends Station
 
 const RESULT_SHOW_TIME := 1.5  # Seconds the result stays up before the player can move.
+const WOOD := preload("res://assets/shaders/wood.gdshader")
+const BLOCK_SIZE := Vector3(1.27, 0.045, 0.77)  # The butcher-block top, just over the counter's own (its top at the board's bottom).
+const COUNTER_TOP := 0.908
 
 @export var view_manager: ViewManager  # For the close-up's mouse aiming.
 @export_group("Close-up")
 @export var closeup_scene: PackedScene                 # Put on the board (a CookSession).
 @export var recipe: CookRecipe                         # What it runs: the chopping, unless the ingredient names another.
-@export var closeup_offset := Vector3(-0.1, 0.94, 0.05)  # Where it goes: the top of the board.
-@export var closeup_look_offset := Vector3(-0.1, 0.94, -0.08)
+@export var closeup_offset := Vector3(-0.1, 0.948, 0.05)  # Where it goes: the top of the board.
+@export var closeup_look_offset := Vector3(-0.1, 0.948, -0.08)
 @export var closeup_zoom: CameraZoomSettings
 
 var session: CookSession = null  # Not null while someone is chopping.
@@ -27,6 +30,43 @@ var _ingredients: Ingredients = null
 func _ready() -> void:
 	super._ready()
 	interactable.prompt_for_player = _prompt_for
+	_dress()
+
+
+# The art pass's chopping corner (see the Art Style Guide): a honey butcher-block
+# top over the counter, so the close-up is warm wood instead of loud orange,
+# and the cutting board in a lighter wood with faint knife marks.
+func _dress() -> void:
+	var block := MeshInstance3D.new()
+	var mesh := BoxMesh.new()
+	mesh.size = BLOCK_SIZE
+	var planks := ShaderMaterial.new()
+	planks.shader = WOOD
+	planks.set_shader_parameter("light_wood", Color("#B97E4F"))
+	planks.set_shader_parameter("dark_wood", Color("#8F5A36"))
+	planks.set_shader_parameter("grain", 32.0)
+	planks.set_shader_parameter("planks", 14.0)
+	mesh.material = planks
+	block.mesh = mesh
+	block.position = Vector3(0.0, COUNTER_TOP - BLOCK_SIZE.y * 0.5, 0.0)
+	$Visual.add_child(block)
+	var board := ShaderMaterial.new()
+	board.shader = WOOD
+	board.set_shader_parameter("knife_marks", 1.0)
+	board.set_shader_parameter("light_wood", Color("#EDBE88"))
+	board.set_shader_parameter("dark_wood", Color("#D9A26B"))
+	board.set_shader_parameter("grain", 40.0)
+	for part in $Visual/Board.find_children("*", "MeshInstance3D", true, false):
+		(part as MeshInstance3D).material_override = board
+	# The knife resting beside the board: the close-up's chef's knife, lying flat
+	# (on the Blade node, so it still hides while someone's chopping).
+	var blade: MeshInstance3D = $Visual/Blade
+	blade.mesh = null
+	($Visual/Handle as MeshInstance3D).mesh = null
+	var resting := ChopAction.make_knife_model()
+	resting.rotation.z = PI * 0.5  # On its side.
+	resting.position = blade.to_local($Visual.to_global(Vector3(0.44, COUNTER_TOP + 0.008, 0.02)))
+	blade.add_child(resting)
 
 
 # "Chop Carrots" for someone carrying ingredients that need it, nothing for

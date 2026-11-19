@@ -53,6 +53,11 @@ func needs_chopping() -> bool:
 	return not chopped and not _chop().is_empty()
 
 
+# True for a vegetable that shows its green top on the board (a carrot).
+func leafy_top() -> bool:
+	return bool(_chop().get("leafy_top", false))
+
+
 # How many presses at the chopping board (a Sharp Knife takes fewer, but always at least 1).
 func chops_needed() -> int:
 	return maxi(1, int(_chop().get("chops", 5)) + int(GameState.upgrade_bonus("chops")))

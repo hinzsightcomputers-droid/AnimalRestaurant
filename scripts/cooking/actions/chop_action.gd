@@ -21,7 +21,7 @@ extends CookAction
 @export var knife_height := 0.08           # How high the knife hovers between chops.
 @export var knife_tilt := 25.0             # Degrees the knife leans, so you see the blade from above.
 @export var chop_seconds := 0.1            # The knife's way down (and twice that back up).
-@export var slice_gap := 0.004             # How far apart the pieces sit once cut.
+@export var slice_gap := 0.007             # How far apart the pieces sit once cut (enough to see the cut faces).
 
 var _piece := {}                           # { node, left, right, z, radius, taper, color, marks (x, left to right), cuts, mark_nodes }
 var _board_y := 0.0
@@ -50,6 +50,46 @@ static func lay_along(node: Node3D, left: float, right: float, left_radius: floa
 	node.rotation.z = -atan2(left_radius - right_radius, right - left)
 
 
+# A carrot's green top on `parent` at its thick end (local x `at_x`, pointing
+# -x): a little crown and a fan of stems. Leaf green from the style guide.
+static func add_greens(parent: Node3D, at_x: float, radius: float) -> void:
+	var leaf := StandardMaterial3D.new()
+	leaf.albedo_color = Color("#8DBE3E")
+	leaf.roughness = 0.8
+	var stem := StandardMaterial3D.new()
+	stem.albedo_color = Color("#6E9A33")
+	stem.roughness = 0.8
+	var crown := MeshInstance3D.new()
+	var crown_mesh := CylinderMesh.new()
+	crown_mesh.top_radius = radius * 0.45
+	crown_mesh.bottom_radius = radius * 0.7
+	crown_mesh.height = 0.012
+	crown_mesh.radial_segments = 10
+	crown_mesh.rings = 1
+	crown_mesh.material = stem
+	crown.mesh = crown_mesh
+	crown.rotation.z = PI * 0.5  # Its top toward -x.
+	crown.position = Vector3(at_x - 0.004, 0.0, 0.0)
+	parent.add_child(crown)
+	for i in 7:
+		var fan := (i - 3) * 0.38  # Spread round the end.
+		var arm := Node3D.new()
+		arm.position = Vector3(at_x - 0.008, 0.0, 0.0)
+		arm.rotation = Vector3(fan, 0.0, PI * 0.5 - 0.3 - absf(i - 3) * 0.07)
+		parent.add_child(arm)
+		var blade := MeshInstance3D.new()
+		var mesh := CapsuleMesh.new()
+		mesh.radius = 0.006 if i % 2 == 0 else 0.0045
+		mesh.height = 0.095 - absf(i - 3) * 0.01
+		mesh.radial_segments = 6
+		mesh.rings = 2
+		mesh.material = leaf if i % 2 == 0 else stem
+		blade.mesh = mesh
+		blade.position = Vector3(0.0, mesh.height * 0.5, 0.0)
+		blade.scale = Vector3(1.0, 1.0, 0.55)  # Flat-ish, like a leaf stalk.
+		arm.add_child(blade)
+
+
 func _init() -> void:
 	view_distance = 0.5  # Close in on the carrot.
 	view_pitch = 58.0
@@ -69,7 +109,8 @@ func _begin() -> void:
 		var board := session.surface(on_surface).position
 		carrot = { "left": board.x - piece_length * 0.5, "right": board.x + piece_length * 0.5, "z": board.z,
 			"radius": piece_radius, "taper": taper,
-			"color": session.ingredients.color() if session.ingredients != null else piece_color }
+			"color": session.ingredients.color() if session.ingredients != null else piece_color,
+			"greens": session.ingredients == null or session.ingredients.leafy_top() }
 	elif carrot.has("node"):
 		carrot["node"].queue_free()  # Its pieces take over from here.
 	_piece = carrot.duplicate()
@@ -174,7 +215,13 @@ func _build() -> void:
 		child.queue_free()
 	var flesh := StandardMaterial3D.new()
 	flesh.albedo_color = _piece["color"]
-	flesh.roughness = 0.6
+	flesh.roughness = 0.5
+	var ring := StandardMaterial3D.new()  # A cut face: lighter, with a paler core.
+	ring.albedo_color = (_piece["color"] as Color).lightened(0.14)
+	ring.roughness = 0.4
+	var core := StandardMaterial3D.new()
+	core.albedo_color = (_piece["color"] as Color).lightened(0.32)
+	core.roughness = 0.4
 	var middle_x: float = (_piece["left"] + _piece["right"]) * 0.5
 	var edges: Array = [_piece["left"]]
 	edges.append_array(_piece["cuts"])
@@ -197,10 +244,34 @@ func _build() -> void:
 		var spread := (i - (count - 1) * 0.5) * slice_gap if count > 1 else 0.0
 		slice.position = Vector3((a + b) * 0.5 - middle_x + spread, 0.0, 0.0)
 		node.add_child(slice)
+		if i > 0:  # Its left end is a cut.
+			_add_face(node, a - middle_x + spread, _radius_at(a), -1.0, ring, core)
+		if i < count - 1:
+			_add_face(node, b - middle_x + spread, _radius_at(b), 1.0, ring, core)
+		if i == 0 and _piece.get("greens", false):
+			add_greens(node, a - middle_x + spread, _radius_at(a))
 	var marks := []
 	for mark: float in _piece["marks"]:
 		marks.append(_make_mark(node, mark - middle_x, _radius_at(mark)))
 	_piece["mark_nodes"] = marks
+
+
+# A cut face at x (the carrot's own), facing `way` (-1 left, 1 right): a lighter
+# ring with a paler core, a hair out from the piece so it shows.
+func _add_face(parent: Node3D, x: float, radius: float, way: float, ring: Material, core: Material) -> void:
+	for part in [[radius * 0.97, ring, 0.0006], [radius * 0.45, core, 0.0012]]:
+		var disc := MeshInstance3D.new()
+		var mesh := CylinderMesh.new()
+		mesh.top_radius = part[0]
+		mesh.bottom_radius = part[0]
+		mesh.height = 0.0008
+		mesh.radial_segments = 16
+		mesh.rings = 1
+		mesh.material = part[1]
+		disc.mesh = mesh
+		disc.rotation.z = -PI * 0.5
+		disc.position = Vector3(x + way * part[2], 0.0, 0.0)
+		parent.add_child(disc)
 
 
 # The next mark swells on each beat.
@@ -235,26 +306,92 @@ func _make_mark(parent: Node3D, x: float, radius: float) -> MeshInstance3D:
 # front to back across the food, the handle toward the cook.
 func _make_knife() -> Node3D:
 	var knife := Node3D.new()
-	var steel := StandardMaterial3D.new()
-	steel.albedo_color = Color(0.85, 0.87, 0.9)
-	steel.metallic = 0.7
-	steel.roughness = 0.25
-	var blade := MeshInstance3D.new()
-	var blade_mesh := BoxMesh.new()
-	blade_mesh.size = Vector3(0.004, 0.045, 0.16)
-	blade_mesh.material = steel
-	blade.mesh = blade_mesh
-	blade.position = Vector3(0.0, 0.0225, -0.02)
-	knife.add_child(blade)
-	var wood := StandardMaterial3D.new()
-	wood.albedo_color = Color(0.35, 0.24, 0.16)
-	var handle := MeshInstance3D.new()
-	var handle_mesh := BoxMesh.new()
-	handle_mesh.size = Vector3(0.016, 0.022, 0.09)
-	handle_mesh.material = wood
-	handle.mesh = handle_mesh
-	handle.position = Vector3(0.0, 0.034, 0.105)
-	knife.add_child(handle)
+	knife.add_child(make_knife_model())
 	knife.rotation.z = deg_to_rad(knife_tilt)
 	session.add_child(knife)
+	return knife
+
+
+# A chef's knife (shared with the board's resting knife), its origin at the
+# middle of the blade's edge, the blade along -z, the handle toward +z: a
+# soft steel blade with a rounded tip and a darker spine, a bolster, and a
+# rounded warm-wood handle with two brass rivets.
+static func make_knife_model() -> Node3D:
+	var knife := Node3D.new()
+	var steel := StandardMaterial3D.new()
+	steel.albedo_color = Color("#D9DDD6")
+	steel.metallic = 0.6
+	steel.roughness = 0.3
+	var spine_steel := StandardMaterial3D.new()
+	spine_steel.albedo_color = Color("#A9B3A4")  # The guide's sage steel.
+	spine_steel.metallic = 0.5
+	spine_steel.roughness = 0.35
+	var blade := MeshInstance3D.new()
+	var blade_mesh := BoxMesh.new()
+	blade_mesh.size = Vector3(0.003, 0.04, 0.14)
+	blade_mesh.material = steel
+	blade.mesh = blade_mesh
+	blade.position = Vector3(0.0, 0.02, -0.01)
+	knife.add_child(blade)
+	var tip := MeshInstance3D.new()  # The rounded point.
+	var tip_mesh := CylinderMesh.new()
+	tip_mesh.top_radius = 0.02
+	tip_mesh.bottom_radius = 0.02
+	tip_mesh.height = 0.003
+	tip_mesh.radial_segments = 16
+	tip_mesh.material = steel
+	tip.mesh = tip_mesh
+	tip.rotation.z = PI * 0.5
+	tip.position = Vector3(0.0, 0.02, -0.08)
+	knife.add_child(tip)
+	var spine := MeshInstance3D.new()
+	var spine_mesh := BoxMesh.new()
+	spine_mesh.size = Vector3(0.0045, 0.006, 0.15)
+	spine_mesh.material = spine_steel
+	spine.mesh = spine_mesh
+	spine.position = Vector3(0.0, 0.038, -0.005)
+	knife.add_child(spine)
+	var bolster := MeshInstance3D.new()
+	var bolster_mesh := CylinderMesh.new()
+	bolster_mesh.top_radius = 0.009
+	bolster_mesh.bottom_radius = 0.011
+	bolster_mesh.height = 0.012
+	bolster_mesh.radial_segments = 10
+	bolster_mesh.material = spine_steel
+	bolster.mesh = bolster_mesh
+	bolster.rotation.x = PI * 0.5
+	bolster.position = Vector3(0.0, 0.032, 0.066)
+	knife.add_child(bolster)
+	var wood := StandardMaterial3D.new()
+	wood.albedo_color = Color("#90523C")  # The guide's warm wood.
+	wood.roughness = 0.7
+	var handle := MeshInstance3D.new()
+	var handle_mesh := CapsuleMesh.new()
+	handle_mesh.radius = 0.011
+	handle_mesh.height = 0.095
+	handle_mesh.radial_segments = 10
+	handle_mesh.rings = 3
+	handle_mesh.material = wood
+	handle.mesh = handle_mesh
+	handle.rotation.x = PI * 0.5
+	handle.scale = Vector3(0.75, 1.0, 1.0)  # Flatter side to side.
+	handle.position = Vector3(0.0, 0.032, 0.118)
+	knife.add_child(handle)
+	var brass := StandardMaterial3D.new()
+	brass.albedo_color = Color("#FFD15C")  # Lantern yellow.
+	brass.metallic = 0.5
+	brass.roughness = 0.35
+	for z in [0.1, 0.135]:
+		for side in [-1.0, 1.0]:
+			var rivet := MeshInstance3D.new()
+			var rivet_mesh := CylinderMesh.new()
+			rivet_mesh.top_radius = 0.0028
+			rivet_mesh.bottom_radius = 0.0028
+			rivet_mesh.height = 0.001
+			rivet_mesh.radial_segments = 8
+			rivet_mesh.material = brass
+			rivet.mesh = rivet_mesh
+			rivet.rotation.z = PI * 0.5
+			rivet.position = Vector3(side * 0.0085, 0.032, z)
+			knife.add_child(rivet)
 	return knife
