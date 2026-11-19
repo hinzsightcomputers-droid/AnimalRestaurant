@@ -598,15 +598,21 @@ static func served(townsfolk_id: String, chef_id: String, tier: String, dish: Di
 	var talk := talk_of(townsfolk_id)
 	if is_cold(townsfolk_id, chef_id):
 		return _cold_line(townsfolk_id)
-	var line: Dictionary = talk.get("served", {}).get(tier, {})
-	var text: String = _grudging(townsfolk_id, chef_id, line.get("text", ""))
-	if line.has("familiar") and is_familiar(townsfolk_id, chef_id):
-		text = line["familiar"]
-	if line.get("fav", false) and dish.get("id", "") != GameData.get_townsfolk(townsfolk_id).get("favorite_dish", ""):
-		return ""
+	# One line per tier, or a list of them (said in turn, none repeated till all are).
+	var entry: Variant = talk.get("served", {}).get(tier, {})
 	var words := context(townsfolk_id, chef_id, dish)
-	if not _usable(text, words):
+	var is_fav: bool = dish.get("id", "") == GameData.get_townsfolk(townsfolk_id).get("favorite_dish", "")
+	var options: Array = (entry as Array) if entry is Array else [entry]
+	var texts := {}
+	for option: Dictionary in options:
+		var said: String = _grudging(townsfolk_id, chef_id, option.get("text", ""))
+		if option.has("familiar") and is_familiar(townsfolk_id, chef_id):
+			said = option["familiar"]
+		if (is_fav or not option.get("fav", false)) and _usable(said, words):
+			texts[option] = said
+	if texts.is_empty():
 		return ""
+	var text: String = texts[_pick_unheard(townsfolk_id, texts.keys())] if texts.size() > 1 else texts.values()[0]
 	var intro: String = talk.get("served_intro", "")
 	return fill(text if intro.is_empty() else "%s %s" % [intro, text], words)
 
