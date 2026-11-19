@@ -2,7 +2,9 @@
 # batter spreads into a circle that grows the longer you pour; let go to stop.
 # A quick press still pours least_share of the size, so none come out too tiny to flip.
 # Pours one piece per CookRecipe.pieces. Each scores how close it came to
-# target_radius, and less if it runs off the edge.
+# target_radius. On a flat surface the batter goes in an outlined box (like the
+# big breakfast's): the guide ring can't leave it, and a pour stops growing at
+# its line, so nothing ever runs off the edge.
 class_name PourAction
 extends CookAction
 
@@ -20,13 +22,17 @@ extends CookAction
 @export var bottle_height := 0.2          # How high the nozzle is above the surface.
 @export var show_guide := true            # A faint ring the size of a perfect pour.
 @export var stack := false                # Poured straight onto a plate: it starts the plate's stack, so toppings and drizzles go on it.
+@export var zone_size := Vector2.ZERO      # The outlined box the batter goes in (zero: the surface, zone_margin in from each side). None on a round surface.
+@export var zone_margin := 0.05
 
 const SCRIPTED_GAP := 0.26  # A reel pours its pieces this far apart, in a row.
-const GAP_BETWEEN := 0.004  # Pieces stop growing this far from each other, so they touch without overlapping.
+const GAP_BETWEEN := 0.004  # Pieces stop growing this far from each other (and from the box's line), so they touch without overlapping.
+const EDGE_GAP := 0.02      # A round surface (no box): how far in from its edge.
 
 var _bottle: Node3D
 var _stream: MeshInstance3D
 var _guide: MeshInstance3D
+var _outline: Node3D = null
 var _glug: AudioStreamPlayer3D
 var _pouring: CookPiece = null
 var _area := 0.0
@@ -37,9 +43,21 @@ func view_point() -> Vector3:
 	return session.surface(surface).position
 
 
-# With a view of its own, the cursor stays on the surface (and on screen).
+# The cursor stays in the box (or, without one, on the surface).
 func cursor_area() -> Rect2:
+	var box := _zone()
+	if box.has_area():
+		return box
 	return session.area_of(surface, 0.03) if view_distance > 0.0 else Rect2()
+
+
+# The box the batter goes in, on the surface's x/z (empty on a round surface).
+func _zone() -> Rect2:
+	var place := session.surface(surface)
+	if place.round:
+		return Rect2()
+	var size := zone_size if zone_size != Vector2.ZERO else (place.size - Vector2.ONE * zone_margin * 2.0).max(Vector2.ZERO)
+	return Rect2(place.position.x - size.x * 0.5, place.position.z - size.y * 0.5, size.x, size.y)
 
 
 # No cursor ring over the batter: the guide ring (or, without it, the cursor
@@ -51,6 +69,8 @@ func uses_cursor() -> bool:
 func _begin() -> void:
 	_bottle = session.make_bottle(batter_color)
 	_guide = session.make_ring(target_radius)
+	if _zone().has_area():
+		_outline = session.make_box_outline(_zone(), session.surface(surface).position.y)
 	_glug = session.loop_sound("pour", -6.0)
 	_stream = MeshInstance3D.new()
 	var mesh := CylinderMesh.new()
@@ -67,8 +87,10 @@ func _begin() -> void:
 
 func update(delta: float, input: CookInput) -> void:
 	var spot := input.cursor
-	var top := session.surface(surface).position.y
-	spot.y = top
+	var place := session.surface(surface)
+	spot.y = place.position.y
+	if _pouring == null:  # The guide ring never crosses the box's line (or a round surface's edge).
+		spot = _keep_ring_in(spot, place)
 	if _pouring == null:
 		_guide.visible = show_guide
 		_guide.position = spot + Vector3(0.0, 0.002, 0.0)
@@ -76,7 +98,7 @@ func update(delta: float, input: CookInput) -> void:
 			_try_start(spot)
 	elif input.held or _pouring.spread_to < target_radius * least_share:  # A quick press still pours enough to flip.
 		_area += PI * target_radius * target_radius / seconds_to_target * delta * GameState.difficulty_value("closeup_pace")  # Slower on Easy: easier to stop at the right size.
-		var largest := minf(target_radius + most_over, _room_at(_pouring.position, _pouring))  # Never into the next one.
+		var largest := minf(target_radius + most_over, _room_at(_pouring.position, _pouring))  # Never into the next one or off the edge.
 		_pouring.spread_to = minf(sqrt(_area / PI), largest)
 		if _pouring.spread_to >= largest:
 			_stop_pouring()
@@ -113,6 +135,8 @@ func end() -> void:
 	_bottle.queue_free()
 	_stream.queue_free()
 	_guide.queue_free()
+	if _outline != null:
+		_outline.queue_free()
 
 
 # Each piece side by side, stopped at just the right size.
@@ -141,10 +165,28 @@ func _try_start(spot: Vector3) -> void:
 	session.wobble(_bottle, 0.12)
 
 
-# How big a piece poured at `spot` can get before it touches another (whatever
-# size that one is spreading to), so two never run into each other.
+# Where the ring goes for a cursor at `spot`: moved in so the whole ring, and
+# even the biggest "Too big!" pour around it, stays inside the box (a round
+# surface: inside its edge). So holding on in a corner is no free "Perfect".
+func _keep_ring_in(spot: Vector3, place: CookSurface) -> Vector3:
+	var reach := target_radius + most_over
+	var box := _zone()
+	if not box.has_area():
+		return place.keep_inside(spot, reach + EDGE_GAP) if place.contains(spot) else spot
+	var inner := box.grow(-reach - GAP_BETWEEN)
+	spot.x = clampf(spot.x, inner.position.x, maxf(inner.end.x, inner.position.x))
+	spot.z = clampf(spot.z, inner.position.y, maxf(inner.end.y, inner.position.y))
+	return spot
+
+
+# How big a piece poured at `spot` can get before it reaches the box's line (or
+# a round surface's edge) or touches another (whatever size that one is
+# spreading to), so it never runs off or into another.
 func _room_at(spot: Vector3, skip: CookPiece = null) -> float:
-	var room := INF
+	var box := _zone()
+	var room := session.surface(surface).edge_room(spot) - EDGE_GAP
+	if box.has_area():
+		room = minf(minf(spot.x - box.position.x, box.end.x - spot.x), minf(spot.z - box.position.y, box.end.y - spot.z)) - GAP_BETWEEN
 	for piece in session.pieces:
 		if piece == skip:
 			continue

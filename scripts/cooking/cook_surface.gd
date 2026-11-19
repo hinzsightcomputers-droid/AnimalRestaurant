@@ -150,6 +150,14 @@ func keep_inside(point: Vector3, inset := 0.0) -> Vector3:
 	return Vector3(position.x + flat.x, point.y, position.z + flat.y)
 
 
+# How far the point is from this surface's nearest edge (negative when off it).
+func edge_room(point: Vector3) -> float:
+	var offset := Vector2(point.x - position.x, point.z - position.z)
+	if round:
+		return radius() - offset.length()
+	return minf(size.x * 0.5 - absf(offset.x), size.y * 0.5 - absf(offset.y))
+
+
 # Whether a point (in the session's coordinates) is over this surface. A
 # negative margin asks whether something that big fits inside it.
 func contains(point: Vector3, margin := 0.0) -> bool:
