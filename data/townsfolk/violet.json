@@ -53,6 +53,42 @@
 				{ "tone": "playful", "text": "Busy. Want to wash dishes?", "reply": "Haha, nice. No.", "mood": 0 },
 				{ "tone": "straight", "text": "Busy. What can I get you?", "reply": "[dish]. Water.", "mood": 0.05 },
 				{ "tone": "rude", "text": "Why do you care?", "reply": "Ok.", "mood": -0.05 }
+			] },
+			{ "text": "Busy today.", "choices": [
+				{ "tone": "warm", "text": "Your corner's still quiet. Saved it for you.", "reply": "Thanks. (A tiny smile.) [dish].", "mood": 0.05 },
+				{ "tone": "playful", "text": "Want me to tell everyone to whisper?", "reply": "Yes. (She means it.)", "mood": 0.05 },
+				{ "tone": "straight", "text": "It is. What can I get you?", "reply": "[dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Busy is good for business.", "reply": "Ok.", "mood": -0.05 }
+			] },
+			{ "text": "New lamp.", "choices": [
+				{ "tone": "warm", "text": "You noticed! Do you like it?", "reply": "Yes. Warmer. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Nobody else noticed. You win.", "reply": "Haha, nice. What do I win?", "mood": 0.05 },
+				{ "tone": "straight", "text": "Yep. What are you having?", "reply": "[dish].", "mood": 0 },
+				{ "tone": "rude", "text": "So?", "reply": "Ok.", "mood": -0.05 }
+			] },
+			{ "text": "Rain.", "choices": [
+				{ "tone": "warm", "text": "Perfect day to sit and listen. Take your time.", "reply": "Mm. I will. [dish].", "mood": 0.05 },
+				{ "tone": "playful", "text": "Good weather for frogs?", "reply": "Best weather. (A tiny smile.)", "mood": 0.05 },
+				{ "tone": "straight", "text": "What can I get you?", "reply": "[dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Don't drip on the floor.", "reply": "Ok.", "mood": -0.05 }
+			] },
+			{ "text": "Same as usual. Maybe.", "choices": [
+				{ "tone": "warm", "text": "Usual it is. I like knowing what you like.", "reply": "Me too. [dish].", "mood": 0.05 },
+				{ "tone": "playful", "text": "'Maybe'? Living on the edge today.", "reply": "Haha. A little. [dish].", "mood": 0.05 },
+				{ "tone": "straight", "text": "Which is?", "reply": "[dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Make up your mind.", "reply": "Ok. [dish].", "mood": -0.05 }
+			] },
+			{ "text": "The man at table two is waiting a long time.", "choices": [
+				{ "tone": "warm", "text": "Thanks for telling me. You notice everything.", "reply": "Someone has to. [dish] when you can.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Want a job? Head of noticing?", "reply": "Haha. No. [dish].", "mood": 0.05 },
+				{ "tone": "straight", "text": "I'll check. What are you having?", "reply": "[dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Mind your own table.", "reply": "Ok. (She stops watching.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "I like it here. That's all.", "choices": [
+				{ "tone": "warm", "text": "That means a lot from you, Violet.", "reply": "I know. (A tiny smile.) [dish].", "mood": 0.05 },
+				{ "tone": "playful", "text": "That's the longest compliment you've ever given.", "reply": "Don't get used to it. [dish].", "mood": 0.05 },
+				{ "tone": "straight", "text": "Glad. What can I get you?", "reply": "[dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Okay.", "reply": "Ok.", "mood": -0.05 }
 			] }
 		],
 		"drink": {
@@ -61,17 +97,20 @@
 			"other_drink": "black_tea"
 		},
 		"served": {
-			"perfect": { "text": "...Wow. (The most emotion she shows all game.)" },
-			"great": { "text": "Good." },
-			"okay": { "text": "Thanks." },
-			"burnt": { "text": "Burnt. (She eats it anyway.)" }
+			"perfect": [ { "text": "...Wow. (The most emotion she shows all game.)" }, {"text":"Oh. Nice."}, {"text":"Perfect. (A tiny smile.)"} ],
+			"great": [ { "text": "Good." }, {"text":"Thanks."}, {"text":"Good."} ],
+			"okay": [ { "text": "Thanks." }, {"text":"Ok."}, {"text":"Thanks."} ],
+			"burnt": [ { "text": "Burnt. (She eats it anyway.)" }, {"text":"Burnt."}, {"text":"Hm. Crispy."} ]
 		},
 		"eating": [
 			{ "text": "Hi." },
 			{ "text": "Busy today." },
 			{ "fav": true, "text": "Good tarts." },
 			{ "text": "(She's watching the room. She nods at you and keeps watching.)" },
-			{ "text": "(She listens with obvious enjoyment, says nothing.)", "later": "When someone nearby is talking loudly" }
+			{ "text": "(She listens with obvious enjoyment, says nothing.)", "later": "When someone nearby is talking loudly" },
+			{ "text": "Good." },
+			{ "text": "(She's watching the room, chewing slowly.)" },
+			{ "text": "The plant by the door needs water." }
 		],
 		"eating_chat": [
 			{ "text": "You can sit. If you want.", "choices": [
@@ -79,12 +118,39 @@
 				{ "tone": "playful", "text": "Are we going to talk, or just stare at the room?", "reply": "Stare.", "mood": 0 },
 				{ "tone": "straight", "text": "Can't right now. Busy.", "reply": "Ok. Next time.", "mood": 0.05 },
 				{ "tone": "rude", "text": "Why would I?", "reply": "Ok.", "mood": -0.05 }
+			] },
+			{ "text": "You talk to everyone. How?", "choices": [
+				{ "tone": "warm", "text": "Practice. But I like talking with you most. It's quiet.", "reply": "Haha. Same. (A tiny smile.)", "mood": 0.05 },
+				{ "tone": "playful", "text": "I don't. I just nod and say 'mm-hm.'", "reply": "Mm-hm. (She's smiling.)", "mood": 0.05 },
+				{ "tone": "straight", "text": "It's part of the job.", "reply": "Hm. Fair.", "mood": 0 },
+				{ "tone": "rude", "text": "Some people actually like talking.", "reply": "Ok.", "mood": -0.05 }
+			] },
+			{ "text": "Stitches was here yesterday. My seat.", "choices": [
+				{ "tone": "warm", "text": "I'll save it for you next time. Promise.", "reply": "Thanks. Means a lot.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Should I put a little 'reserved' frog sign on it?", "reply": "Yes. Please. (She's serious.)", "mood": 0.05 },
+				{ "tone": "straight", "text": "It's first come, first served.", "reply": "I know. Still.", "mood": 0 },
+				{ "tone": "rude", "text": "It's not your seat.", "reply": "Ok.", "mood": -0.05 }
+			] },
+			{ "text": "Your hands shake a little when it's busy. Just noticed.", "choices": [
+				{ "tone": "warm", "text": "Thanks for noticing. It gets a lot sometimes.", "reply": "Sit down for a minute. After. It helps.", "mood": 0.05 },
+				{ "tone": "playful", "text": "That's just the coffee.", "reply": "Haha. Less coffee, then.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Didn't realise.", "reply": "Now you do.", "mood": 0 },
+				{ "tone": "rude", "text": "Stop watching me.", "reply": "Ok.", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "You're good company. You don't fill the quiet.", "choices": [
+				{ "tone": "warm", "text": "Neither do you. I like that.", "reply": "Good. (She goes back to eating, very content.)", "mood": 0.05 },
+				{ "tone": "playful", "text": "...", "reply": "Haha. Perfect.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Thanks.", "reply": "Mm.", "mood": 0 },
+				{ "tone": "rude", "text": "I'm just busy.", "reply": "Ok.", "mood": -0.05 }
 			] }
 		],
 		"leaving": [
 			{ "text": "Thanks." },
 			{ "text": "Bye." },
-			{ "text": "Good. (She leaves exact change and a small tip, lined up neatly.)" }
+			{ "text": "Good. (She leaves exact change and a small tip, lined up neatly.)" },
+			{ "text": "Bye." },
+			{ "text": "Thanks, [name]. See you." },
+			{ "text": "(A small nod at the door.)" }
 		],
 		"seasons": {
 			"autumn": "Leaves.",

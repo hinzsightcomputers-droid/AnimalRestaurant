@@ -52,6 +52,42 @@
 				{ "tone": "playful", "text": "Want me to bake the cake? I'll make it hamster-sized.", "reply": "(Shrieks with laughter.) He would be SO offended! Do it!", "mood": 0.05 },
 				{ "tone": "straight", "text": "Congrats. What are you having?", "reply": "Thank you! [dish], please!", "mood": 0 },
 				{ "tone": "rude", "text": "Good luck putting up with him.", "reply": "", "mood": -0.05, "crash_out": true }
+			] },
+			{ "text": "Okay okay okay, before I order, I have to tell you, Jessie got bangs. BANGS. And they're amazing and she's mad about it.", "fast": true, "choices": [
+				{ "tone": "warm", "text": "I bet she looks great. Tell her I said so.", "reply": "I WILL. She'll pretend she doesn't care. She cares SO much. Okay, [dish]!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Bangs? That's the biggest news this town's had all week.", "reply": "(Shrieks.) It IS! Finally, someone gets it!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Good for her. What can I get you?", "reply": "[dish], please! And I'll show you a photo later.", "mood": 0 },
+				{ "tone": "rude", "text": "I really don't care about Jessie's hair.", "reply": "", "mood": -0.05, "crash_out": true }
+			] },
+			{ "text": "Can I be honest? I've been in a mood all day and walking in here fixed it. That's a fact. I'm being honest.", "choices": [
+				{ "tone": "warm", "text": "That makes my whole day. I'm glad you came.", "reply": "Stop it! You're gonna make me cry in a restaurant AGAIN.", "mood": 0.05 },
+				{ "tone": "playful", "text": "It's the smell. I put happiness in the vents.", "reply": "(Laughs.) I KNEW it! I knew there was something in the air!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Glad to hear it. What are you having?", "reply": "[dish]! Mood fully fixed.", "mood": 0 },
+				{ "tone": "rude", "text": "Maybe bring the mood somewhere else next time.", "reply": "", "mood": -0.05, "crash_out": true }
+			] },
+			{ "text": "Iddy tried to cook for me last night. He made toast. He burnt the toast. He made more toast. Also burnt. I ate it!", "choices": [
+				{ "tone": "warm", "text": "That's love right there. Burnt toast and all.", "reply": "Right?! That's what I SAID. Don't tell him it was bad, though.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Send him to me. One lesson. Toast basics.", "reply": "(Shrieks with laughter.) He would come! He'd bring a notebook!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Sounds like you deserve a real meal. What'll it be?", "reply": "Yes! A real meal! [dish], please!", "mood": 0 },
+				{ "tone": "rude", "text": "Sounds like you both can't cook.", "reply": "", "mood": -0.05, "crash_out": true }
+			] },
+			{ "text": "Wait, did you change something? You look different. Good different! Did you sleep? You look like you slept!", "fast": true, "choices": [
+				{ "tone": "warm", "text": "I did, actually. You notice everything.", "reply": "I DO notice everything. It's my gift. You look great!", "mood": 0.05 },
+				{ "tone": "playful", "text": "New apron. It's very slimming.", "reply": "It IS! I knew it was something! Very chef-y!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Nope, same as always. What can I get you?", "reply": "Huh. Then you just look happy! [dish], please!", "mood": 0 },
+				{ "tone": "rude", "text": "Can we skip the small talk?", "reply": "", "mood": -0.05, "crash_out": true }
+			] },
+			{ "only": "familiar", "text": "Okay, real talk. You're one of my favourite people. Top five. Top three, maybe. Don't tell Jessie.", "choices": [
+				{ "tone": "warm", "text": "You're top three for me too, Amy.", "reply": "(Squeals.) Okay, I'm telling EVERYONE. I'm not telling Jessie.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Only top three? Who do I have to beat?", "reply": "Iddy. And Iddy again, because he's my fiancé. You're SO close!", "mood": 0.05 },
+				{ "tone": "straight", "text": "That's sweet. What are you having today?", "reply": "Aww, you're shy! Okay, [dish]!", "mood": 0 },
+				{ "tone": "rude", "text": "That's a bit much.", "reply": "", "mood": -0.05, "crash_out": true }
+			] },
+			{ "text": "Guess who I saw holding hands at the park? GUESS. ...Okay, I can't say. But you'd DIE.", "choices": [
+				{ "tone": "warm", "text": "Your secret's safe. I won't push.", "reply": "See, this is why I tell you things. You're a vault! A sweet little vault!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Blink twice if it's Brandon.", "reply": "(Blinks once. Then twice. Then covers her face.) I didn't do that!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Okay. What can I get you while you decide whether to tell me?", "reply": "Ha! [dish], please. And I'm NOT telling. ...Yet.", "mood": 0 },
+				{ "tone": "rude", "text": "Gossip is kind of mean, you know.", "reply": "", "mood": -0.05, "crash_out": true }
 			] }
 		],
 		"drink": {
@@ -61,17 +97,20 @@
 			"other": "Something fun! Surprise me!"
 		},
 		"served": {
-			"perfect": { "text": "OH MY GOSH. [name]. This is ART. I'm crying. I'm not crying. I'm a little crying." },
-			"great": { "fav": true, "text": "Yay! Look at them! They're perfect little churros!" },
-			"okay": { "text": "Yum! Thank you so much!" },
-			"burnt": { "text": "Okay, honest? A tiny bit burnt. But I love them anyway! Like Iddy!" }
+			"perfect": [ { "text": "OH MY GOSH. [name]. This is ART. I'm crying. I'm not crying. I'm a little crying." }, {"text":"No WAY. [name]. This is the prettiest thing I've ever seen. I'm taking a picture. Three pictures."}, {"text":"(Gasps so loud the whole room looks.) It's PERFECT! Okay, I'm calm. I'm not calm!"} ],
+			"great": [ { "fav": true, "text": "Yay! Look at them! They're perfect little churros!" }, {"text":"Ooh! This looks SO good! Thank you thank you!"}, {"text":"Yes! Okay, this is going on my list of favourite things today."} ],
+			"okay": [ { "text": "Yum! Thank you so much!" }, {"text":"Thank you! Food! Yay!"}, {"text":"Looks yummy! You're doing great, [name]!"} ],
+			"burnt": [ { "text": "Okay, honest? A tiny bit burnt. But I love them anyway! Like Iddy!" }, {"text":"Oh! It's a little toasty. That's okay! Toasty is a flavour!"}, {"text":"Honest? Bit burnt. But I'm eating every bite, because you made it!"} ]
 		},
 		"eating": [
 			{ "text": "Okay so Jessie and I are going shopping this weekend and she's going to make me buy something weird and I'm going to love it.", "fast": true },
 			{ "text": "Did you know Hazel knits sweaters for everyone in town? She asked my size! I'm SO excited." },
 			{ "text": "I love it here. Everyone's so nice. Well, MOST people." },
 			{ "text": "Seth said he could tell I was happy before I even walked in. How does he DO that?" },
-			{ "text": "Wait wait wait, is that a new decoration? It's so cute! Did you pick it? You have such good taste!", "fast": true }
+			{ "text": "Wait wait wait, is that a new decoration? It's so cute! Did you pick it? You have such good taste!", "fast": true },
+			{ "text": "Mmm! Okay, I can't talk, I'm eating. ...Okay, I can talk a little." },
+			{ "text": "Penny lent me a book and I read the last page first. Don't tell her. She'd faint.", "fast": true },
+			{ "text": "I'm saving the last bite. No, I'm not. It's gone. Whoops!" }
 		],
 		"eating_chat": [
 			{ "text": "Okay so the thing is Iddy wants a volleyball-themed wedding and I want flowers and he said what about volleyballs WITH flowers and I said no and he said what about flowers shaped like volleyballs and I said absolutely not!", "fast": true, "choices": [
@@ -79,12 +118,39 @@
 				{ "tone": "playful", "text": "Wait, what?", "reply": "(Repeats it slowly.) He. Wants. Volleyballs. (Then she bursts out laughing.)", "mood": 0.05 },
 				{ "tone": "straight", "text": "Volleyball flowers sounds kind of fun.", "reply": "Don't you DARE tell him that!", "mood": 0 },
 				{ "tone": "rude", "text": "That's a lot of words.", "reply": "", "mood": -0.05, "crash_out": true }
+			] },
+			{ "text": "Okay, quick question, totally random. If you could live anywhere in the whole world, where would it be?", "fast": true, "choices": [
+				{ "tone": "warm", "text": "Right here. This town has everything.", "reply": "OH, that's the best answer! You get it!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Inside a churro. Warm. Sugary. Peaceful.", "reply": "(Laughs so loud everyone turns.) I'd visit you every day!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Somewhere by the sea, I think.", "reply": "Ooh, the sea! I'd want a little house with a porch. And Iddy. And a porch.", "mood": 0 },
+				{ "tone": "rude", "text": "Anywhere you're not, honestly.", "reply": "", "mood": -0.05, "crash_out": true }
+			] },
+			{ "text": "Can I tell you something? I practise my wedding speech in the shower. I always cry by the second line. Every time.", "choices": [
+				{ "tone": "warm", "text": "That means it's going to be beautiful.", "reply": "You think so? Okay. I'm gonna cry right now. Hang on.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Bring tissues. Bring a bucket. Bring a whole river.", "reply": "(Laughs and cries a little.) A RIVER! That's so accurate!", "mood": 0.05 },
+				{ "tone": "straight", "text": "What's the second line?", "reply": "'Iddy, you are...' and then I'm gone. Total mess.", "mood": 0 },
+				{ "tone": "rude", "text": "Nobody wants to hear a long speech.", "reply": "", "mood": -0.05, "crash_out": true }
+			] },
+			{ "text": "Wait, do you have a best friend? Like, a REAL best friend? Tell me about them!", "fast": true, "choices": [
+				{ "tone": "warm", "text": "I think you're on your way to being one.", "reply": "(Gasps.) Don't SAY that if you don't mean it! ...You mean it? AHH.", "mood": 0.05 },
+				{ "tone": "playful", "text": "The stove. It listens. It's warm. It never interrupts.", "reply": "Okay that's adorable and also a little sad! I'm adopting you!", "mood": 0.05 },
+				{ "tone": "straight", "text": "A few old friends. I don't see them much.", "reply": "Then you need new ones close by! Good news! I'm right here!", "mood": 0 },
+				{ "tone": "rude", "text": "That's none of your business.", "reply": "", "mood": -0.05, "crash_out": true }
+			] },
+			{ "text": "Okay, rate my singing. (She hums three notes.) Be honest. I'm doing the wedding song.", "choices": [
+				{ "tone": "warm", "text": "That was lovely. Iddy's going to melt.", "reply": "He WILL melt. He'll be a puddle. A happy hamster puddle.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Encore! But maybe not in a full restaurant.", "reply": "(Laughs.) Too late, everyone heard! You're welcome, everyone!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Pretty good. Maybe start a bit lower.", "reply": "Lower! Okay! See, honest feedback, I LOVE it.", "mood": 0 },
+				{ "tone": "rude", "text": "Please don't sing in here.", "reply": "", "mood": -0.05, "crash_out": true }
 			] }
 		],
 		"leaving": [
 			{ "text": "Bye bye bye! Love you! Not in a weird way! In a friend way!" },
 			{ "text": "That was SO good. Okay, I'm going. I'm going! ...Okay, now I'm going." },
-			{ "text": "See you soon, [name]! I'll bring more news!" }
+			{ "text": "See you soon, [name]! I'll bring more news!" },
+			{ "text": "Okay, I'm leaving, but I'm coming back, and I'll have SO much news, so get ready!", "fast": true },
+			{ "text": "Bye, [name]! You're the best! Tell the stove I said bye!" },
+			{ "text": "Hug from across the room! (She waves both wings.) Okay, bye!" }
 		],
 		"seasons": {
 			"chef_birthday": "HAPPY BIRTHDAY! Oh my gosh, why didn't you TELL me?! I would've brought balloons!",

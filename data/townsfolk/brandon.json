@@ -50,6 +50,42 @@
 				{ "tone": "playful", "text": "Flipping pancakes with my mind.", "reply": "Captain Spatula. I'd watch that. Mid-budget. Cult classic.", "mood": 0.05 },
 				{ "tone": "straight", "text": "I don't know. Flying?", "reply": "Classic. Safe. Respectable.", "mood": 0 },
 				{ "tone": "rude", "text": "That's a childish question.", "reply": "Hm. Okay. (No more teasing this visit.)", "mood": -0.05 }
+			] },
+			{ "text": "Finished a series last night. Eight seasons. I need a minute.", "choices": [
+				{ "tone": "warm", "text": "Take all the minutes you need. Was the ending good?", "reply": "It was... fine. I'm fine.", "mood": 0.05, "familiar": { "reply": "The ending was perfect and I'm not okay. Don't look at me. [dish], please.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Should I bring tissues with the menu?", "reply": "(A small laugh.) Maybe.", "mood": 0.05, "familiar": { "reply": "Bring the whole box. And keep the commentary to yourself.", "mood": 0.05 } },
+				{ "tone": "straight", "text": "Sorry to hear it. What can I get you?", "reply": "The [dish]. Thanks.", "mood": 0 },
+				{ "tone": "rude", "text": "It's just a show.", "reply": "Hm. Okay.", "mood": -0.05 }
+			] },
+			{ "text": "They announced who's playing the new Night Moose.", "choices": [
+				{ "tone": "warm", "text": "And? Are you happy with it?", "reply": "Cautiously. Good actor. Wrong antlers.", "mood": 0.05, "familiar": { "reply": "Cautiously optimistic. You asked. You actually asked. Okay, [dish].", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Is it me? Tell me it's me.", "reply": "(He looks at you for a long time.) No.", "mood": 0.05, "familiar": { "reply": "You'd be Night Moose's sidekick. Spatula Lad. Dies in the second act.", "mood": 0.05 } },
+				{ "tone": "straight", "text": "Big news. What are you having?", "reply": "The [dish].", "mood": 0 },
+				{ "tone": "rude", "text": "I don't really care who plays a moose.", "reply": "(Calmly.) Okay.", "mood": -0.05 }
+			] },
+			{ "text": "Booth was free. Lucky.", "choices": [
+				{ "tone": "warm", "text": "I'd have saved it for you anyway.", "reply": "Thanks. Appreciate it.", "mood": 0.05, "familiar": { "reply": "You'd save me the booth? That's a loyalty arc. Respect.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "It's reserved for people who say 'lucky.'", "reply": "Ha. Fair.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Glad you got it. What'll it be?", "reply": "The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Don't get comfortable.", "reply": "Hm. Noted.", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "Rank your top three movies. Go. No thinking.", "choices": [
+				{ "tone": "warm", "text": "Whatever you'd pick. I trust your taste.", "reply": "That's a cop-out. I'll allow it. My taste is excellent. [dish].", "mood": 0.05 },
+				{ "tone": "playful", "text": "Ratatouille, Ratatouille, and Ratatouille.", "reply": "A chef who loves a cooking movie. Predictable. Correct, though.", "mood": 0.05 },
+				{ "tone": "straight", "text": "I don't really watch movies. What can I get you?", "reply": "...We'll fix that. [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "I'm busy. Just order.", "reply": "Hm. Okay. (No more teasing this visit.)", "mood": -0.05 }
+			] },
+			{ "text": "Rush says hi. He's parking. It's going to take a while.", "choices": [
+				{ "tone": "warm", "text": "I'll keep a seat warm for him.", "reply": "Thanks. He'll pretend he doesn't care.", "mood": 0.05, "familiar": { "reply": "He'll say he doesn't need it. He needs it. [dish], please.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "How long? Like, one episode or a whole season?", "reply": "Mini-series. Limited run.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Got it. What can I get you?", "reply": "The [dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Tell him not to bother.", "reply": "(A pause.) I won't tell him that.", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "If this place were a movie, what genre would it be?", "choices": [
+				{ "tone": "warm", "text": "A feel-good movie. Everyone gets a happy ending.", "reply": "Correct answer. Cozy comedy. Small town. Big heart. [dish].", "mood": 0.05 },
+				{ "tone": "playful", "text": "Horror. Have you seen the dish pile?", "reply": "(Laughs, actually laughs.) The Dish Pile. Rated R.", "mood": 0.05 },
+				{ "tone": "straight", "text": "No idea. What are you having?", "reply": "Documentary, then. The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "That's a weird question.", "reply": "Hm. Okay.", "mood": -0.05 }
 			] }
 		],
 		"drink": {
@@ -59,17 +95,20 @@
 			"other": "Something fizzy."
 		},
 		"served": {
-			"perfect": { "text": "...Wow. Thanks.", "familiar": "Okay. Standing ovation. I'm not standing. But in my heart." },
-			"great": { "text": "Strong entry." },
-			"okay": { "text": "Solid. Middle of the franchise." },
-			"burnt": { "text": "Burnt. This is the sequel nobody asked for." }
+			"perfect": [ { "text": "...Wow. Thanks.", "familiar": "Okay. Standing ovation. I'm not standing. But in my heart." }, {"familiar":"This is the director's cut. No notes.","text":"...Huh. Wow."}, {"familiar":"Ten out of ten. Don't tell anyone I gave a ten.","text":"That's... really good. Thanks."} ],
+			"great": [ { "text": "Strong entry." }, {"text":"Nice. Thanks."}, {"text":"Good opening scene."} ],
+			"okay": [ { "text": "Solid. Middle of the franchise." }, {"text":"Thanks."}, {"text":"Decent. Like a mid-season episode."} ],
+			"burnt": [ { "text": "Burnt. This is the sequel nobody asked for." }, {"text":"Bit dark. Like a gritty reboot."}, {"text":"Burnt. Every franchise has one."} ]
 		},
 		"eating": [
 			{ "voice": "before", "text": "It's good. Thanks." },
 			{ "voice": "familiar", "text": "You know, for a chef, you're pretty good at this. That's a joke. You're great. Mostly." },
 			{ "voice": "familiar", "text": "Rush fell asleep halfway through the Captain Carrot marathon. He says he didn't. He snored through the final battle." },
 			{ "voice": "familiar", "text": "I've seen every Night Moose movie four times. The fourth one is bad. I've seen it six times." },
-			{ "text": "The trailer for Captain Carrot 3 came out. I've watched it twelve times. There's a frame where you can see a carrot in the background. Huge." }
+			{ "text": "The trailer for Captain Carrot 3 came out. I've watched it twelve times. There's a frame where you can see a carrot in the background. Huge." },
+			{ "voice": "before", "text": "Good. Thanks." },
+			{ "voice": "familiar", "text": "This is a strong second act. The first bite was the setup." },
+			{ "voice": "familiar", "text": "I'd watch a whole show about this kitchen. Mostly for the food. Some of it for you." }
 		],
 		"eating_chat": [
 			{ "text": "Captain Carrot 3 comes out this week. Midnight showing. You should come.", "choices": [
@@ -77,12 +116,39 @@
 				{ "tone": "playful", "text": "Only if you don't explain every scene to me.", "reply": "Ha. Fair.", "mood": 0, "familiar": { "reply": "No promises. I have notes.", "mood": 0.05 } },
 				{ "tone": "straight", "text": "Can't. I close late.", "reply": "Fair. I'll tell you about it. In detail.", "mood": 0 },
 				{ "tone": "rude", "text": "I'd rather not.", "reply": "Hm. Okay.", "mood": -0.05 }
+			] },
+			{ "text": "Okay. Hot take. Sequels are better than the originals. Argue.", "choices": [
+				{ "tone": "warm", "text": "You've seen way more than me. I'll trust you.", "reply": "Smart. I've seen everything. Twice.", "mood": 0.05, "familiar": { "reply": "That's not arguing. That's surrender. I'll take it.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Sequels are just leftovers. Leftovers are better the next day.", "reply": "(He stops chewing.) ...That's the best thing anyone's said in here.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Depends on the movie.", "reply": "Safe answer. Diplomatic. Boring.", "mood": 0 },
+				{ "tone": "rude", "text": "Movies are a waste of time.", "reply": "(Quietly.) Okay.", "mood": -0.05 }
+			] },
+			{ "text": "Rate the food out of ten. I'll go first. Nine. I'm saving ten for the sequel.", "choices": [
+				{ "tone": "warm", "text": "A nine from you? I'll take it.", "reply": "You should. I don't give nines.", "mood": 0.05, "familiar": { "reply": "I gave Captain Carrot 2 a seven. You're doing great.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Next time I'm aiming for an eleven.", "reply": "Ambitious. I like the confidence. Unearned, but I like it.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Thanks. Glad you like it.", "reply": "I do.", "mood": 0 },
+				{ "tone": "rude", "text": "Nobody asked for a review.", "reply": "Hm. Okay.", "mood": -0.05 }
+			] },
+			{ "text": "You ever wonder what your superhero name would be? Yours is easy. 'The Chef.'", "choices": [
+				{ "tone": "warm", "text": "Only if you're my sidekick.", "reply": "(He thinks about it.) ...Deal. I get a cape.", "mood": 0.05 },
+				{ "tone": "playful", "text": "'The Chef' is lazy writing. I want something better.", "reply": "Fine. 'The Flipper.' No. 'Captain Crisp.' I'll workshop it.", "mood": 0.05 },
+				{ "tone": "straight", "text": "That's pretty literal.", "reply": "The best ones are. Ask Night Moose.", "mood": 0 },
+				{ "tone": "rude", "text": "Superheroes are for kids.", "reply": "(Calmly.) Nope.", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "Honest question. Do you ever take a day off? Like, actually off?", "choices": [
+				{ "tone": "warm", "text": "Not often. Nice of you to ask.", "reply": "Take one. Watch a movie. I'll send you a list. It's long.", "mood": 0.05 },
+				{ "tone": "playful", "text": "This is my day off. I just like it here.", "reply": "That's either very sad or very wholesome. I'll go with wholesome.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Sometimes.", "reply": "Good. Burnout's a real villain.", "mood": 0 },
+				{ "tone": "rude", "text": "Worry about yourself.", "reply": "Hm. Okay.", "mood": -0.05 }
 			] }
 		],
 		"leaving": [
 			{ "voice": "before", "text": "Thanks. See you." },
 			{ "voice": "familiar", "text": "Good stuff, [name]. Two thumbs up. Okay, one and a half." },
-			{ "voice": "familiar", "text": "Movie time. Don't wait up. You weren't going to. I know." }
+			{ "voice": "familiar", "text": "Movie time. Don't wait up. You weren't going to. I know." },
+			{ "voice": "before", "text": "Bye. Good food." },
+			{ "voice": "familiar", "text": "Roll credits. See you next episode, [name]." },
+			{ "voice": "familiar", "text": "I'll be back. That's a movie quote. You knew that. Right?" }
 		],
 		"seasons": {
 			"christmas": "Got you a superhero shirt. It's Captain Carrot. Wear it. I'll know if you don't.",

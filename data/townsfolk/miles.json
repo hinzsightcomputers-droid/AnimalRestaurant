@@ -51,6 +51,42 @@
 				{ "tone": "playful", "text": "I'll need to see my agent before you publish that.", "reply": "Uh, ha! Your agent said yes. I asked him earlier.", "mood": 0.05 },
 				{ "tone": "straight", "text": "Ready to order?", "reply": "Uh, yes! Sorry. The [dish], please.", "mood": 0 },
 				{ "tone": "rude", "text": "Don't take pictures of me.", "reply": "Oh! Sorry, sorry. Deleting it. (He looks a little deflated.)", "mood": -0.05 }
+			] },
+			{ "text": "Uh, why did the mole open a restaurant? Because he really dug food! Ha! ...I've been saving that one.", "choices": [
+				{ "tone": "warm", "text": "That was worth the wait, Miles.", "reply": "Uh, really? Ha! Okay, I'm gonna save another one for next time! [dish], please!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Did you dig that joke up somewhere?", "reply": "(Snorts.) DIG IT UP! Oh, you're good! You're very good!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Ha. What can I get you?", "reply": "Uh, the [dish], please!", "mood": 0 },
+				{ "tone": "rude", "text": "That was painful.", "reply": "(Nervous laugh.) Ha... ha. Right. Sorry. The [dish].", "mood": -0.05 }
+			] },
+			{ "text": "Uh, can I take a picture of you? Just quickly! You're in good light. Very chef-y.", "choices": [
+				{ "tone": "warm", "text": "Of course. Get my good side.", "reply": "They're ALL good sides! (Click.) Perfect! [dish], please!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Only if I can hold a fish like a trophy.", "reply": "(Laughs.) Okay, THAT'S going on my wall! Hold it higher! (Click.)", "mood": 0.05 },
+				{ "tone": "straight", "text": "Quickly. What are you having?", "reply": "(Click.) Thanks! Uh, the [dish]!", "mood": 0 },
+				{ "tone": "rude", "text": "No pictures, please.", "reply": "Oh! Ha. Right. Sorry. (He lowers the camera.) The [dish].", "mood": -0.05 }
+			] },
+			{ "text": "Uh, I tripped over a root on the way here. Then I realised it was MY root. I planted it. Ha!", "choices": [
+				{ "tone": "warm", "text": "Are you okay? That sounds like a tumble.", "reply": "I'm fine! Moles are bouncy! Mostly! [dish], please!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Your garden's out to get you.", "reply": "(Snorts.) It's revenge! For all the digging!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Ha. What'll it be?", "reply": "Uh, the [dish]!", "mood": 0 },
+				{ "tone": "rude", "text": "Watch where you're going.", "reply": "Ha... yeah. Will do. (He looks at his feet.)", "mood": -0.05 }
+			] },
+			{ "text": "Uh, what do you call a pancake that's really good at photos? A flap-snapper! ...I'm still working on it.", "choices": [
+				{ "tone": "warm", "text": "Keep working on it. I want to hear the final version.", "reply": "You WILL! It's gonna be so good! Or so bad! Either way! [dish], please!", "mood": 0.05 },
+				{ "tone": "playful", "text": "A 'shutter-stack.' Free of charge.", "reply": "(Gasps, then snorts.) SHUTTER-STACK! Can I use that? I'm using that!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Needs work. What can I get you?", "reply": "Ha! Fair! The [dish], please!", "mood": 0 },
+				{ "tone": "rude", "text": "Please stop.", "reply": "(Nervous laugh.) Ha... okay. The [dish].", "mood": -0.05 }
+			] },
+			{ "text": "Uh, I've got a new lens! It's for close-ups. I took a photo of a bee. Very close. Too close. I'm fine!", "choices": [
+				{ "tone": "warm", "text": "Can't wait to see it. You take the best pictures.", "reply": "Uh, you think so? Ha! I'll bring the bee one! [dish], please!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Did the bee sign a photo release?", "reply": "(Snorts.) No! He buzzed off! Ha!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Nice. What are you having?", "reply": "Uh, the [dish]!", "mood": 0 },
+				{ "tone": "rude", "text": "Doesn't sound like a smart idea.", "reply": "Ha... yeah. Probably not. (He tucks the camera away.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "Uh, can I tell you something? Of all the places I go, this one's my favourite to come back to. Ha. That's a little mushy.", "choices": [
+				{ "tone": "warm", "text": "It's not mushy. It's lovely. I'm glad you come back.", "reply": "(Big happy laugh.) Okay, now I'm all warm. Like a toasted mole. [dish], please!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Mushy like mushy peas? Should I put that on the menu?", "reply": "(Snorts so hard he has to sit down.) MUSHY PEAS! Ha!", "mood": 0.05 },
+				{ "tone": "straight", "text": "That's nice to hear. What can I get you?", "reply": "Ha! The [dish], please!", "mood": 0 },
+				{ "tone": "rude", "text": "Okay, that's a bit much.", "reply": "Ha... yeah. Sorry. Too much. (He looks at the menu for a long time.)", "mood": -0.05 }
 			] }
 		],
 		"drink": {
@@ -60,17 +96,20 @@
 			"other": "Uh, whatever's the most photogenic!"
 		},
 		"served": {
-			"perfect": { "text": "Uh, hold on, hold on. Nobody touch it. (Click.) Okay. That's going on my wall." },
-			"great": { "text": "Uh, oh, that looks wonderful! The colours! The steam!" },
-			"okay": { "text": "Uh, yum! A classic. Simple, honest, delicious." },
-			"burnt": { "text": "Uh, ooh, that's got character! Very dramatic. I'm calling this one 'Charcoal Dreams.' Ha!" }
+			"perfect": [ { "text": "Uh, hold on, hold on. Nobody touch it. (Click.) Okay. That's going on my wall." }, {"text":"Uh, WOW. Hold on. (Click. Click. Click.) That's a magazine cover, [name]!"}, {"text":"Uh, that's perfect! I'm taking a photo! I'm framing it! I'm eating it! In that order!"} ],
+			"great": [ { "text": "Uh, oh, that looks wonderful! The colours! The steam!" }, {"text":"Uh, ha! Looks great! Thank you!"}, {"text":"Ooh! Perfect light on that! (Click.)"} ],
+			"okay": [ { "text": "Uh, yum! A classic. Simple, honest, delicious." }, {"text":"Uh, thank you! Looks good!"}, {"text":"Ha! Food! Yay!"} ],
+			"burnt": [ { "text": "Uh, ooh, that's got character! Very dramatic. I'm calling this one 'Charcoal Dreams.' Ha!" }, {"text":"Uh, a little crispy! That's okay! I'll use a filter! Ha!"}, {"text":"Ha! Burnt! Very dramatic! Black and white photo!"} ]
 		},
 		"eating": [
 			{ "text": "Uh, what do you call a mole who tells jokes? A comedig-an! ...I'm workshopping that one." },
 			{ "text": "Uh, I photographed a beetle on the way here. It was so shiny. Do you want to see? You want to see." },
 			{ "text": "Uh, the best part of any trip is coming home. And coming here. Which is basically home." },
 			{ "text": "Uh, did you know moles can dig a tunnel eighteen feet long in an hour? I can't. But I know it." },
-			{ "text": "(He's quietly photographing the dining room from his seat.)" }
+			{ "text": "(He's quietly photographing the dining room from his seat.)" },
+			{ "text": "Uh, hold on. (He photographs his plate from five angles.) Okay. Now I can eat. Ha!" },
+			{ "text": "Uh, this is so good I'd give it a ten. On a scale of mole. Which goes to ten. Ha!" },
+			{ "text": "(He's laughing quietly at something on his camera.) Sorry! Pigeon photo. It's making a face. Ha!" }
 		],
 		"eating_chat": [
 			{ "text": "Uh, if you could go anywhere in the world, where would you go?", "choices": [
@@ -78,13 +117,40 @@
 				{ "tone": "playful", "text": "Somewhere with no bad puns.", "reply": "Ha! Then you'd have to leave me behind! ...Don't leave me behind.", "mood": 0.05 },
 				{ "tone": "straight", "text": "I'm happy right here.", "reply": "Uh, that's a good answer, honestly. Home's the best destination.", "mood": 0 },
 				{ "tone": "rude", "text": "Somewhere you're not.", "reply": "(Laughs, unsure.) Ha... oof. Okay. (He eats quietly.)", "mood": -0.05 }
+			] },
+			{ "text": "Uh, if you could go anywhere in the world, where would you go? I'll take you a photo from there!", "choices": [
+				{ "tone": "warm", "text": "Wherever you're going next. Then I'll feel like I came along.", "reply": "(Gasps.) Okay, I'm taking SO many pictures for you!", "mood": 0.05 },
+				{ "tone": "playful", "text": "The middle of the earth. You'd know the way.", "reply": "(Snorts.) I DO know the way! It's very dark! Bad for photos!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Somewhere with mountains.", "reply": "Uh, mountains! Great light up there! I'll get you a good one!", "mood": 0 },
+				{ "tone": "rude", "text": "I don't need photos.", "reply": "Ha... right. Okay. (He puts the camera down.)", "mood": -0.05 }
+			] },
+			{ "text": "Uh, why don't skeletons ever eat at restaurants? They don't have the stomach for it! Ha! ...Too dark?", "choices": [
+				{ "tone": "warm", "text": "Not too dark. I laughed.", "reply": "You LAUGHED? Ha! That's two this week! A record!", "mood": 0.05 },
+				{ "tone": "playful", "text": "That joke has no body to it.", "reply": "(Wheezes.) NO BODY! Okay, you win! You win the jokes!", "mood": 0.05 },
+				{ "tone": "straight", "text": "A little.", "reply": "Ha! Okay, back in the drawer it goes.", "mood": 0 },
+				{ "tone": "rude", "text": "That's not even funny.", "reply": "(Nervous laugh.) Ha... no. Sorry. (He eats quietly.)", "mood": -0.05 }
+			] },
+			{ "text": "Uh, I'm making a photo book of the town! Everyone's in it. Can I put the kitchen in? The kitchen's my favourite.", "choices": [
+				{ "tone": "warm", "text": "I'd love that. Take as many as you want.", "reply": "Yay! I'll make it look SO good. Even the sink!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Only if you edit out the burnt pans.", "reply": "(Laughs.) No promises! The burnt pans have character!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Sure, after closing.", "reply": "Uh, perfect! Night light! Very moody!", "mood": 0 },
+				{ "tone": "rude", "text": "Keep the kitchen out of it.", "reply": "Oh! Okay. Ha. No kitchen. (He crosses something out.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "Uh, I just realised. I don't have a single photo of us. Like, together. Can we? Quick one?", "choices": [
+				{ "tone": "warm", "text": "Absolutely. Squeeze in.", "reply": "(Click.) Ha! That's going in a frame! The BIG frame!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Only if we both make silly faces.", "reply": "(Makes the silliest face. Click.) Ha! That's the best photo I've ever taken!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Sure. Quick, though.", "reply": "(Click.) Done! Thanks!", "mood": 0 },
+				{ "tone": "rude", "text": "I'd rather not.", "reply": "Oh. Ha. Right. That's fine. (He lowers the camera slowly.)", "mood": -0.05 }
 			] }
 		],
 		"leaving": [
 			{"text":"Uh, I'm off to [trip] tomorrow! Don't miss me too much. Actually, miss me a little.","when":"leaving_town"},
 			{ "text": "Uh, thanks, [name]! I'll see you soon. Or I'll see you through a lens!" },
 			{ "text": "Uh, okay, I'm off! Gotta hole up at home. Ha! Bye!" },
-			{ "text": "Uh, that was delightful. I'm going to go photograph a cloud now." }
+			{ "text": "Uh, that was delightful. I'm going to go photograph a cloud now." },
+			{ "text": "Uh, bye, [name]! Smile! (Click.) Got it! Ha!" },
+			{ "text": "Thanks for the food! I'm off to take pictures of the sunset. Or a bush. Whatever's nearer!" },
+			{ "text": "Uh, see you soon! Unless I go on a trip! Then see you later! Ha!" }
 		],
 		"seasons": {
 			"autumn": "Uh, leaves! Acorns! Cider! It's my season, [name]. It's officially my season.",

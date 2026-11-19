@@ -52,6 +52,42 @@
 				{ "tone": "playful", "text": "I work next to a stove all day. I've had enough fire.", "reply": "(Laughs.) Fair. Okay, fair.", "mood": 0.05 },
 				{ "tone": "straight", "text": "Sometimes. [dish]?", "reply": "[dish].", "mood": 0 },
 				{ "tone": "rude", "text": "Sounds boring.", "reply": "...Yeah. Maybe. (He goes quiet.)", "mood": -0.05 }
+			] },
+			{ "text": "Painted the car. Took three coats. Still a little patchy.", "choices": [
+				{ "tone": "warm", "text": "Patchy's got character. I bet it looks great.", "reply": "(A small nod.) Thanks.", "mood": 0.05, "familiar": { "reply": "Character. Yeah. That's what I'm calling it now. [dish], please.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Patchy is a colour. It's called 'custom.'", "reply": "Ha. Custom.", "mood": 0.05, "familiar": { "reply": "Custom. I'm putting that on a sticker. On the patchy part.", "mood": 0.05 } },
+				{ "tone": "straight", "text": "Nice. What can I get you?", "reply": "[dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Maybe hire someone next time.", "reply": "(A shrug.) Maybe.", "mood": -0.05 }
+			] },
+			{ "text": "Quiet in here today. I like it.", "choices": [
+				{ "tone": "warm", "text": "Me too. Stay as long as you like.", "reply": "Cool. Thanks.", "mood": 0.05, "familiar": { "reply": "Might do that. Quiet's hard to find. [dish], please.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Shh. Don't jinx it.", "reply": "(Whispers.) Sorry.", "mood": 0.05 },
+				{ "tone": "straight", "text": "What are you having?", "reply": "[dish]. Thanks.", "mood": 0 },
+				{ "tone": "rude", "text": "Quiet means slow. Bad for business.", "reply": "Huh. Okay.", "mood": -0.05 }
+			] },
+			{ "text": "Beat a game last night. Took me four months.", "choices": [
+				{ "tone": "warm", "text": "Four months! That's real dedication. Congrats.", "reply": "Thanks. (A small smile.)", "mood": 0.05, "familiar": { "reply": "Yaniv cried at the end. I didn't. I had something in my eye. [dish].", "mood": 0.05 } },
+				{ "tone": "playful", "text": "What do you do now? Just stare at the wall?", "reply": "Pretty much. Then I start it again.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Nice. What'll it be?", "reply": "[dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Four months on a game? Wow.", "reply": "(He doesn't say anything.)", "mood": -0.05 }
+			] },
+			{ "text": "Car's making a new noise. Kind of a whistle.", "choices": [
+				{ "tone": "warm", "text": "Want me to take a listen after my shift?", "reply": "You'd do that? ...Cool.", "mood": 0.05, "familiar": { "reply": "You'd do that? Okay, you're officially on the pit crew. [dish], please.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Maybe it's just happy to see you.", "reply": "Ha. Maybe.", "mood": 0.05, "familiar": { "reply": "It's whistling at me. We're close like that.", "mood": 0.05 } },
+				{ "tone": "straight", "text": "Hope it's nothing. What are you having?", "reply": "[dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Maybe it's time for a new car.", "reply": "(He looks out the window at it.) No.", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "You ever drive somewhere with no plan? Just pick a road and go?", "choices": [
+				{ "tone": "warm", "text": "Not in years. Sounds like exactly what I need.", "reply": "Next day off. I'll drive. You pick the snacks.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Every morning. I always end up here.", "reply": "(Laughs.) Same, man. Same.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Not really. What can I get you?", "reply": "You should try it. [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Sounds like a waste of gas.", "reply": "...Yeah. Maybe. (He goes quiet.)", "mood": -0.05 }
+			] },
+			{ "only": "night", "text": "Late one. Couldn't sleep. Figured I'd come see what's cooking.", "choices": [
+				{ "tone": "warm", "text": "Glad you came. Night's better with company.", "reply": "Yeah. It is.", "mood": 0.05, "familiar": { "reply": "Yeah. It is. (He leans back.) [dish], please. No rush.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "The stove doesn't sleep either. We're a club.", "reply": "Ha. Insomniac club.", "mood": 0.05 },
+				{ "tone": "straight", "text": "What'll it be?", "reply": "[dish].", "mood": 0 },
+				{ "tone": "rude", "text": "We're about to close up.", "reply": "Oh. Okay. Quick, then.", "mood": -0.05 }
 			] }
 		],
 		"drink": {
@@ -61,17 +97,20 @@
 			"other": "Whatever's cold."
 		},
 		"served": {
-			"perfect": { "fav": true, "text": "...That's really good.", "familiar": "Okay. That's the best stack I've ever seen. And I've seen a lot of stacks." },
-			"great": { "text": "Nice. Thanks." },
-			"okay": { "text": "Cool. Thanks." },
-			"burnt": { "text": "Little burnt. All good." }
+			"perfect": [ { "fav": true, "text": "...That's really good.", "familiar": "Okay. That's the best stack I've ever seen. And I've seen a lot of stacks." }, {"familiar":"That's a show car. That's a show plate.","text":"...Whoa."}, {"familiar":"Okay. You outdid yourself. I'm taking a picture for Yaniv.","text":"That's really nice. Thanks."} ],
+			"great": [ { "text": "Nice. Thanks." }, {"text":"Nice."}, {"text":"Looks good. Thanks."} ],
+			"okay": [ { "text": "Cool. Thanks." }, {"text":"Cool."}, {"text":"Thanks, [name]."} ],
+			"burnt": [ { "text": "Little burnt. All good." }, {"text":"Bit crispy. It's fine."}, {"text":"Burnt. Happens. Ask my engine."} ]
 		},
 		"eating": [
 			{ "voice": "before", "text": "(He nods while chewing.)" },
 			{ "voice": "before", "text": "It's good." },
 			{ "voice": "familiar", "text": "I was fixing the car last night and the bumper just fell off. In my hands. I stood there holding a bumper for like five minutes." },
 			{ "voice": "familiar", "text": "Yaniv kept me up gaming till sunrise again. He talks the whole time. I just win." },
-			{ "voice": "familiar", "fav": true, "text": "This is a good spot. Patio, string lights, pancakes. Don't need much else." }
+			{ "voice": "familiar", "fav": true, "text": "This is a good spot. Patio, string lights, pancakes. Don't need much else." },
+			{ "voice": "before", "text": "Good. (He keeps eating.)" },
+			{ "voice": "familiar", "text": "Took the car out to the hills this morning. Just me and the road. Then I got hungry. So here I am." },
+			{ "voice": "familiar", "text": "This place feels like a garage. In a good way. Everyone's working on something." }
 		],
 		"eating_chat": [
 			{ "text": "Can I ask you something? You ever feel like you're doing too much?", "choices": [
@@ -79,12 +118,39 @@
 				{ "tone": "playful", "text": "Only when Yaniv tells his stories.", "reply": "...Ha.", "mood": 0, "familiar": { "reply": "(He laughs properly.) Same, man. Same.", "mood": 0.05 } },
 				{ "tone": "straight", "text": "Sometimes.", "reply": "Yeah.", "mood": 0 },
 				{ "tone": "rude", "text": "Mind your own business.", "reply": "Okay. (He shrugs.)", "mood": -0.05 }
+			] },
+			{ "text": "Can I ask you something? What's the best thing you've ever cooked?", "choices": [
+				{ "tone": "warm", "text": "Probably whatever I'm cooking for you.", "reply": "(A slow smile.) Smooth.", "mood": 0.05, "familiar": { "reply": "Smooth. You should be a mechanic. You know how to talk to people.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "A pancake shaped like your car. It had rims.", "reply": "...Okay, you have to make that.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Hard to say. A good stew, maybe.", "reply": "Stew's good. Warm. Takes its time.", "mood": 0 },
+				{ "tone": "rude", "text": "I don't have time to chat.", "reply": "(A nod.) Okay.", "mood": -0.05 }
+			] },
+			{ "text": "Yaniv says I'm too quiet. I say he's too loud. We're even.", "choices": [
+				{ "tone": "warm", "text": "Sounds like you balance each other out.", "reply": "Yeah. He's alright. Don't tell him.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Together you make one normal person.", "reply": "(Laughs.) Yeah. A normal, very tired person.", "mood": 0.05 },
+				{ "tone": "straight", "text": "You seem fine to me.", "reply": "Thanks.", "mood": 0 },
+				{ "tone": "rude", "text": "He's got a point.", "reply": "(He doesn't say anything else.)", "mood": -0.05 }
+			] },
+			{ "text": "Found an old photo of my first car. Total wreck. Loved it.", "choices": [
+				{ "tone": "warm", "text": "First cars are special. Like first friends.", "reply": "Yeah. Exactly. (He looks at the photo a while.)", "mood": 0.05 },
+				{ "tone": "playful", "text": "Did it have rims?", "reply": "It barely had wheels.", "mood": 0.05 },
+				{ "tone": "straight", "text": "What happened to it?", "reply": "Sold it for parts. Still miss it.", "mood": 0 },
+				{ "tone": "rude", "text": "Sounds like junk.", "reply": "It was. It was mine, though.", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "Fire's going at the beach tonight. You coming? After close, I mean.", "choices": [
+				{ "tone": "warm", "text": "I'll be there. Save me a spot.", "reply": "Always. Bring marshmallows. Or don't. I'll have extra.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Only if you tell me the bumper story again.", "reply": "(Laughs.) It gets longer every time.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Maybe. Depends how tired I am.", "reply": "No pressure. Fire'll be there.", "mood": 0 },
+				{ "tone": "rude", "text": "Not really my thing.", "reply": "...Okay. Cool. (He looks at his plate.)", "mood": -0.05 }
 			] }
 		],
 		"leaving": [
 			{ "voice": "before", "text": "(A nod.) See you." },
 			{ "voice": "familiar", "text": "Thanks, man. Good night." },
-			{ "voice": "familiar", "text": "Gonna go work on the car. Or sit in it. Probably sit in it." }
+			{ "voice": "familiar", "text": "Gonna go work on the car. Or sit in it. Probably sit in it." },
+			{ "voice": "before", "text": "(A nod.) Later." },
+			{ "voice": "familiar", "text": "Good stuff, [name]. Gonna go listen to the car whistle. Later." },
+			{ "voice": "familiar", "text": "Thanks, man. Means a lot. (He means it.)" }
 		],
 		"seasons": {
 			"autumn": "Bonfire season. Finally.",

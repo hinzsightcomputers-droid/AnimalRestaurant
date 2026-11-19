@@ -64,6 +64,42 @@
 				{ "tone": "playful", "text": "Did they win, or did you fall asleep again?", "reply": "Fell asleep in the third. Woke up, they won. I'm good luck.", "mood": 0.05 },
 				{ "tone": "straight", "text": "I missed it. What are you having?", "reply": "Your loss, bro. The [dish].", "mood": 0.05 },
 				{ "tone": "rude", "text": "I don't care about basketball.", "reply": "That's crazy. Okay. The [dish].", "mood": -0.05 }
+			] },
+			{ "text": "Bro. I was gonna be on time today. Then I saw a cat. We had a moment.", "choices": [
+				{ "tone": "warm", "text": "Cat moments count. Glad you made it.", "reply": "See? You get it. That's why we're boys. [dish], bro.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Did the cat at least walk you here?", "reply": "Nah, bro, the cat had places to be. Unlike me.", "mood": 0.05 },
+				{ "tone": "straight", "text": "You're here now. What can I get you?", "reply": "[dish]. Easy.", "mood": 0 },
+				{ "tone": "rude", "text": "Every day there's an excuse.", "reply": "Bro, relax. ...[dish]. (He raises an eyebrow and lets it go.)", "mood": -0.05 }
+			] },
+			{ "text": "Hit a game-winner at the court last night. Nobody was there. Still counts.", "choices": [
+				{ "tone": "warm", "text": "Of course it counts. I believe you.", "reply": "That's loyalty, bro. I'll remember that. [dish].", "mood": 0.05 },
+				{ "tone": "playful", "text": "Did the crowd go wild? The invisible one?", "reply": "Bro, they lost their MINDS. (Goofiest laugh.) Okay. [dish].", "mood": 0.05 },
+				{ "tone": "straight", "text": "Nice. What are you having?", "reply": "[dish], bro.", "mood": 0 },
+				{ "tone": "rude", "text": "Sounds made up.", "reply": "It's not made up, it's unwitnessed. Big difference. [dish].", "mood": -0.05 }
+			] },
+			{ "text": "Real talk. Your food's better than my couch. And I love my couch.", "choices": [
+				{ "tone": "warm", "text": "That's the best review I've ever had.", "reply": "Don't let it get to your head. The couch is close. [dish], bro.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Should I put a couch in here? Lock you in?", "reply": "Bro. Don't threaten me with a good time.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Thanks. What'll it be?", "reply": "[dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Low bar.", "reply": "Bro. That's my couch you're talking about. (Lets it go.) [dish].", "mood": -0.05 }
+			] },
+			{ "text": "Clover asked me to teach her basketball. I said yes. Now I gotta go outside on purpose.", "choices": [
+				{ "tone": "warm", "text": "That's really sweet of you, Rush.", "reply": "Don't spread it around, bro. I got a reputation. [dish].", "mood": 0.05 },
+				{ "tone": "playful", "text": "Outside? On purpose? Are you okay?", "reply": "Bro, I'm NOT okay. (Goofiest laugh.) For her, though. [dish].", "mood": 0.05 },
+				{ "tone": "straight", "text": "Good for you. What can I get you?", "reply": "[dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Bet you'll bail.", "reply": "Nah. Not on her. I'm late, I'm not a bailer. [dish].", "mood": -0.05 }
+			] },
+			{ "text": "Don't ask what time it is. I know what time it is.", "choices": [
+				{ "tone": "warm", "text": "Doesn't matter. Your seat's always here.", "reply": "Bro. (Fist bump.) That's real. [dish].", "mood": 0.05 },
+				{ "tone": "playful", "text": "What time is it, Rush?", "reply": "Bro. ...It's food time. That's the only time.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Okay. What are you having?", "reply": "[dish]. Fast. I'm late for being here.", "mood": 0 },
+				{ "tone": "rude", "text": "It's late. That's what time it is.", "reply": "Told you not to ask. (He shrugs.) [dish].", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "Straight up? You're one of my people. Not a lot of people are my people.", "choices": [
+				{ "tone": "warm", "text": "You're one of mine too, Rush.", "reply": "Then it's settled. Anybody messes with you, they mess with me. [dish].", "mood": 0.05 },
+				{ "tone": "playful", "text": "Do I get a jersey? Number one?", "reply": "Number two. My couch is number one. (Goofiest laugh.)", "mood": 0.05 },
+				{ "tone": "straight", "text": "Thanks, man. What can I get you?", "reply": "[dish], bro.", "mood": 0 },
+				{ "tone": "rude", "text": "Okay, getting a bit sappy.", "reply": "...Yeah. Forget it. (He leans back and stays quiet.)", "mood": -0.05 }
 			] }
 		],
 		"drink": {
@@ -73,17 +109,20 @@
 			"other": "Whatever. Something cold."
 		},
 		"served": {
-			"perfect": { "text": "Oh, that's crazy. That's actually crazy. Okay. (Highest praise.)" },
-			"great": { "text": "Yeah, bro. That's the one." },
-			"okay": { "text": "It's good, bro. Not your best, but good." },
-			"burnt": { "text": "Bro. This is burnt. ...I'm still eating it. But it's burnt." }
+			"perfect": [ { "text": "Oh, that's crazy. That's actually crazy. Okay. (Highest praise.)" }, {"text":"Bro. BRO. Look at that. That's a slam dunk."}, {"text":"(Goofiest laugh. Nearby tables start laughing too.) That's beautiful, bro!"} ],
+			"great": [ { "text": "Yeah, bro. That's the one." }, {"text":"That's what I'm talking about. Thanks, bro."}, {"text":"Clean. Real clean."} ],
+			"okay": [ { "text": "It's good, bro. Not your best, but good." }, {"text":"It's food. I'm happy. Thanks."}, {"text":"Cool, bro. Thanks."} ],
+			"burnt": [ { "text": "Bro. This is burnt. ...I'm still eating it. But it's burnt." }, {"text":"Bro. It's burnt. I'm still eating it. Don't do that again."}, {"text":"Real talk? That's burnt. You good, though?"} ]
 		},
 		"eating": [
 			{ "text": "Bro, real talk, this is the only place I leave the house for." },
 			{ "text": "Somebody at the table over there just dropped a whole fork and pretended it didn't happen. I saw you, man." },
 			{ "text": "I'm not saying I'm the best customer. I'm just saying name a better one." },
 			{ "text": "Bro, you ever just sit? Like, just sit? That's my whole hobby." },
-			{ "text": "(A customer near him spills something. Rush, quietly.) ...Nope. (Then the goofy laugh.)", "laugh_chain": true }
+			{ "text": "(A customer near him spills something. Rush, quietly.) ...Nope. (Then the goofy laugh.)", "laugh_chain": true },
+			{ "text": "(He leans so far back in his chair he's nearly lying down.) This is the life, bro." },
+			{ "text": "Bro, this hits. No notes. Okay, one note. More." },
+			{ "text": "(He spins a napkin on one finger like a basketball. It falls. He doesn't care.)" }
 		],
 		"eating_chat": [
 			{ "text": "Be honest. Am I your favourite customer?", "choices": [
@@ -91,12 +130,39 @@
 				{ "tone": "playful", "text": "You're my favourite late customer.", "reply": "(The laugh explodes.) That's fair! That's so fair!", "mood": 0.05, "laugh_chain": true },
 				{ "tone": "straight", "text": "I don't pick favourites.", "reply": "Smart. That means yes.", "mood": 0.05 },
 				{ "tone": "rude", "text": "Not even close.", "reply": "Okay. Honest. I like that. (He's actually a little hurt but won't show it.)", "mood": -0.05 }
+			] },
+			{ "text": "Bro, who's the best player you ever saw? Wrong answers only.", "choices": [
+				{ "tone": "warm", "text": "You. Obviously.", "reply": "Correct answer, bro. That was the right wrong answer.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Hezzy. He dunked once. Made a noise like a trumpet.", "reply": "(Goofiest laugh. The whole room starts laughing.) BRO. I can see it.", "mood": 0.05 },
+				{ "tone": "straight", "text": "I don't really watch basketball.", "reply": "That's fine. I'll teach you. Next week. Maybe the week after.", "mood": 0 },
+				{ "tone": "rude", "text": "I don't care about sports.", "reply": "Bro, relax. (He goes back to eating.)", "mood": -0.05 }
+			] },
+			{ "text": "Okay, honest question. You ever just lie on the floor? Not tired. Just vibes.", "choices": [
+				{ "tone": "warm", "text": "After every shift. It's the best part.", "reply": "Bro. We're the same. Floor gang.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Kitchen floor? With the flour? No thanks.", "reply": "That's just a snow angel, bro. A flour angel.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Not really.", "reply": "Try it. Life-changing. I'm serious.", "mood": 0 },
+				{ "tone": "rude", "text": "That's lazy.", "reply": "It's called resting, bro. Look it up. (He looks away.)", "mood": -0.05 }
+			] },
+			{ "text": "Juno asked if you're hiring again. I told her you'd be crazy not to. Just so you know.", "choices": [
+				{ "tone": "warm", "text": "That's kind of you to look out for her.", "reply": "Somebody's gotta, bro. She drops stuff. She's good people, though.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Are you putting in a word for yourself too?", "reply": "Me? Work? Bro. (Goofiest laugh.) No. Never.", "mood": 0.05 },
+				{ "tone": "straight", "text": "I'll think about it.", "reply": "Cool. That's all I'm asking.", "mood": 0 },
+				{ "tone": "rude", "text": "Stay out of it.", "reply": "...Aight. (He lets it go, but he doesn't like it.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "Bro, if you ever need help in here, I'm coming. Late. But I'm coming.", "choices": [
+				{ "tone": "warm", "text": "I know you would. That means a lot.", "reply": "Always, bro. Loyal to the end. Just not on time for it.", "mood": 0.05 },
+				{ "tone": "playful", "text": "How late? Like, after closing late?", "reply": "After closing, before breakfast. Somewhere in there. (Goofiest laugh.)", "mood": 0.05 },
+				{ "tone": "straight", "text": "Thanks, Rush.", "reply": "No problem, bro.", "mood": 0 },
+				{ "tone": "rude", "text": "I don't need help.", "reply": "Okay, okay. Offer's open. (He shrugs and keeps eating.)", "mood": -0.05 }
 			] }
 		],
 		"leaving": [
 			{ "text": "Aight, I'm out. Good stuff, bro." },
 			{ "text": "That was worth leaving the house. Barely. I'm kidding. Mostly." },
-			{ "text": "See you next time. Don't wait up." }
+			{ "text": "See you next time. Don't wait up." },
+			{ "text": "Aight, I'm out. Couch is calling. Gotta pick up." },
+			{ "text": "Later, [name]. Good stuff, bro. For real." },
+			{ "text": "(He fist-bumps the doorframe on the way out.) Later." }
 		],
 		"seasons": {
 			"christmas": "I got you something. It's a card. I wrote 'thanks' in it. That's the whole card.",

@@ -49,6 +49,42 @@
 				{ "tone": "playful", "text": "Careful, or I'll start charging you rent for that stool.", "reply": "I'd pay it! In dish washing!", "mood": 0.05 },
 				{ "tone": "straight", "text": "I've got it. What can I get you?", "reply": "[dish]! Please!", "mood": 0 },
 				{ "tone": "rude", "text": "Mind your own business.", "reply": "Oh. Right. Sorry! (She sits on her paws.)", "mood": -0.05 }
+			] },
+			{ "text": "I practised carrying three plates at once. At home. With books. I dropped two. But the third one was SO steady.", "choices": [
+				{ "tone": "warm", "text": "That's real progress. One step at a time.", "reply": "One plate at a time! Okay! I'm writing that on my hand. [dish], please!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Were the books okay?", "reply": "(Laughs.) One has a bent corner! It's fine! It's a cookbook! It's used to it!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Keep practising. What can I get you?", "reply": "I will! [dish], please!", "mood": 0 },
+				{ "tone": "rude", "text": "Maybe plates aren't your thing.", "reply": "Ha! Maybe! (She smiles a bit too hard.) [dish].", "mood": -0.05 }
+			] },
+			{ "text": "I have a question for my essay. What's the hardest part of running a restaurant? For research. And also for me.", "choices": [
+				{ "tone": "warm", "text": "Making sure everyone leaves happy. Like you.", "reply": "Aww! Okay, I'm using that as my opening line. [dish], please!", "mood": 0.05 },
+				{ "tone": "playful", "text": "The dishes. Always the dishes. They multiply at night.", "reply": "I KNEW it! I knew they multiplied! I'll put it in the essay!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Long hours. What are you having?", "reply": "Long hours. Got it. Noted. [dish]!", "mood": 0 },
+				{ "tone": "rude", "text": "Do your own homework.", "reply": "Oh! Right! Totally! Sorry! [dish], please.", "mood": -0.05 }
+			] },
+			{ "text": "Good news! I passed my exam! Bad news! The next one is tomorrow!", "choices": [
+				{ "tone": "warm", "text": "Congratulations! You worked so hard for that.", "reply": "I DID! Thank you! I'm celebrating with food, then panicking. [dish], please!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Celebrate now, panic later. That's the rule.", "reply": "Okay! Celebrate mode! (She does a little dance and knocks the menu over.) Sorry!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Nice. What'll it be?", "reply": "Brain food! [dish], please!", "mood": 0 },
+				{ "tone": "rude", "text": "Shouldn't you be studying?", "reply": "Yes! Probably! (She laughs, but she gets her notes out.) [dish].", "mood": -0.05 }
+			] },
+			{ "text": "I can balance a spoon on my nose! Watch! (She does. It falls in her lap.) ...I can balance it for a second!", "choices": [
+				{ "tone": "warm", "text": "That was a great second. Very impressive.", "reply": "It WAS a great second! Thank you! [dish], please!", "mood": 0.05 },
+				{ "tone": "playful", "text": "If I hire you, that's the first skill on your badge.", "reply": "(Gasps.) A BADGE? With spoon skills? I'm so ready!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Nice try. What can I get you?", "reply": "Next time, two seconds! [dish]!", "mood": 0 },
+				{ "tone": "rude", "text": "Please don't play with the cutlery.", "reply": "Oh! Sorry! (She sits on her paws.) [dish], please.", "mood": -0.05 }
+			] },
+			{ "text": "Hazel's teaching me to bake! I made bread! It's a little flat. Like a cracker. A bread cracker!", "choices": [
+				{ "tone": "warm", "text": "Everyone's first bread is flat. You'll get it.", "reply": "Really? Even yours? Okay! I feel so much better! [dish], please!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Bread cracker. Sell it. You'll make a fortune.", "reply": "(Laughs.) I'll put it on the menu! When you hire me!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Keep at it. What are you having?", "reply": "I will! [dish]!", "mood": 0 },
+				{ "tone": "rude", "text": "Sounds like you messed it up.", "reply": "Ha! Yeah! A little! (She's quiet after.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "Can I tell you something? I don't just want a job. I want to work HERE. With you. You're kind of my hero.", "choices": [
+				{ "tone": "warm", "text": "Juno, the moment I can hire someone, it's you.", "reply": "(Squeaks.) Okay. Okay. I'm not crying. I'm a little crying. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Your hero? I burnt toast this morning.", "reply": "Heroes burn toast too! It makes them relatable!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Thanks, Juno. What can I get you?", "reply": "You're welcome! [dish]!", "mood": 0 },
+				{ "tone": "rude", "text": "Don't get your hopes up.", "reply": "Oh! Okay! Noted! (She smiles a bit too hard.)", "mood": -0.05 }
 			] }
 		],
 		"drink": {
@@ -56,17 +92,20 @@
 			"other": "Whatever's cheapest! Kidding. Kind of."
 		},
 		"served": {
-			"perfect": { "text": "WHOA. How do you DO that? Teach me. Please. I'll pay you. In enthusiasm." },
-			"great": { "fav": true, "text": "Yesss, dumplings! Thank you!" },
-			"okay": { "text": "Thank you! These are great!" },
-			"burnt": { "text": "Ooh, extra crispy! That's how I make them every time. Accidentally." }
+			"perfect": [ { "text": "WHOA. How do you DO that? Teach me. Please. I'll pay you. In enthusiasm." }, {"text":"WHOA. That's perfect! How do you DO that? Teach me! Please!"}, {"text":"(She claps so hard she knocks her fork off.) It's beautiful! Sorry! It's beautiful!"} ],
+			"great": [ { "fav": true, "text": "Yesss, dumplings! Thank you!" }, {"text":"Yay! Thank you, [name]!"}, {"text":"Ooh! It looks amazing!"} ],
+			"okay": [ { "text": "Thank you! These are great!" }, {"text":"Thank you! Looks good!"}, {"text":"Food! Yes! Thank you!"} ],
+			"burnt": [ { "text": "Ooh, extra crispy! That's how I make them every time. Accidentally." }, {"text":"Ooh, a little crispy! That's okay! I burn everything too!"}, {"text":"It's okay! Burnt is just extra cooked! I'm eating it!"} ]
 		},
 		"eating": [
 			{ "fav": true, "text": "(She's juggling three dumplings. One lands in her mouth.) I MEANT to do that." },
 			{ "text": "Hazel's teaching me to bake on Sundays. I've only set one thing on fire. ...Two." },
 			{ "fav": true, "text": "My roommate thinks I'm weird for eating here every day. I think my roommate's never had your dumplings." },
 			{ "text": "I'm watching how you plate things. For research. Pretend I'm not here." },
-			{ "text": "Do you need anyone to taste-test anything? I'm available. Constantly." }
+			{ "text": "Do you need anyone to taste-test anything? I'm available. Constantly." },
+			{ "text": "(She's balancing a bite on her fork like a tiny trophy.) Ta-da! ...It fell. Still counts!" },
+			{ "text": "I'm watching how you work. For research. You're really fast. I'm taking notes. In my head. Mostly." },
+			{ "text": "This is so good. I'm eating slowly so I can stay longer. Is that allowed? It's allowed." }
 		],
 		"eating_chat": [
 			{ "text": "Can I ask you something? How did you learn to cook? Like, how did you get good?", "choices": [
@@ -74,6 +113,30 @@
 				{ "tone": "playful", "text": "I was born holding a spatula.", "reply": "That's so painful for your mum. Ha!", "mood": 0.05 },
 				{ "tone": "straight", "text": "Practice.", "reply": "Practice. Okay. Writing that down.", "mood": 0 },
 				{ "tone": "rude", "text": "Some people just have it. You don't.", "reply": "Oh. Okay. I'll just... practice more, then.", "mood": -0.05 }
+			] },
+			{ "text": "Do you ever get nervous? Like before a big rush? Or do you just... know what to do?", "choices": [
+				{ "tone": "warm", "text": "All the time. Being nervous means you care.", "reply": "Oh! Then I care SO much! Like, so much!", "mood": 0.05 },
+				{ "tone": "playful", "text": "I panic quietly. In the walk-in fridge.", "reply": "(Laughs.) The fridge! That's genius! Cool AND private!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Sometimes. You get used to it.", "reply": "Okay. Get used to it. Writing that down.", "mood": 0 },
+				{ "tone": "rude", "text": "Only when people ask too many questions.", "reply": "Oh! Sorry! I'll stop. (She stops.)", "mood": -0.05 }
+			] },
+			{ "text": "I tried to juggle oranges at the market. The seller said I owe him three oranges. I owe him three oranges.", "choices": [
+				{ "tone": "warm", "text": "I'll give you some oranges to pay him back.", "reply": "Really? You're the BEST! I'll juggle them on the way! ...No. I'll carry them.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Were they at least juicy when they landed?", "reply": "VERY juicy! On my shirt! (She shows you the stain.)", "mood": 0.05 },
+				{ "tone": "straight", "text": "Maybe stick to practising at home.", "reply": "Yeah. Good idea. Home oranges.", "mood": 0 },
+				{ "tone": "rude", "text": "Maybe stop juggling things.", "reply": "Ha! Yeah. Maybe. (She puts her paws in her lap.)", "mood": -0.05 }
+			] },
+			{ "text": "Okay, practice interview! Ask me anything. I'm ready. I'm so ready.", "choices": [
+				{ "tone": "warm", "text": "Why do you want to work here?", "reply": "Because it's warm and everyone's happy and you're nice and the food is SO good. ...Did I get the job?", "mood": 0.05 },
+				{ "tone": "playful", "text": "If you were a dish, which dish would you be?", "reply": "Soup! Because I'm warm! And I spill sometimes! That's honest!", "mood": 0.05 },
+				{ "tone": "straight", "text": "What's your biggest weakness?", "reply": "Dropping things. And wanting it too much. And dropping things.", "mood": 0 },
+				{ "tone": "rude", "text": "I'm not doing a fake interview.", "reply": "Oh! Right! Totally fair! (She folds her CV back up.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "When I graduate, I'm gonna make you a card. A big one. With dumplings on it. Is that weird?", "choices": [
+				{ "tone": "warm", "text": "Not weird at all. I'll put it on the wall.", "reply": "On the WALL? Okay. I'm gonna draw so many dumplings.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Only if you draw me holding a dumpling.", "reply": "(Giggles.) A giant one! Bigger than you! It's gonna be amazing!", "mood": 0.05 },
+				{ "tone": "straight", "text": "That's kind of you.", "reply": "It's gonna be SO kind. You'll see.", "mood": 0 },
+				{ "tone": "rude", "text": "You don't need to do that.", "reply": "Oh! Okay! I won't, then. (She does anyway, later.)", "mood": -0.05 }
 			] }
 		],
 		"leaving": [
@@ -81,7 +144,10 @@
 			{ "text": "Bye, [name]! Thanks for the food! And the life lessons!" },
 			{ "text": "I'm gonna go study. Or nap. Probably nap." },
 			{ "text": "See you tomorrow! If I'm not working. I'm never working. See you tomorrow!" },
-			{ "when": "leaving_town", "text": "Back to college tomorrow. I'll miss this place so much. Save me a bar stool?" }
+			{ "when": "leaving_town", "text": "Back to college tomorrow. I'll miss this place so much. Save me a bar stool?" },
+			{ "text": "Bye, [name]! Call me if you need help! Any help! Even small help!" },
+			{ "text": "Thanks for the food! I'm gonna go study! (She trips on the step.) I'm fine!" },
+			{ "text": "See you tomorrow! Probably! Definitely! Bye!" }
 		],
 		"seasons": {
 			"autumn": "School's starting soon. I'm going to miss the dumplings more than my family. Don't tell them.",

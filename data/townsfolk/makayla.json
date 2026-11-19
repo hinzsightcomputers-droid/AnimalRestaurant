@@ -54,6 +54,42 @@
 				{ "tone": "playful", "text": "Want me to time you?", "reply": "Yes. Perhaps start now.", "mood": 0, "familiar": { "reply": "(She bursts out laughing.) Ooh, good one, [name].", "mood": 0.05 } },
 				{ "tone": "straight", "text": "Same order as usual?", "reply": "Yes. [dish].", "mood": 0 },
 				{ "tone": "rude", "text": "Eating fast isn't a sport.", "reply": "(Covers her eyes.) ...It is to me.", "mood": -0.05 }
+			] },
+			{ "text": "I ran here. Five kilometres. Personal best. (Completely flat.) I'm not proud. I'm very proud.", "choices": [
+				{ "tone": "warm", "text": "That's amazing. You earned a good meal.", "reply": "Thank you. I did.", "mood": 0.05, "familiar": { "reply": "I DID earn it. (She does a tiny victory wiggle.) [dish], please.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Did you beat the delivery duck?", "reply": "(Straight-faced.) Yes.", "mood": 0.05, "familiar": { "reply": "By a full minute. He doesn't know we were racing. (Covers her eyes, giggling.)", "mood": 0.05 } },
+				{ "tone": "straight", "text": "Nice. What can I get you?", "reply": "[dish], please. Thank you.", "mood": 0 },
+				{ "tone": "rude", "text": "Running's not a big deal.", "reply": "(Covers her eyes.) ...Okay.", "mood": -0.05 }
+			] },
+			{ "text": "Seth challenged me to a staring contest. I've been practising on the bus. I made a child cry. By accident.", "choices": [
+				{ "tone": "warm", "text": "My money's on you. Every time.", "reply": "Correct.", "mood": 0.05, "familiar": { "reply": "(Completely flat.) Correct. (She's thrilled.) [dish], please.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Practise on me. Go.", "reply": "(She stares. You blink first.) Thank you. That was useful.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Good luck. What are you having?", "reply": "[dish].", "mood": 0 },
+				{ "tone": "rude", "text": "That's a bit childish.", "reply": "(Covers her eyes.) ...It's a sport to me.", "mood": -0.05 }
+			] },
+			{ "text": "Hello. Table by the window, please. I like to watch the people. It's competitive. Don't ask.", "choices": [
+				{ "tone": "warm", "text": "Window's yours. Enjoy the people.", "reply": "Thank you.", "mood": 0.05, "familiar": { "reply": "I score them. On walking. Quietly. [dish], please.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Who's winning so far?", "reply": "(Tiny pause.) The pigeon.", "mood": 0.05, "familiar": { "reply": "The pigeon. Always the pigeon. (Covers her eyes, laughing.)", "mood": 0.05 } },
+				{ "tone": "straight", "text": "Sure. What can I get you?", "reply": "[dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "That's a bit weird.", "reply": "(Covers her eyes.) ...Okay.", "mood": -0.05 }
+			] },
+			{ "text": "I lost at mini golf yesterday. (Long pause.) I'm fine. I'm not fine.", "choices": [
+				{ "tone": "warm", "text": "There's always next time. You'll crush it.", "reply": "Yes. I will.", "mood": 0.05, "familiar": { "reply": "Yes. I will crush it. (She makes a scary face. Then laughs.) [dish].", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Was it the windmill? It's always the windmill.", "reply": "(Stares.) ...It was the windmill.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Sorry. What are you having?", "reply": "[dish]. Consolation [dish].", "mood": 0 },
+				{ "tone": "rude", "text": "It's just mini golf.", "reply": "(Covers her eyes.) ...Okay.", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "[name]! I made you laugh last time. I've been counting. That's three times. I'm winning.", "choices": [
+				{ "tone": "warm", "text": "You're definitely winning, Makayla.", "reply": "(Squeaks, very high.) I KNEW it! [dish], please!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Wait, we're keeping score? I want a rematch.", "reply": "(Instantly serious.) Accepted. You won't win. [dish].", "mood": 0.05 },
+				{ "tone": "straight", "text": "Ha. What can I get you?", "reply": "Four. That's four. [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Can we skip the games?", "reply": "(Covers her eyes.) ...Okay.", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "Watch this. (She makes the silliest face you've ever seen. Then instantly goes straight-faced.) Hello.", "choices": [
+				{ "tone": "warm", "text": "(Laughing.) Do it again. Please.", "reply": "(She does. It's worse. Better.) [dish], please. (Straight face.)", "mood": 0.05 },
+				{ "tone": "playful", "text": "(Pulls a face back.)", "reply": "(She studies it.) Seven out of ten. Mine was a ten. [dish].", "mood": 0.05 },
+				{ "tone": "straight", "text": "Hello. What can I get you?", "reply": "(Disappointed.) [dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Please don't do that.", "reply": "(Covers her eyes.) ...Okay.", "mood": -0.05 }
 			] }
 		],
 		"drink": {
@@ -63,17 +99,20 @@
 			"other": "Something with electrolytes. Or perhaps not. Whatever."
 		},
 		"served": {
-			"perfect": { "text": "...Thank you. It's very nice.", "familiar": "(She gasps, then covers her mouth.) [name]. It's PERFECT." },
-			"great": { "fav": true, "text": "Thank you. Looks good.", "familiar": "Yesss. Look at that squiggle." },
-			"okay": { "text": "Thank you." },
-			"burnt": { "text": "(She covers her eyes. Peeks.) ...I'm still eating it." }
+			"perfect": [ { "text": "...Thank you. It's very nice.", "familiar": "(She gasps, then covers her mouth.) [name]. It's PERFECT." }, {"familiar":"(She gasps, very high.) It's PERFECT. (Then, flat.) Thank you.","text":"...Very good. Thank you."}, {"familiar":"(She makes the happiest face, then covers her eyes.) Okay. Okay. I'm fine.","text":"That looks excellent."} ],
+			"great": [ { "fav": true, "text": "Thank you. Looks good.", "familiar": "Yesss. Look at that squiggle." }, {"text":"Thank you."}, {"familiar":"Good! (A little wiggle.)","text":"Good. Thank you."} ],
+			"okay": [ { "text": "Thank you." }, {"text":"Thank you."}, {"text":"Okay. Thank you."} ],
+			"burnt": [ { "text": "(She covers her eyes. Peeks.) ...I'm still eating it." }, {"text":"(Covers her eyes.) ...It's a bit burnt."}, {"text":"Burnt. (Completely flat.) I'll eat it faster."} ]
 		},
 		"eating": [
 			{ "voice": "before", "text": "It's good. Thank you." },
 			{ "voice": "before", "text": "Your restaurant is very clean. I noticed." },
 			{ "voice": "familiar", "text": "I just made a face at Seth through the window. He didn't see. I'm doing it again." },
 			{ "voice": "familiar", "text": "I knocked my drink over earlier. Nobody saw. (Covers her eyes.) You saw." },
-			{ "voice": "familiar", "text": "Amy talks so fast. I nod a lot. I catch perhaps half. It's still fun." }
+			{ "voice": "familiar", "text": "Amy talks so fast. I nod a lot. I catch perhaps half. It's still fun." },
+			{ "voice": "before", "text": "(She eats very neatly. Very fast.)" },
+			{ "voice": "familiar", "text": "(She finishes a bite and looks at the clock.) Faster than last time. Good." },
+			{ "voice": "familiar", "text": "(She makes a silly face at you from across the room. When you look, she's straight-faced.)" }
 		],
 		"eating_chat": [
 			{ "text": "Do you play any sports? Honest answer.", "choices": [
@@ -81,12 +120,39 @@
 				{ "tone": "playful", "text": "Competitive omelette flipping. I'm undefeated.", "reply": "(Flat stare.) Ooh, good one, [name]. ...I challenge you. (She's delighted.)", "mood": 0, "familiar": { "reply": "(Flat stare.) Ooh, good one, [name]. ...I challenge you. (She's delighted.)", "mood": 0.05 } },
 				{ "tone": "straight", "text": "No, I'm always here.", "reply": "That makes sense.", "mood": 0 },
 				{ "tone": "rude", "text": "Sports are pointless.", "reply": "(Covers her eyes. Long pause.) ...Okay.", "mood": -0.05 }
+			] },
+			{ "text": "Competition. Who can eat slower. Starting now. (She chews very, very slowly.)", "choices": [
+				{ "tone": "warm", "text": "You win. You were always going to win.", "reply": "(Mouth full, very flat.) Mm-hm.", "mood": 0.05, "familiar": { "reply": "(Swallows.) Correct. (She's thrilled.)", "mood": 0.05 } },
+				{ "tone": "playful", "text": "(Pretends to chew in slow motion.)", "reply": "(She stares, then covers her eyes, shaking with laughter.)", "mood": 0.05 },
+				{ "tone": "straight", "text": "I'm working, but good luck.", "reply": "Forfeit. Okay.", "mood": 0 },
+				{ "tone": "rude", "text": "Just eat normally.", "reply": "(Covers her eyes.) ...Okay.", "mood": -0.05 }
+			] },
+			{ "text": "Do you play any sports?", "choices": [
+				{ "tone": "warm", "text": "Not really. But I'd come watch you play.", "reply": "You would? Okay.", "mood": 0.05, "familiar": { "reply": "You would? (High squeak.) Okay. Front row. I'll wave. Seriously.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Competitive dish washing. I'm undefeated.", "reply": "(Straight-faced.) I accept your challenge.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Not much time for it.", "reply": "Make time. It's good for you.", "mood": 0 },
+				{ "tone": "rude", "text": "Sports are boring.", "reply": "(Covers her eyes.) ...Okay.", "mood": -0.05 }
+			] },
+			{ "text": "I drove past the lake. Saw a duck that looked just like me. We stared at each other. Nobody won.", "choices": [
+				{ "tone": "warm", "text": "Maybe you made a new friend.", "reply": "Perhaps. She seemed nice.", "mood": 0.05, "familiar": { "reply": "Perhaps. I'll go back. Rematch. And friendship.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "A draw? That must've hurt.", "reply": "(Long pause.) It did.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Funny.", "reply": "Yes.", "mood": 0 },
+				{ "tone": "rude", "text": "That's a weird story.", "reply": "(Covers her eyes.) ...Okay.", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "I don't laugh like this with many people. Just so you know. (She makes a funny face, then looks away.)", "choices": [
+				{ "tone": "warm", "text": "I'm really glad you do with me.", "reply": "(High, happy squeak. She covers her eyes.) Okay. Stop. I'm eating.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Is that a competitive laugh? Am I losing?", "reply": "(Laughs so hard she has to put the fork down.) Yes. You're losing.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Thanks for telling me.", "reply": "You're welcome.", "mood": 0 },
+				{ "tone": "rude", "text": "Okay. Weird.", "reply": "(Covers her eyes.) ...Okay. (She goes quiet.)", "mood": -0.05 }
 			] }
 		],
 		"leaving": [
 			{ "voice": "before", "text": "Thank you. Goodbye." },
 			{ "voice": "familiar", "text": "Okay, long drive home. Worth it. Bye, [name]!" },
-			{ "voice": "familiar", "text": "See you next time. I'll beat traffic. Perhaps. I never beat traffic." }
+			{ "voice": "familiar", "text": "See you next time. I'll beat traffic. Perhaps. I never beat traffic." },
+			{ "voice": "before", "text": "Thank you. Goodbye." },
+			{ "voice": "familiar", "text": "Bye, [name]! I'm going to go win something. Not sure what yet." },
+			{ "voice": "familiar", "text": "(She covers her eyes and waves with the other hand.) Byeee!" }
 		],
 		"seasons": {
 			"christmas": "I got you a sweatband. For the kitchen. You sweat a lot. ...That's a compliment.",

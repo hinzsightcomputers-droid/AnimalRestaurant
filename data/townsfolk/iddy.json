@@ -51,6 +51,42 @@
 				{ "tone": "playful", "text": "Did you at least win?", "reply": "WIN? I was carrying the whole team. On my tiny back.", "mood": 0.05 },
 				{ "tone": "straight", "text": "What can I get you?", "reply": "[dish]. And a Hamster Energy. Please. Urgently.", "mood": 0 },
 				{ "tone": "rude", "text": "That's not my problem.", "reply": "Tough crowd. Tough, tough crowd.", "mood": -0.05 }
+			] },
+			{ "text": "Okay, why do restaurants put the napkins at elbow height? For who? I'm eye level with the napkins. They're judging me.", "choices": [
+				{ "tone": "warm", "text": "I'll bring you your own napkin. Hamster height.", "reply": "Hamster height. That's the nicest thing anyone's ever installed for me. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "They're watching you because you're the main event.", "reply": "(Points at you.) See? THIS person gets it. Main event!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Noted. What can I get you?", "reply": "Okay, straight to it. You good though? ...Cool. [dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Can you just order?", "reply": "...Wow. Okay. That's going in the act. (He orders quietly.)", "mood": -0.05 }
+			] },
+			{ "text": "Amy made me try yoga. I did downward dog. Then I did downward hamster. Which is just lying down.", "choices": [
+				{ "tone": "warm", "text": "Lying down counts. Rest is important.", "reply": "THANK you. I'm telling her a professional said that. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Downward hamster. Sounds advanced.", "reply": "It IS. Very few people can do it. Mostly hamsters. And Chompy.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Sounds fun. What are you having?", "reply": "Fun is a strong word. [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Maybe just try harder.", "reply": "Ha. ...Ha. Yeah. (He laughs, but his ears droop.)", "mood": -0.05 }
+			] },
+			{ "text": "Lost at volleyball today. But listen. LISTEN. I did a dive. Nobody's seen a dive like that. Mostly because I missed.", "choices": [
+				{ "tone": "warm", "text": "A great dive is a great dive. Win or lose.", "reply": "See, THAT'S what I keep telling my team. They do not listen. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Did you dive right into the snack table?", "reply": "(Cracks up.) The snack table was ON the court! It's not my fault!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Next time. What can I get you?", "reply": "Next time. Yeah. The [dish]. Fuel for the comeback.", "mood": 0 },
+				{ "tone": "rude", "text": "Sounds like you're not very good.", "reply": "Tough crowd. Tough, tough crowd.", "mood": -0.05 }
+			] },
+			{ "text": "You ever notice how everyone says 'I'm not hungry' and then eats half your fries? Amy. I'm talking about Amy.", "choices": [
+				{ "tone": "warm", "text": "Sounds like she just likes sharing with you.", "reply": "...Okay, now I feel bad for complaining. Don't tell her. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "I'll make you a decoy plate. Just for her.", "reply": "(Points at you, delighted.) A DECOY PLATE. Genius. You're a genius.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Want an extra side, then?", "reply": "Yes. And a lock. The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "You complain about her a lot.", "reply": "...Yeah. I'm joking, though. I love her. (He goes quiet.)", "mood": -0.05 }
+			] },
+			{ "text": "Why is it called a 'menu'? Who is 'men'? What does he want? Why does he get his own 'u'?", "choices": [
+				{ "tone": "warm", "text": "Nobody else asks the real questions like you do.", "reply": "Someone has to! It's a burden. A tiny, curly burden. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "It's short for 'me-new.' It's me. I'm new.", "reply": "(Stares.) ...That's terrible. I love it. I'm stealing it.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Good question. What'll it be?", "reply": "Fine. Ignore the mystery. [dish].", "mood": 0 },
+				{ "tone": "rude", "text": "That's not funny.", "reply": "Okay. That's fair. (He orders quietly.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "Real talk for a second. No bits. ...You good? Like, actually good? You work a lot.", "choices": [
+				{ "tone": "warm", "text": "I'm good, Iddy. Thanks for asking. Really.", "reply": "Okay. Good. If you're not, you tell me. I'll do a bit. Bits fix everything. [dish].", "mood": 0.05 },
+				{ "tone": "playful", "text": "I'm great. I have a hamster checking on me.", "reply": "(Puffs up.) I'm a very good hamster. The best one. Okay, [dish].", "mood": 0.05 },
+				{ "tone": "straight", "text": "Tired, but okay.", "reply": "Okay. Sit down for a second after this. Doctor's orders. I'm not a doctor. [dish].", "mood": 0 },
+				{ "tone": "rude", "text": "I don't need you checking on me.", "reply": "...Right. Got it. (He looks at the menu for a long time.)", "mood": -0.05 }
 			] }
 		],
 		"drink": {
@@ -60,17 +96,20 @@
 			"other": "Whatever has the most sugar. Don't tell Amy."
 		},
 		"served": {
-			"perfect": { "text": "(Stands on his chair.) EVERYBODY. Look at this. LOOK AT IT." },
-			"great": { "fav": true, "text": "Okay, that's beautiful. I'd marry this mac. Don't tell Amy." },
-			"okay": { "fav": true, "text": "Good mac. Solid mac. A mac you can trust. You good? You look tired. Eat something." },
-			"burnt": { "fav": true, "text": "Is this mac... or is this mac's ghost? I'm eating it. I'm just asking." }
+			"perfect": [ { "text": "(Stands on his chair.) EVERYBODY. Look at this. LOOK AT IT." }, {"text":"Okay. OKAY. Everybody stop eating. Look at what [name] made. Look at it."}, {"text":"(He stares at it.) This is the best day of my life. Don't tell Amy. Okay, tell Amy."} ],
+			"great": [ { "fav": true, "text": "Okay, that's beautiful. I'd marry this mac. Don't tell Amy." }, {"text":"Oh, that's GOOD. That's really good. You good? You're good. This is good."}, {"text":"Beautiful. Ten points. I'm the judge. I'm all the judges."} ],
+			"okay": [ { "fav": true, "text": "Good mac. Solid mac. A mac you can trust. You good? You look tired. Eat something." }, {"text":"Solid. Reliable. Like a good volleyball net."}, {"text":"Thank you! Food is here. Everybody relax."} ],
+			"burnt": [ { "fav": true, "text": "Is this mac... or is this mac's ghost? I'm eating it. I'm just asking." }, {"text":"Is this... extra crispy? Is that a choice? I'm choosing it."}, {"text":"Little burnt. That's fine. I've survived Amy's cooking. Don't tell her I said that."} ]
 		},
 		"eating": [
 			{ "text": "Can we talk about how the guy at table two eats soup? It's like he's mad at it. ...You good, by the way?" },
 			{ "text": "Do you ever notice that every chair here is a little too tall for me? I'm not mad. I'm just noticing." },
 			{ "text": "Amy's planning the wedding. She asked my opinion on flowers. I said 'yes.' Wrong answer apparently." },
 			{ "text": "I'm getting really good at volleyball. I'm terrible at spiking. But I'm REALLY good at diving. Because I'm already on the ground." },
-			{ "fav": true, "text": "This mac is the only thing in my life that's never let me down. Besides Amy. Mostly besides Amy." }
+			{ "fav": true, "text": "This mac is the only thing in my life that's never let me down. Besides Amy. Mostly besides Amy." },
+			{ "text": "Why is the fork always slightly too big for me? Everything's too big. The world is a giant's kitchen. I'm living in it." },
+			{ "text": "Amy just texted me 'are you eating again.' YES. I am. I'm proud of it." },
+			{ "text": "(He's stacked three sugar packets into a tiny volleyball net.) Don't touch it. It's art." }
 		],
 		"eating_chat": [
 			{ "fav": true, "text": "Okay, honest opinion. Should I write my own wedding vows, or just read the funniest ones off the internet?", "choices": [
@@ -78,12 +117,39 @@
 				{ "tone": "playful", "text": "Just do a ten-minute stand-up set.", "reply": "Oh, she would END me. ...I'm doing it.", "mood": 0.05 },
 				{ "tone": "straight", "text": "Either works.", "reply": "Thanks, very helpful, [name]. I'll put that in the vows.", "mood": 0 },
 				{ "tone": "rude", "text": "Nobody cares about your vows.", "reply": "...Amy does. (He says it quietly and eats the rest of his mac.)", "mood": -0.05 }
+			] },
+			{ "text": "Okay, I'm workshopping a bit. 'Why do they call it a booth? It doesn't boo.' Too much? Not enough?", "choices": [
+				{ "tone": "warm", "text": "I laughed. That's a keeper.", "reply": "YOU LAUGHED. Okay. It's in. Opening line. You're in the credits.", "mood": 0.05 },
+				{ "tone": "playful", "text": "(Boos.) Now it boos.", "reply": "(Cracks up so hard he almost falls off the seat.) THAT'S the ending! You're a writer now!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Needs work.", "reply": "Needs work. Fair. Honest feedback. Amy would say the same. Meaner.", "mood": 0 },
+				{ "tone": "rude", "text": "Please don't quit your day job.", "reply": "Ha! ...Ha. I don't have a day job. That's the bit. (He laughs, but his ears droop.)", "mood": -0.05 }
+			] },
+			{ "text": "If you could have one video game power in real life, what would you pick? I'm going with 'respawn.'", "choices": [
+				{ "tone": "warm", "text": "Respawn sounds smart. More time with your friends.", "reply": "...Okay, that got me. That got me right in the hamster heart.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Infinite inventory. I'd carry every pan at once.", "reply": "You'd be unstoppable. A walking kitchen. I'd watch that.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Probably fast travel.", "reply": "Fast travel. Practical. I respect it. Boring, but I respect it.", "mood": 0 },
+				{ "tone": "rude", "text": "Games are for kids.", "reply": "Okay, grandpa. (He goes back to eating.)", "mood": -0.05 }
+			] },
+			{ "text": "Amy wants a giant cake at the wedding. Five tiers. I'm one tier tall. I'm gonna get lost in the cake.", "choices": [
+				{ "tone": "warm", "text": "You'll be the best part of the whole day anyway.", "reply": "Stop. Okay. I'm putting that in my vows. Uncredited.", "mood": 0.05 },
+				{ "tone": "playful", "text": "I'll put a tiny ladder on the side. For you.", "reply": "(Cracks up.) A CAKE LADDER! Amy's gonna love it. She's gonna hate it. Both!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Five tiers is a lot of cake.", "reply": "It is SO much cake. I'm not complaining. I'm reporting.", "mood": 0 },
+				{ "tone": "rude", "text": "Sounds like a waste of money.", "reply": "...Yeah, well. She's worth it. (He goes quiet.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "I'm gonna be honest. You're in my top five people. Amy's one. You're... around four. It's a close race.", "choices": [
+				{ "tone": "warm", "text": "Four? I'll take it. You're in my top five too.", "reply": "STOP. You're gonna make me cry in front of everybody. Again.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Who's number two and three? I'm coming for them.", "reply": "(Laughs.) Mac and cheese. And a volleyball. You can't beat them. You can try.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Thanks, Iddy.", "reply": "You're welcome. Don't get cocky. It's a moving list.", "mood": 0 },
+				{ "tone": "rude", "text": "That's kind of a weird thing to say.", "reply": "Ha. Yeah. Weird. Forget it. (His ears droop.)", "mood": -0.05 }
 			] }
 		],
 		"leaving": [
 			{ "text": "THANK you, [name]! You good? Good. Good night, restaurant!" },
 			{ "text": "I gotta go. Amy texted 'where are you.' No emoji. That's bad." },
-			{ "fav": true, "text": "Best mac in town. I'm not just saying that. I'm also saying it loud." }
+			{ "fav": true, "text": "Best mac in town. I'm not just saying that. I'm also saying it loud." },
+			{ "text": "Okay, I'm out. Thank you, goodnight! I'll be here all week. Literally. I come every day." },
+			{ "text": "Bye, [name]! You good? You're good. Okay. Bye!" },
+			{ "text": "Gotta go. Amy needs me to carry something. Something light. I'm very small." }
 		],
 		"seasons": {
 			"chef_birthday": "HAPPY BIRTHDAY, [name]! EVERYBODY SING! ...Okay, just me then.",

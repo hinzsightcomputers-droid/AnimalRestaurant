@@ -48,6 +48,42 @@
 				{ "tone": "playful", "text": "Four AM? I'm barely awake at noon.", "reply": "That's young people for you! (She pats your hand.)", "mood": 0.05 },
 				{ "tone": "straight", "text": "That's impressive. What are you having?", "reply": "The [dish], please.", "mood": 0 },
 				{ "tone": "rude", "text": "Well, it's not there anymore.", "reply": "(Quietly.) No. It isn't.", "mood": -0.05 }
+			] },
+			{ "text": "I finished a sweater this morning, dear. Bright yellow. Nobody asked for it. Somebody will need it.", "choices": [
+				{ "tone": "warm", "text": "I bet it's beautiful. Whoever gets it is lucky.", "reply": "Oh, you're sweet. It might be you, dear. We'll see. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Bright yellow? So I'll see them coming from a mile away.", "reply": "(Chuckles.) That's rather the point, dear.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Lovely. What can I get you?", "reply": "The [dish], please, dear.", "mood": 0 },
+				{ "tone": "rude", "text": "Does anyone actually wear those?", "reply": "Oh. Well. Some do, dear. (She tucks the needles away.)", "mood": -0.05 }
+			] },
+			{ "text": "Are you eating, sweetheart? Properly, I mean. Not standing over the stove.", "choices": [
+				{ "tone": "warm", "text": "I'll sit down for a proper lunch today. Promise.", "reply": "Good. A cook who doesn't eat is like an oven with no heat. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "I taste everything. That's basically three meals.", "reply": "(Tuts, smiling.) That's how I lost my waistline in 1974.", "mood": 0.05 },
+				{ "tone": "straight", "text": "I'm fine. What would you like?", "reply": "Hmm. If you say so. The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "That's not your business.", "reply": "No. No, I suppose it isn't. (She looks at her hands.)", "mood": -0.05 }
+			] },
+			{ "text": "My granddaughter called. She wants my lemon cake recipe. I said she has to visit for it.", "choices": [
+				{ "tone": "warm", "text": "That's a wonderful trick. She'll come.", "reply": "Oh, she'll come. They always come for cake. [dish], please, dear.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Could I visit for it too? I'll bring flowers.", "reply": "(Laughs.) You'd have to beat her to the door, dear.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Smart. What are you having?", "reply": "The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Just write it down for her.", "reply": "Some things don't fit on paper, dear. (She goes quiet.)", "mood": -0.05 }
+			] },
+			{ "text": "Your flour smells fresh today. Did you get a new sack?", "choices": [
+				{ "tone": "warm", "text": "I did. You've got a better nose than me.", "reply": "Forty years of four o'clock mornings, dear. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "No, I've been spraying the kitchen with flour perfume.", "reply": "(Chuckles.) Cheeky. I'd buy a bottle.", "mood": 0.05 },
+				{ "tone": "straight", "text": "I did. What can I get you?", "reply": "The [dish], please. Thank you, dear.", "mood": 0 },
+				{ "tone": "rude", "text": "Flour is flour.", "reply": "Oh, sweetheart. It never is. (She sighs gently.)", "mood": -0.05 }
+			] },
+			{ "text": "I dropped a stitch on the way here. Had to stop on the bench to fix it. A pigeon kept me company.", "choices": [
+				{ "tone": "warm", "text": "Sounds like a lovely little moment.", "reply": "It was, dear. He was a good listener. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Did you knit the pigeon a scarf?", "reply": "(Laughs.) Not yet. Give me until spring.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Glad you made it. What would you like?", "reply": "The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Maybe knit at home.", "reply": "Oh. Yes. Perhaps. (She puts the needles in her bag.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "You remind me of myself, dear. When I first opened. All flour and nerves.", "choices": [
+				{ "tone": "warm", "text": "That's the nicest thing anyone's said to me, Hazel.", "reply": "Then people aren't saying enough nice things, dear. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "More flour than nerves these days, I hope.", "reply": "(Pats your hand.) Much more flour. You've come along nicely.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Thank you. What can I get you?", "reply": "The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "I'm nothing like you.", "reply": "No. No, of course not, dear. (She looks out the window.)", "mood": -0.05 }
 			] }
 		],
 		"drink": {
@@ -55,17 +91,20 @@
 			"other": "Just a cup of something warm, sweetheart."
 		},
 		"served": {
-			"perfect": { "text": "Oh. Oh, dear. That's as good as mine. Maybe better. Don't tell anyone I said that." },
-			"great": { "text": "Lovely, dear. Just a touch less sugar next time, and it'll be perfect." },
-			"okay": { "fav": true, "text": "Very nice, sweetheart. The crust needs a little more time. You'll get there." },
-			"burnt": { "text": "Oh, dear. A bit too long in the oven. That's alright. We learn from the burnt ones." }
+			"perfect": [ { "text": "Oh. Oh, dear. That's as good as mine. Maybe better. Don't tell anyone I said that." }, {"text":"Oh, my. Look at that. I couldn't have done better myself, dear. ...I might have. But only just."}, {"text":"That's beautiful, sweetheart. You've got the touch."} ],
+			"great": [ { "text": "Lovely, dear. Just a touch less sugar next time, and it'll be perfect." }, {"text":"Very good, dear. A little more care at the edges, and it's perfect."}, {"text":"Lovely. Just lovely. Thank you, sweetheart."} ],
+			"okay": [ { "fav": true, "text": "Very nice, sweetheart. The crust needs a little more time. You'll get there." }, {"text":"Nice, dear. Not quite there yet. But nice."}, {"text":"Thank you, sweetheart. Give it a minute longer next time."} ],
+			"burnt": [ { "text": "Oh, dear. A bit too long in the oven. That's alright. We learn from the burnt ones." }, {"text":"Oh dear. A little too long. We've all done it."}, {"text":"Burnt, sweetheart. Don't fret. My first hundred were too."} ]
 		},
 		"eating": [
 			{ "text": "In my day, we didn't have these fancy ovens. We had one oven and a prayer." },
 			{ "fav": true, "text": "Are you eating properly, dear? You look thin. Have a bite of pie." },
 			{ "text": "That young otter, Juno, came by my house yesterday. She dropped a whole tray of scones. Then she helped me make more. Good girl." },
 			{ "text": "I'm knitting Clover a little hat. Don't tell her. It's a surprise." },
-			{ "text": "(She's knitting quietly and humming an old song.)" }
+			{ "text": "(She's knitting quietly and humming an old song.)" },
+			{ "text": "(She takes a small bite and nods slowly.) Mm. Yes. Good." },
+			{ "text": "My late husband would have liked this place, dear. He liked anywhere with good bread." },
+			{ "text": "(She's knitting between bites. The scarf grows a little.)" }
 		],
 		"eating_chat": [
 			{ "fav": true, "text": "Can I tell you my secret to a good pie crust, dear? Nobody ever asks anymore.", "choices": [
@@ -73,12 +112,39 @@
 				{ "tone": "playful", "text": "Is the secret... butter?", "reply": "Well. Yes. Mostly butter. (She laughs.) But also patience.", "mood": 0.05 },
 				{ "tone": "straight", "text": "Sure, quickly.", "reply": "Cold butter. That's it. Off you go, dear.", "mood": 0 },
 				{ "tone": "rude", "text": "I've got it handled, thanks.", "reply": "Of course you do, sweetheart. (She doesn't offer again this visit.)", "mood": -0.05 }
+			] },
+			{ "text": "Tell me, dear. What's the first thing you ever baked? Everyone remembers their first.", "choices": [
+				{ "tone": "warm", "text": "Cookies with my grandmother. They were terrible. I loved it.", "reply": "Oh, those are the best ones. The terrible ones with someone you love.", "mood": 0.05 },
+				{ "tone": "playful", "text": "A brick. I called it bread.", "reply": "(Laughs.) Mine was a scone you could build a wall with.", "mood": 0.05 },
+				{ "tone": "straight", "text": "I don't really remember.", "reply": "Oh, that's a shame. Make a new first, then.", "mood": 0 },
+				{ "tone": "rude", "text": "I don't really have time for stories.", "reply": "Of course, dear. Go on. (She returns to her knitting.)", "mood": -0.05 }
+			] },
+			{ "text": "Do you know the secret to good pastry, dear? Cold hands, warm heart.", "choices": [
+				{ "tone": "warm", "text": "Then you must make the best pastry in town.", "reply": "(Blushes.) Oh, stop it. ...Well. I did. In my day.", "mood": 0.05 },
+				{ "tone": "playful", "text": "My hands are always cold. My heart's working on it.", "reply": "(Chuckles.) Your heart's doing just fine, sweetheart.", "mood": 0.05 },
+				{ "tone": "straight", "text": "I'll remember that.", "reply": "Good. Write it down. Somewhere you'll see it.", "mood": 0 },
+				{ "tone": "rude", "text": "That's an old wives' tale.", "reply": "Well. I am an old wife, dear. (She goes quiet.)", "mood": -0.05 }
+			] },
+			{ "text": "Would you like me to knit you something, dear? A hat? You look like you need a hat.", "choices": [
+				{ "tone": "warm", "text": "I'd love one. I'd wear it every day.", "reply": "Then I'll start tonight. What colour, dear? No, don't tell me. I'll know.", "mood": 0.05 },
+				{ "tone": "playful", "text": "A chef's hat? Knitted? That'd be a first.", "reply": "(Delighted.) Oh, a challenge! I haven't had one in years.", "mood": 0.05 },
+				{ "tone": "straight", "text": "That's kind, but I'm alright.", "reply": "Hmm. We'll see when winter comes.", "mood": 0 },
+				{ "tone": "rude", "text": "I don't wear knitted things.", "reply": "Oh. Alright, dear. (She puts the yarn back.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "I don't say this enough, dear. I'm proud of you. Truly.", "choices": [
+				{ "tone": "warm", "text": "That means so much, Hazel. Thank you.", "reply": "(Pats your hand.) Now don't go getting teary. You'll salt the pie.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Can I get that in writing? Framed?", "reply": "(Laughs.) I'll stitch it into a cushion. That's better than a frame.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Thank you.", "reply": "You're welcome, dear.", "mood": 0 },
+				{ "tone": "rude", "text": "You don't need to say that.", "reply": "Maybe not. But I wanted to. (She goes quiet.)", "mood": -0.05 }
 			] }
 		],
 		"leaving": [
 			{ "text": "Thank you, dear. Wrap up warm." },
 			{ "text": "That was lovely. You remind me of myself at your age. That's a compliment." },
-			{ "text": "Off I go. Eat something yourself, [name]. You work too hard." }
+			{ "text": "Off I go. Eat something yourself, [name]. You work too hard." },
+			{ "text": "Thank you, dear. Wrap up warm when you go home." },
+			{ "text": "Lovely as always, sweetheart. Same time next week, if my knees agree." },
+			{ "text": "Goodbye, [name]. Don't work too hard. You will, but don't." }
 		],
 		"seasons": {
 			"autumn": "Apple season. My favourite. Nothing beats an autumn pie.",

@@ -48,6 +48,42 @@
 				{ "tone": "playful", "text": "That's why we built it. Kyle- sized.", "reply": "Oh. Ha.", "mood": 0, "familiar": { "reply": "Kyle- sized. I'll put that on my tombstone.", "mood": 0.05 } },
 				{ "tone": "straight", "text": "You're fine. What can I get you?", "reply": "The [dish], please.", "mood": 0 },
 				{ "tone": "rude", "text": "Yeah, you kind of do.", "reply": "...Sorry. (He hunches even smaller.)", "mood": -0.05 }
+			] },
+			{ "text": "Did you know a group of crocodiles is called a bask? I'm a bask of one today. Sorry. That was a joke.", "choices": [
+				{ "tone": "warm", "text": "That was a good joke, Kyle. I laughed.", "reply": "Oh. You did? Okay. That's... really nice. The [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "A bask of one. Very exclusive. Very fancy.", "reply": "(A nervous laugh.) Members only. It's me. I'm the members.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Didn't know that. What can I get you?", "reply": "The [dish], please. Thank you.", "mood": 0 },
+				{ "tone": "rude", "text": "That's not really a joke.", "reply": "...No. Sorry. (He shrinks into the booth.)", "mood": -0.05 }
+			] },
+			{ "text": "Someone moved seats when I sat down. It's okay. It happens. I'm used to it.", "choices": [
+				{ "tone": "warm", "text": "Their loss. I'm glad you're here.", "reply": "(He blinks a few times.) ...Thank you. That helps. The [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "More booth for you. You can stretch your tail.", "reply": "(A small laugh.) My tail does appreciate it.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Sorry about that. What are you having?", "reply": "It's fine. The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Can you blame them?", "reply": "...No. I suppose not. (He doesn't say much after that.)", "mood": -0.05 }
+			] },
+			{ "text": "I've been reading about how bread rises. It's yeast. Tiny living things. Eating sugar. I can't stop thinking about it.", "choices": [
+				{ "tone": "warm", "text": "Tell me more sometime. I love learning stuff like that.", "reply": "Really? Okay. I'll bring my notes. They're long. Sorry. The [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "So bread is basically a tiny city.", "reply": "(Delighted.) A tiny city! That's exactly right! I'm using that.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Interesting. What'll it be?", "reply": "Sorry. The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "That's a weird thing to obsess over.", "reply": "Right. Yes. Sorry. (He looks at the table.)", "mood": -0.05 }
+			] },
+			{ "text": "Clover drew me as a superhero. I have a cape. And a book. The book is my weapon.", "choices": [
+				{ "tone": "warm", "text": "That sounds perfect. Very you.", "reply": "It is very me. I put it on the fridge. Next to the other eight. The [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "What's your hero name? Captain Footnote?", "reply": "(Laughs, then covers his mouth.) ...That's actually good.", "mood": 0.05 },
+				{ "tone": "straight", "text": "She's sweet. What can I get you?", "reply": "She is. The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Bit silly for a grown croc.", "reply": "...Yeah. Probably. (He shrinks a little.)", "mood": -0.05 }
+			] },
+			{ "text": "My glasses fogged up when I walked in. I said hello to the coat stand. It didn't say anything back.", "choices": [
+				{ "tone": "warm", "text": "The coat stand's shy too. You two would get along.", "reply": "(A soft laugh.) Maybe we should sit together. The [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "It said hello. You just couldn't hear it.", "reply": "Oh no. I've been rude to a coat stand. I'll apologise on the way out.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Happens. What would you like?", "reply": "The [dish], please. Thank you.", "mood": 0 },
+				{ "tone": "rude", "text": "Maybe get better glasses.", "reply": "...Right. (He polishes them for a long time.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "I... wanted to say. Coming here helps. With the people thing. You make it easier. That's all. Sorry.", "choices": [
+				{ "tone": "warm", "text": "Don't be sorry. I'm really glad, Kyle.", "reply": "(Long pause.) ...Okay. Good. The [dish], please. And hot chocolate.", "mood": 0.05 },
+				{ "tone": "playful", "text": "I'll put it on the sign. 'Helps with the people thing.'", "reply": "(Laughs, actually laughs.) Please don't. ...Okay, maybe small.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Thanks for telling me. What can I get you?", "reply": "Okay. Yes. The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Okay. Bit heavy for lunch.", "reply": "...Sorry. Forget I said it. (He hunches smaller.)", "mood": -0.05 }
 			] }
 		],
 		"drink": {
@@ -55,17 +91,20 @@
 			"other": "Something warm, please. I get cold. Cold-blooded. Ha. Sorry."
 		},
 		"served": {
-			"perfect": { "text": "Oh. Oh, wow. That's... that's really beautiful. Thank you." },
-			"great": { "text": "Thank you so much, [name]." },
-			"okay": { "text": "Thank you. It smells nice." },
-			"burnt": { "text": "It's okay. Really. I'll eat it. It's good. Thank you. (He eats every bite.)" }
+			"perfect": [ { "text": "Oh. Oh, wow. That's... that's really beautiful. Thank you." }, {"text":"Oh. Oh, that's... that's perfect. Thank you. I'm going to remember this."}, {"text":"(He pushes his glasses up and stares.) That's beautiful. I'm not sure I can eat it. ...I'll try."} ],
+			"great": [ { "text": "Thank you so much, [name]." }, {"text":"Thank you. That looks very good."}, {"text":"Oh, nice. Thank you, [name]."} ],
+			"okay": [ { "text": "Thank you. It smells nice." }, {"text":"Thank you."}, {"text":"That's lovely. Thank you."} ],
+			"burnt": [ { "text": "It's okay. Really. I'll eat it. It's good. Thank you. (He eats every bite.)" }, {"text":"It's a little dark. That's okay. Charcoal is good for you. Sort of. Not really."}, {"text":"Oh. It's... crispy. Thank you anyway. Really."} ]
 		},
 		"eating": [
 			{ "fav": true, "text": "Did you know the word 'soup' comes from an old word for bread soaked in broth? Sorry. I'll stop." },
 			{ "text": "Chompy's my cousin. He's... not a reader. He's very happy, though. I'm a little jealous." },
 			{ "text": "A little gecko girl hid from me last week. I don't blame her. I'd hide from me.", "not_friends": "clover" },
 			{ "voice": "familiar", "text": "I'm reading three books at once right now. It's a problem. A good problem." },
-			{ "voice": "familiar", "text": "I don't usually talk this much. You're easy to talk to. Sorry. That was a lot." }
+			{ "voice": "familiar", "text": "I don't usually talk this much. You're easy to talk to. Sorry. That was a lot." },
+			{ "text": "(He's reading a book propped against the salt shaker. He turns a page with one claw, very carefully.)" },
+			{ "text": "This is very good. I mean that. I don't say things I don't mean. I mostly don't say things." },
+			{ "text": "Sorry. I was staring. I was thinking about how soup is basically a warm hug. A wet one." }
 		],
 		"eating_chat": [
 			{ "fav": true, "text": "Can I ask you something? Do I seem scary to you?", "choices": [
@@ -73,12 +112,39 @@
 				{ "tone": "playful", "text": "Only when you tell me facts before I've had coffee.", "reply": "(A nervous laugh.)", "mood": 0, "familiar": { "reply": "That's fair. They're very scary facts.", "mood": 0.05 } },
 				{ "tone": "straight", "text": "You did at first. Not anymore.", "reply": "That's... honest. I'll take that.", "mood": 0 },
 				{ "tone": "rude", "text": "Kind of, yeah.", "reply": "...Right. (He finishes his soup quickly and quietly.)", "mood": -0.05 }
+			] },
+			{ "text": "Can I share a fact? Honey never goes bad. They found honey in old tombs. Still good. Sorry. I like that one.", "choices": [
+				{ "tone": "warm", "text": "Don't apologise. That's a great fact.", "reply": "Oh. Okay. I have about forty more. I'll ration them. One a visit.", "mood": 0.05 },
+				{ "tone": "playful", "text": "So if I hide honey in the walls, I'm set for life.", "reply": "(A nervous laugh.) Technically, yes. Please don't hide honey in the walls.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Didn't know that.", "reply": "Most people don't. That's why I like it.", "mood": 0 },
+				{ "tone": "rude", "text": "No more facts, please.", "reply": "Right. Sorry. (He doesn't share another fact this visit.)", "mood": -0.05 }
+			] },
+			{ "text": "Chompy called me 'book smart' again. I think it's a compliment. Is it a compliment?", "choices": [
+				{ "tone": "warm", "text": "It is. He's really proud of you.", "reply": "(He sits up a little.) ...Oh. I didn't know that. That's nice.", "mood": 0.05 },
+				{ "tone": "playful", "text": "From Chompy, that's like getting a medal.", "reply": "(Laughs.) A gold medal. In books. He'd give me a football one, though.", "mood": 0.05 },
+				{ "tone": "straight", "text": "I think so, yes.", "reply": "Okay. Good. Thank you.", "mood": 0 },
+				{ "tone": "rude", "text": "Probably not.", "reply": "...Oh. Right. (He looks at his soup.)", "mood": -0.05 }
+			] },
+			{ "text": "What do you think about when you cook? I think about... a lot. Probably too much.", "choices": [
+				{ "tone": "warm", "text": "The person I'm cooking for. Today, that's you.", "reply": "(Very quietly.) ...Oh. Okay. Thank you.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Mostly 'don't burn it, don't burn it.'", "reply": "(A soft laugh.) That's a good mantra. I'll try it for exams.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Timing, mostly.", "reply": "Timing. That makes sense.", "mood": 0 },
+				{ "tone": "rude", "text": "Not much. It's not that deep.", "reply": "Oh. Right. Sorry. (He goes quiet.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "I think we're friends. Are we friends? Sorry. I just wanted to check. In case I got it wrong.", "choices": [
+				{ "tone": "warm", "text": "We're definitely friends, Kyle.", "reply": "(He smiles. A big one. All the teeth. He covers it quickly.) ...Good. Okay. Good.", "mood": 0.05 },
+				{ "tone": "playful", "text": "We're friends. I've got it in writing. On a napkin.", "reply": "(Laughs.) Can I keep the napkin? I'm serious.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Yes, we are.", "reply": "Okay. Thank you. Sorry for checking.", "mood": 0 },
+				{ "tone": "rude", "text": "I don't really make friends with customers.", "reply": "...Oh. Right. Of course. Sorry. (He hunches even smaller.)", "mood": -0.05 }
 			] }
 		],
 		"leaving": [
 			{ "text": "Thank you, [name]. I'll, um. See you. Bye." },
 			{ "fav": true, "text": "That was really nice. The soup. And talking. Both. (He waves awkwardly and bumps the door frame.)" },
-			{ "voice": "familiar", "text": "See you next time. I'll bring a new fact. A good one." }
+			{ "voice": "familiar", "text": "See you next time. I'll bring a new fact. A good one." },
+			{ "text": "Thank you, [name]. That was... really nice. Okay. Bye." },
+			{ "text": "Bye. Sorry. Bye. (He bumps the door frame on the way out.) Sorry." },
+			{ "text": "I'll see you soon. If that's okay. It's okay? Okay." }
 		],
 		"seasons": {
 			"christmas": "(He gives you a book, carefully wrapped.) It's about the history of soup. I thought... you'd like it?",

@@ -50,6 +50,42 @@
 				{ "tone": "playful", "text": "Cheer up! It's game day!", "reply": "Yeah. (He's still cold.)", "mood": 0 },
 				{ "tone": "straight", "text": "One Big Breakfast.", "reply": "Thanks.", "mood": 0 },
 				{ "tone": "rude", "text": "Still sulking?", "reply": "I remember what you said. \"[last_rude_line]\". (He doesn't say anything else.)", "mood": -0.05 }
+			] },
+			{ "text": "Buddy! I scored today! Okay, it was an own goal. But the ball went in!", "choices": [
+				{ "tone": "warm", "text": "A goal's a goal. Proud of you, Seth.", "reply": "You're the best, buddy! I'm gonna score a real one for you. [dish], please!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Which team were you on again?", "reply": "(Laughs, tail wagging.) Good question! Both, today!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Ha. What can I get you?", "reply": "[dish], please! Quick if you can!", "mood": 0 },
+				{ "tone": "rude", "text": "So you lost it for them.", "reply": "(His tail stops.) ...Yeah. I know.", "mood": -0.05, "grudge": true }
+			] },
+			{ "text": "New kit today! Baseball! Do I look like a pro? Be honest. No, be nice.", "choices": [
+				{ "tone": "warm", "text": "You look like a champion.", "reply": "I FEEL like a champion! [dish], please! Champion food!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Very pro. Your hat's on backwards, though.", "reply": "(Checks.) It's on purpose! ...It's not on purpose. Thanks, buddy.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Looks good. What are you having?", "reply": "[dish], please!", "mood": 0 },
+				{ "tone": "rude", "text": "You look like you're in costume.", "reply": "(Ears go flat.) Oh. Okay.", "mood": -0.05, "grudge": true }
+			] },
+			{ "text": "Coach says I run too fast. Is that a thing? Can you run too fast?", "choices": [
+				{ "tone": "warm", "text": "Not for you. Keep running.", "reply": "That's what I said! You get me, buddy. [dish], please!", "mood": 0.05 },
+				{ "tone": "playful", "text": "If you're faster than the ball, maybe.", "reply": "(Thinks hard.) ...That's happened. Okay, it's a thing.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Maybe pace yourself. What'll it be?", "reply": "Pace. Got it. [dish]! Fast!", "mood": 0 },
+				{ "tone": "rude", "text": "Maybe listen to your coach.", "reply": "(His tail stops.) ...Right.", "mood": -0.05, "grudge": true }
+			] },
+			{ "text": "Iddy beat me at volleyball. He's so small! How is he so good? I'm not mad. I'm a little mad.", "choices": [
+				{ "tone": "warm", "text": "You'll get him next time. You always bounce back.", "reply": "I DO bounce back! Like a volleyball! [dish], please!", "mood": 0.05 },
+				{ "tone": "playful", "text": "He's closer to the ground. Low centre of gravity.", "reply": "(Gasps.) That's his SECRET! I'm telling everyone!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Rematch, then. What are you having?", "reply": "Rematch! [dish], please!", "mood": 0 },
+				{ "tone": "rude", "text": "Losing to a hamster? Rough.", "reply": "(Ears go flat.) ...Yeah. Thanks.", "mood": -0.05, "grudge": true }
+			] },
+			{ "text": "Okay, two minutes. Game in twenty. I'm already sweating. Is that the game or the nerves?", "choices": [
+				{ "tone": "warm", "text": "Nerves mean you care. You've got this.", "reply": "I've GOT this! Thanks, buddy! [dish], to go! No, to stay! Fast!", "mood": 0.05 },
+				{ "tone": "playful", "text": "It's the kitchen. It's very hot in here.", "reply": "(Laughs.) Oh! Phew! Okay! It's the kitchen!", "mood": 0.05 },
+				{ "tone": "straight", "text": "I'll be quick. What'll it be?", "reply": "[dish]! Thanks!", "mood": 0 },
+				{ "tone": "rude", "text": "Then don't waste time talking.", "reply": "(His tail stops.) ...Okay. [dish].", "mood": -0.05, "grudge": true }
+			] },
+			{ "only": "familiar", "text": "You seem good today, buddy. Like, really good. I can tell. I'm happy for you.", "choices": [
+				{ "tone": "warm", "text": "I am. Seeing you helps, honestly.", "reply": "(Tail goes crazy.) Buddy! Okay! Best day! [dish], please!", "mood": 0.05 },
+				{ "tone": "playful", "text": "How do you always know?", "reply": "It's a gift! I'm basically a superhero. A sporty one.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Thanks, Seth. What can I get you?", "reply": "[dish], please!", "mood": 0 },
+				{ "tone": "rude", "text": "You don't know how I'm doing.", "reply": "(Ears go flat.) ...Sorry. I just thought.", "mood": -0.05, "grudge": true }
 			] }
 		],
 		"grudge_drop": ["BUDDY. ", ", buddy"],
@@ -60,17 +96,20 @@
 			"other": "Anything with electrolytes!"
 		},
 		"served": {
-			"perfect": { "fav": true, "text": "BUDDY. That's a championship breakfast. I'm unstoppable now." },
-			"great": { "text": "Yes! Perfect fuel. Thanks, [name]!" },
-			"okay": { "text": "Thanks! I'll eat it on the way!" },
-			"burnt": { "text": "Little crispy! All good, I need the carbs!" }
+			"perfect": [ { "fav": true, "text": "BUDDY. That's a championship breakfast. I'm unstoppable now." }, {"text":"WHOA! Buddy! That's a gold-medal plate!"}, {"text":"(Tail goes so fast it knocks a napkin off.) It's perfect! You're the best!"} ],
+			"great": [ { "text": "Yes! Perfect fuel. Thanks, [name]!" }, {"text":"Yes! Thanks, buddy! Looks great!"}, {"text":"Ooh! Fuel! Good fuel!"} ],
+			"okay": [ { "text": "Thanks! I'll eat it on the way!" }, {"text":"Thanks, buddy!"}, {"text":"Food! Great! Thanks!"} ],
+			"burnt": [ { "text": "Little crispy! All good, I need the carbs!" }, {"text":"Oh. Bit burnt. That's okay, buddy! Rough day? You seem off."}, {"text":"It's okay! I'll still eat it! Everybody fumbles!"} ]
 		},
 		"eating": [
 			{ "text": "(He's eating very fast.) Mmf. Sorry. Game. Mmf." },
 			{ "text": "Makayla says she can beat me at anything. She's right about most things. Not darts." },
 			{ "text": "Rush is always late and I'm always early. We should average out." },
 			{ "text": "I could tell something good happened before I walked in. Did something good happen?" },
-			{ "fav": true, "text": "My coach says I need to eat more protein. I told him about this breakfast. He's coming next week." }
+			{ "fav": true, "text": "My coach says I need to eat more protein. I told him about this breakfast. He's coming next week." },
+			{ "text": "(He's eating fast, one eye on the clock, tail still wagging.)" },
+			{ "text": "This is SO good, buddy. I'm gonna run so fast after this." },
+			{ "text": "(He pauses mid-bite and looks around.) Everyone's happy today. I can feel it. That's nice." }
 		],
 		"eating_chat": [
 			{ "text": "Can I tell you something? [low_regular]'s been a bit quiet lately. I can tell. Can you check on [low_them]?", "choices": [
@@ -78,13 +117,40 @@
 				{ "tone": "playful", "text": "Are you a retriever or a detective?", "reply": "Both! Retriever-detective. Retrective.", "mood": 0.05 },
 				{ "tone": "straight", "text": "Okay. I'll keep an eye out.", "reply": "Thanks, buddy.", "mood": 0 },
 				{ "tone": "rude", "text": "Not my problem.", "reply": "...Okay.", "mood": -0.05, "grudge": true }
+			] },
+			{ "text": "If you played a sport, which one would it be? I think you'd be a goalie. You're good at catching stuff. Like orders.", "choices": [
+				{ "tone": "warm", "text": "Goalie sounds perfect. You'd be my striker.", "reply": "TEAM! We're a team! (Tail wagging so hard the chair moves.)", "mood": 0.05 },
+				{ "tone": "playful", "text": "Competitive pancake flipping.", "reply": "That's a sport! I'd watch that! I'd cheer SO loud!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Probably none. No time.", "reply": "Aw. Make time, buddy. I'll teach you!", "mood": 0 },
+				{ "tone": "rude", "text": "Sports are a waste of time.", "reply": "(His tail stops.) ...Oh.", "mood": -0.05, "grudge": true }
+			] },
+			{ "text": "Can I tell you something? I get really nervous before games. Everyone thinks I don't. I do.", "choices": [
+				{ "tone": "warm", "text": "Thanks for telling me. You're brave to play anyway.", "reply": "(Quiet for a second.) ...Thanks, buddy. That really helps.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Want me to cheer from the kitchen window?", "reply": "YES! Loud! Bang a pan! I'll hear it!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Most people do.", "reply": "Yeah? Okay. That's good to know.", "mood": 0 },
+				{ "tone": "rude", "text": "Toughen up.", "reply": "(Ears go flat. He doesn't say anything.)", "mood": -0.05, "grudge": true }
+			] },
+			{ "text": "Kyle came to my game! He read a book the whole time. But he clapped at the right parts! I think!", "choices": [
+				{ "tone": "warm", "text": "That's a good friend. Showing up matters.", "reply": "It DOES! I'm going to his book club! I won't read the book. I'll clap at the right parts!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Maybe the book was about football.", "reply": "(Gasps.) Maybe! I didn't even ask! I'm asking him!", "mood": 0.05 },
+				{ "tone": "straight", "text": "That's nice.", "reply": "It was really nice!", "mood": 0 },
+				{ "tone": "rude", "text": "Sounds like he didn't care.", "reply": "(His tail stops.) ...He came, though.", "mood": -0.05, "grudge": true }
+			] },
+			{ "only": "familiar", "text": "Buddy, you're like my favourite teammate. And you're not even on my team. That's how good you are.", "choices": [
+				{ "tone": "warm", "text": "Honorary teammate. I'll take it with pride.", "reply": "Honorary! I'm getting you a jersey! With your name on it!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Do I get a trophy?", "reply": "(Grins.) I'll give you mine! From second place! It's great!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Thanks, Seth.", "reply": "You're welcome, buddy!", "mood": 0 },
+				{ "tone": "rude", "text": "That's a bit much.", "reply": "(Ears go flat.) ...Oh. Okay.", "mood": -0.05, "grudge": true }
 			] }
 		],
 		"leaving": [
 			{ "text": "Gotta go! Game time! Thanks, [name]! (He's out the door before the bill's even printed. He's already left the money.)" },
 			{ "text": "Wish me luck! Or don't, I'm gonna win anyway! Kidding! Wish me luck!" },
 			{ "when": "leaving_town", "text": "Tournament this week! I'll be gone a few days. Don't miss me too much!" },
-			{ "when": "grudge", "text": "Bye." }
+			{ "when": "grudge", "text": "Bye." },
+			{ "text": "Gotta go, buddy! Wish me luck! Thanks for the food!" },
+			{ "text": "That was great! I'm gonna win! Or come second! Second's great! Bye!" },
+			{ "text": "(He jogs out the door. He jogs back.) Forgot to say bye! Bye, [name]!" }
 		],
 		"seasons": {
 			"autumn": "Football season! Also the best season!",

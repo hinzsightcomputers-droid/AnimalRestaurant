@@ -47,6 +47,42 @@
 				{ "tone": "playful", "text": "Some of us have to wake up at 5 AM, you know.", "reply": "Not me. Never me. Couldn't be me.", "mood": 0.05 },
 				{ "tone": "straight", "text": "What can I get you?", "reply": "[dish] and coffee. Night coffee.", "mood": 0 },
 				{ "tone": "rude", "text": "Go home and sleep.", "reply": "I just woke up. (She turns to the window.)", "mood": -0.05 }
+			] },
+			{ "text": "I fell asleep on my sketchbook. I have a drawing of a tree on my face. Backwards.", "choices": [
+				{ "tone": "warm", "text": "It's a lovely tree. Suits you.", "reply": "(A slow smile.) Thank you. I'll keep it. [dish], please. And coffee.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Hold still. I want to see what kind of tree.", "reply": "An oak. Probably. Or a mistake. [dish]. Coffee.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Coffee first, then?", "reply": "Always. And [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Maybe wash your face.", "reply": "(Slow blink.) Wow. Okay.", "mood": -0.05 }
+			] },
+			{ "text": "The light in here is nice today. Soft. Like butter. I want to paint it.", "choices": [
+				{ "tone": "warm", "text": "Paint whatever you like. Stay as long as you want.", "reply": "Mmm. You're nice. Nicer than the light. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Butter light. Now I'm hungry.", "reply": "(A sleepy laugh.) Me too. [dish]. And coffee. Butter coffee. No. Regular.", "mood": 0.05 },
+				{ "tone": "straight", "text": "What can I get you?", "reply": "[dish]. Coffee.", "mood": 0 },
+				{ "tone": "rude", "text": "It's just a lamp.", "reply": "...Okay. (She closes the sketchbook.)", "mood": -0.05 }
+			] },
+			{ "text": "(She sits down very slowly, like a leaf landing.) ...Hi.", "choices": [
+				{ "tone": "warm", "text": "Hi, Luna. Coffee's already on.", "reply": "(Eyes open a little more.) You remembered. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Are you awake, or is this sleepwalking?", "reply": "Unclear. Ask me after coffee.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Hi. What would you like?", "reply": "[dish]. Coffee. Thank you.", "mood": 0 },
+				{ "tone": "rude", "text": "Could you move a bit faster?", "reply": "(Slow blink.) No.", "mood": -0.05 }
+			] },
+			{ "text": "I'm painting a new mural soon. I keep thinking about the colour of your apron.", "choices": [
+				{ "tone": "warm", "text": "I'd be honoured to be in it.", "reply": "Good. You'll be small. In the corner. Smiling. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Paint me taller than I am. And with a cape.", "reply": "(Sleepy grin.) A cape. Done. A big one. [dish].", "mood": 0.05 },
+				{ "tone": "straight", "text": "Interesting. What are you having?", "reply": "[dish]. Coffee.", "mood": 0 },
+				{ "tone": "rude", "text": "Please don't put me in a painting.", "reply": "...Okay. (She crosses something out.)", "mood": -0.05 }
+			] },
+			{ "only": "night", "text": "The stars are out. All of them. I counted. I lost count. That's how you know it's a good night.", "choices": [
+				{ "tone": "warm", "text": "Sounds beautiful. I'm glad you came in to share it.", "reply": "Me too. It's nice. Here. With you. [dish], please. Night coffee.", "mood": 0.05 },
+				{ "tone": "playful", "text": "How many did you get to before you lost count?", "reply": "Seven. Then a moth landed on me. [dish].", "mood": 0.05 },
+				{ "tone": "straight", "text": "What can I get you?", "reply": "[dish] and coffee.", "mood": 0 },
+				{ "tone": "rude", "text": "It's late. We're closing soon.", "reply": "(She looks at the window.) Oh. Okay. Quick, then.", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "I drew you yesterday. From memory. You looked happy. Are you happy?", "choices": [
+				{ "tone": "warm", "text": "Right now? Very. You're here.", "reply": "(Smiles sleepily.) Good. Then the drawing's right. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Happy and a bit floury. Did you draw the flour?", "reply": "I drew the flour. Lots of it. You were a cloud.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Mostly. What can I get you?", "reply": "Mostly is good. [dish]. Coffee.", "mood": 0 },
+				{ "tone": "rude", "text": "That's a bit personal.", "reply": "...Okay. Sorry. (She closes the sketchbook.)", "mood": -0.05 }
 			] }
 		],
 		"drink": {
@@ -55,17 +91,20 @@
 			"night": "Night coffee. It's the same coffee. It feels different."
 		},
 		"served": {
-			"perfect": { "text": "Oh. The steam's catching the light. Don't move it. I'm drawing it first." },
-			"great": { "text": "Mmm. Thank you, [name]." },
-			"okay": { "text": "Thanks. Looks good." },
-			"burnt": { "text": "Very dark. Very dramatic. I like it as art. Less as food." }
+			"perfect": [ { "text": "Oh. The steam's catching the light. Don't move it. I'm drawing it first." }, {"text":"(Her eyes open all the way.) Oh. That's beautiful. I need to paint it before I eat it."}, {"text":"Mmm. Perfect. You're good at this. You should know that."} ],
+			"great": [ { "text": "Mmm. Thank you, [name]." }, {"text":"Mm. That looks good. Thank you."}, {"text":"Pretty. Like a little picture."} ],
+			"okay": [ { "text": "Thanks. Looks good." }, {"text":"Thank you. Mm."}, {"text":"Okay. Good. Food."} ],
+			"burnt": [ { "text": "Very dark. Very dramatic. I like it as art. Less as food." }, {"text":"It's a little dark. Like a night sky. I like night skies."}, {"text":"Burnt. That's okay. I'll paint it lighter."} ]
 		},
 		"eating": [
 			{ "text": "(She's drawing. You see a sketch of the dining room, with you in it.)" },
 			{ "when": "day", "text": "Mm. Sorry. Napping with my eyes open. It's a skill." },
 			{ "fav": true, "text": "The light hits the kitchen counter at exactly 7 PM. I come in for it. And the hotteok." },
 			{ "text": "Penny's writing a story. I'm doing the pictures. Don't tell her I told you. She'll go pink." },
-			{ "when": "night", "text": "Do you ever look at the restaurant at night, with the chairs up? It looks like it's resting. Like it worked hard too." }
+			{ "when": "night", "text": "Do you ever look at the restaurant at night, with the chairs up? It looks like it's resting. Like it worked hard too." },
+			{ "text": "(She's drawing with one hand and eating with the other. The drawing has a bit of sauce on it now. She doesn't mind.)" },
+			{ "text": "Mm. Good. I'm waking up. Slowly. Like a plant." },
+			{ "text": "(She holds up her coffee and looks at you through the steam.) You look like a painting right now. A blurry one." }
 		],
 		"eating_chat": [
 			{ "text": "I'm trying to decide what to paint for the next mural. What do you think this place feels like?", "choices": [
@@ -73,12 +112,39 @@
 				{ "tone": "playful", "text": "Like a very busy kitchen run by one tired chef.", "reply": "(Laughs softly.) Self-portrait. Got it.", "mood": 0.05 },
 				{ "tone": "straight", "text": "Cosy, I guess.", "reply": "Cosy. Okay. I can do cosy.", "mood": 0 },
 				{ "tone": "rude", "text": "Paint whatever. I don't care.", "reply": "...Okay. (She doesn't sketch for the rest of the visit.)", "mood": -0.05 }
+			] },
+			{ "text": "What do you dream about? I dream in colours. Mostly blue. Sometimes pancakes.", "choices": [
+				{ "tone": "warm", "text": "I dream about this place. Isn't that funny?", "reply": "Not funny. Nice. This place is a good dream.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Burning things. Every night. It's a chef thing.", "reply": "(A soft laugh.) Smoky dreams. I'll paint one for you.", "mood": 0.05 },
+				{ "tone": "straight", "text": "I don't remember them much.", "reply": "Try writing them down. They're better on paper.", "mood": 0 },
+				{ "tone": "rude", "text": "That's a strange question.", "reply": "...Okay. (She goes back to her sketch.)", "mood": -0.05 }
+			] },
+			{ "text": "Can you hold that pan up? Just like that. Don't move. ...Okay. Got it. Thank you.", "choices": [
+				{ "tone": "warm", "text": "Happy to pose. Can I see it when it's done?", "reply": "Yes. It's yours, actually. When it's done. Which is... someday.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Should I do my heroic face? I have a heroic face.", "reply": "(Sleepy giggle.) Do it. ...Yes. Perfect. Very heroic.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Sure. Just a second, though.", "reply": "A second is enough. I'm fast. When I'm awake.", "mood": 0 },
+				{ "tone": "rude", "text": "I don't have time to pose.", "reply": "...Okay. (She closes the sketchbook.)", "mood": -0.05 }
+			] },
+			{ "text": "Mornings are a myth. I've never seen one. I've only heard stories.", "choices": [
+				{ "tone": "warm", "text": "I'll save you a sunrise. I see a lot of them.", "reply": "(Smiles.) Paint it for me? No. You can't paint. Describe it.", "mood": 0.05 },
+				{ "tone": "playful", "text": "They're real. I've seen them. They're terrible.", "reply": "(Laughs, a little more awake.) I knew it.", "mood": 0.05 },
+				{ "tone": "straight", "text": "They happen every day.", "reply": "Mm. Allegedly.", "mood": 0 },
+				{ "tone": "rude", "text": "Maybe just go to bed earlier.", "reply": "(Slow blink.) Wow. Okay.", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "You know, you're in a lot of my sketches. More than the trees. Is that okay?", "choices": [
+				{ "tone": "warm", "text": "It's more than okay. I'm honoured.", "reply": "Good. You have a nice shape. Round. Kind. Easy to draw.", "mood": 0.05 },
+				{ "tone": "playful", "text": "More than the trees? The trees must be jealous.", "reply": "They are. One dropped a leaf on me this morning. On purpose.", "mood": 0.05 },
+				{ "tone": "straight", "text": "That's fine.", "reply": "Okay. I'll keep drawing you.", "mood": 0 },
+				{ "tone": "rude", "text": "That's a bit weird.", "reply": "...Oh. Okay. (She tears a page out quietly.)", "mood": -0.05 }
 			] }
 		],
 		"leaving": [
 			{ "when": "day", "text": "Okay. Bed. I mean, home. I mean bed." },
 			{ "when": "night", "text": "Thanks, [name]. I'm going to go paint until sunrise." },
-			{ "text": "Bye. I'll bring you the sketch when it's finished. Probably. Eventually." }
+			{ "text": "Bye. I'll bring you the sketch when it's finished. Probably. Eventually." },
+			{ "text": "Bye, [name]. Thank you. I'm going to go stare at the sky now." },
+			{ "text": "(She yawns.) Mmm. That was nice. Goodnight. Or good morning. Whichever it is." },
+			{ "text": "I'll bring you a drawing next time. Probably. If I remember. I won't remember. I'll try." }
 		],
 		"seasons": {
 			"autumn": "Longer nights. Finally. Autumn is an owl's season.",

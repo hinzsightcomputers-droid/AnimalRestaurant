@@ -48,6 +48,42 @@
 				{ "tone": "playful", "text": "Was it Olive? She's ruthless.", "reply": "It WAS Olive! How do you know? Is everyone losing to Olive?", "mood": 0.05 },
 				{ "tone": "straight", "text": "What can I get you?", "reply": "[dish]. And a Moose-tain Dew.", "mood": 0 },
 				{ "tone": "rude", "text": "Maybe you're just bad at cards.", "reply": "Wow. Okay. I'll take that to Olive.", "mood": -0.05 }
+			] },
+			{ "text": "[name]! Okay, so you know my story about the hotel with the ghost? It continues. The ghost was the manager. He was just very quiet.", "choices": [
+				{ "tone": "warm", "text": "I've been waiting all week for this part.", "reply": "THAT'S an audience! You can't buy that! [dish], please! More story when it lands!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Did you try to sell the ghost something?", "reply": "Did I— Of COURSE I did! He bought two! (Laughs.) [dish]!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Ha. What can I get you?", "reply": "Straight to business. I respect it. [dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Not another story.", "reply": "Whoa, okay. Tough crowd tonight. (He orders and turns to the next customer.)", "mood": -0.05 }
+			] },
+			{ "text": "Hit a lucky streak last night! Card night with Cody. Won nine hands. Lost the tenth. Lost the snacks.", "choices": [
+				{ "tone": "warm", "text": "Nine hands! That's a great night anyway.", "reply": "That's what I told Cody! He just ate my snacks. [dish], please!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Losing the snacks is the real tragedy.", "reply": "THANK you! Nobody understands the weight of the snacks!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Unlucky. What are you having?", "reply": "Comfort food. [dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Should've quit at nine.", "reply": "Hindsight, my friend. ...Tough crowd. (He orders.)", "mood": -0.05 }
+			] },
+			{ "text": "Okay, quick pitch. Thirty seconds. Why should I order the [dish] today? Sell it to me.", "choices": [
+				{ "tone": "warm", "text": "Because I'll make it with extra care, just for you.", "reply": "Personal touch! Sold! You'd crush it in sales!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Limited time offer. It disappears when you eat it.", "reply": "(Points at you.) Scarcity! Urgency! I'm SO buying it!", "mood": 0.05 },
+				{ "tone": "straight", "text": "It's good. That's the pitch.", "reply": "Simple. Honest. Weirdly effective. Sold.", "mood": 0 },
+				{ "tone": "rude", "text": "I'm not doing a pitch. Just order.", "reply": "Whoa, okay. Tough crowd tonight. (He orders and turns to the next customer.)", "mood": -0.05 }
+			] },
+			{ "text": "I got lost in the new game last night. Like, IN it. Six hours. Found a secret room. It was a bathroom.", "choices": [
+				{ "tone": "warm", "text": "Six hours! Did you sleep at all?", "reply": "Sleep is a myth told by people who've never found a secret bathroom. [dish], please!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Was it a nice bathroom at least?", "reply": "It had a golden toilet! Did nothing! Best part of the game!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Nice. What'll it be?", "reply": "Fuel. [dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Maybe go outside sometimes.", "reply": "Outside? Never heard of it. ...Tough crowd. (He orders.)", "mood": -0.05 }
+			] },
+			{ "text": "Closed a huge deal today! Want to know my secret? I talked about your restaurant for ten minutes. They just wanted me to stop.", "choices": [
+				{ "tone": "warm", "text": "I'm honoured to help you close. Congratulations!", "reply": "We're a team! Partners! Silent partners! Well, I'm not silent. [dish], please!", "mood": 0.05 },
+				{ "tone": "playful", "text": "I want commission.", "reply": "(Laughs, big.) Ha! Okay! I'll pay you in compliments!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Nice. What are you having?", "reply": "Celebration [dish]!", "mood": 0 },
+				{ "tone": "rude", "text": "Please don't drag us into your work.", "reply": "Whoa, okay. Noted. (He orders and turns to the next customer.)", "mood": -0.05 }
+			] },
+			{ "only": "night", "text": "Midnight crew! You and me again. Everyone else is asleep. Losers.", "choices": [
+				{ "tone": "warm", "text": "Best crew in town. Glad you're here.", "reply": "Night people stick together! [dish], please, captain!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Should we get matching jackets?", "reply": "With glow-in-the-dark letters! 'NIGHT CREW'! I'm ordering them!", "mood": 0.05 },
+				{ "tone": "straight", "text": "What'll it be?", "reply": "[dish]. Night fuel.", "mood": 0 },
+				{ "tone": "rude", "text": "We close soon.", "reply": "Oh. Okay. Quick one, then. (He orders quietly.)", "mood": -0.05 }
 			] }
 		],
 		"drink": {
@@ -57,17 +93,20 @@
 			"other": "Whatever's got the most caffeine. Don't judge me."
 		},
 		"served": {
-			"perfect": { "text": "Okay. OKAY. Everybody look at this. This is what I'm talking about. Five stars. Ten stars." },
-			"great": { "text": "Now THAT'S a product I can sell." },
-			"okay": { "fav": true, "text": "Solid. Reliable. Good noodles." },
-			"burnt": { "text": "Little smoky! It's fine, I'll market it as 'flame-kissed.'" }
+			"perfect": [ { "text": "Okay. OKAY. Everybody look at this. This is what I'm talking about. Five stars. Ten stars." }, {"text":"OH! Look at that! That's a closer! That's the plate that closes the deal!"}, {"text":"Perfect! I'm telling everyone! Everyone I meet! Tomorrow! Forever!"} ],
+			"great": [ { "text": "Now THAT'S a product I can sell." }, {"text":"Ooh, that's great! Great product! Love it!"}, {"text":"Now THAT'S what I'm talking about!"} ],
+			"okay": [ { "fav": true, "text": "Solid. Reliable. Good noodles." }, {"text":"Solid! Thanks, [name]!"}, {"text":"Good stuff! Thank you!"} ],
+			"burnt": [ { "text": "Little smoky! It's fine, I'll market it as 'flame-kissed.'" }, {"text":"Ooh. Crispy. I can spin that. 'Smoky flavour.' Sold."}, {"text":"Burnt! Hey, every great salesman has a bad day. I'm eating it."} ]
 		},
 		"eating": [
 			{ "text": "So I'm at this conference, right, and the guy next to me is ALSO a yak. Same hair. We were like mirrors. Anyway." },
 			{ "text": "I sold a fridge to a penguin last month. Hardest sale of my life. He kept saying 'I live in the cold.' I said 'Yes, but have you considered: drinks?'" },
 			{ "text": "Cody and I gamed till sunrise last night. He's really good. Don't tell him I said that." },
 			{ "when": "night", "text": "It's quiet. I love it when it's quiet. More room for my voice." },
-			{ "text": "(He's turned around on his stool and is telling a story to the customer behind him, who did not ask.)" }
+			{ "text": "(He's turned around on his stool and is telling a story to the customer behind him, who did not ask.)" },
+			{ "text": "(He's telling the next table about a hotel ghost. They look scared. He's thrilled.)" },
+			{ "text": "This is SO good. I'm gonna describe it in a pitch tomorrow. Someone's buying something because of this." },
+			{ "text": "(He's half-asleep over his plate, then jolts awake.) I'm up! I'm up! Great bite!" }
 		],
 		"eating_chat": [
 			{ "text": "Real talk, [name]. Have you ever thought about expanding? Franchise? Yak-sized portions? I could sell this place in a heartbeat.", "choices": [
@@ -75,13 +114,40 @@
 				{ "tone": "playful", "text": "You're hired. Head of yak-sized portions.", "reply": "I ACCEPT. When do I start? I'm starting now.", "mood": 0.05 },
 				{ "tone": "straight", "text": "Not right now.", "reply": "Fair. The offer stands. Forever.", "mood": 0 },
 				{ "tone": "rude", "text": "I'm not interested in your pitch.", "reply": "Okay, okay. Message received. (He goes quiet for the first time ever.)", "mood": -0.05 }
+			] },
+			{ "text": "Okay, rate my new handshake. Firm, but friendly. (He grabs your hand.) Well?", "choices": [
+				{ "tone": "warm", "text": "Ten. I'd buy anything from that handshake.", "reply": "YES! The handshake works! I'm patenting it!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Bit damp. Is that the fire noodles?", "reply": "(Laughs, big.) It IS the fire noodles! Hazard of the job!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Seven. Bit strong.", "reply": "Seven! Room to grow. I'll work on it.", "mood": 0 },
+				{ "tone": "rude", "text": "Please don't grab my hand.", "reply": "Whoa, okay. Sorry. (He turns to the next customer.)", "mood": -0.05 }
+			] },
+			{ "text": "You know what I love about this place? Everyone's a story. Look at Hezzy over there. Silent. Mysterious. A legend.", "choices": [
+				{ "tone": "warm", "text": "And you're the storyteller who ties them together.", "reply": "Oh, now I'm emotional. You're making me emotional in public.", "mood": 0.05 },
+				{ "tone": "playful", "text": "He makes trumpet noises when you're not looking.", "reply": "WHAT? Okay, I'm watching him now. All night. All of it.", "mood": 0.05 },
+				{ "tone": "straight", "text": "True.", "reply": "Mm. Very true. Deep stuff.", "mood": 0 },
+				{ "tone": "rude", "text": "Leave the other customers alone.", "reply": "Whoa, okay. Fine. (He turns back to his plate.)", "mood": -0.05 }
+			] },
+			{ "text": "Okay, real question. If you weren't a chef, what would you be? I think you'd be great in sales. You've got the eyes.", "choices": [
+				{ "tone": "warm", "text": "Honestly? I'd still want to be somewhere like this.", "reply": "(Hand on heart.) That's not a pitch. That's poetry.", "mood": 0.05 },
+				{ "tone": "playful", "text": "A professional gamer. I'd beat you.", "reply": "Oh, you're ON. Night shift, after close. Bring snacks. You'll lose them.", "mood": 0.05 },
+				{ "tone": "straight", "text": "No idea.", "reply": "Sales. Think about it. I'll leave my card.", "mood": 0 },
+				{ "tone": "rude", "text": "Anything but sales.", "reply": "Whoa, okay. That one stung. (He turns to the next customer.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "Can I be real for a sec? No pitch. ...I talk a lot because I like people. And I like you. That's it. Back to normal.", "choices": [
+				{ "tone": "warm", "text": "I like you too, Yaniv. Talk as much as you want.", "reply": "Okay. (Quiet for a second. Then, loud:) THAT'S A DEAL!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Wait, was that the pitch? Did I just get sold?", "reply": "(Laughs, big.) You'll never know! That's the beauty of it!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Thanks, Yaniv.", "reply": "Anytime. Okay. Back to loud.", "mood": 0 },
+				{ "tone": "rude", "text": "Okay. Weird.", "reply": "...Yeah. Forget it. (He's quiet for the rest of the meal.)", "mood": -0.05 }
 			] }
 		],
 		"leaving": [
 			{ "text": "That's a wrap! Great service, great food, great audience. Bye, [name]!" },
 			{ "text": "Okay, I'm going home to game until the sun comes up. Don't tell my boss." },
 			{ "text": "To be continued... You'll have to come back. I mean, I'll come back. You're already here.", "when": "story_part" },
-			{ "when": "leaving_town", "text": "Sales trip tomorrow. Three cities. If I don't come back, I've probably sold myself." }
+			{ "when": "leaving_town", "text": "Sales trip tomorrow. Three cities. If I don't come back, I've probably sold myself." },
+			{ "text": "[name]! Pleasure doing business! Same time tomorrow! Bigger story!" },
+			{ "text": "Okay, I'm off. Got a raid at midnight. Wish me luck. And snacks." },
+			{ "text": "Thanks, chef! Five stars! I'll tell everyone! I tell everyone everything!" }
 		],
 		"seasons": {
 			"christmas": "I got you a gift. It's a free subscription to my newsletter. There's no newsletter. I'll start one.",

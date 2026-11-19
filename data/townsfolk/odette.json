@@ -46,6 +46,42 @@
 				{ "tone": "playful", "text": "So we're officially better than famous?", "reply": "In soup. Only in soup.", "mood": 0.05, "misses": { "reply": "Let us not be hasty.", "mood": 0 } },
 				{ "tone": "straight", "text": "Thank you. What can I get you today?", "reply": "[dish]. Naturally.", "mood": 0.05 },
 				{ "tone": "rude", "text": "Why tell me that?", "reply": "Because it was true. (She doesn't say anything nice again this visit.)", "mood": -0.05 }
+			] },
+			{ "text": "The tablecloth is straight today. Someone took care. I notice these things.", "choices": [
+				{ "tone": "warm", "text": "I straightened it thinking of you.", "reply": "(The smallest pause.) That is... very kind. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "I measured it with a ruler. Twice.", "reply": "(A tiny smile.) Only twice? We shall see. [dish].", "mood": 0.05 },
+				{ "tone": "straight", "text": "Thank you. What would you like?", "reply": "The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "It's just a tablecloth.", "reply": "I see. (She writes something down.)", "mood": -0.05 }
+			] },
+			{ "text": "I have just come back from reviewing a restaurant by the sea. The view was excellent. The soup was cold. On purpose, they said.", "choices": [
+				{ "tone": "warm", "text": "I'm glad you came back here. I'll keep yours warm.", "reply": "Thank you. Warm soup is a form of respect. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Cold on purpose? Did they say sorry on purpose too?", "reply": "(A quiet laugh, quickly hidden.) No. They did not. [dish].", "mood": 0.05 },
+				{ "tone": "straight", "text": "Sounds disappointing. What can I get you?", "reply": "It was. The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Must be nice, travelling to eat.", "reply": "It is work. (She writes for a long time.)", "mood": -0.05 }
+			] },
+			{ "text": "Tell me, honestly. What would you recommend today?", "choices": [
+				{ "tone": "warm", "text": "Whatever I make for you. I'll put everything into it.", "reply": "That is the correct answer. Few give it. The [dish], then.", "mood": 0.05 },
+				{ "tone": "playful", "text": "The thing that'll get me the most stars.", "reply": "(One eyebrow.) Honest, at least. The [dish].", "mood": 0.05 },
+				{ "tone": "straight", "text": "Everything's good today.", "reply": "Everything is a large claim. The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Just pick something.", "reply": "I see. (She taps her pen once.)", "mood": -0.05 }
+			] },
+			{ "text": "I brought my notebook. Do not worry. I am only here to eat. ...Mostly.", "choices": [
+				{ "tone": "warm", "text": "Write whatever you like. I'm happy to have you.", "reply": "(She sets the pen down, then picks it up again.) Thank you. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Can I read it after? Just the nice parts?", "reply": "There are nice parts. That is all I will say. [dish].", "mood": 0.05 },
+				{ "tone": "straight", "text": "Understood. What can I get you?", "reply": "The [dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Please don't write about us.", "reply": "Hm. (She writes one word. Underlines it.)", "mood": -0.05 }
+			] },
+			{ "text": "Miles told me a joke on the way in. I did not laugh. I have been thinking about it for an hour.", "choices": [
+				{ "tone": "warm", "text": "He'll be thrilled to know that.", "reply": "Do not tell him. He would never recover. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Was it the one about the mole who dug food?", "reply": "...It was. (A long pause.) It is adequate.", "mood": 0.05 },
+				{ "tone": "straight", "text": "What would you like?", "reply": "The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "His jokes are awful.", "reply": "They are. He is not. (She says nothing kind again this visit.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "I will admit something. I look forward to coming here. That has not happened in some years.", "choices": [
+				{ "tone": "warm", "text": "That means more than any star, Odette.", "reply": "(She looks away, very still.) ...Do not let it go to your head. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Can I put that on the door?", "reply": "Absolutely not. (A small smile.) Perhaps a small sign.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Thank you. What can I get you?", "reply": "The [dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Is that going in a review?", "reply": "No. It is not. (She closes the notebook.)", "mood": -0.05 }
 			] }
 		],
 		"drink": {
@@ -55,17 +91,20 @@
 		},
 		"served_intro": "(She pauses perfectly still, takes one bite, taps her notebook once.)",
 		"served": {
-			"perfect": { "text": "...Exceptional. (She puts the pen down. She doesn't need it.)" },
-			"great": { "text": "Adequate. (Very high praise.)" },
-			"okay": { "text": "Acceptable." },
-			"burnt": { "text": "Interesting. (She writes for a long time.)" }
+			"perfect": [ { "text": "...Exceptional. (She puts the pen down. She doesn't need it.)" }, {"text":"(She stands perfectly still. A long time. Then taps her notebook once.) ...Exquisite."}, {"text":"This is correct. Every part of it. Thank you, [name]."} ],
+			"great": [ { "text": "Adequate. (Very high praise.)" }, {"text":"Very good. A small adjustment, and it would be excellent."}, {"text":"Well made. I am pleased."} ],
+			"okay": [ { "text": "Acceptable." }, {"text":"Acceptable. You can do better. I have seen it."}, {"text":"Hm. Adequate. Thank you."} ],
+			"burnt": [ { "text": "Interesting. (She writes for a long time.)" }, {"text":"Overdone. (She writes one word.) It happens. Not often, I hope."}, {"text":"Burnt. I will eat it. I will not review it."} ]
 		},
 		"eating": [
 			{ "text": "The lighting in here has improved. I noticed." },
 			{ "text": "You are watching me eat. I can feel it. Please, return to your work." },
 			{ "text": "This restaurant has a warmth most do not. That is not something you can cook." },
 			{ "fav": true, "text": "Miles took a photograph of my croissant before I could taste it. Infuriating. The photograph was excellent." },
-			{ "text": "(She's writing in her notebook. You catch the word 'lovely' before she closes it.)" }
+			{ "text": "(She's writing in her notebook. You catch the word 'lovely' before she closes it.)" },
+			{ "text": "(She takes one bite. Stands perfectly still. Taps her notebook once.)" },
+			{ "text": "The seasoning is confident today. I like confidence. In food." },
+			{ "text": "(She is writing. She pauses, looks at you, and writes something else. It might be a smile.)" }
 		],
 		"eating_chat": [
 			{ "fav": true, "text": "May I offer a small note? The plating could be more confident.", "choices": [
@@ -73,12 +112,39 @@
 				{ "tone": "playful", "text": "More confident? I'll give the croissants a pep talk.", "reply": "(She almost laughs.) Do.", "mood": 0.05, "misses": { "reply": "I am serious.", "mood": 0 } },
 				{ "tone": "straight", "text": "Noted.", "reply": "Good.", "mood": 0.05 },
 				{ "tone": "rude", "text": "Nobody asked for your notes.", "reply": "Many people do, in fact. But I see.", "mood": -0.05 }
+			] },
+			{ "text": "What is the most important thing in a kitchen? I ask every chef. The answers tell me everything.", "choices": [
+				{ "tone": "warm", "text": "The people you cook for.", "reply": "(She writes for a moment.) That is the answer I hoped for.", "mood": 0.05 },
+				{ "tone": "playful", "text": "A good fire extinguisher.", "reply": "(The smallest laugh.) Practical. And, I suspect, from experience.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Sharp knives.", "reply": "Correct. Dull knives are dangerous. And sad.", "mood": 0 },
+				{ "tone": "rude", "text": "Not people asking questions.", "reply": "I see. (She writes for a long time.)", "mood": -0.05 }
+			] },
+			{ "text": "I have eaten in two hundred restaurants. Would you like to know which one I return to?", "choices": [
+				{ "tone": "warm", "text": "I'd love to know.", "reply": "(She taps the table once.) This one. Do not repeat that.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Is it the one with the cold soup?", "reply": "(A laugh escapes. She covers it.) No. Certainly not.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Which one?", "reply": "I will tell you when you are ready.", "mood": 0 },
+				{ "tone": "rude", "text": "Not really.", "reply": "Then I will not say. (She returns to her plate.)", "mood": -0.05 }
+			] },
+			{ "text": "Do you know why I stand so still when I taste? So I do not miss anything. Most people miss everything.", "choices": [
+				{ "tone": "warm", "text": "I'll try it. Maybe I'll taste more.", "reply": "You will. Try it with your own food. You may be surprised.", "mood": 0.05 },
+				{ "tone": "playful", "text": "I thought you were just judging me very hard.", "reply": "Also that. Both can be true.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Interesting.", "reply": "It is.", "mood": 0 },
+				{ "tone": "rude", "text": "Seems a bit dramatic.", "reply": "Perhaps. (She stands perfectly still and says nothing more.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "I wrote about you once. Not in a review. In my diary. It was kind. That is all.", "choices": [
+				{ "tone": "warm", "text": "That's the nicest review I'll ever get.", "reply": "(She blinks.) ...It is not a review. It is a fact.", "mood": 0.05 },
+				{ "tone": "playful", "text": "How many stars did I get in the diary?", "reply": "Diaries do not have stars. (Pause.) Five.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Thank you, Odette.", "reply": "You are welcome.", "mood": 0 },
+				{ "tone": "rude", "text": "That's a little strange.", "reply": "Perhaps. I will not mention it again. (She doesn't.)", "mood": -0.05 }
 			] }
 		],
 		"leaving": [
 			{ "text": "Thank you, [name]. Until next time." },
 			{ "text": "I must catch a train. Keep the kitchen honest." },
-			{ "text": "That was... lovely. (She seems surprised she said it, and leaves quickly.)" }
+			{ "text": "That was... lovely. (She seems surprised she said it, and leaves quickly.)" },
+			{ "text": "Thank you. That was... very good. I will be back." },
+			{ "text": "Good evening, [name]. Do not change anything. I mean that." },
+			{ "text": "(She nods once at the door. For Odette, that is a standing ovation.)" }
 		],
 		"seasons": {
 			"autumn": "Autumn is the best season for pastry. I expect great things.",

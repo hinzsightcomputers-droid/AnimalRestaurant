@@ -51,6 +51,42 @@
 				{ "tone": "playful", "text": "Do you even own a shirt without a number?", "reply": "...Huh. No. Wait, do people do that?", "mood": 0.05 },
 				{ "tone": "straight", "text": "Nice. What are you having?", "reply": "The [dish]. Same as always. Like my jersey.", "mood": 0 },
 				{ "tone": "rude", "text": "Ever thought about washing it?", "reply": "(He sniffs his sleeve.) ...Oh. Okay.", "mood": -0.05 }
+			] },
+			{ "text": "I was gonna order something but I forgot what. It was good though. I think.", "choices": [
+				{ "tone": "warm", "text": "No rush, Chompy. It'll come back to you.", "reply": "Thanks, [name]. ...Oh! It came back. The [dish].", "mood": 0.05 },
+				{ "tone": "playful", "text": "Was it a sandwich? Was it a football?", "reply": "(Thinks hard.) ...It wasn't a football. I'm pretty sure.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Want me to pick for you?", "reply": "Yeah. Okay. The [dish]? Yeah. That one.", "mood": 0 },
+				{ "tone": "rude", "text": "Come back when you remember.", "reply": "Huh? ...Oh. Okay. The [dish], I guess. (He doesn't look up.)", "mood": -0.05 }
+			] },
+			{ "text": "Coach says I gotta eat more vegetables. Do fries count? They're potato. Potato's a vegetable.", "choices": [
+				{ "tone": "warm", "text": "I'll sneak some veggies in for you. Coach will be proud.", "reply": "You'd do that? You're like a coach for food. A food coach.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Technically, ketchup is a tomato. You're basically a salad.", "reply": "(Gasps.) I'm a SALAD? I gotta tell Coach.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Not really. What can I get you?", "reply": "Aw. Okay. The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "That's not how vegetables work.", "reply": "(He stares at the table.) ...Oh.", "mood": -0.05 }
+			] },
+			{ "text": "I tried to do a push-up this morning. I did half of one. That counts.", "choices": [
+				{ "tone": "warm", "text": "Half is better than none. Proud of you.", "reply": "Yeah! Tomorrow I'm going for three-quarters.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Next you'll be lifting a whole breakfast.", "reply": "(Laughs.) I lift breakfast every day! To my mouth!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Nice. What are you having?", "reply": "The [dish]. For the muscles.", "mood": 0 },
+				{ "tone": "rude", "text": "Half a push-up isn't a push-up.", "reply": "...Yeah. I know. (He slumps.)", "mood": -0.05 }
+			] },
+			{ "text": "My cousin Kyle reads books for fun. Like, nobody makes him. He just does it.", "choices": [
+				{ "tone": "warm", "text": "Sounds like you're proud of him.", "reply": "Yeah. He's smart. I'm the fun one. We're a good team.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Maybe you'd like a book about football.", "reply": "Whoa. They make those? ...Do they have pictures?", "mood": 0.05 },
+				{ "tone": "straight", "text": "He seems nice. What can I get you?", "reply": "He is. The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Maybe you should try it sometime.", "reply": "(He thinks about it for a long time.) ...Nah.", "mood": -0.05 }
+			] },
+			{ "text": "Is it lunch or breakfast right now? I can never tell. My stomach says both.", "choices": [
+				{ "tone": "warm", "text": "Whatever your stomach says. It's always right.", "reply": "Yeah! My stomach's never wrong. It's like a clock. A hungry clock.", "mood": 0.05 },
+				{ "tone": "playful", "text": "It's 'brunch o'clock.' Very fancy.", "reply": "Brunch o'clock. Ooh. I'm fancy now.", "mood": 0.05 },
+				{ "tone": "straight", "text": "It's whatever time you're hungry. What'll it be?", "reply": "The [dish]. Any time is [dish] time.", "mood": 0 },
+				{ "tone": "rude", "text": "Can you not read a clock?", "reply": "...Not the ones with hands. (He goes quiet.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "Hey [name]. I made you something. It's a high five. You gotta give it back though.", "choices": [
+				{ "tone": "warm", "text": "(High five.) Best gift I've ever gotten.", "reply": "(Huge grin.) Yeah! We're a team. Team high five.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Can I keep it? I'll frame it.", "reply": "(Laughs.) You can't frame a high five! ...Can you?", "mood": 0.05 },
+				{ "tone": "straight", "text": "(High five.) What can I get you?", "reply": "The [dish]. Good hands, [name].", "mood": 0 },
+				{ "tone": "rude", "text": "I'm not doing a high five.", "reply": "(His hand slowly goes down.) ...Okay.", "mood": -0.05 }
 			] }
 		],
 		"drink": {
@@ -59,17 +95,20 @@
 			"other": "Surprise me. Not too surprising though."
 		},
 		"served": {
-			"perfect": { "text": "WHOA. Touchdown! That's a touchdown plate, [name]." },
-			"great": { "fav": true, "text": "Yesss. Big breakfast, big day." },
-			"okay": { "text": "Cool. Food. I love food." },
-			"burnt": { "text": "It's kinda black. That's the team colour though, so it's fine." }
+			"perfect": [ { "text": "WHOA. Touchdown! That's a touchdown plate, [name]." }, {"text":"Whoa. That's like... a championship plate, [name]."}, {"text":"(He stares at it.) It's so good I don't wanna ruin it. ...Okay, I'm ruining it."} ],
+			"great": [ { "fav": true, "text": "Yesss. Big breakfast, big day." }, {"text":"Yesss. Food time."}, {"text":"Nice! That's a good one, [name]."} ],
+			"okay": [ { "text": "Cool. Food. I love food." }, {"text":"Cool. Thanks!"}, {"text":"Food! My favourite thing."} ],
+			"burnt": [ { "text": "It's kinda black. That's the team colour though, so it's fine." }, {"text":"Kinda crispy. Crispy's fine. Crunchy's a flavour."}, {"text":"It's a little black. Like a bruise. A tasty bruise."} ]
 		},
 		"eating": [
 			{ "text": "Mmmf. Sorry. Mouth full. ...Still full. Okay, what's up?" },
 			{ "fav": true, "text": "You ever think about how eggs are just chickens that didn't happen? ...Wait, don't tell me. I don't wanna know." },
 			{ "text": "If I eat really slow, I can stay longer. That's strategy." },
 			{ "text": "I'm gonna nap after this. Not here. Probably." },
-			{ "text": "(His head nods, then snaps up.) I'm up! I'm up." }
+			{ "text": "(His head nods, then snaps up.) I'm up! I'm up." },
+			{ "text": "This is so good I forgot what I was gonna say. ...It wasn't important." },
+			{ "text": "I'm gonna eat this one bite at a time. That's the plan. That's the whole plan." },
+			{ "text": "(He's holding his fork like a football.) Hut! ...Sorry." }
 		],
 		"eating_chat": [
 			{ "text": "Hey [name], who's your team? Like, football team.", "choices": [
@@ -77,12 +116,39 @@
 				{ "tone": "playful", "text": "The kitchen team. We're undefeated.", "reply": "(Laughs way too hard.) Undefeated! Ha! ...Wait, who do you play?", "mood": 0.05 },
 				{ "tone": "straight", "text": "I don't really watch football.", "reply": "That's okay. More football for me.", "mood": 0 },
 				{ "tone": "rude", "text": "Football's boring.", "reply": "(He stares at his plate.) ...You take that back. ...Please.", "mood": -0.05 }
+			] },
+			{ "text": "If you were a football player, what position would you play? I'd play couch.", "choices": [
+				{ "tone": "warm", "text": "Whatever position is next to you.", "reply": "Yesss. Team Chompy. Couch and couch.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Kitchen quarterback. I throw pancakes.", "reply": "(Laughs way too hard.) Pancake throw! Touchdown!", "mood": 0.05 },
+				{ "tone": "straight", "text": "I don't really know the positions.", "reply": "Me neither. I just yell. That's a position.", "mood": 0 },
+				{ "tone": "rude", "text": "You'd never make any team.", "reply": "(He looks at his plate.) ...Yeah.", "mood": -0.05 }
+			] },
+			{ "text": "I had a dream I was a pancake. It was nice. Warm. Kinda syrupy.", "choices": [
+				{ "tone": "warm", "text": "Sounds like a really cozy dream.", "reply": "It was. Then I woke up. Now I'm hungry again.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Don't tell me that. I'll never flip one the same way again.", "reply": "(Laughs.) Be gentle with them! They have feelings! In my dream.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Weird dream.", "reply": "Yeah. Good weird though.", "mood": 0 },
+				{ "tone": "rude", "text": "Please stop talking about your dreams.", "reply": "...Okay. (He chews quietly.)", "mood": -0.05 }
+			] },
+			{ "text": "How do you remember all the orders? I can't even remember what I ate yesterday. ...Wait. It was here.", "choices": [
+				{ "tone": "warm", "text": "I always remember yours, Chompy.", "reply": "Whoa. Really? That's cool. I'm memorable.", "mood": 0.05 },
+				{ "tone": "playful", "text": "I write them on my tail. Don't tell anyone.", "reply": "(Tries to look at his own tail.) ...I can't see mine.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Tickets. They're on the wheel.", "reply": "Ohh. The wheel. Smart.", "mood": 0 },
+				{ "tone": "rude", "text": "Some of us actually use our brains.", "reply": "(He thinks about that for a long time.) ...Oh.", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "You're kinda my favourite person in town. Don't tell Kyle. He'll read about it.", "choices": [
+				{ "tone": "warm", "text": "You're one of mine too, Chompy.", "reply": "(He grins so wide you see every tooth.) Yesss.", "mood": 0.05 },
+				{ "tone": "playful", "text": "I'll keep it out of the newspaper.", "reply": "There's a NEWSPAPER? Am I gonna be in it?", "mood": 0.05 },
+				{ "tone": "straight", "text": "Thanks, Chompy.", "reply": "Yeah. No problem.", "mood": 0 },
+				{ "tone": "rude", "text": "That's kind of weird.", "reply": "Oh. ...Yeah. Probably. (He hunches over his plate.)", "mood": -0.05 }
 			] }
 		],
 		"leaving": [
 			{ "text": "That was a win. Big win. See ya, [name]." },
 			{ "text": "Okay, I gotta go do... nothing. It's a lot of work." },
-			{ "text": "Bye! Wait, did I pay? ...I paid. Okay. Bye!" }
+			{ "text": "Bye! Wait, did I pay? ...I paid. Okay. Bye!" },
+			{ "text": "Okay. Full. Gonna go lie down somewhere. Bye, [name]!" },
+			{ "text": "Good game, [name]. I mean good food. Same thing." },
+			{ "text": "See ya! I'll come back when I'm hungry. So, soon." }
 		],
 		"seasons": {
 			"autumn": "It's football season! It's always football season but now it's REALLY football season.",

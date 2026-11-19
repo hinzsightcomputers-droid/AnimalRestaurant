@@ -49,6 +49,42 @@
 				{ "tone": "playful", "text": "Only if I can rate it out of ten.", "reply": "(He does it.) Score? (Whatever you'd say, he nods.) Fair.", "mood": 0.05 },
 				{ "tone": "straight", "text": "Maybe after your order.", "reply": "Fair. [dish]. (He does it on the way out instead.)", "mood": 0.05 },
 				{ "tone": "rude", "text": "Please don't.", "reply": "Okay. (He looks very slightly sad.)", "mood": -0.05 }
+			] },
+			{ "text": "Is the corner seat free?", "choices": [
+				{ "tone": "warm", "text": "Saved it for you. It's yours.", "reply": "Thanks.", "mood": 0.05, "familiar": { "reply": "♪ My corner, my corner ♪ (Then silence.) [dish], please.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Only for hedgehogs. You qualify.", "reply": "(A small nod.)", "mood": 0.05, "familiar": { "reply": "Finally. Recognition. (A tiny kazoo sound.)", "mood": 0.05 } },
+				{ "tone": "straight", "text": "It is. What can I get you?", "reply": "[dish]. Thanks.", "mood": 0 },
+				{ "tone": "rude", "text": "Sit wherever. I don't care.", "reply": "Okay.", "mood": -0.05 }
+			] },
+			{ "text": "Rained on the way here.", "choices": [
+				{ "tone": "warm", "text": "Oh no. Want a towel?", "reply": "No. Thanks, though.", "mood": 0.05, "familiar": { "reply": "(Shakes like a dog. Spines go everywhere.) Better. [dish], please.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Did you sing in it? Like in the movies?", "reply": "...No.", "mood": 0.05, "familiar": { "reply": "♪ Just singing in the— ♪ Yes. I did. Don't tell anyone.", "mood": 0.05 } },
+				{ "tone": "straight", "text": "Dry off. What'll it be?", "reply": "[dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Don't drip on the floor.", "reply": "Right.", "mood": -0.05 }
+			] },
+			{ "text": "Dr Salt. And food.", "choices": [
+				{ "tone": "warm", "text": "Coming up. Nice to see you.", "reply": "You too.", "mood": 0.05, "familiar": { "reply": "♪ Nice to see you ♪ ...That's a song now. [dish], please.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Food? Any food? Living dangerously today.", "reply": "(The tiniest smile.)", "mood": 0.05, "familiar": { "reply": "Surprise me. (A drumroll on the table.) No. [dish].", "mood": 0.05 } },
+				{ "tone": "straight", "text": "What kind of food?", "reply": "[dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Could you be more specific?", "reply": "...[dish].", "mood": -0.05 }
+			] },
+			{ "text": "Long day.", "choices": [
+				{ "tone": "warm", "text": "Sit down. I'll take care of you.", "reply": "Thanks. (He sits.)", "mood": 0.05, "familiar": { "reply": "(Exhales like a deflating balloon. A long, sad whistle.) Thanks. [dish].", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Want to talk about it? Or honk about it?", "reply": "(A small sound. Almost a laugh.)", "mood": 0.05, "familiar": { "reply": "(One long, tired honk.) That was the whole story.", "mood": 0.05 } },
+				{ "tone": "straight", "text": "Sorry. What are you having?", "reply": "[dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Aren't they all.", "reply": "Hm.", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "I wrote a song about the restaurant.", "choices": [
+				{ "tone": "warm", "text": "I'd love to hear it.", "reply": "(He sings four lines. It rhymes 'pancake' with 'mistake.' It's oddly beautiful.) [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Does it have a key change?", "reply": "Three. (He demonstrates one. The whole room turns.)", "mood": 0.05 },
+				{ "tone": "straight", "text": "Maybe later. What can I get you?", "reply": "Fair. [dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Please don't sing it here.", "reply": "Okay. (He looks very slightly sad.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "Can I do the noise? The new one?", "choices": [
+				{ "tone": "warm", "text": "Go for it. I'm ready.", "reply": "(A noise like a bicycle bell falling down stairs.) Thank you. [dish].", "mood": 0.05 },
+				{ "tone": "playful", "text": "Only if it's quieter than the last one.", "reply": "(He does it at half volume. It's somehow worse.) Sorry.", "mood": 0.05 },
+				{ "tone": "straight", "text": "After you order.", "reply": "Fair. [dish]. (He does it on the way out instead.)", "mood": 0 },
+				{ "tone": "rude", "text": "No noises today.", "reply": "Okay.", "mood": -0.05 }
 			] }
 		],
 		"drink": {
@@ -58,17 +94,20 @@
 			"other": "Whatever's cold."
 		},
 		"served": {
-			"perfect": { "text": "...That's very good.", "familiar": "(He stands up, sings one triumphant note, sits back down.) Thank you." },
-			"great": { "text": "Looks good. Thanks." },
-			"okay": { "text": "Thanks." },
-			"burnt": { "text": "Burnt.", "familiar": "(Sad trombone noise.) I'll eat it." }
+			"perfect": [ { "text": "...That's very good.", "familiar": "(He stands up, sings one triumphant note, sits back down.) Thank you." }, {"familiar":"(A fanfare. With his mouth. Full brass section.)","text":"That's great. Thanks."}, {"familiar":"(He stares at it, then hums one long, happy note.)","text":"...Wow."} ],
+			"great": [ { "text": "Looks good. Thanks." }, {"text":"Thanks."}, {"familiar":"Good. (Ding.)","text":"Good."} ],
+			"okay": [ { "text": "Thanks." }, {"text":"Okay. Thanks."}, {"text":"Fine."} ],
+			"burnt": [ { "text": "Burnt.", "familiar": "(Sad trombone noise.) I'll eat it." }, {"familiar":"(A slow, descending whistle.) Burnt.","text":"Bit burnt."}, {"text":"Crispy. Okay."} ]
 		},
 		"eating": [
 			{ "voice": "before", "text": "It's good. Thanks." },
 			{ "voice": "before", "text": "Nice place." },
 			{ "voice": "familiar", "text": "I sang in the shower for two hours this morning. My neighbour knocked. He wanted a song too." },
 			{ "voice": "familiar", "text": "(He's eating in complete silence. Then, without looking up: honk. Then nothing.)" },
-			{ "voice": "familiar", "text": "People think I'm serious. I'm not. I'm just tired of my face asking." }
+			{ "voice": "familiar", "text": "People think I'm serious. I'm not. I'm just tired of my face asking." },
+			{ "voice": "before", "text": "(He eats very neatly.)" },
+			{ "voice": "familiar", "text": "(He finishes a bite and makes a tiny 'ding' like a microwave.) Done. With that bite." },
+			{ "voice": "familiar", "text": "♪ This is good, this is good, this is— ♪ Sorry. It's good." }
 		],
 		"eating_chat": [
 			{ "text": "Can I ask you something? Do I look like I'm having a good time?", "choices": [
@@ -76,12 +115,39 @@
 				{ "tone": "playful", "text": "You look like you're doing taxes.", "reply": "...Fair.", "mood": 0, "familiar": { "reply": "(He laughs out loud for the first time. It's a honk.)", "mood": 0.05 } },
 				{ "tone": "straight", "text": "Not really.", "reply": "Yeah. I am, though.", "mood": 0.05 },
 				{ "tone": "rude", "text": "You look like you hate everything.", "reply": "Hm. I don't.", "mood": -0.05 }
+			] },
+			{ "text": "Do you like music?", "choices": [
+				{ "tone": "warm", "text": "Love it. What do you listen to?", "reply": "Everything. Mostly myself.", "mood": 0.05, "familiar": { "reply": "Everything. Mostly myself. (He hums a little. It's good.)", "mood": 0.05 } },
+				{ "tone": "playful", "text": "Only kitchen music. Sizzles. Clangs. The fire alarm.", "reply": "(A deadpan nod.) Classics.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Sometimes.", "reply": "Okay.", "mood": 0 },
+				{ "tone": "rude", "text": "Not if you're the one making it.", "reply": "Right.", "mood": -0.05 }
+			] },
+			{ "text": "My face looks grumpy. I'm not. It just does that.", "choices": [
+				{ "tone": "warm", "text": "I can tell. You've got kind eyes.", "reply": "(A long pause.) ...Thank you.", "mood": 0.05, "familiar": { "reply": "(A long pause.) ...Okay. Ding. That's a happy ding.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "I have the same problem. It's called 'concentrating.'", "reply": "Ha. Yes.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Good to know.", "reply": "Yep.", "mood": 0 },
+				{ "tone": "rude", "text": "Could've fooled me.", "reply": "Hm.", "mood": -0.05 }
+			] },
+			{ "text": "Brandon says I should start a band.", "choices": [
+				{ "tone": "warm", "text": "He's right. I'd come to every show.", "reply": "Front row?", "mood": 0.05, "familiar": { "reply": "Front row. Okay. I'll write you a song. (Honk.) Intro.", "mood": 0.05 } },
+				{ "tone": "playful", "text": "What would you call it? 'Honk If You're Hungry'?", "reply": "(He stops chewing.) ...That's the name.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Would you?", "reply": "Maybe.", "mood": 0 },
+				{ "tone": "rude", "text": "Please don't.", "reply": "Okay.", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "You're one of the people I make noises around. That's a big deal.", "choices": [
+				{ "tone": "warm", "text": "I'm honoured, Hezzy. Really.", "reply": "(One soft, proud trumpet note.) Good.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Should I start making noises back?", "reply": "Try one.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Thanks.", "reply": "Mm.", "mood": 0 },
+				{ "tone": "rude", "text": "I'd rather you didn't.", "reply": "...Okay. (He doesn't make another sound this visit.)", "mood": -0.05 }
 			] }
 		],
 		"leaving": [
 			{ "voice": "before", "text": "Thanks. Bye." },
 			{ "voice": "familiar", "text": "See you, [name]. (On his way out the door.) ♪ Goodbye, restaurant ♪" },
-			{ "voice": "familiar", "text": "Good food. Good people. (Nods twice. Leaves.)" }
+			{ "voice": "familiar", "text": "Good food. Good people. (Nods twice. Leaves.)" },
+			{ "voice": "before", "text": "Thanks. Bye." },
+			{ "voice": "familiar", "text": "(He honks once at the door. Then leaves.)" },
+			{ "voice": "familiar", "text": "♪ Goodbye, [name] ♪ (He doesn't look back. He's smiling.)" }
 		],
 		"seasons": {
 			"christmas": "(He sings an entire carol at the host stand, solemnly, then orders.)",

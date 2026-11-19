@@ -51,6 +51,42 @@
 				{ "tone": "playful", "text": "Only menus. I'm very well read in soups.", "reply": "That's a genre! A short one.", "mood": 0.05 },
 				{ "tone": "straight", "text": "Sometimes.", "reply": "That's nice. The [dish], please.", "mood": 0 },
 				{ "tone": "rude", "text": "Reading's boring.", "reply": "Oh. (She tucks her book away.) The [dish], please.", "mood": -0.05 }
+			] },
+			{ "text": "Sorry. I'm at the sad part of my book. If I cry, it's the book. Not the menu.", "choices": [
+				{ "tone": "warm", "text": "Take your time. I'll bring you something warm.", "reply": "(Sniffs.) Thank you. That helps. The [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Want me to read the sad part for you? I'll skip it.", "reply": "(A small laugh.) You can't skip it! It's important! ...It's so sad.", "mood": 0.05 },
+				{ "tone": "straight", "text": "No problem. What can I get you?", "reply": "The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "It's just a book.", "reply": "(She holds the book a little tighter.) ...The [dish].", "mood": -0.05 }
+			] },
+			{ "text": "The pond looked so pretty on the way here. All sparkly. I stood far away from it, of course.", "choices": [
+				{ "tone": "warm", "text": "You can love the water from a distance. That's still love.", "reply": "(She smiles.) That's exactly it. You understand. The [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Far away is the best seat in the house.", "reply": "(Giggles.) Front row, from the back. Yes.", "mood": 0.05 },
+				{ "tone": "straight", "text": "It's a nice pond. What are you having?", "reply": "It is. The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "A penguin scared of water. Funny.", "reply": "...I know. (She looks out the window and doesn't say much else.)", "mood": -0.05 }
+			] },
+			{ "text": "Can I ask you something? Do you read? You don't have to. Sorry. I just wondered.", "choices": [
+				{ "tone": "warm", "text": "Not enough. Maybe you could recommend something?", "reply": "(She lights up.) Oh! I have SO many. I'll make you a list. The [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Recipes count, right? I've read a lot of recipes.", "reply": "Recipes are stories! Very short ones. With happy endings. Mostly.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Sometimes. What can I get you?", "reply": "Oh, good. The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Who has time to read?", "reply": "(She closes her book quietly.) ...The [dish].", "mood": -0.05 }
+			] },
+			{ "text": "I wrote a little poem on the napkin last time. I took it home. It wasn't very good. It was about soup.", "choices": [
+				{ "tone": "warm", "text": "I'd love to read it sometime.", "reply": "(Pink cheeks.) Maybe. When it's better. The [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Soup poetry. Very deep. Very bowl-shaped.", "reply": "(Laughs into her wing.) Bowl-shaped! That's the title now!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Nice. What would you like?", "reply": "The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Please don't write on the napkins.", "reply": "Oh. Sorry. I won't. (She puts her pen away.)", "mood": -0.05 }
+			] },
+			{ "text": "It's raining a little. I like the sound. As long as it stays outside.", "choices": [
+				{ "tone": "warm", "text": "It'll stay outside. You're cozy in here.", "reply": "Thank you. This is the best kind of rain. The watching kind. The [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "I'll put up a sign. 'No rain allowed.'", "reply": "(Giggles.) It would listen to you. You're very official.", "mood": 0.05 },
+				{ "tone": "straight", "text": "What can I get you?", "reply": "The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "It's just rain.", "reply": "...Yes. (She pulls her scarf tighter.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "I think if this restaurant were a book, it would be my favourite one. The kind you read again and again.", "choices": [
+				{ "tone": "warm", "text": "Then I'll keep writing new chapters for you.", "reply": "(She holds her book to her chest and smiles.) Okay. I'll keep reading. The [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "What chapter are we on?", "reply": "The cosy middle part. Before anything sad happens. Nothing sad will happen.", "mood": 0.05 },
+				{ "tone": "straight", "text": "That's sweet. What can I get you?", "reply": "The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "That's a bit much.", "reply": "Oh. Sorry. (She looks down at her book.)", "mood": -0.05 }
 			] }
 		],
 		"drink": {
@@ -60,10 +96,10 @@
 			"other": "Something warm, please. To hold while I read."
 		},
 		"served": {
-			"perfect": { "text": "Oh... it's beautiful. It's like something described on the very best page." },
-			"great": { "text": "Thank you, [name]. It smells lovely." },
-			"okay": { "text": "Thank you. This will be perfect with my book." },
-			"burnt": { "text": "It's a little dark. I don't mind. It matches the chapter I'm on." }
+			"perfect": [ { "text": "Oh... it's beautiful. It's like something described on the very best page." }, {"text":"(She gasps softly.) Oh. It's like something from a story. Thank you."}, {"text":"That's beautiful, [name]. I'm going to remember this one."} ],
+			"great": [ { "text": "Thank you, [name]. It smells lovely." }, {"text":"Oh, that looks lovely. Thank you."}, {"text":"Thank you. It smells wonderful."} ],
+			"okay": [ { "text": "Thank you. This will be perfect with my book." }, {"text":"Thank you."}, {"text":"Oh, thank you. That's nice."} ],
+			"burnt": [ { "text": "It's a little dark. I don't mind. It matches the chapter I'm on." }, {"text":"Oh. It's a little dark. That's okay. Like a mystery novel."}, {"text":"It's burnt. It's alright. Characters make mistakes too."} ]
 		},
 		"eating": [
 			{"later":"Zakk's storyline: before they meet","text":"There's a penguin who comes in sometimes. Zakk? He's very... um. Never mind."},
@@ -75,7 +111,10 @@
 			{ "text": "The main character in [book] is so brave. I always wonder if I'd be brave like that." },
 			{ "text": "The pond is so pretty from here. I like looking at it. From here." },
 			{ "text": "Luna's drawing me a cover for a story I'm writing. Don't tell anyone I'm writing a story." },
-			{ "text": "I read that some penguins can hold their breath for twenty minutes. I can hold mine for about four seconds." }
+			{ "text": "I read that some penguins can hold their breath for twenty minutes. I can hold mine for about four seconds." },
+			{ "text": "(She's reading with one wing and eating with the other. She turns a page with her beak.)" },
+			{ "text": "Mm. Good. This is a good chapter. The food, I mean. And the book." },
+			{ "text": "(She's gazing out at the pond, smiling. From a very safe distance.)" }
 		],
 		"eating_chat": [
 			{ "text": "Can I tell you a secret? I wish I could swim. I just get so scared when the water's deep.", "choices": [
@@ -83,12 +122,39 @@
 				{ "tone": "playful", "text": "Start with a puddle. Work up to a bath.", "reply": "(She laughs.) A puddle. Okay. Puddle first.", "mood": 0.05 },
 				{ "tone": "straight", "text": "Lots of people can't swim.", "reply": "That's true. Thank you.", "mood": 0 },
 				{ "tone": "rude", "text": "Just jump in. It's not hard.", "reply": "(She goes quiet and opens her book again.)", "mood": -0.05 }
+			] },
+			{ "text": "If you could live inside any book, which one would it be? I'd pick one with a library. A big one.", "choices": [
+				{ "tone": "warm", "text": "Yours. You'd have to show me around.", "reply": "(Pink cheeks.) I would. I'd show you the reading nook first.", "mood": 0.05 },
+				{ "tone": "playful", "text": "A cookbook. Everything smells nice and nobody gets hurt.", "reply": "(Laughs softly.) That's a very safe choice. I like it.", "mood": 0.05 },
+				{ "tone": "straight", "text": "I'm not sure.", "reply": "That's okay. I'll find you one.", "mood": 0 },
+				{ "tone": "rude", "text": "Real life's enough for me.", "reply": "Oh. Yes. Of course. (She goes back to her book.)", "mood": -0.05 }
+			] },
+			{ "text": "Do you ever feel like you're the only quiet one in a loud room? Sorry. That's a big question for lunch.", "choices": [
+				{ "tone": "warm", "text": "All the time. Quiet people notice the best things.", "reply": "(She looks up, surprised.) ...Yes. We do. Thank you.", "mood": 0.05 },
+				{ "tone": "playful", "text": "In this kitchen? Never. The pans are too loud.", "reply": "(A little giggle.) The pans are very rude.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Sometimes.", "reply": "Me too.", "mood": 0 },
+				{ "tone": "rude", "text": "Maybe just speak up.", "reply": "...Yes. Maybe. (She doesn't say anything else.)", "mood": -0.05 }
+			] },
+			{ "text": "Zakk said hello to me yesterday. Just hello. I've been thinking about it all day. Is that silly?", "choices": [
+				{ "tone": "warm", "text": "Not silly at all. A hello can mean a lot.", "reply": "(Pink cheeks.) It was a very nice hello.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Was it a 'hello' or a 'hellooo'?", "reply": "(Covers her face with her book.) It was a 'hello.' Maybe two O's.", "mood": 0.05 },
+				{ "tone": "straight", "text": "That's nice.", "reply": "It was.", "mood": 0 },
+				{ "tone": "rude", "text": "It's just a hello.", "reply": "...I know. (She hides behind her book.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "I've never told anyone this. I want to write my own book someday. About a penguin who's brave. Sort of like me. But braver.", "choices": [
+				{ "tone": "warm", "text": "You're braver than you think. I'd read every page.", "reply": "(Very quietly.) ...Thank you. I'm going to start it tonight.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Can the penguin work in a restaurant? For realism.", "reply": "(Giggles.) Yes. Chapter two. She orders the soup.", "mood": 0.05 },
+				{ "tone": "straight", "text": "You should.", "reply": "Maybe I will.", "mood": 0 },
+				{ "tone": "rude", "text": "Writing a book is really hard.", "reply": "I know. (She closes her notebook.)", "mood": -0.05 }
 			] }
 		],
 		"leaving": [
 			{ "text": "Thank you, [name]. I'll tell you how the book ends." },
 			{ "text": "I should go. I want to finish this chapter before it gets dark." },
-			{ "text": "Bye. This is my favourite place to read. Don't tell the library." }
+			{ "text": "Bye. This is my favourite place to read. Don't tell the library." },
+			{ "text": "Thank you, [name]. I'm going to read by the pond. Far from it. But by it." },
+			{ "text": "Bye. I'll tell you how the book ends. Unless it's sad. Then I'll tell you anyway." },
+			{ "text": "(She tucks her book under her wing.) That was lovely. Thank you." }
 		],
 		"seasons": {
 			"autumn": "Rainy days, warm tea, a long book. This is my whole personality.",

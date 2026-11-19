@@ -52,6 +52,42 @@
 				{ "tone": "playful", "text": "Classic. That raccoon's still my favourite.", "reply": "WOOWW. You KNOW the raccoon? We're best friends now.", "mood": 0.05 },
 				{ "tone": "straight", "text": "I don't know that one.", "reply": "Tragic. Okay, the [dish].", "mood": 0 },
 				{ "tone": "rude", "text": "Memes are cringe.", "reply": "...Wow. Okay.", "mood": -0.05 }
+			] },
+			{ "text": "OHH. Is that a new plant? Wait. It's giving 'secret garden.' I'm obsessed.", "choices": [
+				{ "tone": "warm", "text": "Picked it out thinking you'd like it.", "reply": "AAHH, stop! For ME? Okay, I'm emotional. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "It's a fake. Don't tell anyone.", "reply": "WOOWW. Iconic. Fake it till you make it. Like the 'plastic fern cat' meme.", "mood": 0.05 },
+				{ "tone": "straight", "text": "It is. What can I get you?", "reply": "The [dish]. And I'm taking a pic with the plant.", "mood": 0 },
+				{ "tone": "rude", "text": "It's just a plant.", "reply": "...Wow. Okay. (No gasp.) The [dish].", "mood": -0.05 }
+			] },
+			{ "text": "Okay, you know the 'sleepy seal falls off the rock' meme? That was me this morning. Fully.", "choices": [
+				{ "tone": "warm", "text": "Oh no! Are you okay?", "reply": "I'm fine! My dignity's still on the rock though. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Classic. Did you do the little 'blub' at the end?", "reply": "OHH, you KNOW the blub? We're literally best friends now.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Rough morning. What'll it be?", "reply": "The [dish]. Brain food.", "mood": 0 },
+				{ "tone": "rude", "text": "I don't get your memes.", "reply": "...Wow. Okay. (She pulls her hat down.)", "mood": -0.05 }
+			] },
+			{ "text": "New jacket. Thrifted. Three coins. Rate it.", "choices": [
+				{ "tone": "warm", "text": "Ten. You find the best stuff.", "reply": "AAHH, I DO, don't I? Okay, I'm glowing. The [dish].", "mood": 0.05 },
+				{ "tone": "playful", "text": "Three coins? I'd have paid four. Easily.", "reply": "(Gasps.) FOUR? You're so generous. You'd be terrible at thrifting.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Looks nice. What are you having?", "reply": "Nice. I'll take nice. [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Smells a bit thrifted.", "reply": "...Wow. Okay. (She zips it up quietly.)", "mood": -0.05 }
+			] },
+			{ "text": "Okay, real question. What's the vibe today? Like, if this place was a playlist.", "choices": [
+				{ "tone": "warm", "text": "Cozy songs. With you as the best track.", "reply": "OHH. Okay, that was smooth. I'm adding that to my bio. [dish].", "mood": 0.05 },
+				{ "tone": "playful", "text": "Frying pan sizzles. Remixed. Very underground.", "reply": "WOOWW. Kitchen-core. That's going to be SO big. You heard it here first.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Calm, I guess. What can I get you?", "reply": "Calm. Lo-fi. Respect. [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "It's a restaurant, not a playlist.", "reply": "...Wow. Okay. The [dish].", "mood": -0.05 }
+			] },
+			{ "text": "Amy told me something and I'm not allowed to say it but my FACE is saying it. Can you see it? My face?", "choices": [
+				{ "tone": "warm", "text": "I won't ask. Your secret's safe.", "reply": "You're such a good friend. Amy's gonna tell you anyway. [dish], please.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Your face is saying 'big news.' Very loudly.", "reply": "AAHH, I KNOW. I'm the worst at this! Don't look at me!", "mood": 0.05 },
+				{ "tone": "straight", "text": "I'll pretend I can't. What'll it be?", "reply": "Okay. Face neutral. ...Fully not neutral. [dish].", "mood": 0 },
+				{ "tone": "rude", "text": "Gossip's boring.", "reply": "...Wow. Okay. (No gasp.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "Can I be honest? This is my favourite place to just be. Like, not even for the food. Okay, also the food.", "choices": [
+				{ "tone": "warm", "text": "That means a lot. You make it better just by being here.", "reply": "OHH. Okay, stop, I'm gonna cry and my eyeliner is NOT ready. [dish].", "mood": 0.05 },
+				{ "tone": "playful", "text": "Mostly the food, though. Be honest.", "reply": "(Laughs.) Sixty, forty. Food's winning. You're close!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Glad to hear it. What are you having?", "reply": "Okay, moment over. The [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "Okay. Anyway.", "reply": "...Wow. Okay. (She pulls her hat down.)", "mood": -0.05 }
 			] }
 		],
 		"drink": {
@@ -61,17 +97,20 @@
 			"other": "Whatever's cutest."
 		},
 		"served": {
-			"perfect": { "text": "OHHH. [name]. Look at it. I need a photo. Where's Miles when you need him?" },
-			"great": { "text": "WOOWW. That looks so good." },
-			"okay": { "text": "Nice! Thank you!" },
-			"burnt": { "text": "AAHH, it's a little crispy. That's okay. Crispy is a vibe sometimes." }
+			"perfect": [ { "text": "OHHH. [name]. Look at it. I need a photo. Where's Miles when you need him?" }, {"text":"OHH. OHHH. Okay. That's art. That's actual art. I'm posting this."}, {"text":"AAHH! [name]! It's so pretty! It looks like a magazine!"} ],
+			"great": [ { "text": "WOOWW. That looks so good." }, {"text":"WOOWW, looks so good! Thank youuu!"}, {"text":"OHH, okay! That's cute. Very cute."} ],
+			"okay": [ { "text": "Nice! Thank you!" }, {"text":"Ooh, thanks! Food!"}, {"text":"Yay! Looks good, [name]!"} ],
+			"burnt": [ { "text": "AAHH, it's a little crispy. That's okay. Crispy is a vibe sometimes." }, {"text":"OHH. Oh. It's... very well done. Like, EXTRA well."}, {"text":"It's a little dark. Very 'moody.' It's fine. It's a vibe."} ]
 		},
 		"eating": [
 			{ "fav": true, "text": "This salad is so fluffy. Like eating a cloud. Like the 'cat in a cloud' meme. Peak." },
 			{ "text": "Amy told me something earlier and I gasped so loud I scared a pigeon." },
 			{ "text": "Okay, your wall art is giving 'cosy cabin.' I respect it." },
 			{ "text": "I'm just vibing. Don't mind me. I'm vibing so hard right now." },
-			{ "text": "Did you know Makayla drives an HOUR to come here? OHH, that's dedication." }
+			{ "text": "Did you know Makayla drives an HOUR to come here? OHH, that's dedication." },
+			{ "text": "OHH. That bite was so good I did a little gasp. Did you hear it? You heard it." },
+			{ "text": "Okay, this lighting? Golden. Hold on, I'm taking a pic of my plate. ...And me. And the plate." },
+			{ "text": "This is giving 'main character eating in a café in the rain.' Except it's sunny. Still giving it." }
 		],
 		"eating_chat": [
 			{ "text": "Okay, I'm thinking about dyeing my fur. Like, a tiny streak. Blue? Pink?", "choices": [
@@ -79,12 +118,39 @@
 				{ "tone": "playful", "text": "Rainbow. Go big or go home.", "reply": "AAHH. RAINBOW. That's insane. I love it.", "mood": 0.05 },
 				{ "tone": "straight", "text": "Blue, maybe.", "reply": "Blue. Nice. Noted.", "mood": 0 },
 				{ "tone": "rude", "text": "That'd look ridiculous.", "reply": "...Wow. Okay. (She eats in silence.)", "mood": -0.05 }
+			] },
+			{ "text": "Okay, if you had to pick a new colour for the walls, what would you pick? Go.", "choices": [
+				{ "tone": "warm", "text": "Whatever you'd pick. You've got the best eye.", "reply": "AAHH, okay, sage green. Obviously. Trust me. It's the moment.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Ketchup red. Hides everything.", "reply": "OHH, practical AND bold. That's very 'chaos chef.' I respect it.", "mood": 0.05 },
+				{ "tone": "straight", "text": "I like them how they are.", "reply": "Classic. Timeless. Kind of safe. But okay!", "mood": 0 },
+				{ "tone": "rude", "text": "Not taking design tips from you.", "reply": "...Wow. Okay. (No gasp.)", "mood": -0.05 }
+			] },
+			{ "text": "You know the 'confused owl at the vending machine' meme? That's Luna. Every morning. I love her.", "choices": [
+				{ "tone": "warm", "text": "That's adorable. You two are good friends.", "reply": "We ARE. She drew me once. I looked so cool. I framed it.", "mood": 0.05 },
+				{ "tone": "playful", "text": "I'll put a coffee machine by the door. For science.", "reply": "WOOWW. Owl trap. Genius. She would walk straight into it.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Haven't seen it.", "reply": "Tragic. I'll show you. Wait. Okay, no signal. Later.", "mood": 0 },
+				{ "tone": "rude", "text": "That's kind of mean.", "reply": "It's not mean, it's... okay. Wow. (She goes quiet.)", "mood": -0.05 }
+			] },
+			{ "text": "Rate the music in here. Out of ten. Honestly.", "choices": [
+				{ "tone": "warm", "text": "Whatever you'd give it. You know music.", "reply": "Eight. Ten if you add one song I'll send you. Trust me.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Eleven. I hum it at the stove.", "reply": "OHH, you HUM? Okay, that's adorable. Ten for that.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Seven, probably.", "reply": "Seven. Fair. Room to grow.", "mood": 0 },
+				{ "tone": "rude", "text": "Who cares about the music?", "reply": "...Wow. Okay.", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "Okay, I'm doing a photo shoot for my page. Can I put this place in it? It's SO aesthetic.", "choices": [
+				{ "tone": "warm", "text": "Of course. I'd be honoured.", "reply": "AAHH! Okay, you're gonna be famous. Well. Fifty followers famous.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Only if I get to pose with the spatula.", "reply": "OHH, a chef cameo. Iconic. The spatula is the star.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Sure, after closing.", "reply": "Deal. Golden hour. I'll bring lights.", "mood": 0 },
+				{ "tone": "rude", "text": "I'd rather you didn't.", "reply": "...Oh. Okay. Wow. (She puts her phone away.)", "mood": -0.05 }
 			] }
 		],
 		"leaving": [
 			{ "text": "Byeee. Ten out of ten visit." },
 			{ "text": "Okay, I'm gonna go. Amy's waiting. She's going to tell me something and I'm going to gasp." },
-			{ "text": "Thanks, [name]! Stay iconic." }
+			{ "text": "Thanks, [name]! Stay iconic." },
+			{ "text": "Byeee, [name]! Vibes were immaculate. As always." },
+			{ "text": "Okay, I'm leaving, but emotionally I'm still here. Bye!" },
+			{ "text": "Ten out of ten, no notes. Okay, one note. The note is: bye!" }
 		],
 		"seasons": {
 			"autumn": "Cardigan weather! AAHH, it's finally here.",

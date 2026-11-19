@@ -29,7 +29,7 @@ func _ready() -> void:
 				reasons.append("only:" + String(line["only"]))
 			var missing := {}
 			for text in _texts(line):
-				for m in RegEx.create_from_string(r"[([a-z_]+)]").search_all(TownsfolkTalk.fill(text, words)):
+				for m in RegEx.create_from_string(r"\[([a-z_]+)\]").search_all(TownsfolkTalk.fill(text, words)):
 					missing[m.get_string(1)] = true
 			if not missing.is_empty():
 				reasons.append("unfilled " + str(missing.keys()))

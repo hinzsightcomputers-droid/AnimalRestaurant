@@ -48,6 +48,42 @@
 				{ "tone": "playful", "text": "Very hard. You have to taste everything. All day.", "reply": "That's not hard! That's the best job!", "mood": 0.05 },
 				{ "tone": "straight", "text": "It's a lot of work.", "reply": "I can do work! I do homework.", "mood": 0 },
 				{ "tone": "rude", "text": "You'd never manage it.", "reply": "(Her face falls.) ...oh.", "mood": -0.05 }
+			] },
+			{ "text": "Do fish sleep? With their eyes open? How do they know it's bedtime?", "choices": [
+				{ "tone": "warm", "text": "They do! They just rest very quietly.", "reply": "Whoa. I'm gonna try sleeping with my eyes open tonight.", "mood": 0.05 },
+				{ "tone": "playful", "text": "They have tiny fish alarm clocks.", "reply": "(Giggles.) Tiny clocks! With tiny bubbles!", "mood": 0.05 },
+				{ "tone": "straight", "text": "They do sleep. What would you like?", "reply": "Oh! [dish], please!", "mood": 0 },
+				{ "tone": "rude", "text": "Ask someone else.", "reply": "...okay. (She looks at her shoes.)", "mood": -0.05 }
+			] },
+			{ "text": "I can count to a hundred! Wanna hear? One, two, three, four, five...", "choices": [
+				{ "tone": "warm", "text": "Wow, that's amazing! I believe you can do the whole thing.", "reply": "I CAN! I'll do the rest at the table. Quietly. ...Maybe.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Can you count backwards? That's the expert level.", "reply": "(Gasps.) Backwards? ...One hundred, ninety... um. I need practice.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Great counting! What would you like to eat?", "reply": "Six! Seven! ...Oh! [dish], please!", "mood": 0 },
+				{ "tone": "rude", "text": "Please don't.", "reply": "(She stops at five.) ...okay.", "mood": -0.05 }
+			] },
+			{ "text": "My mum says I have to use my inside voice. THIS IS MY INSIDE VOICE. Oops.", "choices": [
+				{ "tone": "warm", "text": "That's okay. I like your voice.", "reply": "(Whispers.) Thank you. (Then louder.) THANK YOU! Oops.", "mood": 0.05 },
+				{ "tone": "playful", "text": "(Whispering.) Let's both use our tiny voices.", "reply": "(Tiny whisper, giggling.) Okay. This is our secret voice.", "mood": 0.05 },
+				{ "tone": "straight", "text": "Good try. What would you like?", "reply": "(Whispering.) [dish], please.", "mood": 0 },
+				{ "tone": "rude", "text": "You're too loud.", "reply": "...sorry. (She doesn't talk for a bit.)", "mood": -0.05 }
+			] },
+			{ "text": "Kyle's coming later! He said maybe. Maybe means yes, right?", "choices": [
+				{ "tone": "warm", "text": "I hope so. You two are the best friends.", "reply": "We ARE! He's my best friend. I'm his best friend. That's how it works.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Maybe means 'save me a seat, Clover.'", "reply": "Okay! I'm saving him the BIG seat. He's big.", "mood": 0.05 },
+				{ "tone": "straight", "text": "We'll see. What would you like?", "reply": "Okay! [dish], please! And one for Kyle! ...No, just me.", "mood": 0 },
+				{ "tone": "rude", "text": "Maybe means no.", "reply": "(Her face falls.) ...oh.", "mood": -0.05 }
+			] },
+			{ "text": "Why do onions make you cry? Are they sad? Should we be nice to them?", "choices": [
+				{ "tone": "warm", "text": "They're not sad. They're just a little bit spicy in the air.", "reply": "Spicy air! Okay. I'll be nice to them anyway. Just in case.", "mood": 0.05 },
+				{ "tone": "playful", "text": "They tell really sad stories while I chop them.", "reply": "(Giggles.) What stories? Do they have names?", "mood": 0.05 },
+				{ "tone": "straight", "text": "It's just how onions are. What would you like?", "reply": "Hmm. Okay. [dish], please! No onions! ...Unless they're happy.", "mood": 0 },
+				{ "tone": "rude", "text": "Stop asking so many things.", "reply": "...sorry. (She stops asking for the rest of the visit.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "I drew a picture of the restaurant! You're on the roof. I don't know why. You just are.", "choices": [
+				{ "tone": "warm", "text": "I love it. Can I put it up in the kitchen?", "reply": "(Gasps so big.) YES! You can! It's yours! I'll make you more!", "mood": 0.05 },
+				{ "tone": "playful", "text": "The roof? I've always wanted to cook up there.", "reply": "(Giggles.) You could make sky pancakes!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Thank you, Clover. What would you like?", "reply": "Welcome! [dish], please!", "mood": 0 },
+				{ "tone": "rude", "text": "I don't need more drawings.", "reply": "(She puts it back in her bag.) ...okay.", "mood": -0.05 }
 			] }
 		],
 		"drink": {
@@ -57,17 +93,20 @@
 			"other": "Something sweet! Not coffee. Coffee's yucky."
 		},
 		"served": {
-			"perfect": { "text": "WHOAAA. It's SO pretty. I don't wanna eat it. ...I'm gonna eat it." },
-			"great": { "text": "Yummy! Thank you!" },
-			"okay": { "text": "Thank you! (She eats it all and licks the plate.)" },
-			"burnt": { "text": "It's a little bit crunchy. That's okay! I like crunchy!" }
+			"perfect": [ { "text": "WHOAAA. It's SO pretty. I don't wanna eat it. ...I'm gonna eat it." }, {"text":"IT'S SO PRETTY. Can I keep it? ...No. I'm eating it."}, {"text":"(Gasps.) [name]! You're the best chef in the whole WORLD!"} ],
+			"great": [ { "text": "Yummy! Thank you!" }, {"text":"Yay! Thank you, [name]!"}, {"text":"Ooh! It looks like a picture!"} ],
+			"okay": [ { "text": "Thank you! (She eats it all and licks the plate.)" }, {"text":"Thank you! (She starts eating right away.)"}, {"text":"Yummy! Is it hot? It's hot! It's good!"} ],
+			"burnt": [ { "text": "It's a little bit crunchy. That's okay! I like crunchy!" }, {"text":"It's a bit black. That's okay! My dad burns toast every day!"}, {"text":"It's crunchy! I like crunchy. I'm brave."} ]
 		},
 		"eating": [
 			{ "text": "Do you have a dog? I want a dog. My mum says no. Do YOU have a dog?" },
 			{ "text": "I'm drawing you right now. Don't move. ...Okay, you can move. I'll make it up." },
 			{ "text": "Why does that customer have so many patches? ...Oh, they're nice. I like them.", "regular_in": "stitches" },
 			{ "text": "The big crocodile is my friend now! His name is Kyle! He's not scary. He's nice. He likes soup." },
-			{ "text": "How many dishes have you washed? Like, ever? A hundred? A MILLION?" }
+			{ "text": "How many dishes have you washed? Like, ever? A hundred? A MILLION?" },
+			{ "text": "(She's eating with both hands.) It's yummy! Mum says use a fork. I'm using two hands. That's more!" },
+			{ "text": "I'm gonna save some for later. ...I ate it. Later is now." },
+			{ "text": "Look! I made a smiley face with my food! ...Now I'm eating the smile." }
 		],
 		"eating_chat": [
 			{ "text": "Can I help? I'm really good at helping. I helped my grandma make cookies once. I only ate some.", "choices": [
@@ -75,13 +114,40 @@
 				{ "tone": "playful", "text": "Only if you can reach the counter.", "reply": "(She stands on tiptoes.) ...I'll grow!", "mood": 0.05 },
 				{ "tone": "straight", "text": "Not right now, but thank you.", "reply": "Okay! Maybe when I'm nine.", "mood": 0 },
 				{ "tone": "rude", "text": "Kids aren't allowed back there. Stay put.", "reply": "...okay. (She colours quietly.)", "mood": -0.05 }
+			] },
+			{ "text": "What's your favourite colour? Mine's green. Because I'm green. And grass is green.", "choices": [
+				{ "tone": "warm", "text": "Green's my favourite too now.", "reply": "YAY! We match! We're green friends!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Burnt-toast brown. It's very rare.", "reply": "(Giggles.) That's not a colour! ...Is it?", "mood": 0.05 },
+				{ "tone": "straight", "text": "Probably blue.", "reply": "Blue's good! The sky's blue! Kyle told me why. I forgot again.", "mood": 0 },
+				{ "tone": "rude", "text": "I don't have time for this.", "reply": "...okay. (She colours quietly.)", "mood": -0.05 }
+			] },
+			{ "text": "Are you a grown-up? You don't seem like a grown-up. You're fun.", "choices": [
+				{ "tone": "warm", "text": "I'm a grown-up who still likes fun. The best kind.", "reply": "That's what I'm gonna be! A fun grown-up!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Shh. I'm just three kids in an apron.", "reply": "(Gasps, then giggles.) I KNEW it!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Yes, I'm a grown-up.", "reply": "Hmm. A fun one though. I can tell.", "mood": 0 },
+				{ "tone": "rude", "text": "Grown-ups don't have time for kids.", "reply": "(She looks down.) ...oh.", "mood": -0.05 }
+			] },
+			{ "text": "I found a bug outside! A nice one. I named him Gerald. He's gone now. Bye, Gerald.", "choices": [
+				{ "tone": "warm", "text": "Gerald was lucky to have a friend like you.", "reply": "He WAS! I hope he finds his family.", "mood": 0.05 },
+				{ "tone": "playful", "text": "Gerald's probably telling all his bug friends about you.", "reply": "(Giggles.) He's famous now! Bug famous!", "mood": 0.05 },
+				{ "tone": "straight", "text": "Good name for a bug.", "reply": "Thank you! I'm good at names.", "mood": 0 },
+				{ "tone": "rude", "text": "Don't bring bugs in here.", "reply": "I didn't! He's outside! ...okay. (She goes quiet.)", "mood": -0.05 }
+			] },
+			{ "only": "familiar", "text": "When I'm big, can I work here? I'll wash the dishes. And taste everything. Mostly taste.", "choices": [
+				{ "tone": "warm", "text": "There'll always be a job here for you.", "reply": "(Squeals.) I'm gonna tell my mum! I have a JOB!", "mood": 0.05 },
+				{ "tone": "playful", "text": "Taste-tester is a very serious job. Lots of training.", "reply": "I'm training right now! (She takes a big bite.) See?", "mood": 0.05 },
+				{ "tone": "straight", "text": "Ask me again when you're older.", "reply": "Okay! I'll ask every year!", "mood": 0 },
+				{ "tone": "rude", "text": "We don't hire kids.", "reply": "...I know. (She pushes her food around.)", "mood": -0.05 }
 			] }
 		],
 		"leaving": [
 			{ "when": "drawing", "text": "Bye bye! I left you a drawing! Don't look until I'm gone! ...You can look now." },
 			{ "text": "Thank you! I'm gonna come back tomorrow! If my mum says yes!" },
 			{ "text": "Bye, [name]! Bye, stove! Bye, booth!" },
-			{ "when": "leaving_town", "text": "School starts tomorrow. I don't wanna go. Will you still be here? ...Okay. Promise?" }
+			{ "when": "leaving_town", "text": "School starts tomorrow. I don't wanna go. Will you still be here? ...Okay. Promise?" },
+			{ "text": "Bye, [name]! Bye, everyone! Bye, the window!" },
+			{ "text": "I had the BEST time! I'm gonna tell my whole class!" },
+			{ "text": "(She waves the whole way out the door.) Byeeeee!" }
 		],
 		"seasons": {
 			"chef_birthday": "It's your BIRTHDAY? How old are you? A hundred?",
