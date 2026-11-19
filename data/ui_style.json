@@ -28,6 +28,7 @@
 	},
 	"focus": { "ring": "orange", "fill": "lantern_yellow", "fill_alpha": 0.35, "text": "dark_wood" },
 	"hud": { "text": "cream", "outline": "dark_wood", "money": "lantern_yellow", "streak": "leaf_green" },
+	"dialogue": { "name_tag": "orange", "name_text": "cream", "name_outline": "wood", "arrow": "orange" },
 	"fonts": {
 		"_about": "The guide's two fonts, both free to ship (SIL Open Font License, the licenses are next to them in assets/fonts). body: Nunito Bold, rounded and easy to read small, for everything (project.godot's gui/theme/custom_font is the same file, so 3D words use it too). title: Fredoka SemiBold, round and chunky, for the clock, recipe names, scores, pop-up words and screen headings. Empty keeps Godot's own.",
 		"body": "res://assets/fonts/nunito_bold.tres",

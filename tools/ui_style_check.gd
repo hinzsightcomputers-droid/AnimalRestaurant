@@ -6,7 +6,7 @@ extends Node
 # Run (not headless) with SHOTS=<folder>:
 #   godot --path . --resolution 1280x720 res://tools/ui_style_check.tscn
 
-const GROUPS := ["panel", "text", "button", "focus", "hud"]
+const GROUPS := ["panel", "text", "button", "focus", "hud", "dialogue"]
 
 
 func _ready() -> void:
