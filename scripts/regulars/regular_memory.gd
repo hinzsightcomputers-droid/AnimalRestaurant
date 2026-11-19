@@ -97,6 +97,16 @@ static func end_visit(record: Dictionary) -> void:
 	record.erase(VISIT_START_STAGE)
 
 
+# The stage their lines go by. In the restaurant, never below the lowest stage
+# that visits (-2): someone who drops to Withdrawn mid-meal still talks like
+# their coldest in-person self, since Withdrawn lines are all phone lines.
+static func talking_stage(record: Dictionary) -> int:
+	var stage := stage_of(record)
+	if record.has(VISIT_START_STAGE):
+		stage = maxi(stage, int(GameData.regular_settings.get("lowest_stage_that_visits", -2)))
+	return stage
+
+
 # The lowest relationship in the stage just below `stage` (e.g. stage 3 -> 25,
 # the bottom of stage 2), or relationship_min if there's nothing below.
 static func _lowest_in_stage_below(stage: int) -> int:
@@ -184,7 +194,7 @@ static func dialogue_context(record: Dictionary, chef_id: String, extra: Diction
 		"personality": record.get("personality", []),
 		"times_visited": record["times_visited"],
 		"relationship": record["relationship"],
-		"stage": stage_of(record),
+		"stage": talking_stage(record),
 		"stage_name": stage_name(record),
 		"knows_player_name": chef_id in record["known_players"],
 		"times_served_by_player": int(record["served_by"].get(chef_id, 0)),
