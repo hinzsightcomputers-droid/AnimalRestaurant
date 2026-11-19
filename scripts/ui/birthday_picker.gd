@@ -58,6 +58,7 @@ func _ready() -> void:
 		label.custom_minimum_size.x = 560
 		column.add_child(label)
 	_title.add_theme_font_size_override("font_size", 28)
+	UiStyle.title(_title)
 	_prompt.add_theme_font_size_override("font_size", 22)
 	_grid.add_theme_constant_override("h_separation", 8)
 	_grid.add_theme_constant_override("v_separation", 8)

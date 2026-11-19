@@ -391,6 +391,7 @@ func _build() -> void:
 	_layout.add_child(side)
 	_title.text = "Make your chef" if not Accounts.has_appearance(account_id) else "%s's look" % Accounts.get_account(account_id).get("name", "Chef")
 	_title.add_theme_font_size_override("font_size", 30)
+	UiStyle.title(_title)
 	_title.add_theme_color_override("font_color", Color("#71412C"))
 	side.add_child(_title)
 	var tabs := HFlowContainer.new()

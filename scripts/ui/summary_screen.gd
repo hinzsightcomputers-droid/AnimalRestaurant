@@ -49,6 +49,7 @@ var _rating_button: Button
 
 func _ready() -> void:
 	UiStyle.restyle_panel(panel)
+	UiStyle.title(title_label)
 	visible = false
 	day_manager.day_ended.connect(_show_summary)
 	day_manager.summary_requested.connect(func(): _show_summary(DayCycle.summary, true))
@@ -300,6 +301,7 @@ func _shop_heading(text: String) -> void:
 	heading.text = text
 	heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	heading.add_theme_font_size_override("font_size", 20)
+	UiStyle.title(heading)
 	heading.add_theme_color_override("font_color", body_label.get_theme_color("font_color"))
 	upgrade_list.add_child(heading)
 

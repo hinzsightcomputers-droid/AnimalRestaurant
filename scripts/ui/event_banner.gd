@@ -41,6 +41,7 @@ func _show(text: String) -> void:
 	label.text = text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.add_theme_font_size_override("font_size", 32)
+	UiStyle.title(label)
 	label.add_theme_color_override("font_color", Color("#71412C"))
 	panel.add_child(label)
 	add_child(panel)

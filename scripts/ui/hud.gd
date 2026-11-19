@@ -310,3 +310,4 @@ func _apply_style() -> void:
 	for label in [money_label, date_label]:
 		UiStyle.hud_label(label, "money")
 	UiStyle.hud_label(streak_label, "streak")
+	UiStyle.title(time_label)

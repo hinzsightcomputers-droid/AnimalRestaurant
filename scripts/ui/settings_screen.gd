@@ -100,6 +100,7 @@ func _build() -> void:
 	_panel.add_child(content)
 	var title := _label(content, "Settings", 32, BROWN)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	UiStyle.title(title)
 
 	var grid := GridContainer.new()
 	grid.columns = 3
@@ -248,7 +249,7 @@ func _slider_row(grid: GridContainer, text: String, key: String, low: float, hig
 
 
 func _heading(grid: GridContainer, text: String) -> void:
-	_label(grid, text, 22, BROWN)
+	UiStyle.title(_label(grid, text, 22, BROWN))
 	_label(grid, "", 18, TEXT)
 	_label(grid, "", 18, TEXT)
 

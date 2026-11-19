@@ -89,9 +89,30 @@ static func apply_to(theme: Theme) -> void:
 		theme.default_font = font
 
 
-# The dialogue font the developer picked (fonts.body), or null for Godot's own.
+# The everyday font (fonts.body), or null for Godot's own.
 static func body_font() -> Font:
-	var path: String = data().get("fonts", {}).get("body", "")
+	return _font("body")
+
+
+# The round, chunky font for titles (fonts.title), or null for Godot's own.
+static func title_font() -> Font:
+	return _font("title")
+
+
+# Puts the title font on a Label, Button or Label3D (the clock, a recipe's
+# name, "Delicious!", a screen's heading).
+static func title(node: Node) -> void:
+	var font := title_font()
+	if font == null:
+		return
+	if node is Label3D:
+		(node as Label3D).font = font
+	elif node is Control:
+		(node as Control).add_theme_font_override("font", font)
+
+
+static func _font(key: String) -> Font:
+	var path: String = data().get("fonts", {}).get(key, "")
 	if path == "" or not ResourceLoader.exists(path):
 		return null
 	return load(path) as Font
