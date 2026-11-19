@@ -79,7 +79,7 @@ func _prompt_for(player_index: int) -> String:
 		return ""
 	var ingredients := player.held_item as Ingredients
 	if ingredients != null and ingredients.needs_chopping():
-		return "%s %s" % [ingredients.chop_verb(), ingredients.display_name()]
+		return "%s %s" % [ingredients.prep_verb(), ingredients.display_name()]
 	return ""
 
 
@@ -142,8 +142,8 @@ func _on_chopped(quality: float) -> void:
 		_ingredients.chopped = true
 		_ingredients.chop_quality = quality
 		_chopper.set_held_item(_ingredients)
-		var verb := _ingredients.chop_verb().to_lower()
-		GameEvents.announce("%s %s the %s (%s)." % [Accounts.name_of(_chopper.player_index), verb + ("ped" if verb == "chop" else "ed"),
+		var verb := _ingredients.prep_verb().to_lower()  # "prepared", "filleted".
+		GameEvents.announce("%s %s the %s (%s)." % [Accounts.name_of(_chopper.player_index), verb + ("d" if verb.ends_with("e") else "ed"),
 			_ingredients.order.dish.get("ingredient", {}).get("name", "ingredients").to_lower(),
 			CookingMinigame.quality_label(quality).to_lower()])
 		GameState.record_chef_action(_chopper.player_index, "chopped")

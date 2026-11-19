@@ -38,9 +38,10 @@ func color() -> Color:
 	return Color.html(_ingredient().get("color", "#cccccc"))
 
 
-# What the chopping board does to them, e.g. "Chop" or "Fillet".
-func chop_verb() -> String:
-	return _chop().get("verb", "Chop")
+# The word for getting them ready at the board, in reminders and its prompt:
+# "Prepare" (peel and chop), or the dish's own verb when it has one ("Fillet").
+func prep_verb() -> String:
+	return _chop().get("verb", "Prepare")
 
 
 # The close-up recipe at the chopping board (data/recipes/), e.g. "filleting".

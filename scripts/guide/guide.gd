@@ -105,7 +105,7 @@ func next_step(player: Player, claimed: Dictionary) -> Dictionary:
 		return _step(courier.interactable, "courier") if courier != null else {}
 	if held is Ingredients:
 		if held.needs_chopping():
-			return _step(_spot(ChoppingBoard), "chop", { "verb": held.chop_verb() })
+			return _step(_spot(ChoppingBoard), "chop", { "verb": held.prep_verb() })
 		var stations := _all(CookingStation).filter(func(s): return s.makes(held.order.dish))
 		return _nearest(player, stations, "cook", { "station": CookingStation.station_of(held.order.dish), "dish": held.order.dish.get("name", "it") })
 	if held is Drink:
