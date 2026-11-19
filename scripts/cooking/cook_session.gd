@@ -24,6 +24,7 @@ const REEL_HINT_SIZE := 36
 @export var flick_mouse_speed := 1.2       # Meters a second across the surface for a mouse swipe.
 @export var bounds := Rect2(-0.64, -0.32, 1.28, 0.64)  # Where the cursor can go (x, z).
 @export var work_height := 0.04            # Cursor height when a step doesn't ask for another.
+@export var worktop := false               # A butcher-block top under the whole work area while cooking (a close-up spread over loud counters).
 @export_group("Feedback")
 @export var text_size := 0.0017            # Pop-up text size.
 @export var hint_top := 110.0              # Pixels from the top of the cook's view to the instructions.
@@ -66,6 +67,8 @@ func start(cook_recipe: CookRecipe, cook: Player, view_manager: ViewManager, bro
 				child.tint(child.color.lerp(ingredients.color(), child.ingredient_tint))
 	for step in recipe.steps:
 		steps.append(step.duplicate(true))
+	if worktop:
+		_build_worktop()
 	_build_cursor()
 	_build_hint(view_manager)
 	_blur_background(view_manager.rig_for(cook.player_index) if view_manager != null else null)
@@ -437,16 +440,27 @@ func make_bottle(liquid: Color) -> Node3D:
 	body_material.albedo_color = liquid
 	body_material.roughness = 0.3
 	var body := MeshInstance3D.new()
-	var body_mesh := CylinderMesh.new()
-	body_mesh.top_radius = 0.034
-	body_mesh.bottom_radius = 0.034
+	var body_mesh := CapsuleMesh.new()  # A soft squeezy body, rounded at both ends.
+	body_mesh.radius = 0.032
 	body_mesh.height = 0.13
+	body_mesh.radial_segments = 16
 	body_mesh.material = body_material
 	body.mesh = body_mesh
 	body.position.y = 0.03 + 0.065
 	bottle.add_child(body)
 	var cap_material := StandardMaterial3D.new()
-	cap_material.albedo_color = Color(0.95, 0.95, 0.92)
+	cap_material.albedo_color = KitchenProps.CREAM
+	cap_material.roughness = 0.45
+	var collar := MeshInstance3D.new()  # The screw cap the nozzle sits on.
+	var collar_mesh := CylinderMesh.new()
+	collar_mesh.top_radius = 0.026
+	collar_mesh.bottom_radius = 0.024
+	collar_mesh.height = 0.016
+	collar_mesh.radial_segments = 16
+	collar_mesh.material = cap_material
+	collar.mesh = collar_mesh
+	collar.position.y = 0.036
+	bottle.add_child(collar)
 	var nozzle := MeshInstance3D.new()
 	var nozzle_mesh := CylinderMesh.new()
 	nozzle_mesh.top_radius = 0.004
@@ -465,18 +479,14 @@ func make_bottle(liquid: Color) -> Node3D:
 # running back toward the cook (+z) and up.
 func make_spatula() -> Node3D:
 	var spatula := Node3D.new()
-	var metal := StandardMaterial3D.new()
-	metal.albedo_color = Color(0.82, 0.84, 0.87)
-	metal.metallic = 0.7
-	metal.roughness = 0.3
+	var metal := KitchenProps.steel()
 	var blade := MeshInstance3D.new()
 	var blade_mesh := BoxMesh.new()
 	blade_mesh.size = Vector3(0.12, 0.004, 0.11)
 	blade_mesh.material = metal
 	blade.mesh = blade_mesh
 	spatula.add_child(blade)
-	var wood := StandardMaterial3D.new()
-	wood.albedo_color = Color(0.45, 0.28, 0.16)
+	var wood := KitchenProps.handle_wood()
 	# A short metal neck bends up off the back of the blade, so the handle starts
 	# above the food and doesn't run through what's next to the blade.
 	var neck := MeshInstance3D.new()
@@ -694,8 +704,7 @@ func make_brush() -> Node3D:
 	handle_mesh.top_radius = 0.007
 	handle_mesh.bottom_radius = 0.009
 	handle_mesh.height = 0.12
-	var wood := StandardMaterial3D.new()
-	wood.albedo_color = Color(0.6, 0.38, 0.2)
+	var wood := KitchenProps.handle_wood()
 	handle_mesh.material = wood
 	handle.mesh = handle_mesh
 	handle.position = Vector3(0.0, 0.09, 0.0)
@@ -708,10 +717,7 @@ func make_brush() -> Node3D:
 # Kitchen tongs, their tips at the origin, pointing down; `opened` 0 to 1.
 func make_tongs() -> Node3D:
 	var tongs := Node3D.new()
-	var metal := StandardMaterial3D.new()
-	metal.albedo_color = Color(0.82, 0.84, 0.87)
-	metal.metallic = 0.7
-	metal.roughness = 0.3
+	var metal := KitchenProps.steel()
 	for side in [-1.0, 1.0]:
 		var arm := MeshInstance3D.new()
 		var mesh := BoxMesh.new()
@@ -972,3 +978,16 @@ static func _sparkle_texture() -> Texture2D:
 				image.set_pixel(x, y, Color(1.0, 1.0, 1.0, alpha))
 		_star = ImageTexture.create_from_image(image)
 	return _star
+
+
+# A honey butcher-block top under the work area (bounds, a little bigger), its
+# top a hair over the counter's so the two don't flicker: the close-up's food
+# and tools sit on warm wood, not on loud orange.
+func _build_worktop() -> void:
+	var slab := MeshInstance3D.new()
+	var mesh := BoxMesh.new()
+	mesh.size = Vector3(bounds.size.x + 0.9, 0.03, bounds.size.y + 0.9)
+	mesh.material = KitchenProps.counter_wood()
+	slab.mesh = mesh
+	slab.position = Vector3(bounds.get_center().x, 0.0015 - 0.015, bounds.get_center().y)
+	add_child(slab)

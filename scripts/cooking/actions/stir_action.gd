@@ -246,37 +246,6 @@ func _make_arrow(arc_radius: float) -> Node3D:
 
 # A balloon whisk, its origin at the bottom of the wires.
 func _make_whisk() -> Node3D:
-	var whisk := Node3D.new()
-	var wire := StandardMaterial3D.new()
-	wire.albedo_color = Color(0.85, 0.87, 0.9)
-	wire.metallic = 0.8
-	wire.roughness = 0.25
-	for i in 4:
-		var pivot := Node3D.new()
-		pivot.rotation.y = i * PI / 4.0
-		pivot.scale = Vector3(1.0, 1.6, 1.0)
-		pivot.position.y = 0.026 * 1.6
-		var ring := MeshInstance3D.new()
-		var mesh := TorusMesh.new()
-		mesh.inner_radius = 0.0245
-		mesh.outer_radius = 0.027
-		mesh.rings = 24
-		mesh.ring_segments = 4
-		mesh.material = wire
-		ring.mesh = mesh
-		ring.rotation.x = PI * 0.5  # Standing up.
-		pivot.add_child(ring)
-		whisk.add_child(pivot)
-	var handle := MeshInstance3D.new()
-	var handle_mesh := CylinderMesh.new()
-	handle_mesh.top_radius = 0.008
-	handle_mesh.bottom_radius = 0.006
-	handle_mesh.height = 0.11
-	var wood := StandardMaterial3D.new()
-	wood.albedo_color = Color(0.85, 0.35, 0.3)
-	handle_mesh.material = wood
-	handle.mesh = handle_mesh
-	handle.position.y = 0.083 + 0.055
-	whisk.add_child(handle)
+	var whisk := KitchenProps.whisk()
 	session.add_child(whisk)
 	return whisk

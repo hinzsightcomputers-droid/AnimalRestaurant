@@ -2,7 +2,7 @@
 // soft, no harsh grain): long gentle grain lines that wobble a little, with
 // planks of slightly different tone across the depth when `planks` is set
 // (a butcher-block counter) or one piece when it's 0 (a cutting board), and a
-// few faint knife marks. Works on any mesh, from its own (scaled) position, so
+// few faint knife marks, and optionally a dusting of flour. Works on any mesh, from its own (scaled) position, so
 // the grain runs along the object's length whichever way the station faces.
 shader_type spatial;
 
@@ -12,6 +12,7 @@ uniform float planks = 0.0;          // Planks per meter across the depth (0: on
 uniform float grain = 70.0;          // Grain lines per meter.
 uniform float knife_marks = 0.0;     // 0..1: faint scratches from chopping.
 uniform float roughness = 0.75;
+uniform float flour = 0.0;          // 0..1: a dusting of flour (a pastry board).
 
 varying vec3 local_pos;
 
@@ -44,6 +45,12 @@ void fragment() {
 		float scratch = smoothstep(0.985, 1.0, sin(p.x * 230.0 + sin(p.z * 40.0) * 2.0) * 0.5 + 0.5)
 			* step(0.6, hash(floor(p.z * 30.0)));
 		base = mix(base, light_wood * 1.08, scratch * knife_marks * 0.5);
+	}
+	if (flour > 0.0) {
+		vec2 q = local_pos.xz * 280.0;
+		float speck = step(1.0 - 0.1 * flour, fract(sin(dot(floor(q), vec2(12.9898, 78.233))) * 43758.5453));
+		float cloud = smoothstep(0.2, 0.9, sin(local_pos.x * 9.0 + 1.3) * sin(local_pos.z * 11.0 - 0.7) * 0.5 + 0.5);
+		base = mix(base, vec3(0.98, 0.96, 0.9), clamp(speck * 0.45 + cloud * 0.3, 0.0, 1.0) * flour);
 	}
 	ALBEDO = base;
 	ROUGHNESS = roughness;

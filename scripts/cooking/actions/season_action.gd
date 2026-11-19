@@ -136,41 +136,7 @@ func _meter_box(box_size: Vector3, x: float, color: Color, y: float) -> MeshInst
 
 # A glass shaker with a domed cap, held tipped over (its cap toward the pot).
 func _make_shaker() -> Node3D:
-	var shaker := Node3D.new()
-	var glass := StandardMaterial3D.new()
-	glass.albedo_color = Color(0.9, 0.95, 1.0, 0.5)
-	glass.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	var body := MeshInstance3D.new()
-	var body_mesh := CylinderMesh.new()
-	body_mesh.top_radius = 0.022
-	body_mesh.bottom_radius = 0.026
-	body_mesh.height = 0.07
-	body_mesh.material = glass
-	body.mesh = body_mesh
-	shaker.add_child(body)
-	var inside := MeshInstance3D.new()
-	var inside_mesh := CylinderMesh.new()
-	inside_mesh.top_radius = 0.019
-	inside_mesh.bottom_radius = 0.022
-	inside_mesh.height = 0.04
-	var filling := StandardMaterial3D.new()
-	filling.albedo_color = flake_color
-	inside_mesh.material = filling
-	inside.mesh = inside_mesh
-	inside.position.y = -0.012
-	shaker.add_child(inside)
-	var cap := MeshInstance3D.new()
-	var cap_mesh := SphereMesh.new()
-	cap_mesh.radius = 0.024
-	cap_mesh.height = 0.03
-	var metal := StandardMaterial3D.new()
-	metal.albedo_color = cap_color
-	metal.metallic = 0.7
-	metal.roughness = 0.3
-	cap_mesh.material = metal
-	cap.mesh = cap_mesh
-	cap.position.y = 0.037
-	shaker.add_child(cap)
+	var shaker := KitchenProps.shaker(flake_color, cap_color)
 	shaker.rotation.z = 2.2  # Tipped over, cap down and toward the pot.
 	session.add_child(shaker)
 	return shaker

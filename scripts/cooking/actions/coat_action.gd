@@ -282,28 +282,7 @@ func _make_outline() -> Node3D:
 
 # A shaker of powder, tipped over: its cap toward what it dusts.
 func _make_shaker() -> Node3D:
-	var shaker := Node3D.new()
-	var body := MeshInstance3D.new()
-	var mesh := CylinderMesh.new()
-	mesh.top_radius = 0.022
-	mesh.bottom_radius = 0.025
-	mesh.height = 0.07
-	var tin := StandardMaterial3D.new()
-	tin.albedo_color = Color(0.88, 0.9, 0.95)
-	tin.metallic = 0.5
-	mesh.material = tin
-	body.mesh = mesh
-	shaker.add_child(body)
-	var cap := MeshInstance3D.new()
-	var cap_mesh := SphereMesh.new()
-	cap_mesh.radius = 0.024
-	cap_mesh.height = 0.028
-	var white := StandardMaterial3D.new()
-	white.albedo_color = Color(coat_color, 1.0)
-	cap_mesh.material = white
-	cap.mesh = cap_mesh
-	cap.position.y = 0.036
-	shaker.add_child(cap)
+	var shaker := KitchenProps.shaker(Color(coat_color, 1.0), KitchenProps.CREAM)
 	shaker.rotation.z = 2.6
 	session.add_child(shaker)
 	return shaker

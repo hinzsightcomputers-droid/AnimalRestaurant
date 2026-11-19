@@ -224,26 +224,9 @@ func _flat(v: Vector3) -> Vector2:
 # A long thin filleting knife, its blade along x (the way it cuts), handle to the right.
 func _make_knife() -> Node3D:
 	var knife := Node3D.new()
-	var steel := StandardMaterial3D.new()
-	steel.albedo_color = Color(0.85, 0.87, 0.9)
-	steel.metallic = 0.7
-	steel.roughness = 0.25
-	var blade := MeshInstance3D.new()
-	var blade_mesh := BoxMesh.new()
-	blade_mesh.size = Vector3(0.15, 0.025, 0.003)
-	blade_mesh.material = steel
-	blade.mesh = blade_mesh
-	blade.position = Vector3(-0.04, 0.0125, 0.0)
-	knife.add_child(blade)
-	var wood := StandardMaterial3D.new()
-	wood.albedo_color = Color(0.35, 0.24, 0.16)
-	var handle := MeshInstance3D.new()
-	var handle_mesh := BoxMesh.new()
-	handle_mesh.size = Vector3(0.09, 0.02, 0.014)
-	handle_mesh.material = wood
-	handle.mesh = handle_mesh
-	handle.position = Vector3(0.08, 0.016, 0.0)
-	knife.add_child(handle)
+	var model := KitchenProps.knife(0.15, 0.025)
+	model.rotation.y = PI * 0.5  # The blade toward -x, the handle +x.
+	knife.add_child(model)
 	knife.rotation.x = deg_to_rad(-30.0)  # Leaning, so the blade shows from above.
 	session.add_child(knife)
 	return knife

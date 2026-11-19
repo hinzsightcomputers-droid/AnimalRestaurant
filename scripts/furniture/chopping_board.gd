@@ -8,7 +8,6 @@ class_name ChoppingBoard
 extends Station
 
 const RESULT_SHOW_TIME := 1.5  # Seconds the result stays up before the player can move.
-const WOOD := preload("res://assets/shaders/wood.gdshader")
 const BLOCK_SIZE := Vector3(1.27, 0.045, 0.77)  # The butcher-block top, just over the counter's own (its top at the board's bottom).
 const COUNTER_TOP := 0.908
 
@@ -40,36 +39,23 @@ func _dress() -> void:
 	var block := MeshInstance3D.new()
 	var mesh := BoxMesh.new()
 	mesh.size = BLOCK_SIZE
-	var planks := ShaderMaterial.new()
-	planks.shader = WOOD
-	planks.set_shader_parameter("light_wood", Color("#B97E4F"))
-	planks.set_shader_parameter("dark_wood", Color("#8F5A36"))
-	planks.set_shader_parameter("grain", 32.0)
-	planks.set_shader_parameter("planks", 14.0)
-	mesh.material = planks
+	mesh.material = KitchenProps.counter_wood()
 	block.mesh = mesh
 	block.position = Vector3(0.0, COUNTER_TOP - BLOCK_SIZE.y * 0.5, 0.0)
 	$Visual.add_child(block)
-	var board := ShaderMaterial.new()
-	board.shader = WOOD
-	board.set_shader_parameter("knife_marks", 1.0)
-	board.set_shader_parameter("light_wood", Color("#EDBE88"))
-	board.set_shader_parameter("dark_wood", Color("#D9A26B"))
-	board.set_shader_parameter("grain", 40.0)
-	for part in $Visual/Board.find_children("*", "MeshInstance3D", true, false):
-		(part as MeshInstance3D).material_override = board
+	KitchenProps.dress($Visual/Board, KitchenProps.board_wood())
 	# The knife resting beside the board: the close-up's chef's knife, lying flat
 	# (on the Blade node, so it still hides while someone's chopping).
 	var blade: MeshInstance3D = $Visual/Blade
 	blade.mesh = null
 	($Visual/Handle as MeshInstance3D).mesh = null
-	var resting := ChopAction.make_knife_model()
+	var resting := KitchenProps.knife()
 	resting.rotation.z = PI * 0.5  # On its side.
 	resting.position = blade.to_local($Visual.to_global(Vector3(0.44, COUNTER_TOP + 0.008, 0.02)))
 	blade.add_child(resting)
 
 
-# "Chop Carrots" for someone carrying ingredients that need it, nothing for
+# "Prepare Soup Vegetables" for someone carrying ingredients that need it, nothing for
 # anyone else (the close-up shows its own instructions).
 func _prompt_for(player_index: int) -> String:
 	if session != null:

@@ -207,26 +207,6 @@ func _drop(piece: Node3D, speed: float) -> void:
 
 # A knife lying across the board, edge down, for pushing with.
 func _make_knife() -> Node3D:
-	var knife := Node3D.new()
-	var steel := StandardMaterial3D.new()
-	steel.albedo_color = Color(0.85, 0.87, 0.9)
-	steel.metallic = 0.7
-	steel.roughness = 0.25
-	var blade := MeshInstance3D.new()
-	var blade_mesh := BoxMesh.new()
-	blade_mesh.size = Vector3(0.004, 0.035, _board.size.y * 0.85)
-	blade_mesh.material = steel
-	blade.mesh = blade_mesh
-	blade.position.y = 0.0175
-	knife.add_child(blade)
-	var wood := StandardMaterial3D.new()
-	wood.albedo_color = Color(0.35, 0.24, 0.16)
-	var handle := MeshInstance3D.new()
-	var handle_mesh := BoxMesh.new()
-	handle_mesh.size = Vector3(0.016, 0.022, 0.08)
-	handle_mesh.material = wood
-	handle.mesh = handle_mesh
-	handle.position = Vector3(0.0, 0.025, _board.size.y * 0.425 + 0.04)
-	knife.add_child(handle)
+	var knife := KitchenProps.knife(_board.size.y * 0.85, 0.035)
 	_board.add_child(knife)
 	return knife
