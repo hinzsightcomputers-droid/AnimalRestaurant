@@ -1,6 +1,8 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/world/model_grid.gd" id="m0_model_gridgd"]
+[ext_resource type="Script" path="res://scripts/world/griddle_corner.gd" id="g1_griddle_corner"]
+[ext_resource type="PackedScene" path="res://scenes/style/pendant_lamp.tscn" id="g2_lamp"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/wall.gltf" id="m1_wallgltf"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/wall_doorway.gltf" id="m1_wall_doorway"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/kitchencounter_straight_A.gltf" id="m2_kitchencounter_s"]
@@ -307,6 +309,16 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 2.6, -8.3)
 light_color = Color(1, 0.95, 0.85, 1)
 light_energy = 1.2
 omni_range = 7.5
+
+[node name="GriddleCorner" type="Node3D" parent="Kitchen"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.775, 0, -11.3)
+script = ExtResource("g1_griddle_corner")
+
+[node name="GriddleLamp" parent="Kitchen" instance=ExtResource("g2_lamp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.775, 3, -10.95)
+drop = 0.35
+light_energy = 1.3
+light_range = 3.5
 
 [node name="LeftWall" type="StaticBody3D" parent="Walls"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.15, 1.5, 0)

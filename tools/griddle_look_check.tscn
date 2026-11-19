@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tools/griddle_look_check.gd" id="1"]
+
+[node name="GriddleLookCheck" type="Node"]
+script = ExtResource("1")

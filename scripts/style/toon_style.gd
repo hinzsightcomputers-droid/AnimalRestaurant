@@ -30,6 +30,7 @@ const FROM_MESH := &"toon_from_mesh"  # Meta on a toon material: its original wa
 const TWINS := [&"toon_twin", &"toon_twin_mesh"]  # Meta on an original: its toon material (as an override, as the mesh's own).
 const ORIGINALS := &"toon_originals"  # Meta on a mesh: the override materials its toon ones replaced, {slot: material} (-1: the whole mesh's), so they live on for switching back.
 const THIN := &"toon_thin"  # Meta on a mesh in a close-up, and on its toon materials: a thinner outline.
+const SKIP := &"toon_skip"  # Meta on a material that keeps its own look (glossy syrup reads as liquid, not a toon blob).
 const CLOSE_UP_OUTLINE := 0.5  # Close-ups are seen from very near: half the outline.
 
 @export var world_environment: WorldEnvironment
@@ -176,7 +177,7 @@ static func _keep(mesh: MeshInstance3D, slot: int, original: Material) -> void:
 # colored by their vertices (fading emotes) or billboards.
 static func _convertible(material: Material) -> bool:
 	var standard := material as BaseMaterial3D
-	return standard != null and not material.has_meta(SOURCE) \
+	return standard != null and not material.has_meta(SOURCE) and not material.has_meta(SKIP) \
 		and standard.transparency == BaseMaterial3D.TRANSPARENCY_DISABLED \
 		and standard.shading_mode != BaseMaterial3D.SHADING_MODE_UNSHADED \
 		and not standard.vertex_color_use_as_albedo \

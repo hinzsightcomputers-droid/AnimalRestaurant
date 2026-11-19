@@ -13,6 +13,7 @@ script = ExtResource("2_surface")
 size = Vector2(1.14, 0.6)
 thickness = 0.03
 color = Color(0.17, 0.17, 0.19, 1)
+look = "griddle"
 
 [node name="Plate" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.74, 0.02, 0.52)

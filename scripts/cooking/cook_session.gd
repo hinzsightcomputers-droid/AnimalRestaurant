@@ -68,11 +68,14 @@ func start(cook_recipe: CookRecipe, cook: Player, view_manager: ViewManager, bro
 		steps.append(step.duplicate(true))
 	_build_cursor()
 	_build_hint(view_manager)
+	_blur_background(view_manager.rig_for(cook.player_index) if view_manager != null else null)
 	react("cooking")  # Focused till they're done.
 	_next_step()
 
 
 func _exit_tree() -> void:
+	if _blurred != null and is_instance_valid(_blurred) and _blurred.attributes == _blur:
+		_blurred.attributes = null
 	if player != null and is_instance_valid(player):
 		ChefReactions.release(get_tree(), "cooking", player.player_index)
 	if _screen != null:
@@ -80,6 +83,7 @@ func _exit_tree() -> void:
 
 
 func _process(delta: float) -> void:
+	_follow_blur()
 	if is_finished or input == null:
 		return
 	input.update(delta)
@@ -143,7 +147,36 @@ func _finish() -> void:
 	else:
 		_hint.text = recipe.finish_text
 	play_sound("ding", Vector3(0.0, 0.1, 0.0))
+	if quality >= SPARKLE_FROM and not steps.is_empty():
+		sparkle(steps[-1].view_point() + Vector3(0.0, 0.06, 0.0))
 	finished.emit(quality)
+
+
+# The style guide's close-up: the station sharp, the kitchen behind it a warm
+# blur, on the cook's own camera while they cook (put back after).
+const SPARKLE_FROM := 0.85     # A dish this good gets a sparkle as it's done.
+const BLUR_FROM := 0.45        # Meters past the station's middle where the blur starts (just behind its back edge: all of the cooking stays sharp)...
+const BLUR_OVER := 0.5         # ...and how far it takes to reach full.
+const BLUR_AMOUNT := 0.12
+var _blur: CameraAttributesPractical = null
+var _blurred: Camera3D = null
+func _blur_background(rig: CameraRig) -> void:
+	if rig == null or rig.camera == null or rig.camera.attributes != null:
+		return
+	_blur = CameraAttributesPractical.new()
+	_blur.dof_blur_far_enabled = true
+	_blur.dof_blur_far_transition = BLUR_OVER
+	_blur.dof_blur_amount = BLUR_AMOUNT
+	_blurred = rig.camera
+	_blurred.attributes = _blur
+	_follow_blur()
+
+
+# The camera moves between views (and back out for the whole station), so the
+# blur's start follows it: always just behind the station, never on the food.
+func _follow_blur() -> void:
+	if _blur != null and is_instance_valid(_blurred):
+		_blur.dof_blur_far_distance = _blurred.global_position.distance_to(global_position) + BLUR_FROM
 
 
 # Move the cook's camera to look at `at` (session coordinates) from in front,
@@ -821,7 +854,99 @@ func make_steam(at_radius: float) -> CPUParticles3D:
 	steam.initial_velocity_max = 0.12
 	steam.gravity = Vector3(0.0, 0.08, 0.0)
 	steam.scale_amount_min = 1.0
-	steam.scale_amount_max = 2.2
-	steam.mesh = _dot_mesh(0.01, Color(1.0, 1.0, 1.0, 0.3))
+	steam.scale_amount_max = 1.8
+	var grow := Curve.new()  # Puffs swell as they rise...
+	grow.add_point(Vector2(0.0, 0.4))
+	grow.add_point(Vector2(1.0, 1.0))
+	steam.scale_amount_curve = grow
+	var fade := Gradient.new()  # ...and fade in, then out.
+	fade.set_color(0, Color(1.0, 1.0, 1.0, 0.0))
+	fade.set_color(1, Color(1.0, 1.0, 1.0, 0.0))
+	fade.add_point(0.25, Color(1.0, 1.0, 1.0, 0.55))
+	steam.color_ramp = fade
+	steam.mesh = _sprite_mesh(0.035, _puff_texture())
 	steam.emitting = false
 	return steam
+
+
+# A little four-point sparkle burst (lantern yellow) for something that came
+# out just right: the style guide's "sparkles mark what matters".
+const SPARKLE_COLOR := Color("#FFD15C")
+func sparkle(at: Vector3, amount := 7) -> void:
+	var particles := CPUParticles3D.new()
+	particles.one_shot = true
+	particles.amount = amount
+	particles.lifetime = 0.9
+	particles.explosiveness = 0.85
+	particles.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
+	particles.emission_sphere_radius = 0.09
+	particles.direction = Vector3.UP
+	particles.spread = 50.0
+	particles.initial_velocity_min = 0.04
+	particles.initial_velocity_max = 0.12
+	particles.gravity = Vector3.ZERO
+	particles.damping_min = 0.1
+	particles.damping_max = 0.2
+	var pop := Curve.new()  # Pops up, holds, shrinks away.
+	pop.add_point(Vector2(0.0, 0.0))
+	pop.add_point(Vector2(0.2, 1.0))
+	pop.add_point(Vector2(0.7, 0.9))
+	pop.add_point(Vector2(1.0, 0.0))
+	particles.scale_amount_curve = pop
+	particles.scale_amount_min = 0.6
+	particles.scale_amount_max = 1.2
+	particles.color = SPARKLE_COLOR
+	particles.mesh = _sprite_mesh(0.045, _sparkle_texture(), 2.5)
+	particles.position = at
+	add_child(particles)
+	particles.emitting = true
+	particles.finished.connect(particles.queue_free)
+
+
+# A flat picture that always faces the camera, tinted by its particle's color.
+func _sprite_mesh(width: float, texture: Texture2D, glow := 0.0) -> QuadMesh:
+	var mesh := QuadMesh.new()
+	mesh.size = Vector2(width, width)
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.vertex_color_use_as_albedo = true
+	material.albedo_texture = texture
+	if glow > 0.0:  # Bright enough for the bloom to catch.
+		material.albedo_color = Color(glow, glow, glow)
+	mesh.material = material
+	return mesh
+
+
+static var _puff: Texture2D = null
+static func _puff_texture() -> Texture2D:
+	if _puff == null:
+		var soft := Gradient.new()
+		soft.set_color(0, Color(1.0, 1.0, 1.0, 1.0))
+		soft.set_color(1, Color(1.0, 1.0, 1.0, 0.0))
+		var texture := GradientTexture2D.new()
+		texture.gradient = soft
+		texture.fill = GradientTexture2D.FILL_RADIAL
+		texture.fill_from = Vector2(0.5, 0.5)
+		texture.fill_to = Vector2(0.5, 0.0)
+		texture.width = 64
+		texture.height = 64
+		_puff = texture
+	return _puff
+
+
+static var _star: Texture2D = null
+static func _sparkle_texture() -> Texture2D:
+	if _star == null:
+		var size := 64
+		var image := Image.create(size, size, false, Image.FORMAT_RGBA8)
+		for y in size:
+			for x in size:
+				var p := (Vector2(x, y) + Vector2(0.5, 0.5)) / size * 2.0 - Vector2.ONE
+				var star := 1.0 - (sqrt(absf(p.x)) + sqrt(absf(p.y)))  # Four points, pinched in between.
+				var core := 1.0 - p.length() * 2.2
+				var alpha := clampf(maxf(star * 2.5, core), 0.0, 1.0)
+				image.set_pixel(x, y, Color(1.0, 1.0, 1.0, alpha))
+		_star = ImageTexture.create_from_image(image)
+	return _star
