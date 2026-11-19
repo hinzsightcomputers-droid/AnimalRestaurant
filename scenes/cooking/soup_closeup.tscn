@@ -24,12 +24,14 @@ round = true
 thickness = 0.006
 color = Color(0.93, 0.62, 0.32, 1)
 ingredient_tint = 0.5
+look = "soup"
 
 [node name="Board" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0.03, 0.04)
 script = ExtResource("2_surface")
 size = Vector2(0.3, 0.2)
 hidden = true
+look = "board"
 
 [node name="Model" type="Node3D" parent="Board"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.03, 0)

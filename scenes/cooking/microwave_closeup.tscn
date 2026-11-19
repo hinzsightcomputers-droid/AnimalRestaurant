@@ -9,6 +9,7 @@
 script = ExtResource("1_session")
 bounds = Rect2(-0.68, -0.34, 1.36, 0.72)
 work_height = 0.02
+worktop = true
 
 [node name="Bowl" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.48, 0.02, 0.06)

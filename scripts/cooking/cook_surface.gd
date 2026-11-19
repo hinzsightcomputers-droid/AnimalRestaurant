@@ -15,8 +15,7 @@ extends Node3D
 @export_range(0.0, 1.0) var ingredient_tint := 0.0  # How much it takes on the ingredients' color (a pot's broth).
 @export var slides_in := false            # Out of sight until a step uses it.
 @export var ledge := Vector3.ZERO          # Above zero: a counter top this big (x, thickness, z) under it.
-@export var ledge_color := Color("#B07A52")  # Honey wood (the style guide's light wood, a touch lit).
-@export_enum("plain", "griddle") var look := "plain"  # griddle: seasoned warm steel with a heat glow and a raised rim.
+@export_enum("plain", "griddle", "pastry", "tray", "board", "soup") var look := "plain"  # griddle: seasoned warm steel with a heat glow and a raised rim. pastry: a pale floured pastry board. tray: a sheet pan with a rolled rim. board: a light wood cutting board (on its model too, when hidden). soup: a glossy simmering soup (tint changes its color).
 @export var depth := 0.0                  # A container (a saucepan, a bowl): how high liquid can come up in it.
 
 var contents: Array[Node3D] = []  # What's been dropped in (e.g. chopped carrots in a pot).
@@ -24,6 +23,7 @@ var level := 0.0                  # A container: how full it is (1 = depth).
 var liquid: MeshInstance3D = null # Its liquid, once there's some (see fill_to).
 var _material := StandardMaterial3D.new()
 var _home := Vector3.ZERO
+var _soup: ShaderMaterial = null  # look "soup": its surface.
 
 
 func _ready() -> void:
@@ -32,6 +32,10 @@ func _ready() -> void:
 		_build_ledge()
 	if slides_in:
 		visible = false
+	if look == "board":  # A fitted model (a KayKit board) gets the wood too.
+		for child in get_children():
+			if child is ModelFit:
+				KitchenProps.dress(child, KitchenProps.board_wood())
 	if hidden:
 		return
 	var mesh_instance := MeshInstance3D.new()
@@ -54,6 +58,16 @@ func _ready() -> void:
 	add_child(mesh_instance)
 	if look == "griddle" and not round:
 		_dress_griddle(mesh_instance)
+	elif look in ["pastry", "board"]:
+		mesh_instance.material_override = KitchenProps.pastry_wood() if look == "pastry" else KitchenProps.board_wood()
+		mesh_instance.position.y += 0.003  # Just proud of the counter (or worktop) it sits on, so they don't flicker.
+	elif look == "tray" and not round:
+		_dress_tray(mesh_instance)
+	elif look == "soup":
+		var soup := KitchenProps.soup(color)
+		soup.set_shader_parameter("radius", radius())
+		mesh_instance.material_override = soup
+		_soup = soup
 
 
 # The griddle's look: its top in the griddle shader, and a rounded steel rim
@@ -70,12 +84,29 @@ func _dress_griddle(top: MeshInstance3D) -> void:
 	steel.albedo_color = RIM_STEEL
 	steel.roughness = 0.45
 	steel.metallic = 0.3
-	var rim := 0.022
+	_add_rim(0.022, [0.03, 0.012, 0.03, 0.03], steel)
+
+
+# A sheet pan: soft light steel with a low rolled rim all round.
+func _dress_tray(top: MeshInstance3D) -> void:
+	var pan := StandardMaterial3D.new()
+	pan.albedo_color = Color("#C9CFC4")
+	pan.roughness = 0.4
+	pan.metallic = 0.3
+	top.material_override = pan
+	var rim_steel := pan.duplicate() as StandardMaterial3D
+	rim_steel.albedo_color = RIM_STEEL
+	_add_rim(0.012, [0.014, 0.014, 0.014, 0.014], rim_steel)
+
+
+# A rounded rim `rim` thick just outside the edges: back, front, left and right
+# `heights` tall.
+func _add_rim(rim: float, heights: Array, steel: Material) -> void:
 	var sides := [  # [middle x, middle z, length, along x?, height]
-		[0.0, -size.y * 0.5 - rim * 0.5, size.x + rim * 2.0, true, 0.03],
-		[0.0, size.y * 0.5 + rim * 0.5, size.x + rim * 2.0, true, 0.012],
-		[-size.x * 0.5 - rim * 0.5, 0.0, size.y, false, 0.03],
-		[size.x * 0.5 + rim * 0.5, 0.0, size.y, false, 0.03],
+		[0.0, -size.y * 0.5 - rim * 0.5, size.x + rim * 2.0, true, heights[0]],
+		[0.0, size.y * 0.5 + rim * 0.5, size.x + rim * 2.0, true, heights[1]],
+		[-size.x * 0.5 - rim * 0.5, 0.0, size.y, false, heights[2]],
+		[size.x * 0.5 + rim * 0.5, 0.0, size.y, false, heights[3]],
 	]
 	for side in sides:
 		var bar := MeshInstance3D.new()
@@ -95,6 +126,8 @@ func _dress_griddle(top: MeshInstance3D) -> void:
 func tint(new_color: Color) -> void:
 	color = new_color
 	_material.albedo_color = new_color
+	if _soup != null:
+		KitchenProps.set_soup_color(_soup, new_color)
 
 
 func radius() -> float:
@@ -189,10 +222,7 @@ func _build_ledge() -> void:
 	var slab := MeshInstance3D.new()
 	var mesh := BoxMesh.new()
 	mesh.size = ledge
-	var wood := StandardMaterial3D.new()
-	wood.albedo_color = ledge_color
-	wood.roughness = 0.8
-	mesh.material = wood
+	mesh.material = KitchenProps.counter_wood()  # Butcher block, like the chopping corner (a flat color reads as orange under the warm light).
 	slab.mesh = mesh
 	slab.position.y = -thickness - ledge.y * 0.5
 	add_child(slab)
