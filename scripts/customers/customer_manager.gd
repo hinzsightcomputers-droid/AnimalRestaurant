@@ -2059,17 +2059,18 @@ func _remember_visit(customer: Customer, reaction_id: String) -> Dictionary:
 	var now := GameClock.now_string()  # The real date, unless the debug panel moved it.
 	var server_id := customer.served_by_account
 	RegularMemory.record_visit(record, customer.served_quality, reaction_id, now, server_id)
-	RegularMemory.end_visit(record)
 
 	if record["relationship"] != relationship_before:
 		GameEvents.announce("%s's friendship: %d -> %d (%s)" % [record["name"], relationship_before, record["relationship"], RegularMemory.stage_name(record)])
 
-	return RegularMemory.say_feeling(record, "farewell", RegularMemory.dialogue_context(record, server_id, {
+	var line := RegularMemory.say_feeling(record, "farewell", RegularMemory.dialogue_context(record, server_id, {
 		"reaction": reaction_id,
 		"learned_name": customer.learned_name,
 		# They've been here before, but this is the first time this chef served them.
 		"new_chef_for_them": record["times_visited"] > 1 and record["served_by"].get(server_id, 0) == 1,
 	}))
+	RegularMemory.end_visit(record)  # After the goodbye: still in the restaurant while saying it (talking_stage).
+	return line
 
 
 # "Mabel" for a regular, "the Frog" for anyone else.
