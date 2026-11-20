@@ -230,8 +230,12 @@ static func build(item: Dictionary) -> Node3D:
 		var position := Vector3(at[0], at[1], at[2])
 		if part.has("model"):
 			var size: Array = part.get("size", [0, 0, 0])
-			if ModelFit.place(String(part["model"]), root, position, Vector3(size[0], size[1], size[2])) == null:
+			var fit := ModelFit.place(String(part["model"]), root, position, Vector3(size[0], size[1], size[2]))
+			if fit == null:
 				push_warning("Decor model not found: %s" % part["model"])
+			else:
+				fit.tilt_degrees = float(part.get("tilt", 0.0))
+				fit.max_depth = float(part.get("max_depth", 0.0))
 			continue
 		var mesh_node := MeshInstance3D.new()
 		var material := StandardMaterial3D.new()

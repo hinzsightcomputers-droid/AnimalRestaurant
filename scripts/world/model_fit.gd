@@ -28,6 +28,18 @@ extends Node3D
 	set(value):
 		turn_degrees = value
 		_rebuild()
+# Tip the model forward before fitting: -90 lays down one that was made
+# standing up (a rug Meshy built upright).
+@export_range(-180.0, 180.0, 90.0) var tilt_degrees := 0.0:
+	set(value):
+		tilt_degrees = value
+		_rebuild()
+# At most this deep (meters, front to back) after fitting, squashing it if need
+# be: a wall picture made as a deep box still sits flat on the wall. 0: no limit.
+@export var max_depth := 0.0:
+	set(value):
+		max_depth = value
+		_rebuild()
 
 var _instance: Node3D = null
 
@@ -62,7 +74,7 @@ func _rebuild() -> void:
 	_instance = model.instantiate() as Node3D
 	if _instance == null:
 		return
-	_instance.rotation.y = deg_to_rad(turn_degrees)
+	_instance.rotation = Vector3(deg_to_rad(tilt_degrees), deg_to_rad(turn_degrees), 0.0)
 	var box := _bounds(_instance, _instance.transform)
 	var factor := Vector3.ONE
 	if size != Vector3.ZERO and box.size.x > 0.0 and box.size.y > 0.0 and box.size.z > 0.0:
@@ -78,6 +90,8 @@ func _rebuild() -> void:
 				ratios.z if size.z > 0.0 else uniform)
 		else:
 			factor = Vector3.ONE * uniform
+	if max_depth > 0.0 and box.size.z * factor.z > max_depth:
+		factor.z = max_depth / box.size.z
 	var bottom_middle := Vector3(box.get_center().x, box.position.y, box.get_center().z)
 	_instance.transform = Transform3D(Basis.from_scale(factor), -bottom_middle * factor) * _instance.transform
 	_instance.name = "_Model"

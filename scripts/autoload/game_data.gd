@@ -32,6 +32,7 @@ const RATING_PATH := "res://data/rating.json"
 const DECOR_PATH := "res://data/decor.json"
 const DECOR_CATALOGUE_DIR := "res://data/decor_catalogue/"  # Meshy decor, one file per theme (see design/decor/README.md).
 const DECOR_MODEL_DIR := "res://design/decor/"
+const THIN_SIDE := 0.15  # Meters: a catalogue item's side thinner than this doesn't limit how big its model is drawn.
 
 # Each dish, from the menu (design/menu/dishes.json): { id, name, origin,
 # description, ingredients, steps, base_price, cook_time, tags, unlock,
@@ -326,7 +327,16 @@ func _load_decor_catalogue() -> void:
 			var size: Array = item.get("size", [1.0, 1.0])
 			item["set"] = String(item.get("set", theme.get("set", "")))
 			item["meshy"] = true
-			item["parts"] = [{ "model": model, "size": [float(size[0]), float(item.get("height", 1.0)), float(size[1])], "at": [0, 0, 0] }]
+			var fit := [float(size[0]), float(item.get("height", 1.0)), float(size[1])]
+			for axis in 3:  # A flat thing (a rug's height, a picture's depth) is sized by its other sides: 0 leaves that side free.
+				if fit[axis] < THIN_SIDE:
+					fit[axis] = 0.0
+			var part := { "model": model, "size": fit, "at": [0, 0, 0] }
+			if item.get("lie_flat", false):
+				part["tilt"] = -90.0  # Made standing up (a rug): laid down.
+			if item.get("kind", "") == "wall":
+				part["max_depth"] = maxf(float(size[1]), 0.05)  # Flat on the wall, however deep Meshy made it.
+			item["parts"] = [part]
 			decor["items"].append(item)
 			known[id] = true
 
