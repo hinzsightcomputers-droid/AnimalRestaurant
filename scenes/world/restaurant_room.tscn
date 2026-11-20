@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/world/model_grid.gd" id="m0_model_gridgd"]
 [ext_resource type="Script" path="res://scripts/world/griddle_corner.gd" id="g1_griddle_corner"]
+[ext_resource type="Script" path="res://scripts/style/room_look.gd" id="r1_room_look"]
 [ext_resource type="PackedScene" path="res://scenes/style/pendant_lamp.tscn" id="g2_lamp"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/wall.gltf" id="m1_wallgltf"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/wall_doorway.gltf" id="m1_wall_doorway"]
@@ -306,7 +307,7 @@ shape = SubResource("Shape_kitchen_side_wall")
 
 [node name="Light" type="OmniLight3D" parent="Kitchen"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 2.6, -8.3)
-light_color = Color(1, 0.95, 0.85, 1)
+light_color = Color(1, 0.88, 0.72, 1)
 light_energy = 1.2
 omni_range = 7.5
 
@@ -665,3 +666,6 @@ script = ExtResource("m5_model_fitgd")
 model = ExtResource("m31_Rock_3_A_Color1g")
 size = Vector3(0, 0.7, 0)
 
+
+[node name="RoomLook" type="Node" parent="."]
+script = ExtResource("r1_room_look")
