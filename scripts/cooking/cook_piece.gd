@@ -238,26 +238,30 @@ func _half_moon(side: float, height: float) -> MeshInstance3D:
 		var angle := PI * i / SEGMENTS
 		edge.append(Vector3(cos(angle), 0.0, sin(angle) * side))
 	var lift := Vector3(0.0, height, 0.0)
+	# Mirroring to the far side (side -1) turns every triangle inside out; put
+	# them back the right way round, or the toon outline (drawn on back faces)
+	# covers the whole top in dark brown, hiding the ketchup.
+	var add_triangles := func(tool: SurfaceTool, corners: Array) -> void:
+		for t in range(0, corners.size(), 3):
+			var order := [0, 1, 2] if side > 0.0 else [0, 2, 1]
+			for k in order:
+				tool.add_vertex(corners[t + k])
 	var top := SurfaceTool.new()
 	top.begin(Mesh.PRIMITIVE_TRIANGLES)
 	top.set_normal(Vector3.UP)
 	for i in SEGMENTS:
-		for corner in [Vector3.ZERO, edge[i], edge[i + 1]]:
-			top.add_vertex(corner + lift)
+		add_triangles.call(top, [Vector3.ZERO + lift, edge[i] + lift, edge[i + 1] + lift])
 	top.commit(mesh)
 	mesh.surface_set_material(0, _top_material)
 	var rest := SurfaceTool.new()
 	rest.begin(Mesh.PRIMITIVE_TRIANGLES)
 	for i in SEGMENTS:
 		rest.set_normal(Vector3.DOWN)
-		for corner in [Vector3.ZERO, edge[i + 1], edge[i]]:
-			rest.add_vertex(corner)
+		add_triangles.call(rest, [Vector3.ZERO, edge[i + 1], edge[i]])
 		rest.set_normal((edge[i] + edge[i + 1]).normalized())
-		for corner in [edge[i], edge[i + 1], edge[i + 1] + lift, edge[i], edge[i + 1] + lift, edge[i] + lift]:
-			rest.add_vertex(corner)
+		add_triangles.call(rest, [edge[i], edge[i + 1], edge[i + 1] + lift, edge[i], edge[i + 1] + lift, edge[i] + lift])
 	rest.set_normal(Vector3(0.0, 0.0, -side))  # The straight edge.
-	for corner in [Vector3.LEFT, Vector3.RIGHT, Vector3.RIGHT + lift, Vector3.LEFT, Vector3.RIGHT + lift, Vector3.LEFT + lift]:
-		rest.add_vertex(corner)
+	add_triangles.call(rest, [Vector3.LEFT, Vector3.RIGHT, Vector3.RIGHT + lift, Vector3.LEFT, Vector3.RIGHT + lift, Vector3.LEFT + lift])
 	rest.commit(mesh)
 	mesh.surface_set_material(1, _bottom_material)
 	var instance := MeshInstance3D.new()
@@ -268,9 +272,12 @@ func _half_moon(side: float, height: float) -> MeshInstance3D:
 static func cooked_color(raw: Color, amount: float, done := GOLDEN) -> Color:
 	if amount < 1.0:
 		return raw.lerp(done, pow(clampf(amount / 1.0, 0.0, 1.0), 1.6))
+	# Past just right it browns: a pancake toward BROWN; anything with its own done
+	# color (yellow egg) toward a deeper shade of that, never the pancake's red-brown.
+	var brown := BROWN if done == GOLDEN else done.darkened(0.22).lerp(GOLDEN, 0.3)
 	if amount < 1.4:
-		return done.lerp(BROWN, (amount - 1.0) / 0.4)
-	return BROWN.lerp(BURNT, clampf((amount - 1.4) / 0.4, 0.0, 1.0))
+		return done.lerp(brown, (amount - 1.0) / 0.4)
+	return brown.lerp(BURNT, clampf((amount - 1.4) / 0.4, 0.0, 1.0))
 
 
 func _disc(disc_radius: float, height: float, material: StandardMaterial3D) -> MeshInstance3D:

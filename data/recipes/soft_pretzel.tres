@@ -44,13 +44,13 @@ size = 0.12
 script = ExtResource("coat")
 title = "Salt"
 cue = "Salt!"
-hint = "Hold [button] and move the shaker to sprinkle salt over every pretzel."
+hint = "Hold [button] and shake salt onto the blue rings on each pretzel."
 tool = "shaker"
 coat_name = "Salt"
 coat_color = Color(0.97, 0.97, 0.95, 1)
-seconds = 4
+seconds = 6
 blob_radius = 0.01
-each_some = true
+spots = 5
 view_distance = 0.5
 weight = 0.5
 

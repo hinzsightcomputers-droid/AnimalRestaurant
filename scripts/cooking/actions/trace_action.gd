@@ -230,9 +230,13 @@ func _shape_so_far() -> void:
 func _final_shape(cookie: MeshInstance3D) -> void:
 	if shape == "twist":
 		var points := []
+		var path := PackedVector2Array()
 		for i in 48:
 			var p := _point(i / 47.0)
 			points.append(Vector3(p.x - cookie.position.x, rope_radius, p.y - cookie.position.z))
+			path.append(Vector2(p.x - cookie.position.x, p.y - cookie.position.z))
+		cookie.set_meta("rope", path)  # Where the dough is (salt goes on it, not in the holes).
+		cookie.set_meta("rope_radius", rope_radius)
 		if _rope != null:
 			_rope.queue_free()
 			_rope = null

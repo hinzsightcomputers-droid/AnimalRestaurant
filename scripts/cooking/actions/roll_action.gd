@@ -160,7 +160,7 @@ func _shape() -> void:
 # A dashed square on the counter: how big to roll it.
 func _outline() -> void:
 	var material := StandardMaterial3D.new()
-	material.albedo_color = Color(1.0, 1.0, 1.0, 0.75)
+	material.albedo_color = Color(0.36, 0.22, 0.12, 0.9)  # Cocoa: shows on the pale floured board.
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	var goal := _goal()
@@ -176,10 +176,10 @@ func _outline() -> void:
 			mesh.material = material
 			piece.mesh = mesh
 			match side:
-				0: piece.position = Vector3(along, 0.001, -goal.y * 0.5)
-				1: piece.position = Vector3(along, 0.001, goal.y * 0.5)
-				2: piece.position = Vector3(-goal.x * 0.5, 0.001, along)
-				3: piece.position = Vector3(goal.x * 0.5, 0.001, along)
+				0: piece.position = Vector3(along, 0.007, -goal.y * 0.5)
+				1: piece.position = Vector3(along, 0.007, goal.y * 0.5)
+				2: piece.position = Vector3(-goal.x * 0.5, 0.007, along)
+				3: piece.position = Vector3(goal.x * 0.5, 0.007, along)
 			if side >= 2:
 				piece.rotation.y = PI * 0.5
 			piece.position += _center

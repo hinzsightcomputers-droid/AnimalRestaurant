@@ -31,16 +31,16 @@ var _guides := Node3D.new()               # Dashed lines where the next strips g
 
 
 func _init() -> void:
-	view_distance = 0.95
+	view_distance = 0.5  # In close on the leftover dough while the strips are cut.
 	view_pitch = 62.0
 
 
-# Between the sheet and the pie, to see both.
+# The leftover dough until every strip's cut (then _take_next moves over to the pie).
 func view_point() -> Vector3:
 	if _pie == null:
-		return super.view_point()
-	var sheet_at: Vector3 = _sheet.get("center", _pie.position)
-	return (sheet_at + _pie.position) * 0.5
+		var sheet: Dictionary = session.context.get("dough", {})
+		return sheet["center"] if is_instance_valid(sheet.get("node")) else super.view_point()
+	return _sheet.get("center", _pie.position) if _laid == 0 and _holding == null else _pie.position
 
 
 func cursor_height() -> float:

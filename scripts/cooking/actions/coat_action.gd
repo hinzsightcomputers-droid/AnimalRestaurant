@@ -27,6 +27,11 @@ extends CookAction
 @export var keep_on := ""                  # A surface the tool can't leave.
 @export var turn_out := ""                 # A container to turn out onto on_surface afterwards.
 @export var fade_seconds := 0.0           # Above 0: each blob melts away this long after it's put down (butter on a hot griddle).
+@export var glaze := false                 # Brush: no blobs; each piece brushed just turns glossy (butter on croissants), a few dabs each.
+@export var glaze_dabs := 4                # glaze: dabs for a piece to be fully shiny.
+@export var spots := 0                     # Above 0: this many marked spots on each piece (along a pretzel's rope) to land it on; only the piece itself catches it.
+
+const SPOT_REACH := 0.013
 
 var _left := 0.0
 var _last = null                           # Where the last blob went (Vector2), or null between strokes.
@@ -37,6 +42,9 @@ var _blob_mesh: Mesh
 var _outline: Node3D
 var _cookies: Array = []
 var _touched := {}                         # Pieces with some on (each_some).
+var _dabs := {}                            # glaze: piece -> dabs so far.
+var _gloss_from := {}                      # glaze: piece -> its roughness before.
+var _spots: Array = []                     # spots: [piece, local point (x, z), marker or null once salted].
 var _sound: AudioStreamPlayer3D
 
 
@@ -100,6 +108,8 @@ func _begin() -> void:
 		_blob_mesh = speck
 	if not on_surface.is_empty():
 		_outline = _make_outline()
+	if spots > 0:
+		_make_spots()
 
 
 func end() -> void:
@@ -107,6 +117,9 @@ func end() -> void:
 	_sound.queue_free()
 	if _outline != null:
 		_outline.queue_free()
+	for spot: Array in _spots:
+		if spot[2] != null:
+			(spot[2] as Node).queue_free()
 
 
 func update(delta: float, input: CookInput) -> void:
@@ -138,6 +151,23 @@ func update(delta: float, input: CookInput) -> void:
 		_last = null
 		if _sound.playing:
 			_sound.stop()
+	if spots > 0:
+		var salted := _salted()
+		session.set_status("%s on %d of %d spots" % [coat_name, salted, _spots.size()])
+		if salted >= _spots.size() or _left <= 0.0:
+			var share := float(salted) / maxi(_spots.size(), 1)
+			session.pop_text("Perfect!" if share >= 1.0 else ("Nearly" if share >= 0.75 else "Some missed"), view_point(), CookSession.mood_of(share))
+			finish(lerpf(least_score, 1.0, share))
+		return
+	if glaze:
+		var shine := _glaze_share()
+		session.set_status("%s left: %d%%  -  shiny %d%%" % [coat_name, ceili(_left / seconds * 100.0), roundi(shine * 100.0)])
+		if _left <= 0.0 or (not input.held and shine >= 1.0):
+			var waste := float(_missed) / maxi(_missed + _blobs.size(), 1)
+			var score := lerpf(least_score, 1.0, shine * (1.0 - clampf(waste * 0.6, 0.0, 0.5)))
+			session.pop_text("Lovely and shiny!" if score >= 0.85 else ("Some aren't shiny" if shine < 1.0 else "Messy"), view_point(), CookSession.mood_of(score))
+			finish(score)
+		return
 	if each_some:
 		session.set_status("%s on %d of %d" % [coat_name, _touched.size(), _cookies.size()])
 		if _left <= 0.0 or (not input.held and _touched.size() >= _cookies.size()):
@@ -160,6 +190,16 @@ func update(delta: float, input: CookInput) -> void:
 func _coat(point: Vector2) -> void:
 	var landing := [point] if tool == "brush" else [point + Vector2.from_angle(randf() * TAU) * randf() * blob_radius * 1.6, point + Vector2.from_angle(randf() * TAU) * randf() * blob_radius * 1.6]
 	for at: Vector2 in landing:
+		if glaze:  # Just shines up the piece under it.
+			var piece: Variant = _target_at(at)
+			if piece is MeshInstance3D:
+				_blobs.append(at)
+				_shine(piece)
+			else:
+				_missed += 1
+			continue
+		if spots > 0:
+			_salt_spots(at)
 		var blob := MeshInstance3D.new()
 		blob.mesh = _blob_mesh
 		var target: Variant = _target_at(at)
@@ -188,9 +228,119 @@ func _target_at(point: Vector2) -> Variant:
 		var at := session.surface(on_surface).position
 		return session.surface(on_surface) if absf(point.x - at.x) <= patch.x * 0.5 and absf(point.y - at.z) <= patch.y * 0.5 else null
 	for cookie: MeshInstance3D in _cookies:
+		if spots > 0 and cookie.has_meta("rope"):  # Only on the rope itself, not the holes.
+			if _rope_gap(cookie, point) <= float(cookie.get_meta("rope_radius", 0.01)) * 1.4:
+				return cookie
+			continue
 		if CookSession.on_piece(cookie, point):
 			return cookie
 	return null
+
+
+# How far a point is from a pretzel's rope (its path kept by TraceAction).
+func _rope_gap(cookie: MeshInstance3D, point: Vector2) -> float:
+	var path: PackedVector2Array = cookie.get_meta("rope")
+	var local := point - Vector2(cookie.position.x, cookie.position.z)
+	var best := INF
+	for i in path.size() - 1:
+		best = minf(best, local.distance_to(Geometry2D.get_closest_point_to_segment(local, path[i], path[i + 1])))
+	return best
+
+
+# --- glaze --------------------------------------------------------------------
+
+# One more dab on a piece: a bit glossier, up to fully shiny.
+func _shine(piece: MeshInstance3D) -> void:
+	var material := (piece.mesh as CylinderMesh).material as StandardMaterial3D if piece.mesh is CylinderMesh else null
+	if material == null:
+		return
+	if not _gloss_from.has(piece):
+		_gloss_from[piece] = material.roughness
+		material.clearcoat_enabled = true
+		material.clearcoat_roughness = 0.15
+	_dabs[piece] = mini(int(_dabs.get(piece, 0)) + 1, glaze_dabs)
+	var share := float(_dabs[piece]) / glaze_dabs
+	material.roughness = lerpf(_gloss_from[piece], 0.18, share)
+	material.clearcoat = share
+	material.metallic_specular = lerpf(0.5, 0.85, share)
+	_touched[piece] = true
+	if _dabs[piece] == glaze_dabs and share >= 1.0 and not piece.has_meta("glazed"):
+		piece.set_meta("glazed", true)
+		session.sparkle(piece.position + Vector3(0.0, 0.03, 0.0))
+
+
+func _glaze_share() -> float:
+	if _cookies.is_empty():
+		return 1.0
+	var total := 0.0
+	for cookie in _cookies:
+		total += float(_dabs.get(cookie, 0)) / glaze_dabs
+	return total / _cookies.size()
+
+
+# --- spots --------------------------------------------------------------------
+
+# Little rings on each piece where it should go: evenly along a pretzel's rope,
+# or round a piece's middle.
+func _make_spots() -> void:
+	var ring := TorusMesh.new()
+	ring.inner_radius = 0.006
+	ring.outer_radius = 0.0085
+	ring.rings = 12
+	ring.ring_segments = 4
+	var paint := StandardMaterial3D.new()
+	paint.albedo_color = Color(0.55, 0.85, 1.0, 0.9)
+	paint.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	paint.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	paint.no_depth_test = true
+	ring.material = paint
+	for cookie: MeshInstance3D in _cookies:
+		var points: Array[Vector2] = []
+		if cookie.has_meta("rope"):
+			var path: PackedVector2Array = cookie.get_meta("rope")
+			var lengths: Array[float] = [0.0]
+			for i in path.size() - 1:
+				lengths.append(lengths[-1] + path[i].distance_to(path[i + 1]))
+			for n in spots:
+				var want: float = lengths[-1] * (n + 0.5) / spots
+				var i := 0
+				while i < path.size() - 2 and lengths[i + 1] < want:
+					i += 1
+				points.append(path[i].lerp(path[i + 1], clampf((want - lengths[i]) / maxf(lengths[i + 1] - lengths[i], 0.0001), 0.0, 1.0)))
+		else:
+			var half := CookSession.half_of(cookie) * 0.55
+			for n in spots:
+				points.append(Vector2.from_angle(TAU * n / spots) * half)
+		for point in points:
+			var marker := MeshInstance3D.new()
+			marker.mesh = ring
+			marker.position = Vector3(cookie.position.x + point.x, cookie.position.y + CookSession.top_of(cookie) + 0.004, cookie.position.z + point.y)
+			session.add_child(marker)
+			_spots.append([cookie, point, marker])
+
+
+# Salt landing here covers any spot it's near.
+func _salt_spots(at: Vector2) -> void:
+	for spot: Array in _spots:
+		if spot[2] == null:
+			continue
+		var cookie: MeshInstance3D = spot[0]
+		var where := Vector2(cookie.position.x, cookie.position.z) + (spot[1] as Vector2)
+		if where.distance_to(at) <= SPOT_REACH:
+			var marker: MeshInstance3D = spot[2]
+			spot[2] = null
+			var pop := marker.create_tween()
+			pop.tween_property(marker, "scale", Vector3(1.6, 1.0, 1.6), 0.1)
+			pop.tween_property(marker, "scale", Vector3.ZERO, 0.12)
+			pop.tween_callback(marker.queue_free)
+
+
+func _salted() -> int:
+	var count := 0
+	for spot: Array in _spots:
+		if spot[2] == null:
+			count += 1
+	return count
 
 
 func _height_at(point: Vector2) -> float:
@@ -268,10 +418,10 @@ func _make_outline() -> Node3D:
 			dash.mesh = mesh
 			var along := -span * 0.5 + (i + 0.5) * span / 6.0
 			match side:
-				0: dash.position = Vector3(along, 0.001, -patch.y * 0.5)
-				1: dash.position = Vector3(along, 0.001, patch.y * 0.5)
-				2: dash.position = Vector3(-patch.x * 0.5, 0.001, along)
-				3: dash.position = Vector3(patch.x * 0.5, 0.001, along)
+				0: dash.position = Vector3(along, 0.007, -patch.y * 0.5)
+				1: dash.position = Vector3(along, 0.007, patch.y * 0.5)
+				2: dash.position = Vector3(-patch.x * 0.5, 0.007, along)
+				3: dash.position = Vector3(patch.x * 0.5, 0.007, along)
 			if side >= 2:
 				dash.rotation.y = PI * 0.5
 			outline.add_child(dash)
@@ -292,21 +442,35 @@ func _make_shaker() -> Node3D:
 
 var _scripted_route: Array = []            # [point, paint?] in order.
 var _scripted_next := 0
+var _scripted_stuck := 0.0                 # Seconds spent heading for the current stop.
 var _scripted_speed := 0.5
 
 
 # Back and forth over each piece (or the patch), let go between them, done once
 # there's enough on.
 func scripted_hold(delta: float, input: CookInput) -> bool:
-	if each_some and _touched.size() >= _cookies.size():
+	if glaze and _glaze_share() >= 1.0:
 		return false
-	if not each_some and _coverage() >= target_coverage:
+	if spots == 0 and not glaze:
+		if each_some and _touched.size() >= _cookies.size():
+			return false
+		if not each_some and _coverage() >= target_coverage:
+			return false
+	if spots > 0:  # Straight to the next ring still wanting salt, shaking.
+		for spot: Array in _spots:
+			if spot[2] != null:
+				var cookie: Node3D = spot[0]
+				input.move_to(cookie.position + Vector3(spot[1].x, 0.0, spot[1].y), delta, 0.5)
+				return true
 		return false
 	if _scripted_route.is_empty():
 		_scripted_route = _scripted_plan()
 	var stop: Array = _scripted_route[_scripted_next % _scripted_route.size()]
-	if input.move_to(stop[0], delta, _scripted_speed if stop[1] else 1.2):
+	_scripted_stuck += delta
+	# Arrived, or the cursor can't get there (kept inside the tray): on to the next.
+	if input.move_to(stop[0], delta, _scripted_speed if stop[1] else 1.2) or _scripted_stuck > 1.5:
 		_scripted_next += 1
+		_scripted_stuck = 0.0
 	return stop[1]
 
 
