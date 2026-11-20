@@ -1,0 +1,177 @@
+{
+	"cafe_bookcase": {
+		"id": "01a1fb50-ee4a-7652-8041-8bcf5cce1c18",
+		"endpoint": "https://api.meshy.ai/openapi/v1/multi-image-to-3d",
+		"views": [
+			"cafe_bookcase.png",
+			"cafe_bookcase_back.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"cafe_lemon_tree": {
+		"id": "01a1fb53-16b8-7625-ba16-3c1c58e3b308",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"cafe_lemon_tree.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"cafe_chalkboard_sign": {
+		"id": "01a1fb53-16a1-745a-81f7-bfdc03ccbbb7",
+		"endpoint": "https://api.meshy.ai/openapi/v1/multi-image-to-3d",
+		"views": [
+			"cafe_chalkboard_sign.png",
+			"cafe_chalkboard_sign_back.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"cafe_coat_stand": {
+		"id": "01a1fb53-16bd-76d9-be7e-e98cf4698ed7",
+		"endpoint": "https://api.meshy.ai/openapi/v1/multi-image-to-3d",
+		"views": [
+			"cafe_coat_stand.png",
+			"cafe_coat_stand_back.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"cafe_wall_shelf": {
+		"id": "01a1fb53-16a2-7204-ac17-a3c8a5bb2a91",
+		"endpoint": "https://api.meshy.ai/openapi/v1/multi-image-to-3d",
+		"views": [
+			"cafe_wall_shelf.png",
+			"cafe_wall_shelf_back.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"cafe_flower_barrel": {
+		"id": "01a1fb53-eb15-77aa-a0c8-7f2c6f1333da",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"cafe_flower_barrel.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"cafe_cake_table": {
+		"id": "01a1fb53-fefb-7311-8cc5-5f07f105e22d",
+		"endpoint": "https://api.meshy.ai/openapi/v1/multi-image-to-3d",
+		"views": [
+			"cafe_cake_table.png",
+			"cafe_cake_table_side.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"cafe_gingham_rug": {
+		"id": "01a1fb54-1224-7662-82cc-bdb6b7c92bf3",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"cafe_gingham_rug.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"cafe_radio_table": {
+		"id": "01a1fb54-27db-77d3-b678-3559ba148ba5",
+		"endpoint": "https://api.meshy.ai/openapi/v1/multi-image-to-3d",
+		"views": [
+			"cafe_radio_table.png",
+			"cafe_radio_table_back.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"cafe_flower_cart": {
+		"id": "01a1fb54-bb7d-752c-badb-a05966d39508",
+		"endpoint": "https://api.meshy.ai/openapi/v1/multi-image-to-3d",
+		"views": [
+			"cafe_flower_cart.png",
+			"cafe_flower_cart_back.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"cafe_armchair": {
+		"id": "01a1fb54-d258-7775-9454-6e52e1a10db6",
+		"endpoint": "https://api.meshy.ai/openapi/v1/multi-image-to-3d",
+		"views": [
+			"cafe_armchair.png",
+			"cafe_armchair_back.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"cafe_log_basket": {
+		"id": "01a1fb55-33c4-76ce-8054-06b14e0206b6",
+		"endpoint": "https://api.meshy.ai/openapi/v1/multi-image-to-3d",
+		"views": [
+			"cafe_log_basket.png",
+			"cafe_log_basket_side.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"cafe_cottage_painting": {
+		"id": "01a1fb55-3931-7263-b766-0417ba625ba9",
+		"endpoint": "https://api.meshy.ai/openapi/v1/multi-image-to-3d",
+		"views": [
+			"cafe_cottage_painting.png",
+			"cafe_cottage_painting_back.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"cafe_pie_clock": {
+		"id": "01a1fb56-5a88-7153-9457-839364891107",
+		"endpoint": "https://api.meshy.ai/openapi/v1/multi-image-to-3d",
+		"views": [
+			"cafe_pie_clock.png",
+			"cafe_pie_clock_back.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"cafe_wall_lantern": {
+		"id": "01a1fb56-6efb-76a9-8b76-c6ab285d4f2d",
+		"endpoint": "https://api.meshy.ai/openapi/v1/multi-image-to-3d",
+		"views": [
+			"cafe_wall_lantern.png",
+			"cafe_wall_lantern_back.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"cafe_bunting": {
+		"id": "01a1fb56-c2f3-7474-91a6-5ae23a0bc43a",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"cafe_bunting.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"cafe_pot_rack": {
+		"id": "01a1fb57-0a89-7717-b09c-f124e7408c05",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"cafe_pot_rack.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"cafe_wheat_wreath": {
+		"id": "01a1fb57-6cfe-73e4-a6d7-1687b403896c",
+		"endpoint": "https://api.meshy.ai/openapi/v1/multi-image-to-3d",
+		"views": [
+			"cafe_wheat_wreath.png",
+			"cafe_wheat_wreath_back.png"
+		],
+		"credits": 30,
+		"done": true
+	}
+}
