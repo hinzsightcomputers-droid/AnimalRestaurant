@@ -3,7 +3,9 @@
 # for how fast the close-up cursor moves on a gamepad and on the keys; a switch
 # for the hybrid camera (two players' views join when they're close) and for two
 # players sharing the keyboard; and the
-# hemisphere, which flips the seasons (kept in the save, not the settings).
+# hemisphere, which flips the seasons (kept in the save, not the settings);
+# graphics (fullscreen, VSync, a frame cap, 3D sharpness) and accessibility
+# (text size, text speed, whether finished lines move on by themselves).
 # Any player's up/down (keys, stick, d-pad) picks a row, left/right changes
 # it, interact flips a switch; the mouse works too. Escape, Start or B closes
 # it. Pauses the game while open; changes apply and are kept straight away.
@@ -15,6 +17,7 @@ const BROWN := Color("#71412C")
 const TEXT := Color("#502312")
 const PANEL_MAX := Vector2(760, 600)
 const SCREEN_MARGIN := 24.0
+const LIST_HEIGHT := 440.0  # The rows scroll inside this.
 
 signal closed
 
@@ -81,6 +84,9 @@ func _move(side: Side) -> void:
 		var slider := focused as Range
 		slider.value += slider.step * (1.0 if side == SIDE_RIGHT else -1.0)
 		return
+	if focused.has_meta(&"step") and (side == SIDE_LEFT or side == SIDE_RIGHT):  # A choice row.
+		(focused.get_meta(&"step") as Callable).call(1 if side == SIDE_RIGHT else -1)
+		return
 	var next := focused.find_valid_focus_neighbor(side)
 	if next != null:
 		next.grab_focus()
@@ -102,11 +108,17 @@ func _build() -> void:
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	UiStyle.title(title)
 
+	var scroll := ScrollContainer.new()  # Scrolls to the picked row.
+	scroll.follow_focus = true
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.custom_minimum_size = Vector2(0, LIST_HEIGHT)
+	content.add_child(scroll)
 	var grid := GridContainer.new()
 	grid.columns = 3
+	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	grid.add_theme_constant_override("h_separation", 18)
 	grid.add_theme_constant_override("v_separation", 12)
-	content.add_child(grid)
+	scroll.add_child(grid)
 	_heading(grid, "Sound")
 	_first = _volume_row(grid, "Master volume", "master_volume")
 	_volume_row(grid, "Music", "music_volume")
@@ -162,6 +174,17 @@ func _build() -> void:
 	_mark(difficulty, _row_label(grid, "Difficulty"))
 	grid.add_child(difficulty)
 	_label(grid, "", 18, TEXT)
+
+	_heading(grid, "Graphics")
+	_switch_row(grid, "Display", "Fullscreen", "fullscreen", "On: the whole screen. Off: a window.")
+	_switch_row(grid, "VSync", "Match the screen's refresh", "vsync", "On: smooth, no tearing. Off: can feel snappier on some screens.")
+	_choice_row(grid, "Frame rate cap", "max_fps", Settings.FPS_CHOICES, func(v): return "No cap" if int(v) == 0 else "%d fps" % int(v))
+	_choice_row(grid, "3D sharpness", "render_scale", Settings.RENDER_SCALES, func(v): return "%d%%%s" % [roundi(float(v) * 100.0), "" if float(v) >= 1.0 else " (faster)"])
+
+	_heading(grid, "Accessibility")
+	_choice_row(grid, "Text size", "text_size", Settings.TEXT_SIZES, func(v): return ["Normal", "Large", "Larger"][Settings.TEXT_SIZES.find(v)] if v in Settings.TEXT_SIZES else "Normal")
+	_choice_row(grid, "Text speed", "text_speed", Settings.TEXT_SPEEDS, func(v): return ["Slow", "Normal", "Fast", "Instant"][Settings.TEXT_SPEEDS.find(v)] if v in Settings.TEXT_SPEEDS else "Normal")
+	_switch_row(grid, "Dialogue", "Lines move on by themselves", "auto_advance", "On: a finished line moves on after a few seconds. Off: it waits until you press.")
 
 	var hint := _label(content, "Up/down to pick, left/right to change. Escape, Start or B to close.", 16, Color(TEXT, 0.7))
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -246,6 +269,51 @@ func _slider_row(grid: GridContainer, text: String, key: String, low: float, hig
 		value_label.text = shown.call(value)
 		Settings.set_value(key, value))
 	return slider
+
+
+# An on/off switch for a Settings value.
+func _switch_row(grid: GridContainer, label: String, text: String, key: String, tip: String) -> CheckButton:
+	var switch := CheckButton.new()
+	switch.text = text
+	switch.tooltip_text = tip
+	switch.button_pressed = bool(Settings.get(key))
+	switch.add_theme_font_size_override("font_size", 20)
+	switch.toggled.connect(func(on: bool): Settings.set_value(key, on))
+	_mark(switch, _row_label(grid, label))
+	grid.add_child(switch)
+	_label(grid, "", 18, TEXT)
+	return switch
+
+
+# A button that steps through `values` for a Settings value (pressing, or left/right).
+func _choice_row(grid: GridContainer, label: String, key: String, values: Array, shown: Callable) -> Button:
+	var button := Button.new()
+	button.add_theme_font_size_override("font_size", 20)
+	button.text = shown.call(_nearest(values, Settings.get(key)))
+	button.set_meta(&"choices", values)
+	button.pressed.connect(func(): _step_choice(button, key, values, shown, 1))
+	button.set_meta(&"step", func(direction: int): _step_choice(button, key, values, shown, direction))
+	_mark(button, _row_label(grid, label))
+	grid.add_child(button)
+	_label(grid, "", 18, TEXT)
+	return button
+
+
+func _step_choice(button: Button, key: String, values: Array, shown: Callable, direction: int) -> void:
+	var at := values.find(_nearest(values, Settings.get(key)))
+	var next = values[posmod(at + direction, values.size())]
+	Settings.set_value(key, next)
+	button.text = shown.call(next)
+	_fit_to_screen.call_deferred()  # Text size changes the panel too.
+
+
+# The listed value closest to `value` (a saved 0.86 shows as 85%).
+func _nearest(values: Array, value: Variant) -> Variant:
+	var best = values[0]
+	for v in values:
+		if absf(float(v) - float(value)) < absf(float(best) - float(value)):
+			best = v
+	return best
 
 
 func _heading(grid: GridContainer, text: String) -> void:

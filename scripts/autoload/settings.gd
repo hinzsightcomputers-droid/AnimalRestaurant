@@ -26,7 +26,22 @@ var key_cursor_speed := 1.0   # Times CookSession.cursor_speed.
 var hybrid_camera := true
 var guide_always := false  # Show the Guide's arrow every day, not just to new chefs.
 var two_on_keyboard := false  # Two players can share the keyboard (WASD and the arrows). Off: one player, either set of keys.
+var save_slot := 1  # Which restaurant (SaveGame slot) is played: the last one picked on the title.
 var cursor_speed_range := Vector2(0.4, 2.0)
+# Graphics.
+var fullscreen := false
+var vsync := true
+var max_fps := 0              # 0: no cap.
+var render_scale := 1.0       # How sharp the 3D is drawn (lower runs faster on a slow PC); the UI stays sharp.
+# Accessibility.
+var text_size := 1.0          # Times the usual size of the dialogue boxes, popups and HUD.
+var text_speed := 1.0         # How fast dialogue types out; INSTANT_TEXT shows each line at once.
+var auto_advance := true      # A finished line moves on by itself after a while; off: it waits for a press.
+const FPS_CHOICES := [0, 30, 60, 120, 144]
+const RENDER_SCALES := [1.0, 0.85, 0.7, 0.5]
+const TEXT_SIZES := [1.0, 1.15, 1.3]
+const TEXT_SPEEDS := [0.6, 1.0, 1.6, 100.0]
+const INSTANT_TEXT := 100.0
 
 
 func _ready() -> void:
@@ -44,6 +59,7 @@ func _ready() -> void:
 			AudioServer.set_bus_send(AudioServer.bus_count - 1, "Master")
 	_apply_volumes()
 	MenuTheme.apply()
+	_apply_graphics.call_deferred()  # Once the window is up.
 	get_tree().node_added.connect(_on_node_added)
 	if not InputMap.has_action(OPEN_ACTION):
 		InputMap.add_action(OPEN_ACTION)
@@ -65,14 +81,38 @@ func _unhandled_input(event: InputEvent) -> void:
 # Sounds play on the SFX bus, unless they asked for another (Music's are on Music).
 func _on_node_added(node: Node) -> void:
 	MenuTheme.watch(node)
+	if node is SubViewport and render_scale < 1.0:
+		_scale_viewport.call_deferred(node)
 	if node is AudioStreamPlayer or node is AudioStreamPlayer2D or node is AudioStreamPlayer3D:
 		if node.bus == &"Master":
 			node.bus = SFX_BUS
 
 
+# The window, VSync, the frame cap and how sharp the 3D is drawn.
+func _apply_graphics() -> void:
+	if DisplayServer.get_name() == "headless" or OS.has_feature("movie"):
+		return  # Tests and recordings keep their own.
+	var mode := DisplayServer.window_get_mode()
+	var is_full := mode == DisplayServer.WINDOW_MODE_FULLSCREEN or mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN
+	if fullscreen != is_full:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if fullscreen else DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED if vsync else DisplayServer.VSYNC_DISABLED)
+	Engine.max_fps = max_fps
+	get_tree().root.scaling_3d_scale = render_scale
+	for viewport in get_tree().root.find_children("*", "SubViewport", true, false):
+		_scale_viewport(viewport)
+
+
+# Each player's view is a SubViewport of its own: drawn at the same sharpness.
+func _scale_viewport(viewport: SubViewport) -> void:
+	viewport.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
+	viewport.scaling_3d_scale = render_scale
+
+
 func set_value(key: String, value: Variant) -> void:
 	_apply_values({ key: value })
 	_apply_volumes()
+	_apply_graphics()
 	save()
 	changed.emit()
 
@@ -90,6 +130,9 @@ func save() -> void:
 		"hybrid_camera": hybrid_camera,
 		"guide_always": guide_always,
 		"two_on_keyboard": two_on_keyboard,
+		"save_slot": save_slot,
+		"fullscreen": fullscreen, "vsync": vsync, "max_fps": max_fps, "render_scale": render_scale,
+		"text_size": text_size, "text_speed": text_speed, "auto_advance": auto_advance,
 	}, "\t"))
 
 
@@ -102,6 +145,14 @@ func _apply_values(values: Dictionary) -> void:
 	hybrid_camera = bool(values.get("hybrid_camera", hybrid_camera))
 	guide_always = bool(values.get("guide_always", guide_always))
 	two_on_keyboard = bool(values.get("two_on_keyboard", two_on_keyboard))
+	save_slot = clampi(int(values.get("save_slot", save_slot)), 1, SaveGame.SLOTS)
+	fullscreen = bool(values.get("fullscreen", fullscreen))
+	vsync = bool(values.get("vsync", vsync))
+	max_fps = int(values.get("max_fps", max_fps))
+	render_scale = clampf(float(values.get("render_scale", render_scale)), 0.5, 1.0)
+	text_size = clampf(float(values.get("text_size", text_size)), 1.0, 1.3)
+	text_speed = clampf(float(values.get("text_speed", text_speed)), 0.6, INSTANT_TEXT)
+	auto_advance = bool(values.get("auto_advance", auto_advance))
 	InputSetup.set_two_on_keyboard(two_on_keyboard)
 
 

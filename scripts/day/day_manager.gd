@@ -64,6 +64,9 @@ func _ready() -> void:
 	for i in GameState.town_news.size():  # Who moved in or away.
 		get_tree().create_timer(3.5 + i * 2.5, false).timeout.connect(GameEvents.announce.bind(GameState.town_news[i]))
 	GameState.town_news.clear()
+	if not SaveGame.restored_note.is_empty():  # The save was damaged and a backup was loaded (see SafeFile).
+		get_tree().create_timer(1.5, false).timeout.connect(GameEvents.announce.bind(SaveGame.restored_note))
+		SaveGame.restored_note = ""
 	match DayCycle.phase:
 		DayCycle.Phase.SUMMARY, DayCycle.Phase.AFTER_HOURS:
 			DayCycle.phase = DayCycle.Phase.AFTER_HOURS  # A summary left open: it's at the host stand.

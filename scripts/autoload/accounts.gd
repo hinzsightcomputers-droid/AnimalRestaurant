@@ -203,19 +203,15 @@ func save() -> void:
 	_since_save = 0.0
 	if ReelSandbox.active():
 		return  # A reel's chef stays in memory.
-	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
-	if file == null:
-		push_error("Could not write accounts file: %s" % error_string(FileAccess.get_open_error()))
-		return
-	file.store_string(JSON.stringify({"accounts": accounts}, "\t"))
+	SafeFile.write_json(SAVE_PATH, {"accounts": accounts})  # Safely: see SafeFile.
 
 
 func _load() -> void:
-	if ReelSandbox.active() or not FileAccess.file_exists(SAVE_PATH):
+	if ReelSandbox.active() or not SafeFile.exists(SAVE_PATH):
 		return
-	var parsed = JSON.parse_string(FileAccess.get_file_as_string(SAVE_PATH))
-	if not parsed is Dictionary:
-		push_warning("Accounts file is damaged, starting with no accounts.")
+	var parsed := SafeFile.read_json(SAVE_PATH)
+	if parsed.is_empty():
+		push_warning("Accounts file is damaged and there's no good copy, starting with no accounts.")
 		return
 	for account in parsed.get("accounts", []):
 		if account is Dictionary and account.has("id") and account.has("name"):

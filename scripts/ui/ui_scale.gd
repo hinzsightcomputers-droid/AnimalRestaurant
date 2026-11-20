@@ -11,7 +11,7 @@ const BASE_META := &"ui_base_font_sizes"
 
 
 static func for_view_count(count: int) -> float:
-	return BY_VIEW_COUNT[clampi(count, 1, BY_VIEW_COUNT.size()) - 1]
+	return BY_VIEW_COUNT[clampi(count, 1, BY_VIEW_COUNT.size()) - 1] * Settings.text_size  # Bigger with the Text size setting.
 
 
 # `root` and every control under it.

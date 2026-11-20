@@ -18,7 +18,11 @@ folder, and the real save is backed up first and checked unchanged after.
     node tools/week_bot/report.js             # report.md: money, stars, shopping, repeats, trouble
 
 Bot arguments: `--seconds=1800` (most game seconds for the day),
-`--after=180` (game seconds of after hours), `--speed=2` (game speed).
+`--after=180` (game seconds of after hours), `--speed=2` (game speed),
+`--players=2` (co-op: 2 to 4 chefs, the extras joining as gamepad players with
+test accounts; every chef follows their own Guide arrow at the same time, and
+the log marks their lines P2, P3, P4. Use a separate `WEEK_BOT_DIR` per player
+count, so each has its own test save).
 Settings by environment variable: `GODOT` (the exe; default the Desktop one),
 `WEEK_BOT_DIR` (default `%TEMP%\dinner-time-week-bot`), `DAY_TIMEOUT` (real
 seconds per day, default 2400).

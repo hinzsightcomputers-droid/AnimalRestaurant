@@ -34,6 +34,10 @@ var step_title := ""
 var step_began := 0.0
 var stuck_shot := false
 var slow_noted := false
+var players := 1          # --players=N: co-op, every chef played at once.
+var chefs_state := {}     # See _state().
+var looping: Array[int] = []
+var playing := false      # The chefs past the first keep playing while true.
 
 
 func note(text: String) -> void:
@@ -65,7 +69,69 @@ func shot(name: String) -> void:
 
 func tick(s: float) -> void:
 	await get_tree().create_timer(s, true, false, false).timeout  # Game time (scaled).
-	t += s
+
+
+func _process(delta: float) -> void:
+	if driver:
+		t += delta  # Game seconds (scaled), however many chefs are waiting on what.
+
+
+# Each chef's own bookkeeping (in co-op every chef plays at once).
+func _state(p: int) -> Dictionary:
+	if not chefs_state.has(p):
+		chefs_state[p] = { "hint": "", "box": "", "stuck": 0.0, "step": "", "began": 0.0, "slow": false }
+	return chefs_state[p]
+
+
+# Player p's interact (or another action), pressed and let go. Player 0 uses
+# the real E key; the others their own actions (they're on gamepads).
+func press(p: int, action := "interact") -> void:
+	if p == 0 and action == "interact":
+		await key(KEY_E)
+		return
+	presses += 1
+	for down in [true, false]:
+		await hold(p, down, action)
+		await get_tree().physics_frame
+		await get_tree().physics_frame
+
+
+func hold(p: int, down: bool, action := "interact") -> void:
+	if p == 0 and action == "interact":
+		await hold_key(KEY_E, down)
+		return
+	var event := InputEventAction.new()
+	event.action = InputSetup.action_name(p, action)
+	event.pressed = down
+	Input.parse_input_event(event)
+	await get_tree().process_frame
+
+
+# Co-op: chefs 2 to `players` join like the debug panel's "Add player", each on a
+# gamepad slot with a test account, and each starts following their own arrow.
+func _join_chefs() -> void:
+	var manager: PlayerManager = find_all(main, func(n): return n is PlayerManager, []).front()
+	for index in range(1, players):
+		if Player.find(get_tree(), index) == null:
+			var account := Accounts.find_by_name("Co-op chef %d" % (index + 1))
+			if account.is_empty():
+				account = Accounts.create("Co-op chef %d" % (index + 1))
+			Accounts.assign(index, account["id"])
+			GameState.birthdays[account["id"]] = GameState.birthdays.get(account["id"], "")
+			InputSetup.assign_device(index, "pad_%d" % index)
+			manager._spawn(index)
+			note("CO-OP chef %d joined (%s)" % [index + 1, account["id"]])
+		if not index in looping:
+			looping.append(index)
+			_chef_loop(index)
+
+
+func _chef_loop(p: int) -> void:
+	while playing:
+		await tick(0.3)
+		if is_instance_valid(main) and get_tree().current_scene == main and Player.find(get_tree(), p) != null:
+			await play_step(p)
+	looping.erase(p)
 
 
 func key(code: Key) -> void:
@@ -106,6 +172,8 @@ func _ready() -> void:
 			speed = float(a.get_slice("=", 1))
 		if a.begins_with("--seconds="):
 			seconds = float(a.get_slice("=", 1))
+		if a.begins_with("--players="):
+			players = clampi(int(a.get_slice("=", 1)), 1, InputSetup.MAX_PLAYERS)
 		if a.begins_with("--after="):
 			after = float(a.get_slice("=", 1))
 	OUT = OS.get_environment("WEEK_BOT_OUT").replace("\\", "/")
@@ -116,7 +184,7 @@ func _ready() -> void:
 	day_tag = "d%d" % day
 	DirAccess.make_dir_recursive_absolute(OUT)
 	for f in DirAccess.get_files_at(OUT):
-		if f.begins_with(day_tag + "_"):
+		if f.begins_with(day_tag + "_") and not f.ends_with("_raw.txt"):  # (The raw output is being written right now.)
 			DirAccess.remove_absolute(OUT + f)
 	GameClock.set_offset_days(day - 1)
 	Engine.time_scale = speed
@@ -129,6 +197,11 @@ func _ready() -> void:
 	note("in the restaurant: game day %d  money $%d  stars %d  phase %s" % [GameState.day_number, GameState.money, GameState.stars, DayCycle.phase_name()])
 	_grab_nodes()
 	Settings.guide_always = true  # The "Guide arrow" setting: the arrow stays on after the tutorial.
+	if players > 1:
+		playing = true
+		_join_chefs()
+		await tick(1.5)
+		_check_views()
 	await shot("morning")
 	note("RATING " + Rating.page_text().replace("\n", " / "))
 	# The day: follow the arrow until the summary screen.
@@ -139,6 +212,8 @@ func _ready() -> void:
 			if _in_restaurant():
 				_grab_nodes()
 				note("scene reloaded: phase %s" % DayCycle.phase_name())
+				if players > 1:
+					_join_chefs()
 			continue
 		await play_step()
 		if t - last_progress > 90.0:
@@ -152,6 +227,7 @@ func _ready() -> void:
 	else:
 		note("OUT OF TIME before closing (phase %s)" % DayCycle.phase_name())
 		await shot("out_of_time")
+	playing = false
 	SaveGame.save_game()
 	note("END OF RUN: game day %d  money $%d  stars %d  menu %d  community %d  decor %d  presses %d" % [GameState.day_number, GameState.money, GameState.stars, Rating.menu_size(), Rating.community(), Decor.score(), presses])
 	var f := FileAccess.open(OUT + day_tag + "_log.txt", FileAccess.WRITE)
@@ -159,6 +235,27 @@ func _ready() -> void:
 	f.close()
 	Engine.time_scale = 1.0
 	get_tree().quit()
+
+
+# Co-op: one view per chef, side by side or in a grid, none of them empty or overlapping.
+func _check_views() -> void:
+	var views: ViewManager = find_all(main, func(n): return n is ViewManager, []).front()
+	var rects := []
+	for index in InputSetup.active_players():
+		var view = views.view_for(index)
+		if view != null and not view.visible:
+			continue  # Merged into another chef's view (the hybrid camera).
+		if view == null:
+			note("CO-OP PROBLEM: chef %d has no view" % (index + 1))
+			continue
+		rects.append(Rect2(view.global_position, view.size))
+	note("CO-OP views: %s (window %s)" % [str(rects), get_viewport().get_visible_rect().size])
+	for i in rects.size():
+		if rects[i].size.x < 50 or rects[i].size.y < 50:
+			note("CO-OP PROBLEM: view %d is tiny %s" % [i + 1, rects[i]])
+		for j in range(i + 1, rects.size()):
+			if rects[i].intersection(rects[j]).get_area() > 4.0:
+				note("CO-OP PROBLEM: views %d and %d overlap" % [i + 1, j + 1])
 
 
 func _grab_nodes() -> void:
@@ -196,9 +293,9 @@ func intro_step() -> void:
 		await key(KEY_ENTER)
 
 
-func box_text() -> String:
+func box_text(p := -1) -> String:
 	var parts := PackedStringArray()
-	for box in get_tree().get_nodes_in_group(ConversationBox.GROUP):
+	for box in get_tree().get_nodes_in_group(ConversationBox.GROUP).filter(func(b): return p < 0 or b.player_index == p):
 		for n in find_all(box, func(n): return (n is Label or n is RichTextLabel) and n.is_visible_in_tree(), []):
 			var text: String = n.get_parsed_text() if n is RichTextLabel else n.text
 			if not text.strip_edges().is_empty() and not text.begins_with("Hold [") and not text.begins_with("[E]"):
@@ -217,33 +314,42 @@ func _summary_open() -> bool:
 	return s != null and s.visible
 
 
-func play_step() -> void:
-	chef = Player.find(get_tree(), 0)
-	if chef == null:
+# One move for chef p: answer their dialogue box, pour, let a close-up play,
+# clip tickets, or go where their arrow points and press.
+func play_step(p := 0) -> void:
+	var me := Player.find(get_tree(), p)
+	if me == null:
 		return
-	if not get_tree().get_nodes_in_group(ConversationBox.GROUP).is_empty():
-		var text := box_text()
-		if text != last_box:
-			last_box = text
-			note("BOX " + text)
+	if p == 0:
+		chef = me
+	var s := _state(p)
+	var who := "" if p == 0 else "P%d " % (p + 1)
+	var boxes := get_tree().get_nodes_in_group(ConversationBox.GROUP).filter(func(b): return b.player_index == p and not b.is_queued_for_deletion())
+	if not boxes.is_empty():
+		var text := box_text(p)
+		if text != s["box"]:
+			s["box"] = text
+			note(who + "BOX " + text)
 			await tick(1.0)  # Reading time.
-		await key(KEY_E)
+		await press(p)
 		return
-	last_box = ""
-	for station in find_all(main, func(n): return n is DrinkStation and n._pourer == chef, []):
-		await pour_step(station)
+	s["box"] = ""
+	for station in find_all(main, func(n): return n is DrinkStation and n._pourer == me, []):
+		await pour_step(station, p)
 		return
-	var session := find_all(main, func(n): return n is CookSession, [])
+	var session := find_all(main, func(n): return n is CookSession and n.player == me, [])
 	if not session.is_empty():
-		cook_step(session[0])
+		cook_step(session[0], p)
 		return
-	if not step_title.is_empty():
-		note("   cook step '%s' took %.1fs" % [step_title, t - step_began])
-		step_title = ""
-	for wheel in find_all(main, func(n): return n is TicketWheel and n._clipper == chef, []):
-		await wheel_step(wheel)
+	if not String(s["step"]).is_empty():
+		note("%s   cook step '%s' took %.1fs" % [who, s["step"], t - s["began"]])
+		s["step"] = ""
+	for wheel in find_all(main, func(n): return n is TicketWheel and n._clipper == me, []):
+		await wheel_step(wheel, p)
 		return
 	if get_tree().paused:
+		if p != 0:
+			return  # Menus are the first chef's to deal with.
 		var buttons := find_all(get_tree().root, func(n): return n is Button and n.is_visible_in_tree() and not n.disabled, [])
 		note("PAUSED with buttons " + str(buttons.map(func(b): return b.text.replace("\n", " ").left(40))))
 		await shot("paused")
@@ -254,94 +360,98 @@ func play_step() -> void:
 					return
 		await key(KEY_ESCAPE)
 		return
-	var step: Dictionary = guide.steps.get(0, {})
+	var step: Dictionary = guide.steps.get(p, {})
 	var hint := String(step.get("hint", ""))
 	var k := String(step.get("key", ""))
-	if hint != last_hint:
-		note("STEP %s   (%s)   [%s]" % [hint, k, ArrivalPacing.debug_line(cm.status()) if DayCycle.is_open() else DayCycle.phase_name()])
-		last_hint = hint
-		if k in ["ring_bell", "open_up"]:
+	if hint != s["hint"]:
+		note("%sSTEP %s   (%s)   [%s]" % [who, hint, k, ArrivalPacing.debug_line(cm.status()) if DayCycle.is_open() else DayCycle.phase_name()])
+		s["hint"] = hint
+		if p == 0:
+			last_hint = hint
+		if k in ["ring_bell", "open_up"] and p == 0:
 			await shot(k)
 	var target: Interactable = step.get("target")
-	if target == null or not is_instance_valid(target):
+	if target == null or not is_instance_valid(target) or me.movement_locked:
 		return
 	var to := target.global_position
-	var from := chef.global_position
+	var from := me.global_position
 	var away := Vector3(from.x - to.x, 0.0, from.z - to.z)
 	if away.length() < 0.05:
 		away = Vector3(0, 0, 1)
-	if away.length() > 0.95 or chef.interactor.focused != target:
-		chef.global_position = Vector3(to.x, from.y, to.z) + away.normalized() * 0.8
-		chef.reset_physics_interpolation()
+	if away.length() > 0.95 or me.interactor.focused != target:
+		me.global_position = Vector3(to.x, from.y, to.z) + away.normalized() * 0.8
+		me.reset_physics_interpolation()
 		await get_tree().physics_frame
 		await get_tree().physics_frame
-	if chef.interactor.focused != target:
+	if me.interactor.focused != target:
 		# Something else nearer took the focus (a chair beside a table): walk
 		# round it, like a player would, until the target is the one in focus.
 		for dist in [0.8, 0.6, 1.0]:
 			for i in 8:
 				var dir := Vector3(cos(i * TAU / 8.0), 0.0, sin(i * TAU / 8.0))
-				chef.global_position = Vector3(to.x, from.y, to.z) + dir * dist
-				chef.reset_physics_interpolation()
+				me.global_position = Vector3(to.x, from.y, to.z) + dir * dist
+				me.reset_physics_interpolation()
 				await get_tree().physics_frame
 				await get_tree().physics_frame
-				if chef.interactor.focused == target:
+				if me.interactor.focused == target:
 					break
-			if chef.interactor.focused == target:
+			if me.interactor.focused == target:
 				break
-	if chef.interactor.focused == target:
-		await key(KEY_E)
-		stuck = 0.0
+	if me.interactor.focused == target:
+		await press(p)
+		s["stuck"] = 0.0
 	else:
-		stuck += 0.3
-		if stuck > 3.0:
-			note("can't reach %s (focused %s)" % [target.get_parent().name, chef.interactor.focused.get_parent().name if chef.interactor.focused else "nothing"])
-			stuck = -6.0
-			chef.global_position = Vector3(to.x, from.y, to.z) - away.normalized() * 0.8
+		s["stuck"] += 0.3
+		if s["stuck"] > 3.0:
+			note("%scan't reach %s (focused %s)" % [who, target.get_parent().name, me.interactor.focused.get_parent().name if me.interactor.focused else "nothing"])
+			s["stuck"] = -6.0
+			me.global_position = Vector3(to.x, from.y, to.z) - away.normalized() * 0.8
 
 
-# A pour at the drinks counter: hold E until the fill line, let go.
-func pour_step(station: DrinkStation) -> void:
-	await hold_key(KEY_E, false)
+# A pour at the drinks counter: hold interact until the fill line, let go.
+func pour_step(station: DrinkStation, p := 0) -> void:
+	await hold(p, false)
 	await get_tree().create_timer(0.2, true, false, false).timeout
 	presses += 1
-	await hold_key(KEY_E, true)
+	await hold(p, true)
 	var held := 0.0
 	while station._pour != DrinkStation.Pour.NONE and station._fill < DrinkStation.LINE - 0.02 and held < 8.0:
 		await get_tree().process_frame
 		held += get_process_delta_time()
-	await hold_key(KEY_E, false)
-	note("   poured %s to %.2f in %.1fs" % [station._pour_drink.get("name", "?"), station._fill, held])
+	await hold(p, false)
+	note("%s   poured %s to %.2f in %.1fs" % ["" if p == 0 else "P%d" % (p + 1), station._pour_drink.get("name", "?"), station._fill, held])
 	await tick(0.5)
 
 
 # A cooking close-up plays itself (scripted input); just note each step's time.
-func cook_step(session: CookSession) -> void:
+func cook_step(session: CookSession, p := 0) -> void:
+	var s := _state(p)
+	var who := "" if p == 0 else "P%d " % (p + 1)
 	if not session.input.scripted:
 		session.input.scripted = true
-		note("CLOSE-UP %s" % (session.recipe.display_name if session.recipe else "?"))
+		note("%sCLOSE-UP %s" % [who, session.recipe.display_name if session.recipe else "?"])
 	var title := String(session.current.title) if session.current != null else "(between steps)"
-	if title != step_title:
-		if not step_title.is_empty():
-			note("   cook step '%s' took %.1fs" % [step_title, t - step_began])
-		step_title = title
-		step_began = t
-		slow_noted = false
-	elif t - step_began > 20.0 and not slow_noted:  # A step that won't finish: what it's doing, to see why.
-		slow_noted = true
-		note("   SLOW STEP '%s' (%s): held %s  cursor %s  status '%s'" % [title, session.current.get_script().resource_path.get_file() if session.current else "-", session.input.held, session.input.cursor, session._status])
+	if title != s["step"]:
+		if not String(s["step"]).is_empty():
+			note("%s   cook step '%s' took %.1fs" % [who, s["step"], t - s["began"]])
+		s["step"] = title
+		s["began"] = t
+		s["slow"] = false
+	elif t - s["began"] > 20.0 and not s["slow"]:  # A step that won't finish: what it's doing, to see why.
+		s["slow"] = true
+		note("%s   SLOW STEP '%s' (%s): held %s  cursor %s  status '%s'" % [who, title, session.current.get_script().resource_path.get_file() if session.current else "-", session.input.held, session.input.cursor, session._status])
 
 
-# Clipping tickets: press E as an empty clip comes to the front.
-func wheel_step(wheel: TicketWheel) -> void:
+# Clipping tickets: press interact as an empty clip comes to the front.
+func wheel_step(wheel: TicketWheel, p := 0) -> void:
+	var me := Player.find(get_tree(), p)
 	var waited := 0.0
-	while wheel._clipper == chef and waited < 15.0:
+	while wheel._clipper == me and waited < 15.0:
 		var front := wheel._front_clip()
 		if not wheel._tickets.has(front) and absf(wheel._front_offset(front)) < wheel.front_window * 0.6:
-			await key(KEY_E)
+			await press(p)
 		await get_tree().process_frame
 		waited += get_process_delta_time()
-	t += waited
 
 
 # The summary: what it says, the star progress, then shopping like a new player

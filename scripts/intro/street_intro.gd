@@ -94,6 +94,7 @@ var _time := 0.0
 var _next_walker := 0.0
 var _walker_models: Array[PackedScene] = []
 var _setup: RestaurantSetup = null  # Open while the restaurant is being named.
+var _picker: SlotPicker = null      # Open while choosing another restaurant (save slot).
 
 
 func _ready() -> void:
@@ -107,6 +108,7 @@ func _ready() -> void:
 		prompt_label.text = "Closed for today. Press E, Enter, or (A) to head in after hours"
 	elif GameState.date == GameClock.today():
 		prompt_label.text = "Press E, Enter, or (A) to carry on with %s" % DayCycle.phase_name().to_lower()
+	prompt_label.text += "\nTab or (Y): your restaurants"
 	# A few people already out walking, so the street isn't empty at first.
 	for i in 3:
 		_spawn_walker((i - 1) * 8.0 + randf_range(-2.0, 2.0))
@@ -132,6 +134,13 @@ func _unhandled_input(event: InputEvent) -> void:
 	var key_event := event as InputEventKey
 	if key_event != null and key_event.pressed and not key_event.echo and key_event.keycode == KEY_F4:
 		_apply_look(LOOK_ORDER[(LOOK_ORDER.find(_look_name) + 1) % LOOK_ORDER.size()])
+		return
+	if _picker != null:
+		return  # The restaurant picker has the keys.
+	if not _started and _setup == null and _is_picker_press(event):
+		get_viewport().set_input_as_handled()
+		_picker = SlotPicker.open(self)
+		_picker.closed.connect(func(): _picker = null)
 		return
 	if _setup != null or not _is_start_press(event):
 		return
@@ -174,6 +183,15 @@ func _paint_sign(restaurant_name: String, color: Color) -> void:
 	name_label.modulate = color.lightened(0.35)
 	name_label.outline_modulate = color.darkened(0.75)
 	name_label.pixel_size = NAME_PIXEL_SIZE * minf(1.0, float(NAME_FITS_LETTERS) / maxi(1, restaurant_name.length()))
+
+
+# Tab, or (Y) on a gamepad: the other restaurants (save slots).
+func _is_picker_press(event: InputEvent) -> bool:
+	var key := event as InputEventKey
+	if key != null and key.pressed and not key.echo and key.keycode == KEY_TAB:
+		return true
+	var pad := event as InputEventJoypadButton
+	return pad != null and pad.pressed and pad.button_index == JOY_BUTTON_Y
 
 
 func _is_start_press(event: InputEvent) -> bool:

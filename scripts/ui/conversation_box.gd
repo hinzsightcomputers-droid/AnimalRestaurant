@@ -343,7 +343,8 @@ func _process(delta: float) -> void:
 				_armed = false
 				chosen.emit(_selected)
 		Mode.WAITING:
-			_wait_left -= delta
+			if Settings.auto_advance:  # Off (accessibility): it waits for a press.
+				_wait_left -= delta
 			if pressed or _wait_left <= 0.0:
 				_mode = Mode.IDLE
 				_armed = false
@@ -370,6 +371,10 @@ func _start_typing(speaker: String, text: String, then_choose: bool, emotion: St
 
 # Reveal letters at `speed_scale` times the normal speed, pausing after punctuation.
 func _type(delta: float, speed_scale: float) -> void:
+	if Settings.text_speed >= Settings.INSTANT_TEXT:  # Accessibility: the whole line at once.
+		_line.visible_characters = -1
+		_finish_typing()
+		return
 	var total := _plain.length()
 	var time := delta
 	while time > 0.0 and _line.visible_characters < total:
@@ -378,14 +383,14 @@ func _type(delta: float, speed_scale: float) -> void:
 			_pause_left -= used
 			time -= used
 			continue
-		_typed += time * LETTERS_PER_SECOND * speed_scale
+		_typed += time * LETTERS_PER_SECOND * speed_scale * Settings.text_speed
 		time = 0.0
 		while _line.visible_characters < mini(int(_typed), total):
 			var letter := _plain[_line.visible_characters]
 			_line.visible_characters += 1
 			_on_letter(_line.visible_characters - 1, speed_scale)
 			if PAUSES.has(letter):
-				_pause_left = PAUSES[letter] / speed_scale
+				_pause_left = PAUSES[letter] / (speed_scale * Settings.text_speed)
 				_typed = _line.visible_characters
 				break
 	if _line.visible_characters >= total:

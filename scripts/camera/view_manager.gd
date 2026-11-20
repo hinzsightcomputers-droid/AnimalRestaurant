@@ -52,6 +52,7 @@ var _fixed := false             # Using the fixed four-way split.
 var _overview: SubViewportContainer = null  # The whole room, in a quarter of the split nobody has.
 var _overview_frames := 0
 var ui_scale := 1.0             # Size of the UI for the current layout (UiScale).
+var _slots := 1                 # Views in the current layout.
 
 
 func _ready() -> void:
@@ -63,6 +64,7 @@ func _ready() -> void:
 	_overview = _make_overview()
 	add_child(_overview)
 
+	Settings.changed.connect(_on_settings_changed)  # Text size, live.
 	player_manager.player_joined.connect(_add_view)
 	# Players spawned before we were ready.
 	for node in get_tree().get_nodes_in_group(Player.GROUP):
@@ -220,6 +222,7 @@ func _apply_groups(new_groups: Array) -> void:
 			_layout_tween.chain().tween_callback(view.set_active.bind(false))
 	_show_overview(layout, owners)
 	_groups = new_groups
+	_slots = slots
 	ui_scale = UiScale.for_view_count(slots)
 	for view in _views.values():
 		view.set_ui_scale(ui_scale)
@@ -306,3 +309,12 @@ func _rect_properties(rect: Rect2, view_count: int) -> Array:
 		["offset_right", -half_gap if rect.end.x < 1.0 else 0.0],
 		["offset_bottom", -half_gap if rect.end.y < 1.0 else 0.0],
 	]
+
+
+func _on_settings_changed() -> void:
+	var scale := UiScale.for_view_count(_slots)
+	if is_equal_approx(scale, ui_scale):
+		return
+	ui_scale = scale
+	for view in _views.values():
+		view.set_ui_scale(ui_scale)
