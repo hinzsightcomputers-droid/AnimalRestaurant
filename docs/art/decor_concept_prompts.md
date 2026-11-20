@@ -65,3 +65,12 @@ Same size and height in all three, nothing cut off, no shadows, no text.
 - Start a new chat with the style sheet every ~20 items; long chats drift.
 - Save each picture with the item's id (e.g. `cafe_bookcase.png`) so it
   matches its row in the catalogue and its model file later.
+
+## Cozy café: first batch
+
+1. `cafe_bookcase`, `cafe_chalkboard_sign`, `cafe_wall_shelf` (done in chat)
+2. `cafe_lemon_tree`, `cafe_coat_stand`, `cafe_flower_barrel`, `cafe_cottage_painting`,
+   `cafe_pie_clock`, `cafe_wall_lantern`, `cafe_cake_table`, `cafe_gingham_rug`,
+   `cafe_radio_table`, `cafe_flower_cart`, `cafe_bunting`, `cafe_pot_rack`,
+   `cafe_armchair`, `cafe_log_basket`, `cafe_wheat_wreath`: prompts as given in
+   chat on 2026-11-20 (same pattern as section 2).
