@@ -105,9 +105,9 @@ func next_step(player: Player, claimed: Dictionary) -> Dictionary:
 		return _step(courier.interactable, "courier") if courier != null else {}
 	if held is Ingredients:
 		if held.needs_chopping():
-			return _step(_spot(ChoppingBoard), "chop", { "verb": held.prep_verb() })
+			return _nearest(player, _free(_all(ChoppingBoard)), "chop", { "verb": held.prep_verb() })
 		var stations := _all(CookingStation).filter(func(s): return s.makes(held.order.dish))
-		return _nearest(player, stations, "cook", { "station": CookingStation.station_of(held.order.dish), "dish": held.order.dish.get("name", "it") })
+		return _nearest(player, _free(stations), "cook", { "station": CookingStation.station_of(held.order.dish), "dish": held.order.dish.get("name", "it") })
 	if held is Drink:
 		var drink_id: String = held.drink.get("id", "")
 		return _nearest(player, _customers(Customer.State.WAITING_FOR_DRINK).filter(func(c): return c.drink.get("id", "") == drink_id), "give_drink")
@@ -326,6 +326,14 @@ func _nearest(player: Player, nodes: Array, hint: String, words := {}) -> Dictio
 		return {}
 	nodes.sort_custom(func(a, b): return _distance(player, a.interactable) < _distance(player, b.interactable))
 	return _step(nodes[0].interactable, hint, words)
+
+
+# The stoves or boards nobody is cooking at (in co-op, the nearest one may be
+# in use); all of them if every one is, to wait by.
+func _free(nodes: Array) -> Array:
+	nodes = nodes.filter(func(n): return is_instance_valid(n) and n.is_inside_tree())  # (One not bought yet is out of the kitchen.)
+	var free := nodes.filter(func(n): return n.session == null and (not "minigame" in n or n.minigame == null))
+	return free if not free.is_empty() else nodes
 
 
 func _hint(hint: String, words: Dictionary) -> String:

@@ -9,7 +9,7 @@
 		{ "id": "lunch_rush", "name": "Lunch", "meal": "lunch", "from": 0, "to": 200, "cap_add": 1, "gap_scale": 1.0, "counts": "inside" },
 		{ "id": "afternoon", "name": "Afternoon", "meal": "lunch", "from": 200, "to": 330, "cap_add": 0, "gap_scale": 1.2, "counts": "inside" },
 		{ "id": "dinner_rush", "name": "Dinner rush", "meal": "dinner", "from": 0, "to": 200, "cap_add": 1, "gap_scale": 0.6, "rush": true },
-		{ "id": "closing", "name": "Closing", "meal": "dinner", "from": 200, "to": 330, "cap_add": 0, "gap_scale": 1.4, "quiet_last": 60, "counts": "inside" }
+		{ "id": "closing", "name": "Closing", "meal": "dinner", "from": 200, "to": 330, "cap_add": 0, "gap_scale": 1.4, "quiet_last": 100, "counts": "inside" }
 	],
 	"rush_text": "Here comes the {phase}!",
 

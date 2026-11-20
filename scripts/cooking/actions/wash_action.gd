@@ -21,6 +21,7 @@ enum Phase { PICK, SOAK, SCRUB, RACK }  # SOAK: dishes in the water, waiting to 
 @export var soak_tilt := 0.6               # Radians: dishes in the water lean on their sides, one against the next.
 @export var soak_spacing := 0.1           # Between dishes in the water (closer when there are lots, to fit).
 @export var spots_per_dish := 3
+@export var big_load := 4                 # From this many dishes in a bin, each has one spot fewer (a big pile stays quick).
 @export var spot_radius := 0.035
 @export var scrub_needed := 0.45           # Meters of rubbing over a spot to clean it.
 @export var grime_color := Color(0.45, 0.33, 0.2)
@@ -33,6 +34,7 @@ var _spots: Array[Dictionary] = []         # { node, dirt, offset } on the dish 
 var _sponge := Node3D.new()
 var _last := Vector3.ZERO
 var _left := 0
+var _load := 0                             # Dishes the bin came with.
 var _busy := false                         # A dish is flying somewhere.
 var _water: AudioStreamPlayer3D
 var _soaking: Array[Node3D] = []           # Tipped into the sink, still dirty, top last.
@@ -44,6 +46,7 @@ var _suds: Node3D                          # The water and its foam.
 func _begin() -> void:
 	_bin = session.surface(bin_surface).get_node("Bin")
 	_left = _bin.contents.get_child_count()
+	_load = _left
 	_bin_home = _bin.position
 	_build_sponge()
 	_build_suds()
@@ -323,13 +326,19 @@ func _clean_model(dish: Node3D) -> String:
 	return path.replace("_dirty", "")
 
 
+# Grime spots on each dish: one fewer in a big load, so 8 dishes isn't a chore.
+func _spot_count() -> int:
+	return maxi(1, spots_per_dish - (1 if _load >= big_load else 0))
+
+
 func _add_spots() -> void:
 	_spots.clear()
 	var material := StandardMaterial3D.new()
 	material.albedo_color = grime_color
 	material.roughness = 0.9
-	for i in spots_per_dish:
-		var offset := Vector2.from_angle(TAU * i / spots_per_dish + randf_range(-0.4, 0.4)) * dish_size * randf_range(0.15, 0.3)
+	var count := _spot_count()
+	for i in count:
+		var offset := Vector2.from_angle(TAU * i / count + randf_range(-0.4, 0.4)) * dish_size * randf_range(0.15, 0.3)
 		var blob := MeshInstance3D.new()
 		var mesh := SphereMesh.new()
 		mesh.radius = spot_radius

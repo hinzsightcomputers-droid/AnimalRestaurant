@@ -106,8 +106,9 @@ static func pick_walk_in(progress := 0.0) -> Dictionary:
 # the town's own and never a stranger. Whoever's been in the fewest times
 # today (so it's spread around, not the same one over and over), and not
 # anyone inside right now (`inside`: townsfolk ids in the restaurant), and
-# nobody more than most_visits_each times a day. {} if there's nobody (the
-# doors stay quiet then).
+# nobody more than most_visits_each times a day while someone else could come
+# (once everyone has, the fewest-times rule still spreads it around). {} only if
+# nobody's been met yet or everyone met is already inside.
 static func pick_again(inside: Array) -> Dictionary:
 	var today := GameState.day_number
 	var met := GameData.townsfolk.filter(func(p):
@@ -120,9 +121,9 @@ static func pick_again(inside: Array) -> Dictionary:
 		if int(state.get("last_visit", 0)) != today:
 			return 0
 		return int(state.get("again_today", 0)) + 1 if int(state.get("again_day", 0)) == today else 1
-	met = met.filter(func(p): return times.call(p) < int(settings().get("most_visits_each", 999)))
-	if met.is_empty():
-		return {}
+	var under_cap := met.filter(func(p): return times.call(p) < int(settings().get("most_visits_each", 999)))
+	if not under_cap.is_empty():
+		met = under_cap  # Else everyone has been in that often: whoever's been in least comes back anyway, rather than an empty rush.
 	var fewest: int = met.map(times).min()
 	var pool := met.filter(func(p): return times.call(p) == fewest)
 	var person: Dictionary = _longest_away(pool)

@@ -468,6 +468,9 @@ func do_summary() -> void:
 	var bought := PackedStringArray()
 	if GameData.in_stock("ticket_rail") and GameState.buy_upgrade("ticket_rail"):
 		bought.append("upgrade Ticket Rail ($40)")
+	var stage := Stages.next()  # The renovation first: the big thing to save toward.
+	if Stages.why_not(stage).is_empty() and GameState.buy_stage():
+		bought.append("renovation %s ($%d)" % [stage.get("name", "?"), int(stage.get("fee", 0))])
 	var spent := true
 	while spent:
 		spent = false
