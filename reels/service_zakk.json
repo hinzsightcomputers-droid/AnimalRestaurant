@@ -1,0 +1,9 @@
+{
+	"title": "Zakk, the whole first visit",
+	"meal": "lunch",
+	"regular": { "id": "zakk", "relationship": 0, "first_visit": true },
+	"beats": [
+		{ "do": "service", "table": "corner" },
+		{ "do": "end" }
+	]
+}

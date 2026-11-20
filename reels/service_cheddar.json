@@ -1,0 +1,9 @@
+{
+	"title": "Cheddar, the whole first visit",
+	"meal": "lunch",
+	"regular": { "id": "cheddar", "relationship": 0, "first_visit": true },
+	"beats": [
+		{ "do": "service", "table": "corner" },
+		{ "do": "end" }
+	]
+}

@@ -841,6 +841,13 @@ func reel_walk_in(regular_id: String, spot: String) -> Customer:
 	return customer
 
 
+# A regular comes in like any visit: through the door to the host stand, to be
+# greeted and seated by the chef (a reel's "service" beat plays the rest).
+func reel_arrive(regular_id: String) -> Customer:
+	_spawn({ "index": -1, "regular": GameState.regulars[regular_id] }, false)
+	return _queue.back()
+
+
 # The free chair at `spot`'s table nearest the door.
 func _reel_seat(spot: String) -> Seat:
 	var seats := _free_seats().filter(func(s): return s.table != null and s.table.spot == spot)

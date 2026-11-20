@@ -79,6 +79,10 @@ static func set_up(scenario: Dictionary) -> void:
 	for beat in scenario["beats"]:
 		if beat.has("dish") and not beat["dish"] in GameState.unlocks:
 			GameState.unlocks.append(beat["dish"])
+		if beat.get("do", "") == "service":  # Their favorite on the menu, and anything else the beat lists.
+			for dish_id in [String(GameState.regulars[scenario["regular"]["id"]].get("favorite_dish", ""))] + Array(beat.get("menu", [])):
+				if not dish_id.is_empty() and not dish_id in GameState.unlocks:
+					GameState.unlocks.append(dish_id)
 		if beat.get("do", "") == "cook":  # Its dish on the menu, so its station is in the kitchen (the microwave with Mochi).
 			for dish in GameData.dishes.filter(func(d): return d.get("recipe", "") == beat["recipe"]):
 				if not dish["id"] in GameState.unlocks:

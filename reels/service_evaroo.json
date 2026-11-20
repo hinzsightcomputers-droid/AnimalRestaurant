@@ -1,0 +1,9 @@
+{
+	"title": "Evaroo, the whole first visit",
+	"meal": "lunch",
+	"regular": { "id": "evaroo", "relationship": 0, "first_visit": true },
+	"beats": [
+		{ "do": "service", "table": "corner" },
+		{ "do": "end" }
+	]
+}

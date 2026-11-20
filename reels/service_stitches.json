@@ -1,0 +1,9 @@
+{
+	"title": "Stitches, the whole first visit",
+	"meal": "lunch",
+	"regular": { "id": "stitches", "relationship": 0, "first_visit": true },
+	"beats": [
+		{ "do": "service", "table": "corner" },
+		{ "do": "end" }
+	]
+}

@@ -1,0 +1,9 @@
+{
+	"title": "Wiping a table",
+	"meal": "lunch",
+	"regular": { "id": "stitches", "relationship": 40, "first_visit": false },
+	"beats": [
+		{ "do": "tidy", "table": "corner", "clear": false, "wipe": true },
+		{ "do": "end" }
+	]
+}

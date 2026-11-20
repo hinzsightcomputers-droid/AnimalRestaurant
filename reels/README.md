@@ -33,6 +33,11 @@ It takes about twice as long as the reel and saves to
 only apply while recording. Godot writes an AVI; with `ffmpeg.exe` in
 `%LOCALAPPDATA%/DinnerTimeTools` it's turned into an MP4.
 
+For the `service_*` and `tidy_*` reels there's `bash reels/record_service.sh`
+(or name some): it saves each to `Videos/Dinner Time Reels/Service`, and cuts each
+visit into its parts too (arrival, orders, cooking, served, bill) from the `MARK`
+lines the reel prints as each part starts.
+
 ## The format
 
 - `title`: a name for it.
@@ -93,6 +98,27 @@ only apply while recording. Godot writes an AVI; with `ffmpeg.exe` in
     mess first) or `sink` (washing a bin of dirty dishes). `speed` plays the whole thing faster, e.g. 1.6 for a
     montage. `fov` is how wide the view is, 60 by default: less is closer. Several
     in a row cut straight from one to the next.
+  - `service`: a whole visit played the way a person plays, with real button
+    presses: the regular comes in the door (a wide shot of the room, then
+    following them), the chef greets them at the host stand and leads them to the
+    table they ask for (else `table`, `corner` by default), takes the drink order,
+    makes it at the drinks counter (pours it, or brews it and pours, or grabs it),
+    brings it, takes the food order, clips the ticket on the wheel, gets the
+    ingredients from the freezer, chops if it needs it, cooks it in the close-up,
+    serves it, goes over for a chat while they eat, prints the bill at the host
+    stand and brings it. The camera is the game's own, following the chef. In a
+    dialogue box the chef reads each line before going on, and at a question looks
+    the replies over, tries another, then picks: the first of `tones` there is
+    (`["warm", "playful", "straight"]` by default), the drink they asked for, or
+    their favorite dish for "surprise me". `eat_seconds` (16) is how long they eat,
+    `chat_after` (3) how long the chef waits before going over, `after` (4) how long
+    it keeps going once they've paid. Their favorite dish is on the menu, plus any
+    dish ids in `menu`. No `walk_in` beat: they come in by themselves. Use
+    `first_visit` for meeting them.
+  - `tidy`: the same kind of playing for a messy `table` (`kitchen` by default):
+    with `clear` (true by default) the chef takes a dish bin from the sink, clears
+    the dishes into it and washes them; with `wipe` (false by default) wipes it
+    (`clear` false leaves only spills to wipe).
   - `wait`: nothing happens for `seconds`.
   - `end`: stops. Has to be the last beat.
 

@@ -111,6 +111,8 @@ func _run(beat: Dictionary, index: int) -> void:
 			await _visit(beat)
 		"cook":
 			await _cook(beat)
+		"service", "tidy":
+			await _play_it(beat)
 		"wait":
 			await _seconds(float(beat["seconds"]))
 
@@ -303,6 +305,29 @@ func _cook(beat: Dictionary) -> void:
 	await _until(func(): return station.session == null, "%s to be cooked" % beat["recipe"], COOK_SECONDS)
 	_camera.close_up = false
 	Engine.time_scale = 1.0
+
+
+# The chef plays it like a person would (see ReelService): a whole visit from the
+# door to the bill, or tidying a table. Prints a MARK line with the frame number
+# as each part starts, for cutting the video up.
+func _play_it(beat: Dictionary) -> void:
+	var service := ReelService.new()
+	service.main = main
+	service.chef = _chef
+	service.customers = _customers
+	service.camera = _camera
+	service.beat = beat
+	service.regular_id = scenario["regular"]["id"]
+	service.mark.connect(func(part): print("MARK %s %d" % [part, Engine.get_process_frames()]))
+	add_child(service)
+	if beat["do"] == "service":
+		await service.serve_regular()
+		customer = service.customer
+	else:
+		await service.tidy()
+	service.queue_free()
+	if not service.failed.is_empty():
+		_fail(service.failed)
 
 
 func _trip() -> CarTrip:
