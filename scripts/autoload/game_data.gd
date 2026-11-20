@@ -30,6 +30,8 @@ const HOUSES_PATH := "res://data/houses.json"
 const DIFFICULTY_PATH := "res://data/difficulty.json"
 const RATING_PATH := "res://data/rating.json"
 const DECOR_PATH := "res://data/decor.json"
+const DECOR_CATALOGUE_DIR := "res://data/decor_catalogue/"  # Meshy decor, one file per theme (see design/decor/README.md).
+const DECOR_MODEL_DIR := "res://design/decor/"
 
 # Each dish, from the menu (design/menu/dishes.json): { id, name, origin,
 # description, ingredients, steps, base_price, cook_time, tags, unlock,
@@ -142,6 +144,7 @@ func _ready() -> void:
 	difficulty = _load_dictionary(DIFFICULTY_PATH)
 	rating = _load_dictionary(RATING_PATH)
 	decor = _load_dictionary(DECOR_PATH)
+	_load_decor_catalogue()
 	phone_settings = _load_dictionary(PHONE_PATH).get("settings", {})
 	_load_townsfolk()
 	_load_gossip()
@@ -295,6 +298,39 @@ func _load_list(path: String, key: String) -> Array[Dictionary]:
 
 
 # Reads a JSON file whose top level is an object { ... }.
+# The decor catalogue's rows whose Meshy model is in (design/decor/<id>.glb)
+# join the decor as ordinary items; the rest wait, unseen. decor_waiting lists
+# those ids (the drop check tool shows them).
+var decor_waiting: Array[String] = []
+
+func _load_decor_catalogue() -> void:
+	decor_waiting.clear()
+	if decor.is_empty() or not DirAccess.dir_exists_absolute(DECOR_CATALOGUE_DIR):
+		return
+	var known := {}
+	for item in decor.get("items", []):
+		known[item["id"]] = true
+	for file in DirAccess.get_files_at(DECOR_CATALOGUE_DIR):
+		if not file.ends_with(".json"):
+			continue
+		var theme := _load_dictionary(DECOR_CATALOGUE_DIR + file)
+		for row in theme.get("items", []):
+			var id := String(row.get("id", ""))
+			if id.is_empty() or known.has(id):
+				continue
+			var model := DECOR_MODEL_DIR + id + ".glb"
+			if not ResourceLoader.exists(model):
+				decor_waiting.append(id)
+				continue
+			var item: Dictionary = row.duplicate(true)
+			var size: Array = item.get("size", [1.0, 1.0])
+			item["set"] = String(item.get("set", theme.get("set", "")))
+			item["meshy"] = true
+			item["parts"] = [{ "model": model, "size": [float(size[0]), float(item.get("height", 1.0)), float(size[1])], "at": [0, 0, 0] }]
+			decor["items"].append(item)
+			known[id] = true
+
+
 func _load_dictionary(path: String) -> Dictionary:
 	var text := FileAccess.get_file_as_string(path)
 	if text.is_empty():

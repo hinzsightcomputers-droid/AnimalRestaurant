@@ -252,4 +252,6 @@ static func build(item: Dictionary) -> Node3D:
 			position.y += cylinder.height * 0.5
 		mesh_node.position = position
 		root.add_child(mesh_node)
+	if item.get("meshy", false):
+		root.ready.connect(ToonStyle.apply.bind(root), CONNECT_ONE_SHOT)  # Meshy models get the game's soft toon look (once they're loaded in).
 	return root

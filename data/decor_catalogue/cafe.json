@@ -1,0 +1,25 @@
+{
+	"_about": "The Cozy Café decor set (see GameData.decor_catalogue and design/decor/README.md). One row per item. An item shows up in the game once its model is in design/decor/<id>.glb (made in Meshy from the concept picture <id>.png); until then it waits here, unseen. kind: floor or wall. size: [width, depth] on the floor in meters (floor items fill whole 0.5 m squares); height: meters tall (the model is scaled to fit width, height and depth). tier: stars needed before the shop sells it. points: toward the Decor part of the star rating. NAMES, DESCRIPTIONS AND PRICES ARE PLACEHOLDERS to rewrite and tune.",
+	"set": "cafe",
+	"set_name": "Cozy Café",
+	"items": [
+		{ "id": "cafe_bookcase", "name": "Café Bookcase", "description": "Three shelves of well-loved books and a trailing plant on top.", "category": "shelves", "kind": "floor", "size": [1.0, 0.5], "height": 1.8, "tier": 2, "price": 120, "points": 4 },
+		{ "id": "cafe_chalkboard_sign", "name": "Chalkboard Sign", "description": "Today's doodles: a hot drink and a slice of cake.", "category": "signs", "kind": "floor", "size": [0.5, 0.5], "height": 1.1, "tier": 1, "price": 45, "points": 2 },
+		{ "id": "cafe_wall_shelf", "name": "Jam Jar Shelf", "description": "Jam, honey and pickles, for looking at more than eating.", "category": "shelves", "kind": "wall", "size": [0.9, 0.25], "height": 0.6, "tier": 1, "price": 60, "points": 2 },
+		{ "id": "cafe_lemon_tree", "name": "Little Lemon Tree", "description": "Five lemons and counting.", "category": "plants", "kind": "floor", "size": [0.5, 0.5], "height": 1.4, "tier": 2, "price": 90, "points": 3 },
+		{ "id": "cafe_coat_stand", "name": "Coat Stand", "description": "Somebody left a scarf. And a hat.", "category": "furniture", "kind": "floor", "size": [0.5, 0.5], "height": 1.7, "tier": 1, "price": 55, "points": 2 },
+		{ "id": "cafe_flower_barrel", "name": "Flower Barrel", "description": "Half a barrel, all flowers.", "category": "plants", "kind": "floor", "size": [1.0, 1.0], "height": 0.8, "tier": 1, "price": 70, "points": 3 },
+		{ "id": "cafe_cake_table", "name": "Cake Display Table", "description": "A strawberry cake under glass. Not for sale. Probably.", "category": "furniture", "kind": "floor", "size": [0.5, 0.5], "height": 1.0, "tier": 2, "price": 110, "points": 3 },
+		{ "id": "cafe_gingham_rug", "name": "Gingham Rug", "description": "Red and cream checks, soft underfoot.", "category": "rugs", "kind": "floor", "size": [2.0, 1.5], "height": 0.04, "tier": 1, "price": 80, "points": 3 },
+		{ "id": "cafe_radio_table", "name": "Old Radio", "description": "It only gets one station. It's a good one.", "category": "furniture", "kind": "floor", "size": [0.5, 0.5], "height": 1.0, "tier": 2, "price": 130, "points": 3 },
+		{ "id": "cafe_flower_cart", "name": "Flower Cart", "description": "Pots of flowers on wheels, under a little awning.", "category": "plants", "kind": "floor", "size": [1.0, 0.5], "height": 1.5, "tier": 3, "price": 220, "points": 5 },
+		{ "id": "cafe_armchair", "name": "Squashy Armchair", "description": "Sit down for a minute. Or an hour.", "category": "furniture", "kind": "floor", "size": [1.0, 1.0], "height": 1.0, "tier": 2, "price": 150, "points": 4 },
+		{ "id": "cafe_log_basket", "name": "Log Basket", "description": "Firewood and a few pinecones.", "category": "furniture", "kind": "floor", "size": [0.5, 0.5], "height": 0.6, "tier": 1, "price": 40, "points": 2 },
+		{ "id": "cafe_cottage_painting", "name": "Cottage Painting", "description": "A little cottage in a woodland clearing at sunset.", "category": "wall art", "kind": "wall", "size": [0.9, 0.1], "height": 0.7, "tier": 1, "price": 75, "points": 3 },
+		{ "id": "cafe_pie_clock", "name": "Cherry Pie Clock", "description": "It's always pie o'clock.", "category": "wall art", "kind": "wall", "size": [0.5, 0.1], "height": 0.5, "tier": 2, "price": 95, "points": 3 },
+		{ "id": "cafe_wall_lantern", "name": "Wall Lantern", "description": "A warm little glow on a curly bracket.", "category": "lights", "kind": "wall", "size": [0.3, 0.35], "height": 0.5, "tier": 1, "price": 65, "points": 2 },
+		{ "id": "cafe_bunting", "name": "Bunting", "description": "Flags in red, cream, sage and orange.", "category": "wall art", "kind": "wall", "size": [1.8, 0.05], "height": 0.5, "tier": 1, "price": 35, "points": 2 },
+		{ "id": "cafe_pot_rack", "name": "Copper Pot Rack", "description": "Shiny pots, a pan, a spoon and a ladle.", "category": "shelves", "kind": "wall", "size": [1.0, 0.2], "height": 0.6, "tier": 2, "price": 140, "points": 4 },
+		{ "id": "cafe_wheat_wreath", "name": "Wheat Wreath", "description": "Dried wheat and flowers with a red bow.", "category": "wall art", "kind": "wall", "size": [0.6, 0.1], "height": 0.6, "tier": 1, "price": 50, "points": 2 }
+	]
+}
