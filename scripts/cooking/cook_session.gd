@@ -15,6 +15,12 @@ extends Node3D
 signal finished(quality: float)
 
 const REEL_HINT_SIZE := 36
+const CARD_WIDTH := 640.0                  # The instructions card's text width (it wraps inside).
+const CARD_MARGIN := 18.0
+const HOW_SIZE := 0.72                     # The controls line, times hint_font_size.
+const STATUS_SIZE := 0.86
+const CARD_TEXT := Color("#502312")
+const CARD_STATUS := Color("#C2542A")
 
 @export_group("Controls")
 @export var cursor_speed := 0.7            # Meters a second the keys move the cursor.
@@ -50,7 +56,11 @@ var _stacks := {}  # Surface name -> [{ node, at, height }], bottom first.
 var _status := ""
 var _cursor := MeshInstance3D.new()
 var _screen: Control                       # The instructions' holder, on the cook's own view.
-var _hint := Label.new()
+var _hint := Label.new()                   # The step's name (a reel: the recipe's), then how it went.
+var _how := Label.new()                    # The controls, smaller, under it.
+var _status_label := Label.new()           # The live line, e.g. "Chops left: 5".
+var _card := PanelContainer.new()          # Holds the three: a cream card, so nothing cooking shows through the words.
+var _pops: Array[Label3D] = []             # Pop-up words still showing (one at a time, so they never pile up).
 var _framed := false                       # The camera is on a step's own view, not home_view.
 var _text_scale := 1.0                      # Pop-up text shrinks when the camera comes in closer than the station's view.
 
@@ -149,6 +159,8 @@ func _finish() -> void:
 		_hint.text = "%s! %d%%" % [CookingMinigame.quality_label(quality), roundi(quality * 100)]
 	else:
 		_hint.text = recipe.finish_text
+	_how.visible = false
+	_status_label.visible = false
 	play_sound("ding", Vector3(0.0, 0.1, 0.0))
 	if quality >= SPARKLE_FROM and not steps.is_empty():
 		sparkle(steps[-1].view_point() + Vector3(0.0, 0.06, 0.0))
@@ -260,10 +272,12 @@ func set_status(text: String) -> void:
 func _show_hint() -> void:
 	if current == null:
 		return
-	var lines := [recipe.display_name] if input.scripted else [current.title, _controls(current.hint)]  # Nobody watching a reel needs the controls.
-	if not _status.is_empty():
-		lines.append(_status)
-	_hint.text = "\n".join(lines.filter(func(line): return not line.is_empty()))
+	_hint.text = recipe.display_name if input.scripted else current.title
+	_how.text = "" if input.scripted else _controls(current.hint)  # Nobody watching a reel needs the controls.
+	_how.visible = not _how.text.is_empty()
+	_status_label.text = _status
+	_status_label.visible = not _status.is_empty()
+	_style_card(input.scripted)
 
 
 # [button], [stick], [grip] (to hold) and [flick_up] in a hint, as this player's controls.
@@ -370,10 +384,15 @@ func pop_text(text: String, at: Vector3, mood := 0) -> void:
 	label.modulate = [Color(1.0, 0.55, 0.45), Color.WHITE, Color(0.6, 1.0, 0.55)][clampi(mood + 1, 0, 2)]
 	label.outline_modulate = Color(0.2, 0.12, 0.08)
 	label.position = at + Vector3(0.0, 0.08, 0.0)
+	for old in _pops:  # The one before goes: words never stack.
+		if is_instance_valid(old):
+			old.queue_free()
+	_pops = [label]
 	add_child(label)
 	var tween := label.create_tween().set_parallel(true)
 	tween.tween_property(label, "position:y", label.position.y + 0.1, 1.1).set_ease(Tween.EASE_OUT)
 	tween.tween_property(label, "modulate:a", 0.0, 0.5).set_delay(0.6)
+	tween.tween_property(label, "outline_modulate:a", 0.0, 0.5).set_delay(0.6)
 	tween.chain().tween_callback(label.queue_free)
 
 
@@ -818,20 +837,45 @@ func _build_hint(view_manager: ViewManager) -> void:
 	_screen.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ConversationBox.parent_for(view_manager, player.player_index, self).add_child(_screen)
 	_screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_hint.add_theme_font_size_override("font_size", hint_font_size)
-	_hint.add_theme_color_override("font_color", Color(1.0, 0.97, 0.88))
-	_hint.add_theme_color_override("font_outline_color", Color(0.2, 0.13, 0.08))
-	_hint.add_theme_constant_override("outline_size", 8)
-	UiStyle.title(_hint)
-	_screen.add_child(_hint)
-	_hint.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var middle := CenterContainer.new()  # Keeps the card in the middle of the view, whatever its size.
+	middle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_screen.add_child(middle)
+	middle.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
 	# With 2+ players a cook always has a view of their own, a small one.
-	_hint.offset_top = split_hint_top if InputSetup.active_players().size() > 1 else hint_top
-	_hint.offset_left = 40.0
-	_hint.offset_right = -40.0
+	middle.offset_top = split_hint_top if InputSetup.active_players().size() > 1 else hint_top
+	middle.offset_bottom = middle.offset_top
+	middle.add_child(_card)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 2)
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_card.add_child(column)
+	for pair in [[_hint, 1.0], [_how, HOW_SIZE], [_status_label, STATUS_SIZE]]:
+		var label: Label = pair[0]
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		label.custom_minimum_size.x = CARD_WIDTH
+		label.add_theme_font_size_override("font_size", roundi(hint_font_size * float(pair[1])))
+		column.add_child(label)
+	UiStyle.title(_hint)
+	_style_card(false)
+
+
+# A player's card: dark words on cream. A reel's: just the outlined words, as before.
+func _style_card(reel: bool) -> void:
+	if _card.has_meta(&"reel") and _card.get_meta(&"reel") == reel:
+		return
+	_card.set_meta(&"reel", reel)
+	var style := UiStyle.panel(CARD_MARGIN)
+	style.content_margin_top = CARD_MARGIN * 0.5
+	style.content_margin_bottom = CARD_MARGIN * 0.5
+	_card.add_theme_stylebox_override("panel", StyleBoxEmpty.new() if reel else style)
+	for label in [_hint, _how, _status_label]:
+		label.add_theme_color_override("font_color", Color(1.0, 0.97, 0.88) if reel else CARD_TEXT)
+		label.add_theme_color_override("font_outline_color", Color(0.2, 0.13, 0.08))
+		label.add_theme_constant_override("outline_size", 8 if reel else 0)
+	_status_label.add_theme_color_override("font_color", Color(1.0, 0.97, 0.88) if reel else CARD_STATUS)
 
 
 # A bright dot, drawn over everything, gently pulsing. Steps where a tool or
