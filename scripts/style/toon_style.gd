@@ -31,6 +31,7 @@ const TWINS := [&"toon_twin", &"toon_twin_mesh"]  # Meta on an original: its too
 const ORIGINALS := &"toon_originals"  # Meta on a mesh: the override materials its toon ones replaced, {slot: material} (-1: the whole mesh's), so they live on for switching back.
 const THIN := &"toon_thin"  # Meta on a mesh in a close-up, and on its toon materials: a thinner outline.
 const SKIP := &"toon_skip"  # Meta on a material that keeps its own look (glossy syrup reads as liquid, not a toon blob).
+const BARE := &"toon_bare"  # Meta on a mesh whose toon look has no outline (a dense Meshy model: the outline pokes through its bumps in dots).
 const CLOSE_UP_OUTLINE := 0.5  # Close-ups are seen from very near: half the outline.
 
 @export var world_environment: WorldEnvironment
@@ -56,6 +57,13 @@ static func style() -> ArtStyle:
 
 
 # The helper: every convertible material under `root` gets its soft toon twin.
+# apply, without the outline (Meshy models).
+static func apply_bare(root: Node) -> void:
+	for mesh in _all_meshes(root):
+		mesh.set_meta(BARE, true)
+	apply(root)
+
+
 static func apply(root: Node) -> void:
 	for mesh in _all_meshes(root):
 		_convert(mesh)
@@ -134,13 +142,14 @@ static func _convert(mesh: MeshInstance3D) -> void:
 	if not is_instance_valid(mesh) or mesh.mesh == null:
 		return
 	var thin := mesh.has_meta(THIN)
+	var bare := mesh.has_meta(BARE)
 	var whole := mesh.material_override
 	if whole != null:
 		if whole.has_meta(SOURCE):
 			_sync(whole)
 		elif _convertible(whole):
 			_keep(mesh, -1, whole)
-			mesh.material_override = _toon_for(whole, false, thin)
+			mesh.material_override = _toon_for(whole, false, thin, bare)
 		elif whole is ShaderMaterial:
 			_tune(whole)
 		return
@@ -149,17 +158,17 @@ static func _convert(mesh: MeshInstance3D) -> void:
 		var override := mesh.get_surface_override_material(surface)
 		if override != null and override.has_meta(SOURCE):
 			if override.get_meta(FROM_MESH, false) and _source(override) != own:  # The game changed the mesh's material.
-				mesh.set_surface_override_material(surface, _toon_for(own, true, thin) if _convertible(own) else null)
+				mesh.set_surface_override_material(surface, _toon_for(own, true, thin, bare) if _convertible(own) else null)
 			else:
 				_sync(override)
 		elif override != null:
 			if _convertible(override):
 				_keep(mesh, surface, override)
-				mesh.set_surface_override_material(surface, _toon_for(override, false, thin))
+				mesh.set_surface_override_material(surface, _toon_for(override, false, thin, bare))
 			elif override is ShaderMaterial:
 				_tune(override)
 		elif _convertible(own):
-			mesh.set_surface_override_material(surface, _toon_for(own, true, thin))
+			mesh.set_surface_override_material(surface, _toon_for(own, true, thin, bare))
 		elif own is ShaderMaterial:
 			_tune(own)
 
@@ -186,7 +195,7 @@ static func _convertible(material: Material) -> bool:
 
 # The original holds its toon twin; the twin only points back weakly, so
 # neither keeps the other alive once the game is done with them.
-static func _toon_for(original: Material, from_mesh: bool, thin := false) -> ShaderMaterial:
+static func _toon_for(original: Material, from_mesh: bool, thin := false, bare := false) -> ShaderMaterial:
 	var twin: StringName = TWINS[1 if from_mesh else 0]
 	var toon: ShaderMaterial = original.get_meta(twin) if original.has_meta(twin) else null
 	if toon == null:
@@ -194,9 +203,10 @@ static func _toon_for(original: Material, from_mesh: bool, thin := false) -> Sha
 		toon.set_meta(SOURCE, weakref(original))
 		toon.set_meta(FROM_MESH, from_mesh)
 		toon.set_meta(THIN, thin)
-		var outline := ShaderMaterial.new()
-		outline.shader = OUTLINE
-		toon.next_pass = outline
+		if not bare:
+			var outline := ShaderMaterial.new()
+			outline.shader = OUTLINE
+			toon.next_pass = outline
 		_style_toon(toon)
 		original.set_meta(twin, toon)
 		_toons = _toons.filter(func(w): return w.get_ref() != null)

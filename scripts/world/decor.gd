@@ -257,5 +257,5 @@ static func build(item: Dictionary) -> Node3D:
 		mesh_node.position = position
 		root.add_child(mesh_node)
 	if item.get("meshy", false):
-		root.ready.connect(ToonStyle.apply.bind(root), CONNECT_ONE_SHOT)  # Meshy models get the game's soft toon look (once they're loaded in).
+		root.ready.connect(ToonStyle.apply_bare.bind(root), CONNECT_ONE_SHOT)  # Meshy models get the soft toon look, without the outline (it speckles their dense meshes).
 	return root
