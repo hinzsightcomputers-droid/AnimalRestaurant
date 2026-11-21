@@ -31,6 +31,9 @@ const TWINS := [&"toon_twin", &"toon_twin_mesh"]  # Meta on an original: its too
 const ORIGINALS := &"toon_originals"  # Meta on a mesh: the override materials its toon ones replaced, {slot: material} (-1: the whole mesh's), so they live on for switching back.
 const THIN := &"toon_thin"  # Meta on a mesh in a close-up, and on its toon materials: a thinner outline.
 const SKIP := &"toon_skip"  # Meta on a material that keeps its own look (glossy syrup reads as liquid, not a toon blob).
+const MESHY_SHADER := preload("res://assets/shaders/meshy_surface.gdshader")
+const MESHY_MAX_BLUR := 1.0  # A Meshy texture's blurriest mip level (see meshy_surface.gdshader).
+const MESHY_TWIN := &"meshy_surface"  # Meta on a Meshy model's material: its capped look-alike.
 const BARE := &"toon_bare"  # Meta on a mesh whose toon look has no outline (a dense Meshy model: the outline pokes through its bumps in dots).
 const CLOSE_UP_OUTLINE := 0.5  # Close-ups are seen from very near: half the outline.
 
@@ -104,6 +107,11 @@ func _on_node_added(node: Node) -> void:
 		return
 	var scope := _scope_of(mesh)
 	if scope.is_empty():
+		var held: WeakRef = weakref(mesh)
+		(func():  # Outside the toon-styled things, a Meshy model still gets its texture capped.
+			var still: Object = held.get_ref()
+			if still != null and _from_meshy(still as Node):
+				_cap_meshy(still as MeshInstance3D)).call_deferred()
 		return
 	_meshes.append(mesh)
 	if scope == &"CookSession":
@@ -117,6 +125,27 @@ func _on_node_added(node: Node) -> void:
 				if _from_meshy(still as Node):
 					still.set_meta(BARE, true)
 				_convert(still as MeshInstance3D)).call_deferred()
+
+
+# A Meshy model outside the toon-styled things: its own look, with its texture's
+# far-off blur capped (meshy_surface.gdshader), one copy per original material.
+static func _cap_meshy(mesh: MeshInstance3D) -> void:
+	if not is_instance_valid(mesh) or mesh.mesh == null or mesh.material_override != null:
+		return
+	for surface in mesh.mesh.get_surface_count():
+		var own := mesh.mesh.surface_get_material(surface) as StandardMaterial3D
+		if own == null or own.albedo_texture == null or own.normal_enabled or mesh.get_surface_override_material(surface) != null:
+			continue
+		if not own.has_meta(MESHY_TWIN):
+			var capped := ShaderMaterial.new()
+			capped.shader = MESHY_SHADER
+			capped.set_shader_parameter("base_color", own.albedo_color)
+			capped.set_shader_parameter("base_texture", own.albedo_texture)
+			capped.set_shader_parameter("roughness", own.roughness)
+			capped.set_shader_parameter("metallic", own.metallic)
+			capped.set_shader_parameter("max_blur", MESHY_MAX_BLUR)
+			own.set_meta(MESHY_TWIN, capped)
+		mesh.set_surface_override_material(surface, own.get_meta(MESHY_TWIN))
 
 
 # Whether `node` is part of a Meshy model (design/decor, design/restaurant):
@@ -216,7 +245,9 @@ static func _toon_for(original: Material, from_mesh: bool, thin := false, bare :
 		toon.set_meta(SOURCE, weakref(original))
 		toon.set_meta(FROM_MESH, from_mesh)
 		toon.set_meta(THIN, thin)
-		if not bare:
+		if bare:
+			toon.set_shader_parameter("max_blur", MESHY_MAX_BLUR)
+		else:
 			var outline := ShaderMaterial.new()
 			outline.shader = OUTLINE
 			toon.next_pass = outline
