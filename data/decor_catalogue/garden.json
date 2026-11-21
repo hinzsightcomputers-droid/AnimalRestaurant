@@ -1,0 +1,25 @@
+{
+	"_about": "The Woodland Garden decor set. Same format as cafe.json (see its _about). NAMES, DESCRIPTIONS AND PRICES ARE PLACEHOLDERS to rewrite and tune.",
+	"set": "garden",
+	"set_name": "Woodland Garden",
+	"items": [
+		{ "id": "garden_bench", "name": "Garden Bench", "description": "A mossy wooden bench with a cushion.", "category": "furniture", "kind": "floor", "size": [1.5, 0.5], "height": 0.9, "tier": 2, "price": 140, "points": 4 },
+		{ "id": "garden_birdbath", "name": "Birdbath", "description": "A stone basin for very small guests.", "category": "garden", "kind": "floor", "size": [0.5, 0.5], "height": 0.9, "tier": 2, "price": 110, "points": 3 },
+		{ "id": "garden_wheelbarrow", "name": "Flower Wheelbarrow", "description": "It stopped carrying dirt and started carrying flowers.", "category": "plants", "kind": "floor", "size": [1.0, 0.5], "height": 0.8, "tier": 2, "price": 130, "points": 4 },
+		{ "id": "garden_mushroom_stool", "name": "Mushroom Stool", "description": "A red-capped toadstool, just the right height to sit on.", "category": "furniture", "kind": "floor", "size": [0.5, 0.5], "height": 0.5, "tier": 1, "price": 45, "points": 2 },
+		{ "id": "garden_stump_table", "name": "Stump Table", "description": "A tree stump with a teapot on top.", "category": "furniture", "kind": "floor", "size": [0.5, 0.5], "height": 0.7, "tier": 1, "price": 60, "points": 2 },
+		{ "id": "garden_lamp_post", "name": "Garden Lamp Post", "description": "A little lantern on a post, wrapped in ivy.", "category": "lights", "kind": "floor", "size": [0.5, 0.5], "height": 1.6, "tier": 2, "price": 120, "points": 3 },
+		{ "id": "garden_herb_planter", "name": "Herb Planter Box", "description": "Basil, mint and chives, all labelled.", "category": "plants", "kind": "floor", "size": [1.0, 0.5], "height": 0.6, "tier": 1, "price": 70, "points": 3 },
+		{ "id": "garden_sunflower_pot", "name": "Sunflower Pot", "description": "Three sunflowers, all looking at you.", "category": "plants", "kind": "floor", "size": [0.5, 0.5], "height": 1.4, "tier": 1, "price": 65, "points": 2 },
+		{ "id": "garden_hedgehog_statue", "name": "Hedgehog Statue", "description": "A stone hedgehog holding a tiny watering can.", "category": "garden", "kind": "floor", "size": [0.5, 0.5], "height": 0.5, "tier": 2, "price": 90, "points": 3 },
+		{ "id": "garden_rock_fountain", "name": "Rock Fountain", "description": "Water trickling over stacked stones.", "category": "garden", "kind": "floor", "size": [1.0, 1.0], "height": 1.0, "tier": 3, "price": 240, "points": 5 },
+		{ "id": "garden_beehive", "name": "Beehive", "description": "A woven skep. The bees are on a break.", "category": "garden", "kind": "floor", "size": [0.5, 0.5], "height": 0.8, "tier": 3, "price": 160, "points": 4 },
+		{ "id": "garden_fern_basket", "name": "Fern Basket", "description": "A big leafy fern in a woven basket.", "category": "plants", "kind": "floor", "size": [0.5, 0.5], "height": 1.0, "tier": 1, "price": 50, "points": 2 },
+		{ "id": "garden_birdhouse", "name": "Birdhouse", "description": "A tiny cottage with a round door.", "category": "wall art", "kind": "wall", "size": [0.5, 0.3], "height": 0.6, "tier": 1, "price": 55, "points": 2 },
+		{ "id": "garden_hanging_basket", "name": "Hanging Basket", "description": "Trailing flowers in a moss basket.", "category": "plants", "kind": "wall", "size": [0.6, 0.4], "height": 0.8, "tier": 1, "price": 60, "points": 2 },
+		{ "id": "garden_wall_planter", "name": "Wall Planter", "description": "Three little pots on a wooden board.", "category": "plants", "kind": "wall", "size": [0.8, 0.2], "height": 0.5, "tier": 2, "price": 85, "points": 3 },
+		{ "id": "garden_flower_garland", "name": "Flower Garland", "description": "A swag of leaves and wildflowers.", "category": "wall art", "kind": "wall", "size": [0.85, 0.1], "height": 0.4, "tier": 1, "price": 40, "points": 2 },
+		{ "id": "garden_tool_rack", "name": "Garden Tool Rack", "description": "A trowel, a rake, a watering can and some gloves.", "category": "shelves", "kind": "wall", "size": [0.85, 0.2], "height": 0.7, "tier": 2, "price": 100, "points": 3 },
+		{ "id": "garden_butterfly_frame", "name": "Pressed Flower Frame", "description": "Pressed flowers and leaves under glass.", "category": "wall art", "kind": "wall", "size": [0.6, 0.1], "height": 0.75, "tier": 2, "price": 80, "points": 3 }
+	]
+}

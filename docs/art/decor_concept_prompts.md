@@ -74,3 +74,9 @@ Same size and height in all three, nothing cut off, no shadows, no text.
    `cafe_radio_table`, `cafe_flower_cart`, `cafe_bunting`, `cafe_pot_rack`,
    `cafe_armchair`, `cafe_log_basket`, `cafe_wheat_wreath`: prompts as given in
    chat on 2026-11-20 (same pattern as section 2).
+
+## Woodland Garden: second batch (2026-11-20)
+
+Rows in `data/decor_catalogue/garden.json`; prompts as given in chat. Put each
+item's pictures in a folder named exactly its id (e.g. `garden_bench`) in
+Desktop/Asset photos, front view first.

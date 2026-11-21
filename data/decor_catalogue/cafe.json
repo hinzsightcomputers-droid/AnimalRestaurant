@@ -16,10 +16,10 @@
 		{ "id": "cafe_armchair", "name": "Squashy Armchair", "description": "Sit down for a minute. Or an hour.", "category": "furniture", "kind": "floor", "size": [1.0, 1.0], "height": 1.0, "tier": 2, "price": 150, "points": 4 },
 		{ "id": "cafe_log_basket", "name": "Log Basket", "description": "Firewood and a few pinecones.", "category": "furniture", "kind": "floor", "size": [0.5, 0.5], "height": 0.6, "tier": 1, "price": 40, "points": 2 },
 		{ "id": "cafe_cottage_painting", "name": "Cottage Painting", "description": "A little cottage in a woodland clearing at sunset.", "category": "wall art", "kind": "wall", "size": [0.9, 0.1], "height": 0.7, "tier": 1, "price": 75, "points": 3 },
-		{ "id": "cafe_pie_clock", "name": "Cherry Pie Clock", "description": "It's always pie o'clock.", "category": "wall art", "kind": "wall", "size": [0.5, 0.1], "height": 0.5, "tier": 2, "price": 95, "points": 3 },
-		{ "id": "cafe_wall_lantern", "name": "Wall Lantern", "description": "A warm little glow on a curly bracket.", "category": "lights", "kind": "wall", "size": [0.3, 0.35], "height": 0.5, "tier": 1, "price": 65, "points": 2 },
+		{ "id": "cafe_pie_clock", "name": "Cherry Pie Clock", "description": "It's always pie o'clock.", "category": "wall art", "kind": "wall", "size": [0.65, 0.1], "height": 0.65, "tier": 2, "price": 95, "points": 3 },
+		{ "id": "cafe_wall_lantern", "name": "Wall Lantern", "description": "A warm little glow on a curly bracket.", "category": "lights", "kind": "wall", "size": [0.4, 0.35], "height": 0.7, "tier": 1, "price": 65, "points": 2 },
 		{ "id": "cafe_bunting", "name": "Bunting", "description": "Flags in red, cream, sage and orange.", "category": "wall art", "kind": "wall", "size": [1.8, 0.05], "height": 0.5, "tier": 1, "price": 35, "points": 2 },
 		{ "id": "cafe_pot_rack", "name": "Copper Pot Rack", "description": "Shiny pots, a pan, a spoon and a ladle.", "category": "shelves", "kind": "wall", "size": [1.0, 0.2], "height": 0.6, "tier": 2, "price": 140, "points": 4 },
-		{ "id": "cafe_wheat_wreath", "name": "Wheat Wreath", "description": "Dried wheat and flowers with a red bow.", "category": "wall art", "kind": "wall", "size": [0.6, 0.1], "height": 0.6, "tier": 1, "price": 50, "points": 2 }
+		{ "id": "cafe_wheat_wreath", "name": "Wheat Wreath", "description": "Dried wheat and flowers with a red bow.", "category": "wall art", "kind": "wall", "size": [0.75, 0.1], "height": 0.75, "tier": 1, "price": 50, "points": 2 }
 	]
 }
