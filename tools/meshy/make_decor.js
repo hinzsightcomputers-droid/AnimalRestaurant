@@ -4,6 +4,7 @@
 //   node tools/meshy/make_decor.js cafe_bookcase cafe_lemon_tree   just these
 //   node tools/meshy/make_decor.js --redo cafe_bookcase            again, even if it has a model
 //   node tools/meshy/make_decor.js --restaurant                    the restaurant pieces (see below)
+//   node tools/meshy/make_decor.js --woodland                      the woodland exterior (see below)
 //
 // The API key is read from %USERPROFILE%\.meshy_api_key (one line, never in the
 // repo). Each item uses <id>.png as the front view, plus <id>_back.png and/or
@@ -19,10 +20,14 @@ const os = require("os");
 const ROOT = path.resolve(__dirname, "..", "..");
 // --restaurant: the restaurant's own pieces (windows, doors, appliances, food)
 // from design/restaurant/ instead, sized by design/restaurant/parts.json.
-const RESTAURANT = process.argv.includes("--restaurant");
-const DECOR = path.join(ROOT, "design", RESTAURANT ? "restaurant" : "decor");
+// --woodland: the same for the outdoor world (trees, cottages, street things)
+// from design/woodland/, sized by design/woodland/parts.json.
+const WOODLAND = process.argv.includes("--woodland");
+const RESTAURANT = process.argv.includes("--restaurant") || WOODLAND;  // Both use a parts.json.
+const FOLDER = WOODLAND ? "woodland" : (RESTAURANT ? "restaurant" : "decor");
+const DECOR = path.join(ROOT, "design", FOLDER);
 const CATALOGUE = path.join(ROOT, "data", "decor_catalogue");
-const PARTS = path.join(ROOT, "design", "restaurant", "parts.json");
+const PARTS = path.join(DECOR, "parts.json");
 const TASKS = path.join(DECOR, "meshy_tasks.json");
 const API = "https://api.meshy.ai/openapi/v1";
 const SETTINGS = {

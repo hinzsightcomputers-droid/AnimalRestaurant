@@ -1,0 +1,20 @@
+{
+	"wood_tree_oak": {
+		"id": "01a2007d-60ac-718a-b68e-c227eea31634",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"wood_tree_oak.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"wood_tree_pine": {
+		"id": "01a2007d-60ae-74ee-b033-53c70fa07959",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"wood_tree_pine.png"
+		],
+		"credits": 30,
+		"done": true
+	}
+}

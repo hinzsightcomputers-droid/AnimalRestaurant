@@ -1,0 +1,181 @@
+{
+	"_comment": "The woodland exterior's Meshy pieces (docs/art/woodland_exterior_prompts.md): id, size [width, depth] and height in meters, used by tools/meshy/make_decor.js --woodland for the polycount. Concept pictures are <id>.png next to this file.",
+	"items": [
+		{
+			"id": "wood_tree_oak",
+			"size": [
+				4,
+				4
+			],
+			"height": 5
+		},
+		{
+			"id": "wood_tree_pine",
+			"size": [
+				3,
+				3
+			],
+			"height": 6
+		},
+		{
+			"id": "wood_tree_birch",
+			"size": [
+				2.5,
+				2.5
+			],
+			"height": 5
+		},
+		{
+			"id": "wood_tree_fruit",
+			"size": [
+				3.5,
+				3.5
+			],
+			"height": 4
+		},
+		{
+			"id": "wood_bush_round",
+			"size": [
+				1.2,
+				1.2
+			],
+			"height": 0.9
+		},
+		{
+			"id": "wood_bush_berry",
+			"size": [
+				1.4,
+				1.2
+			],
+			"height": 0.8
+		},
+		{
+			"id": "wood_bush_flower",
+			"size": [
+				1,
+				1
+			],
+			"height": 0.9
+		},
+		{
+			"id": "wood_rock_big",
+			"size": [
+				1.2,
+				1
+			],
+			"height": 0.8
+		},
+		{
+			"id": "wood_rock_flat",
+			"size": [
+				1,
+				0.8
+			],
+			"height": 0.3
+		},
+		{
+			"id": "wood_rock_pile",
+			"size": [
+				0.8,
+				0.7
+			],
+			"height": 0.5
+		},
+		{
+			"id": "wood_fern",
+			"size": [
+				0.8,
+				0.8
+			],
+			"height": 0.6
+		},
+		{
+			"id": "wood_flower_patch",
+			"size": [
+				0.7,
+				0.7
+			],
+			"height": 0.4
+		},
+		{
+			"id": "wood_cottage_thatch",
+			"size": [
+				4.5,
+				4
+			],
+			"height": 5
+		},
+		{
+			"id": "wood_cottage_mushroom",
+			"size": [
+				4,
+				4
+			],
+			"height": 5
+		},
+		{
+			"id": "wood_cottage_stump",
+			"size": [
+				4.5,
+				4
+			],
+			"height": 5
+		},
+		{
+			"id": "wood_cottage_stone",
+			"size": [
+				4.5,
+				4
+			],
+			"height": 5
+		},
+		{
+			"id": "wood_cottage_mill",
+			"size": [
+				5,
+				4
+			],
+			"height": 5
+		},
+		{
+			"id": "wood_cottage_shop",
+			"size": [
+				4.5,
+				4
+			],
+			"height": 5
+		},
+		{
+			"id": "wood_lantern_post",
+			"size": [
+				0.8,
+				0.4
+			],
+			"height": 2.5
+		},
+		{
+			"id": "wood_well",
+			"size": [
+				1.5,
+				1.5
+			],
+			"height": 2.2
+		},
+		{
+			"id": "wood_mailbox",
+			"size": [
+				0.5,
+				0.4
+			],
+			"height": 1.2
+		},
+		{
+			"id": "wood_cart",
+			"size": [
+				2.5,
+				1.5
+			],
+			"height": 1.8
+		}
+	]
+}
