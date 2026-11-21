@@ -60,7 +60,7 @@ Meshy fish stands upright facing +z; the fillet game lays it on its side
 The pretzel close-up now uses the Meshy frying pan as its saucepan over a
 KitchenProps gas ring (the Meshy soup pot has its lid on, so sauce can't show).
 The cacti by the windows are now the Meshy potted_plant (PlantBack and
-PlantFront). Still free pack inside: only the fish bones left on the board
-after filleting (FishBone.fbx); a `fish_bones` picture would replace it.
+PlantFront), and the fish bones after filleting are the Meshy fish_bones. No
+free-pack art is left inside the restaurant.
 
 Outside (street, buildings, trees) waits for the woodland redesign.

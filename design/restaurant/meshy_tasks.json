@@ -493,5 +493,14 @@
 		],
 		"credits": 30,
 		"done": true
+	},
+	"fish_bones": {
+		"id": "01a20067-61ef-734c-a51a-43cd769de7b0",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"fish_bones.png"
+		],
+		"credits": 30,
+		"done": true
 	}
 }
