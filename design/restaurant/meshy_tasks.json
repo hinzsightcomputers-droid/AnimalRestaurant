@@ -268,5 +268,176 @@
 		],
 		"credits": 30,
 		"done": true
+	},
+	"vegetable_soup": {
+		"id": "01a1fc76-874c-778b-ad09-f4b216e4e1c7",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"vegetable_soup.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"honey_pancakes": {
+		"id": "01a1fc76-8785-7424-966e-76e153d5e12d",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"honey_pancakes.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"cherry_pie": {
+		"id": "01a1fc76-874d-70fa-84ca-b305e4ec9a5c",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"cherry_pie.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"four_cheese_mac": {
+		"id": "01a1fc76-8760-7352-9d85-e5f79d108ed4",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"four_cheese_mac.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"omurice": {
+		"id": "01a1fc77-952e-76aa-a0e2-78e9131520ab",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"omurice.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"croissant": {
+		"id": "01a1fc77-9586-720e-b0bd-15494d401031",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"croissant.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"fire_noodles": {
+		"id": "01a1fc77-bd30-74c7-8b9d-de9f0b5c0797",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"fire_noodles.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"soft_pretzel": {
+		"id": "01a1fc77-bcb9-73f6-b2e0-c0ec8c58c1e2",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"soft_pretzel.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"hotteok": {
+		"id": "01a1fc78-7b14-708b-92fc-a1a54ddc6786",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"hotteok.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"mochi": {
+		"id": "01a1fc78-a268-71c6-a8f7-58c4192a8532",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"mochi.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"egg_tarts": {
+		"id": "01a1fc78-a33e-7715-861f-4ea812294962",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"egg_tarts.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"apple_strudel": {
+		"id": "01a1fc79-1a35-76b1-881a-0241c18a2259",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"apple_strudel.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"churros": {
+		"id": "01a1fc79-3b7b-76bd-9596-6e8cf65f7c77",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"churros.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"acorn_cookies": {
+		"id": "01a1fc79-49b0-74ee-b125-a5dc286d66c4",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"acorn_cookies.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"pork_dumplings": {
+		"id": "01a1fc7b-e0d8-72c0-aee0-32d09d901518",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"pork_dumplings.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"cloud_foam_salad": {
+		"id": "01a1fc7b-e0c7-7104-b168-3470451a2805",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"cloud_foam_salad.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"big_breakfast": {
+		"id": "01a1fc7b-e0fa-7392-b3eb-b5fb1078dc1b",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"big_breakfast.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"fish_stew": {
+		"id": "01a1fc7b-e113-714a-a2dd-a49c80604552",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"fish_stew.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"walters_storm_soup": {
+		"id": "01a1fc7c-da3a-7578-9425-eaccc4c494eb",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"walters_storm_soup.png"
+		],
+		"credits": 30,
+		"done": true
 	}
 }

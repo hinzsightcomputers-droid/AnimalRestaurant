@@ -248,6 +248,190 @@
 				0.5
 			],
 			"height": 0.85
+		},
+		{
+			"id": "honey_pancakes",
+			"size": [
+				0.22,
+				0.22
+			],
+			"height": 0.12
+		},
+		{
+			"id": "vegetable_soup",
+			"size": [
+				0.18,
+				0.18
+			],
+			"height": 0.08
+		},
+		{
+			"id": "big_breakfast",
+			"size": [
+				0.24,
+				0.24
+			],
+			"height": 0.04
+		},
+		{
+			"id": "four_cheese_mac",
+			"size": [
+				0.2,
+				0.2
+			],
+			"height": 0.08
+		},
+		{
+			"id": "cherry_pie",
+			"size": [
+				0.24,
+				0.24
+			],
+			"height": 0.06
+		},
+		{
+			"id": "pork_dumplings",
+			"size": [
+				0.2,
+				0.2
+			],
+			"height": 0.06
+		},
+		{
+			"id": "omurice",
+			"size": [
+				0.22,
+				0.22
+			],
+			"height": 0.08
+		},
+		{
+			"id": "croissant",
+			"size": [
+				0.24,
+				0.24
+			],
+			"height": 0.08
+		},
+		{
+			"id": "soft_pretzel",
+			"size": [
+				0.24,
+				0.24
+			],
+			"height": 0.06
+		},
+		{
+			"id": "fire_noodles",
+			"size": [
+				0.18,
+				0.18
+			],
+			"height": 0.08
+		},
+		{
+			"id": "hotteok",
+			"size": [
+				0.2,
+				0.2
+			],
+			"height": 0.04
+		},
+		{
+			"id": "mochi",
+			"size": [
+				0.16,
+				0.16
+			],
+			"height": 0.05
+		},
+		{
+			"id": "egg_tarts",
+			"size": [
+				0.2,
+				0.2
+			],
+			"height": 0.04
+		},
+		{
+			"id": "apple_strudel",
+			"size": [
+				0.22,
+				0.22
+			],
+			"height": 0.06
+		},
+		{
+			"id": "churros",
+			"size": [
+				0.2,
+				0.2
+			],
+			"height": 0.04
+		},
+		{
+			"id": "cloud_foam_salad",
+			"size": [
+				0.2,
+				0.2
+			],
+			"height": 0.08
+		},
+		{
+			"id": "acorn_cookies",
+			"size": [
+				0.2,
+				0.2
+			],
+			"height": 0.03
+		},
+		{
+			"id": "fish_stew",
+			"size": [
+				0.18,
+				0.18
+			],
+			"height": 0.08
+		},
+		{
+			"id": "walters_storm_soup",
+			"size": [
+				0.18,
+				0.18
+			],
+			"height": 0.08
+		},
+		{
+			"id": "carrot_chopped",
+			"size": [
+				0.12,
+				0.12
+			],
+			"height": 0.04
+		},
+		{
+			"id": "potato_chopped",
+			"size": [
+				0.12,
+				0.12
+			],
+			"height": 0.04
+		},
+		{
+			"id": "fish_whole",
+			"size": [
+				0.3,
+				0.3
+			],
+			"height": 0.08
+		},
+		{
+			"id": "salmon_pieces",
+			"size": [
+				0.12,
+				0.12
+			],
+			"height": 0.04
 		}
 	]
 }

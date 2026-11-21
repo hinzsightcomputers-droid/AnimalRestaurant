@@ -44,10 +44,14 @@ standing_lamp, picture_frame, rug, wall_cabinet. Meshy left the painting out
 of the frame, so it is a flat canvas cut from the concept picture
 (picture_frame_painting.png); the rug is laid flat with tilt -90.
 
-## Batch 5: food (Meshy)
-pancake, pancake_stack, fried_egg, bread_loaf, bread_slice, croissant,
-cupcake, donuts (3), fish, salmon_sashimi, soup, stew, stew_bowl,
-ice_cream_bowl, chopped carrot / potato / lettuce, grated cheese, dough,
-dinner plate. (Claude checks each recipe's raw/cooked/burnt states first.)
+## Batch 5: food (Meshy) (dishes done 2026-11-21)
+One model per dish: the finished, served dish on the game's plate (close-up
+recipes show the food as cooked, golden or burnt, so no raw/burnt models).
+Prompts follow data/recipes (counts, toppings). All 19 dishes are in
+data/dish_kitchen.json; check them with tools/food_check.tscn. Pictures drawn
+from straight above (big_breakfast, acorn_cookies) came out standing up and
+were laid flat with tools/meshy/lay_flat.js (run it again after a --redo).
+Still to do: carrot_chopped, potato_chopped, fish_whole, salmon_pieces
+(the chopped and fish ingredients).
 
 Outside (street, buildings, trees) waits for the woodland redesign.
