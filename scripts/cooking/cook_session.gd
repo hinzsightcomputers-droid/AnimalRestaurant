@@ -19,6 +19,7 @@ const REEL_HINT_SIZE := 36
 const CARD_WIDTH := 640.0                  # The instructions card's text width (it wraps inside).
 const CARD_MARGIN := 18.0
 const HOW_SIZE := 0.72                     # The controls line, times hint_font_size.
+const HOW_SECONDS := 6.0                   # The controls show this long at a step's start, then fold away (just the title and progress stay).
 const STATUS_SIZE := 0.86
 const CARD_TEXT := Color("#502312")
 const CARD_STATUS := Color("#C2542A")
@@ -42,7 +43,7 @@ const FACT_SECONDS := 20.0                 # A long step without a tip of its ow
 @export var hint_top := 110.0              # Pixels from the top of the cook's view to the instructions.
 @export var split_hint_top := 14.0         # The same in split screen: right at the top, off the close-up.
 @export var hint_font_size := 22
-@export var view_lift := 0.2                # A step's view looks this much (of its distance) above what it frames, so that sits under the instructions.
+@export var view_lift := 0.25               # A step's view looks this much (of its distance) above what it frames, so that sits under the instructions.
 
 var recipe: CookRecipe
 var player: Player
@@ -69,6 +70,8 @@ var _card := PanelContainer.new()          # Holds the three: a cream card, so n
 var _pops: Array[Label3D] = []             # Pop-up words still showing (one at a time, so they never pile up).
 var _framed := false                       # The camera is on a step's own view, not home_view.
 var _text_scale := 1.0                      # Pop-up text shrinks when the camera comes in closer than the station's view.
+var _how_time := 0.0                       # How long this step's controls have been showing.
+var _home_lifted := false                  # The station's own view has been moved down under the card.
 var _fact_card := PanelContainer.new()     # "Chef's tip" and the tip, in the top-right corner.
 var _fact_label := Label.new()
 var _facts: Array = []                     # This recipe's dish facts, in turn...
@@ -129,6 +132,7 @@ func _process(delta: float) -> void:
 			_next_step()
 	_cursor.visible = current != null and current.uses_cursor()
 	_cursor.position = input.cursor + Vector3(0.0, 0.003, 0.0)
+	_how_time += delta
 	_show_hint()
 	_fact_time += delta
 	if not _fact_is_tip and _fact_time >= FACT_SECONDS and _facts.size() > 1:
@@ -155,6 +159,7 @@ func _next_step() -> void:
 		if area.has_area():  # Start it in the middle of where the step is (and the camera will be).
 			var middle := area.get_center()
 			input.cursor = Vector3(middle.x, input.height, middle.y)
+		_how_time = 0.0
 		_frame_step(action)
 		_fact_for(action)
 		if not action.cue.is_empty():
@@ -220,9 +225,7 @@ func frame(at: Vector3, distance: float, pitch: float, seconds := 0.5) -> void:
 	zoom.pitch_degrees = pitch
 	zoom.yaw_degrees = rad_to_deg(global_rotation.y)  # From the front, however the station turns.
 	zoom.duration = seconds
-	var tilt := deg_to_rad(pitch)
-	at += Vector3(0.0, cos(tilt), -sin(tilt)) * distance * view_lift  # Up the screen.
-	player.request_camera_focus(global_transform * at, zoom)
+	player.request_camera_focus(global_transform * _lifted(at, distance, pitch), zoom)
 	_framed = true
 	if home_view.size() == 2:
 		_text_scale = minf(distance / (home_view[1] as CameraZoomSettings).distance, 1.0)
@@ -232,10 +235,25 @@ func frame(at: Vector3, distance: float, pitch: float, seconds := 0.5) -> void:
 func _frame_step(action: CookAction) -> void:
 	if action.view_distance > 0.0:
 		frame(action.view_point(), action.view_distance, action.view_pitch, action.view_seconds)
-	elif _framed and home_view.size() == 2:
-		player.request_camera_focus(home_view[0], home_view[1])
+	elif (_framed or not _home_lifted) and home_view.size() == 2:
+		var home := home_view[1] as CameraZoomSettings
+		var point: Vector3 = home_view[0]
+		var lifted := point
+		if home != null:  # Up the screen, as this view sees it (its own yaw, in the world).
+			var pitch := deg_to_rad(home.pitch_degrees)
+			var yaw := deg_to_rad(home.yaw_degrees)
+			lifted += Vector3(-sin(yaw) * sin(pitch), cos(pitch), -cos(yaw) * sin(pitch)) * home.distance * view_lift
+		player.request_camera_focus(lifted, home)
 		_framed = false
+		_home_lifted = true
 		_text_scale = 1.0
+
+
+# A point a view looks at, moved up the screen by view_lift of its distance, so
+# what it frames sits under the instructions card (local to the session).
+func _lifted(at: Vector3, distance: float, pitch: float) -> Vector3:
+	var tilt := deg_to_rad(pitch)
+	return at + Vector3(0.0, cos(tilt), -sin(tilt)) * distance * view_lift
 
 
 # The first step of a kind, e.g. step_of(HeatAction), or null.
@@ -292,7 +310,7 @@ func _show_hint() -> void:
 		return
 	_hint.text = recipe.display_name if input.scripted else current.title
 	_how.text = "" if input.scripted else _controls(current.hint)  # Nobody watching a reel needs the controls.
-	_how.visible = not _how.text.is_empty()
+	_how.visible = not _how.text.is_empty() and _how_time < HOW_SECONDS
 	_status_label.text = _status
 	_status_label.visible = not _status.is_empty()
 	_style_card(input.scripted)

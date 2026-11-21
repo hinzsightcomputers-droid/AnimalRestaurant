@@ -161,7 +161,7 @@ func _box(holder: Node3D, at: Vector3, box: Vector3) -> void:
 	instance.material_override = kitchen_floor_material() if kitchen_tiles else material_for(kind)
 	holder.add_child(instance)
 	instance.set_instance_shader_parameter("outside_dir", outside.normalized() if outside != Vector3.ZERO else Vector3.ZERO)
-	instance.set_instance_shader_parameter("top_y", global_position.y + size.y)
+	instance.set_instance_shader_parameter("box_height", box.y)
 
 
 # A window in an opening: a wood frame and pale glass, and on the room side the

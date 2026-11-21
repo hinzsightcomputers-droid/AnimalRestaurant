@@ -74,7 +74,8 @@ size = Vector3(1.26, 0.9, 0.76)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, 0.908, 0.05)
 script = ExtResource("m0_model_fitgd")
 model = ExtResource("m2_cuttingboardgltf")
-size = Vector3(0.7, 0, 0.45)
+size = Vector3(0.7, 0.04, 0.45)
+stretch = true
 
 [node name="Blade" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42, 0.92, 0.1)

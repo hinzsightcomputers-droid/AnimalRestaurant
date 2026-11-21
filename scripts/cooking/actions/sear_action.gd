@@ -68,7 +68,7 @@ var _scripted_time := 0.0
 
 
 func view_point() -> Vector3:
-	return Vector3(0.0, pan_floor, 0.04)
+	return Vector3(0.0, pan_floor, 0.1)
 
 
 func cursor_area() -> Rect2:
