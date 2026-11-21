@@ -9,3 +9,4 @@ design/decor/**/*.jpg filter=lfs diff=lfs merge=lfs -text
 design/textures/*.png filter=lfs diff=lfs merge=lfs -text
 design/restaurant/**/*.glb filter=lfs diff=lfs merge=lfs -text
 design/restaurant/**/*.png filter=lfs diff=lfs merge=lfs -text
+design/restaurant/**/*.jpg filter=lfs diff=lfs merge=lfs -text

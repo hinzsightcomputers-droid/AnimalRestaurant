@@ -114,7 +114,20 @@ func _on_node_added(node: Node) -> void:
 		(func():
 			var still: Object = ref.get_ref()
 			if still != null:
+				if _from_meshy(still as Node):
+					still.set_meta(BARE, true)
 				_convert(still as MeshInstance3D)).call_deferred()
+
+
+# Whether `node` is part of a Meshy model (design/decor, design/restaurant):
+# those get no outline, wherever the game puts them.
+static func _from_meshy(node: Node) -> bool:
+	var at := node
+	while at != null:
+		if at.scene_file_path.begins_with("res://design/decor/") or at.scene_file_path.begins_with("res://design/restaurant/"):
+			return true
+		at = at.get_parent()
+	return false
 
 
 # Which watched thing `node` is part of, or &"".

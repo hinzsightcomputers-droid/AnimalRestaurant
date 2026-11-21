@@ -1,8 +1,173 @@
 {
 	"_comment": "The restaurant's own Meshy pieces (not decor): id, size [width, depth] and height in meters, used by tools/meshy/make_decor.js --restaurant for the polycount. Concept pictures are <id>.png (+ _back.png) next to this file.",
 	"items": [
-		{ "id": "window_curtains", "size": [1.2, 0.3], "height": 1.3 },
-		{ "id": "kitchen_door", "size": [1.1, 0.08], "height": 2.2 },
-		{ "id": "front_door", "size": [1.3, 0.08], "height": 2.2 }
+		{
+			"id": "window_curtains",
+			"size": [
+				1.2,
+				0.3
+			],
+			"height": 1.3
+		},
+		{
+			"id": "kitchen_door",
+			"size": [
+				1.1,
+				0.08
+			],
+			"height": 2.2
+		},
+		{
+			"id": "front_door",
+			"size": [
+				1.3,
+				0.08
+			],
+			"height": 2.2
+		},
+		{
+			"id": "stove",
+			"size": [
+				0.9,
+				0.6
+			],
+			"height": 0.2
+		},
+		{
+			"id": "oven",
+			"size": [
+				0.9,
+				0.7
+			],
+			"height": 1
+		},
+		{
+			"id": "fridge",
+			"size": [
+				0.8,
+				0.7
+			],
+			"height": 1.9
+		},
+		{
+			"id": "sink",
+			"size": [
+				0.8,
+				0.6
+			],
+			"height": 0.5
+		},
+		{
+			"id": "griddle",
+			"size": [
+				0.9,
+				0.6
+			],
+			"height": 0.2
+		},
+		{
+			"id": "dish_rack",
+			"size": [
+				0.5,
+				0.3
+			],
+			"height": 0.35
+		},
+		{
+			"id": "cutting_board",
+			"size": [
+				0.5,
+				0.3
+			],
+			"height": 0.05
+		},
+		{
+			"id": "soup_pot",
+			"size": [
+				0.45,
+				0.45
+			],
+			"height": 0.4
+		},
+		{
+			"id": "frying_pan",
+			"size": [
+				0.6,
+				0.35
+			],
+			"height": 0.08
+		},
+		{
+			"id": "rolling_pin",
+			"size": [
+				0.5,
+				0.08
+			],
+			"height": 0.08
+		},
+		{
+			"id": "crate_carrots",
+			"size": [
+				0.6,
+				0.4
+			],
+			"height": 0.4
+		},
+		{
+			"id": "crate_potatoes",
+			"size": [
+				0.6,
+				0.4
+			],
+			"height": 0.4
+		},
+		{
+			"id": "crate_lettuce",
+			"size": [
+				0.6,
+				0.4
+			],
+			"height": 0.4
+		},
+		{
+			"id": "crate_cheese",
+			"size": [
+				0.6,
+				0.4
+			],
+			"height": 0.4
+		},
+		{
+			"id": "crate_ham",
+			"size": [
+				0.6,
+				0.4
+			],
+			"height": 0.4
+		},
+		{
+			"id": "crate_dough",
+			"size": [
+				0.6,
+				0.4
+			],
+			"height": 0.4
+		},
+		{
+			"id": "barrel",
+			"size": [
+				0.6,
+				0.6
+			],
+			"height": 0.9
+		},
+		{
+			"id": "storage_box",
+			"size": [
+				0.8,
+				0.5
+			],
+			"height": 0.6
+		}
 	]
 }

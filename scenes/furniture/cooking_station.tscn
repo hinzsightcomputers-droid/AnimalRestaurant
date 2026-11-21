@@ -6,8 +6,9 @@
 [ext_resource type="Script" path="res://scripts/camera/camera_zoom_settings.gd" id="4_zoom"]
 [ext_resource type="PackedScene" path="res://scenes/cooking/stovetop_closeup.tscn" id="5_closeup"]
 [ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m0_model_fitgd"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/stove_multi.gltf" id="m1_stove_multigltf"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/pot_A.gltf" id="m2_pot_Agltf"]
+[ext_resource type="Script" path="res://scripts/world/room_panel.gd" id="rp_room_panel"]
+[ext_resource type="PackedScene" path="res://design/restaurant/stove.glb" id="m1_stove_multigltf"]
+[ext_resource type="PackedScene" path="res://design/restaurant/soup_pot.glb" id="m2_pot_Agltf"]
 
 [sub_resource type="Resource" id="Zoom_cooking"]
 script = ExtResource("4_zoom")
@@ -90,13 +91,18 @@ closeup_zoom = SubResource("Zoom_closeup")
 [node name="Visual" type="Node3D" parent="."]
 
 [node name="Model" type="Node3D" parent="Visual"]
+script = ExtResource("rp_room_panel")
+kind = 2
+size = Vector3(1.4, 0.9, 0.8)
+
+[node name="Stove" type="Node3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 script = ExtResource("m0_model_fitgd")
 model = ExtResource("m1_stove_multigltf")
-size = Vector3(1.4, 0.92, 0.8)
-stretch = true
+size = Vector3(1.2, 0, 0.72)
 
 [node name="Pot" type="Node3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.35, 0.92, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 1.08, -0.06)
 script = ExtResource("m0_model_fitgd")
 model = ExtResource("m2_pot_Agltf")
 size = Vector3(0.42, 0, 0)

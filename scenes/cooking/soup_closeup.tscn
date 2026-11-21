@@ -3,8 +3,8 @@
 [ext_resource type="Script" path="res://scripts/cooking/cook_session.gd" id="1_session"]
 [ext_resource type="Script" path="res://scripts/cooking/cook_surface.gd" id="2_surface"]
 [ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="3_fit"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/pot_A.gltf" id="4_pot"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/cuttingboard.gltf" id="5_board"]
+[ext_resource type="PackedScene" path="res://design/restaurant/soup_pot.glb" id="4_pot"]
+[ext_resource type="PackedScene" path="res://design/restaurant/cutting_board.glb" id="5_board"]
 
 [node name="SoupCloseup" type="Node3D"]
 script = ExtResource("1_session")

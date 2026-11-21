@@ -215,11 +215,12 @@ func _open_closeup(player: Player, recipe: CookRecipe, ingredients: Ingredients 
 	_play_bounce()
 
 
-# The pot makes way for the close-up's griddle and plate.
+# The pot and the stove top make way for the close-up's griddle and plate.
 func _show_stove_props(shown: bool) -> void:
-	var pot := visual.get_node_or_null("Pot") as Node3D
-	if pot != null:
-		pot.visible = shown
+	for prop in ["Pot", "Stove"]:
+		var node := visual.get_node_or_null(prop) as Node3D
+		if node != null:
+			node.visible = shown
 
 
 # Cook `dish` ({ name, cook_speed }) with `helper` beside the chef: they say

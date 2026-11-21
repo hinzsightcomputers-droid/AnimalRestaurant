@@ -26,7 +26,14 @@ design/restaurant/ (sizes in parts.json; `node tools/meshy/make_decor.js --resta
 Done 2026-11-20: window_curtains (every window, room side) and kitchen_door
 (the back door). front_door skipped for now: the entrance stays an open gap.
 
-## Batch 3: kitchen appliances and tools (Meshy)
+## Batch 3: kitchen appliances and tools (Meshy) (done 2026-11-20)
+All 18 made. In the game: station counters are RoomPanel counters; stove tops
+(with the soup pot) on the cooking stations, oven, fridge (drink station and
+freezer), sink basin and dish rack, cutting board, rolling pin, the six
+ingredient crates. griddle, frying_pan, barrel and storage_box are made but not
+placed yet (the close-up griddle is the gameplay surface; the wall cabinets
+are still KayKit).
+
 stove, oven, fridge, sink, griddle, dish_rack, cutting_board, soup_pot,
 frying_pan, rolling_pin, crates (carrots, potatoes, lettuce, cheese, ham,
 dough), barrel, storage_box

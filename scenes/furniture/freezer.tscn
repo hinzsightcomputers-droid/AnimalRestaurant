@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/furniture/freezer.gd" id="1_freezer"]
 [ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
 [ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m0_model_fitgd"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/fridge_A.gltf" id="m1_fridge_Agltf"]
+[ext_resource type="PackedScene" path="res://design/restaurant/fridge.glb" id="m1_fridge_Agltf"]
 
 [sub_resource type="StandardMaterial3D" id="Mat_body"]
 albedo_color = Color(0.86, 0.92, 0.95, 1)
@@ -45,7 +45,6 @@ display_name = "Freezer"
 script = ExtResource("m0_model_fitgd")
 model = ExtResource("m1_fridge_Agltf")
 size = Vector3(1.1, 1.9, 0.8)
-stretch = true
 
 [node name="Collision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0)

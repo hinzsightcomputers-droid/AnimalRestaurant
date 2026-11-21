@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/camera/camera_zoom_settings.gd" id="3_zoom"]
 [ext_resource type="PackedScene" path="res://scenes/cooking/microwave_closeup.tscn" id="4_closeup"]
 [ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m0_model_fitgd"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/kitchencounter_straight_B.gltf" id="m1_counter"]
+[ext_resource type="Script" path="res://scripts/world/room_panel.gd" id="rp_room_panel"]
 [ext_resource type="Script" path="res://scripts/furniture/microwave_model.gd" id="5_microwave"]
 
 [sub_resource type="Resource" id="Zoom_closeup"]
@@ -30,10 +30,9 @@ closeup_zoom = SubResource("Zoom_closeup")
 [node name="Visual" type="Node3D" parent="."]
 
 [node name="Counter" type="Node3D" parent="Visual"]
-script = ExtResource("m0_model_fitgd")
-model = ExtResource("m1_counter")
+script = ExtResource("rp_room_panel")
+kind = 2
 size = Vector3(1.4, 0.9, 0.76)
-stretch = true
 
 [node name="MicrowaveModel" type="Node3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, 0.9, -0.14)

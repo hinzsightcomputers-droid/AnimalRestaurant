@@ -3,8 +3,8 @@
 [ext_resource type="Script" path="res://scripts/furniture/drink_station.gd" id="1_drinks"]
 [ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="2_interactable"]
 [ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m0_model_fitgd"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/kitchencounter_straight_A.gltf" id="m1_counter"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/fridge_A_decorated.gltf" id="m2_fridge"]
+[ext_resource type="Script" path="res://scripts/world/room_panel.gd" id="rp_room_panel"]
+[ext_resource type="PackedScene" path="res://design/restaurant/fridge.glb" id="m2_fridge"]
 
 [sub_resource type="StandardMaterial3D" id="Mat_brewer"]
 albedo_color = Color(0.25, 0.22, 0.22, 1)
@@ -35,17 +35,15 @@ display_name = "Drinks"
 
 [node name="Counter" type="Node3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.35, 0, 0)
-script = ExtResource("m0_model_fitgd")
-model = ExtResource("m1_counter")
+script = ExtResource("rp_room_panel")
+kind = 2
 size = Vector3(1.4, 0.95, 0.75)
-stretch = true
 
 [node name="Fridge" type="Node3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.68, 0, 0)
 script = ExtResource("m0_model_fitgd")
 model = ExtResource("m2_fridge")
 size = Vector3(0.7, 1.55, 0.75)
-stretch = true
 
 [node name="Brewer" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.75, 1.16, -0.12)

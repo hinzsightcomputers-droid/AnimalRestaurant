@@ -7,7 +7,6 @@
 class_name KitchenSlot
 extends Node3D
 
-const COUNTER_MODEL := "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/kitchencounter_straight_A.gltf"
 
 @export var upgrade_id := ""
 @export var dish_id := ""                  # Or: in once this dish is unlocked.
@@ -19,10 +18,9 @@ var _counter := StaticBody3D.new()
 
 func _ready() -> void:
 	_station = get_child(0)
-	var look := ModelFit.new()
+	var look := RoomPanel.new()  # The room's own counter (counter top, cupboard doors).
+	look.kind = RoomPanel.Kind.COUNTER
 	look.size = counter_size
-	look.stretch = true
-	look.model = load(COUNTER_MODEL)
 	_counter.add_child(look)
 	var shape := BoxShape3D.new()
 	shape.size = counter_size

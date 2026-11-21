@@ -32,9 +32,9 @@ func _ready() -> void:
 		_build_ledge()
 	if slides_in:
 		visible = false
-	if look == "board":  # A fitted model (a KayKit board) gets the wood too.
+	if look == "board":  # A fitted stand-in model gets the wood too (a Meshy board keeps its own).
 		for child in get_children():
-			if child is ModelFit:
+			if child is ModelFit and not (child as ModelFit).model.resource_path.begins_with("res://design/restaurant/"):
 				KitchenProps.dress(child, KitchenProps.board_wood())
 	if hidden:
 		return

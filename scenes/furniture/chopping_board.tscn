@@ -6,8 +6,8 @@
 [ext_resource type="PackedScene" path="res://scenes/cooking/board_closeup.tscn" id="4_closeup"]
 [ext_resource type="Resource" path="res://data/recipes/chopping.tres" id="5_recipe"]
 [ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m0_model_fitgd"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/kitchencounter_straight_B.gltf" id="m1_kitchencounter_s"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/cuttingboard.gltf" id="m2_cuttingboardgltf"]
+[ext_resource type="Script" path="res://scripts/world/room_panel.gd" id="rp_room_panel"]
+[ext_resource type="PackedScene" path="res://design/restaurant/cutting_board.glb" id="m2_cuttingboardgltf"]
 
 [sub_resource type="Resource" id="Zoom_closeup"]
 script = ExtResource("3_zoom")
@@ -66,17 +66,15 @@ closeup_zoom = SubResource("Zoom_closeup")
 [node name="Visual" type="Node3D" parent="."]
 
 [node name="Model" type="Node3D" parent="Visual"]
-script = ExtResource("m0_model_fitgd")
-model = ExtResource("m1_kitchencounter_s")
+script = ExtResource("rp_room_panel")
+kind = 2
 size = Vector3(1.26, 0.9, 0.76)
-stretch = true
 
 [node name="Board" type="Node3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, 0.908, 0.05)
 script = ExtResource("m0_model_fitgd")
 model = ExtResource("m2_cuttingboardgltf")
-size = Vector3(0.7, 0.04, 0.45)
-stretch = true
+size = Vector3(0.7, 0, 0.45)
 
 [node name="Blade" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42, 0.92, 0.1)

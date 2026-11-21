@@ -11,7 +11,7 @@
 class_name RollAction
 extends CookAction
 
-const PIN_MODEL := "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/rollingpin.gltf"
+const PIN_MODEL := "res://design/restaurant/rolling_pin.glb"
 
 @export var on_surface := "Counter"
 @export var target := 0.32                 # The square to fill (meters a side)...

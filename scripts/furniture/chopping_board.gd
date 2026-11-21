@@ -8,7 +8,6 @@ class_name ChoppingBoard
 extends Station
 
 const RESULT_SHOW_TIME := 1.5  # Seconds the result stays up before the player can move.
-const BLOCK_SIZE := Vector3(1.27, 0.045, 0.77)  # The butcher-block top, just over the counter's own (its top at the board's bottom).
 const COUNTER_TOP := 0.908
 
 @export var view_manager: ViewManager  # For the close-up's mouse aiming.
@@ -32,18 +31,9 @@ func _ready() -> void:
 	_dress()
 
 
-# The art pass's chopping corner (see the Art Style Guide): a honey butcher-block
-# top over the counter, so the close-up is warm wood instead of loud orange,
-# and the cutting board in a lighter wood with faint knife marks.
+# The chopping corner's knife (the counter and the board are the room's own
+# counter and the Meshy board now).
 func _dress() -> void:
-	var block := MeshInstance3D.new()
-	var mesh := BoxMesh.new()
-	mesh.size = BLOCK_SIZE
-	mesh.material = KitchenProps.counter_wood()
-	block.mesh = mesh
-	block.position = Vector3(0.0, COUNTER_TOP - BLOCK_SIZE.y * 0.5, 0.0)
-	$Visual.add_child(block)
-	KitchenProps.dress($Visual/Board, KitchenProps.board_wood())
 	# The knife resting beside the board: the close-up's chef's knife, lying flat
 	# (on the Blade node, so it still hides while someone's chopping).
 	var blade: MeshInstance3D = $Visual/Blade

@@ -16,5 +16,167 @@
 		],
 		"credits": 30,
 		"done": true
+	},
+	"sink": {
+		"id": "01a1fc53-1ae8-775b-89a9-230376c1bdc0",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"sink.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"fridge": {
+		"id": "01a1fc53-1b41-768a-bccc-7aca749c2e6e",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"fridge.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"oven": {
+		"id": "01a1fc53-1b29-718e-aced-21a5d1242b2f",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"oven.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"stove": {
+		"id": "01a1fc53-1ad6-7236-b675-45b4cc1843ff",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"stove.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"griddle": {
+		"id": "01a1fc54-01e4-76fd-a934-b2bb25862d1b",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"griddle.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"dish_rack": {
+		"id": "01a1fc54-1515-71fc-bb32-f00dde3e819b",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"dish_rack.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"cutting_board": {
+		"id": "01a1fc54-15f4-702b-8f50-fd1f9a6d8e97",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"cutting_board.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"soup_pot": {
+		"id": "01a1fc54-512d-7526-bba9-f25af41f45f7",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"soup_pot.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"frying_pan": {
+		"id": "01a1fc55-10a9-710c-b4e4-e4afaa2b0b33",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"frying_pan.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"rolling_pin": {
+		"id": "01a1fc55-371d-73ce-9b33-b701df1789f3",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"rolling_pin.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"crate_carrots": {
+		"id": "01a1fc55-5fa5-76d9-a987-60da237e62cd",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"crate_carrots.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"crate_potatoes": {
+		"id": "01a1fc55-72f6-74dd-b5ea-8291a52170c2",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"crate_potatoes.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"crate_cheese": {
+		"id": "01a1fc55-f4d1-70e6-a620-2994f420c83f",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"crate_cheese.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"crate_lettuce": {
+		"id": "01a1fc55-f49e-7104-90d5-7e75182a42b6",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"crate_lettuce.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"crate_ham": {
+		"id": "01a1fc57-0af5-746f-9862-a895c20898ad",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"crate_ham.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"crate_dough": {
+		"id": "01a1fc57-0b6b-71c1-90f2-25a83a8bc109",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"crate_dough.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"barrel": {
+		"id": "01a1fc57-a41d-7592-83eb-b3aab52a65ad",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"barrel.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"storage_box": {
+		"id": "01a1fc58-1c01-76c2-88c3-ae6aee1e7c60",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"storage_box.png"
+		],
+		"credits": 30,
+		"done": true
 	}
 }

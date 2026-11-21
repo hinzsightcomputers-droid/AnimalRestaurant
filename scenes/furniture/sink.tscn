@@ -6,9 +6,9 @@
 [ext_resource type="PackedScene" path="res://scenes/cooking/sink_closeup.tscn" id="4_closeup"]
 [ext_resource type="Resource" path="res://data/recipes/wash_dishes.tres" id="5_recipe"]
 [ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m0_model_fitgd"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/kitchencounter_straight_B.gltf" id="m1_counter"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/kitchencounter_sink.gltf" id="m2_sink"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/dishrack.gltf" id="m3_rack"]
+[ext_resource type="Script" path="res://scripts/world/room_panel.gd" id="rp_room_panel"]
+[ext_resource type="PackedScene" path="res://design/restaurant/sink.glb" id="m2_sink"]
+[ext_resource type="PackedScene" path="res://design/restaurant/dish_rack.glb" id="m3_rack"]
 
 [sub_resource type="Resource" id="Zoom_closeup"]
 script = ExtResource("3_zoom")
@@ -31,30 +31,32 @@ closeup_zoom = SubResource("Zoom_closeup")
 
 [node name="BinCounter" type="Node3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.325, 0, 0)
-script = ExtResource("m0_model_fitgd")
-model = ExtResource("m1_counter")
+script = ExtResource("rp_room_panel")
+kind = 2
 size = Vector3(0.55, 0.9, 0.76)
-stretch = true
 
 [node name="LeftCounter" type="Node3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.775, 0, 0)
-script = ExtResource("m0_model_fitgd")
-model = ExtResource("m1_counter")
+script = ExtResource("rp_room_panel")
+kind = 2
 size = Vector3(0.55, 0.9, 0.76)
-stretch = true
 
 [node name="SinkCounter" type="Node3D" parent="Visual"]
+script = ExtResource("rp_room_panel")
+kind = 2
+size = Vector3(1.0, 0.9, 0.76)
+
+[node name="Basin" type="Node3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.84, -0.02)
 script = ExtResource("m0_model_fitgd")
 model = ExtResource("m2_sink")
-size = Vector3(1.0, 1.62, 0.76)
-stretch = true
+size = Vector3(0.82, 0, 0.66)
 
 [node name="RightCounter" type="Node3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.775, 0, 0)
-script = ExtResource("m0_model_fitgd")
-model = ExtResource("m1_counter")
+script = ExtResource("rp_room_panel")
+kind = 2
 size = Vector3(0.55, 0.9, 0.76)
-stretch = true
 
 [node name="Rack" type="Node3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 0.9, -0.05)

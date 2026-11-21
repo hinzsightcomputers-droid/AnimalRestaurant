@@ -84,6 +84,7 @@ static func material_for(which: Kind) -> ShaderMaterial:
 			material.set_shader_parameter("upper_texture", load(TEXTURES % "counter_top"))
 			material.set_shader_parameter("lower_texture", load(TEXTURES % "cabinet_front"))
 			material.set_shader_parameter("upper_tile", 1.2)
+			material.set_shader_parameter("saturation", 0.7)
 	if not Engine.is_editor_hint():
 		var style := ToonStyle.style()
 		for parameter in style.toon_parameters():
