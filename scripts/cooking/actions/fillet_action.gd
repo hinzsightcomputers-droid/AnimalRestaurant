@@ -8,7 +8,9 @@
 class_name FilletAction
 extends CookAction
 
-const FOOD := "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/"
+const FISH := "res://design/restaurant/fish_whole.glb"
+const FILLETS := "res://design/restaurant/salmon_pieces.glb"
+const BONES := "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/FishBone.fbx"  # Still the free pack: no Meshy picture yet.
 
 @export var on_surface := "Board"
 @export var sides := 2
@@ -43,7 +45,7 @@ func uses_cursor() -> bool:
 
 func _begin() -> void:
 	var board := session.surface(on_surface).position
-	_fish = ModelFit.place(FOOD + "Fish.fbx", session, board, Vector3(fish_length, 0.0, 0.0))
+	_fish = _lay_fish(board)
 	for material in [_dot_material, _cut_material]:
 		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		material.no_depth_test = true
@@ -160,10 +162,10 @@ func _open_up() -> void:
 	fade.tween_property(_fish, "scale", Vector3(1.0, 0.2, 1.0), 0.2)
 	await fade.finished
 	_fish.queue_free()
-	var bones := ModelFit.place(FOOD + "FishBone.fbx", session, board + Vector3(0.0, 0.0, -0.11), Vector3(fish_length * 0.75, 0.0, 0.0))
+	var bones := ModelFit.place(BONES, session, board + Vector3(0.0, 0.0, -0.11), Vector3(fish_length * 0.75, 0.0, 0.0))
 	session.wobble(bones, 0.15)
 	for side in [-1.0, 1.0]:
-		var fillet := ModelFit.place(FOOD + "Sashimi_Salmon.fbx", session, board + Vector3(side * 0.12, 0.0, 0.06), Vector3(0.2, 0.0, 0.0))
+		var fillet := ModelFit.place(FILLETS, session, board + Vector3(side * 0.12, 0.0, 0.06), Vector3(0.13, 0.0, 0.0))
 		fillet.rotation.y = side * 0.25
 		session.wobble(fillet, 0.2)
 	session.play_sound("plop", board, -2.0, 1.2)
@@ -208,13 +210,33 @@ func _nearest_t(spot: Vector3) -> float:
 
 
 func _top() -> float:
-	return session.surface(on_surface).position.y + fish_length * 0.09
+	return session.surface(on_surface).position.y + _thickness()
 
 
 # Where the fish's origin sits: on the board, or (upside down) its height above it.
 func _rest_height() -> float:
-	var board_y := session.surface(on_surface).position.y
-	return board_y + (fish_length * 0.09 if _side % 2 == 1 else 0.0)
+	return session.surface(on_surface).position.y + _thickness() * 0.5
+
+
+func _thickness() -> float:
+	return fish_length * 0.09
+
+
+# The fish on its side on the board, head toward +x. Its origin is its middle,
+# so a flip turns it over in place. The Meshy fish stands upright, head toward
+# +z: turned to face +x, sized (a little flatter than made, so the line on top
+# matches _top), then rolled onto its side.
+func _lay_fish(board: Vector3) -> Node3D:
+	var fish := Node3D.new()
+	fish.position = Vector3(board.x, _rest_height(), board.z)
+	session.add_child(fish)
+	var depth := fish_length * 0.31  # Back to belly, lying across the board.
+	var fit := ModelFit.place(FISH, fish, Vector3(0.0, 0.0, depth * 0.5), Vector3(fish_length, depth, _thickness()))
+	if fit != null:
+		fit.stretch = true
+		fit.turn_degrees = 90.0
+		fit.rotation.x = -PI * 0.5  # Its back toward the far side of the board, its side up.
+	return fish
 
 
 func _flat(v: Vector3) -> Vector2:

@@ -432,6 +432,22 @@
 				0.12
 			],
 			"height": 0.04
+		},
+		{
+			"id": "potted_plant",
+			"size": [
+				0.4,
+				0.4
+			],
+			"height": 0.7
+		},
+		{
+			"id": "squared_steak",
+			"size": [
+				0.3,
+				0.3
+			],
+			"height": 0.1
 		}
 	]
 }

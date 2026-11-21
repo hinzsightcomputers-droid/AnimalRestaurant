@@ -5,7 +5,7 @@
 			"ingredient": { "name": "Pancake Batter", "color": "#e8c46a", "model": "res://design/restaurant/crate_dough.glb" } },
 		"vegetable_soup": { "model": "res://design/restaurant/vegetable_soup.glb", "dirty_model": "res://design/restaurant/bowl_dirty.glb", "recipe": "soup",
 			"ingredient": { "name": "Soup Vegetables", "color": "#f08a2c", "model": "res://design/restaurant/crate_carrots.glb",
-				"chop": { "name": "Chopped Vegetables", "chops": 8, "leafy_top": true, "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/food_ingredient_carrot_chopped.gltf" } } },
+				"chop": { "name": "Chopped Vegetables", "chops": 8, "leafy_top": true, "model": "res://design/restaurant/carrot_chopped.glb" } } },
 		"big_breakfast": { "recipe": "big_breakfast", "model": "res://design/restaurant/big_breakfast.glb", "cook_speed": 1.1,
 			"ingredient": { "name": "Bacon & Eggs", "color": "#d9785b", "model": "res://design/restaurant/crate_ham.glb" } },
 		"four_cheese_mac": { "recipe": "four_cheese_mac", "model": "res://design/restaurant/four_cheese_mac.glb", "dirty_model": "res://design/restaurant/bowl_dirty.glb",
@@ -38,12 +38,12 @@
 			"ingredient": { "name": "Acorn Dough", "color": "#b07a45", "model": "res://design/restaurant/crate_dough.glb" } },
 		"fish_stew": { "recipe": "fish_stew", "model": "res://design/restaurant/fish_stew.glb", "dirty_model": "res://design/restaurant/bowl_dirty.glb", "cook_speed": 1.4,
 			"uses": { "fish": 1 },
-			"ingredient": { "name": "Fish", "color": "#7fb6d9", "model": "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/Fish.fbx",
-				"chop": { "name": "Fish Fillets", "verb": "Fillet", "recipe": "filleting", "chops": 5, "color": "#ee9466", "model": "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/Sashimi_Salmon.fbx" } } },
+			"ingredient": { "name": "Fish", "color": "#7fb6d9", "model": "res://design/restaurant/fish_whole.glb",
+				"chop": { "name": "Fish Fillets", "verb": "Fillet", "recipe": "filleting", "chops": 5, "color": "#ee9466", "model": "res://design/restaurant/salmon_pieces.glb" } } },
 		"walters_storm_soup": { "model": "res://design/restaurant/walters_storm_soup.glb", "dirty_model": "res://design/restaurant/bowl_dirty.glb", "recipe": "soup", "cook_speed": 0.9,
 			"ingredient": { "name": "Soup Vegetables", "color": "#c9a24a", "model": "res://design/restaurant/crate_potatoes.glb",
-				"chop": { "name": "Chopped Vegetables", "chops": 8, "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/food_ingredient_potato_chopped.gltf" } } },
-		"squared_steak": { "model": "", "recipe": "squared_steak", "cook_speed": 1.0,
+				"chop": { "name": "Chopped Vegetables", "chops": 8, "model": "res://design/restaurant/potato_chopped.glb" } } },
+		"squared_steak": { "model": "res://design/restaurant/squared_steak.glb", "recipe": "squared_steak", "cook_speed": 1.0,
 			"ingredient": { "name": "Steak", "color": "#c0504d", "model": "res://design/restaurant/crate_ham.glb" } }
 	}
 }

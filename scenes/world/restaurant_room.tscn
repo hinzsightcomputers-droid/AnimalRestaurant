@@ -9,7 +9,7 @@
 [ext_resource type="PackedScene" path="res://design/restaurant/rug.glb" id="m6_rug_rectangle_Ag"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/City Builder Bits/Assets/gltf/base.gltf" id="m7_basegltf"]
 [ext_resource type="PackedScene" path="res://design/restaurant/picture_frame.glb" id="m8_pictureframe_lar"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Furniture Bits/Assets/gltf/cactus_medium_A.gltf" id="m9_cactus_medium_Ag"]
+[ext_resource type="PackedScene" path="res://design/restaurant/potted_plant.glb" id="m9_cactus_medium_Ag"]
 [ext_resource type="PackedScene" path="res://design/restaurant/standing_lamp.glb" id="m10_lamp_standingglt"]
 [ext_resource type="PackedScene" path="res://design/restaurant/wall_cabinet.glb" id="m11_kitchencabinetgl"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/City Builder Bits/Assets/gltf/road_straight.gltf" id="m2_road_straightglt"]
@@ -394,13 +394,13 @@ max_depth = 0.08
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, -0.005)
 mesh = SubResource("Mesh_painting")
 
-[node name="CactusBack" type="Node3D" parent="Decor"]
+[node name="PlantBack" type="Node3D" parent="Decor"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 0, -4.4)
 script = ExtResource("m5_model_fitgd")
 model = ExtResource("m9_cactus_medium_Ag")
 size = Vector3(0, 0.7, 0)
 
-[node name="CactusFront" type="Node3D" parent="Decor"]
+[node name="PlantFront" type="Node3D" parent="Decor"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 0, 4.4)
 script = ExtResource("m5_model_fitgd")
 model = ExtResource("m9_cactus_medium_Ag")

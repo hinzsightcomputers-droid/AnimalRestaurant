@@ -439,5 +439,59 @@
 		],
 		"credits": 30,
 		"done": true
+	},
+	"potato_chopped": {
+		"id": "01a2005a-fcb4-76f1-a598-1bb01b3d31df",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"potato_chopped.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"carrot_chopped": {
+		"id": "01a2005a-fcc8-712a-b041-d7b10cfc65ce",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"carrot_chopped.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"fish_whole": {
+		"id": "01a2005a-fcb4-76f2-b378-b45cae198f13",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"fish_whole.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"potted_plant": {
+		"id": "01a2005a-fcca-7530-a42a-fdd0188f1e3b",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"potted_plant.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"salmon_pieces": {
+		"id": "01a2005b-a676-76ae-8b23-3ec4d66a7885",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"salmon_pieces.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"squared_steak": {
+		"id": "01a2005b-ccf5-7185-b96b-cfa90db4467b",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"squared_steak.png"
+		],
+		"credits": 30,
+		"done": true
 	}
 }

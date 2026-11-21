@@ -7,6 +7,7 @@ extends Node
 # account and SHOTS=<folder>:
 #   godot --resolution 1920x1080 res://tools/board_look_check.tscn
 # PREFIX=<text> starts every file name (to keep before and after apart).
+# RECIPE=<name> plays data/recipes/<name>.tres instead ("filleting" for the fish).
 
 var main: Node
 
@@ -48,7 +49,8 @@ func _ready() -> void:
 	player.global_position = board.global_position + board.global_transform.basis.z * 0.9
 	rig.process_mode = Node.PROCESS_MODE_INHERIT
 	await get_tree().create_timer(0.5).timeout
-	board.reel_cook(player, load("res://data/recipes/chopping.tres"), {})
+	var recipe_name := OS.get_environment("RECIPE")
+	board.reel_cook(player, load("res://data/recipes/%s.tres" % (recipe_name if not recipe_name.is_empty() else "chopping")), {})
 	var session: CookSession = board.session
 	var shot := 4
 	var next_shot := 0.0

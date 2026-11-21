@@ -51,15 +51,16 @@ Prompts follow data/recipes (counts, toppings). All 19 dishes are in
 data/dish_kitchen.json; check them with tools/food_check.tscn. Pictures drawn
 from straight above (big_breakfast, acorn_cookies) came out standing up and
 were laid flat with tools/meshy/lay_flat.js (run it again after a --redo).
-Still to do: carrot_chopped, potato_chopped, fish_whole, salmon_pieces
-(the chopped and fish ingredients).
+The chopped and fish ingredients (carrot_chopped, potato_chopped, fish_whole,
+salmon_pieces) and the squared_steak plate are done too (2026-11-21). The
+Meshy fish stands upright facing +z; the fillet game lays it on its side
+(FilletAction._lay_fish).
 
 ## Left inside (2026-11-21)
 The pretzel close-up now uses the Meshy frying pan as its saucepan over a
 KitchenProps gas ring (the Meshy soup pot has its lid on, so sauce can't show).
-Still KayKit inside: the two potted cacti by the windows (CactusBack and
-CactusFront in restaurant_room.tscn). They need a concept picture
-(`potted_plant`, about 0.7 m tall) in Desktop/Asset photos; the Meshy plants
-we have are all buyable catalogue decor, so they can't double as the room's own.
+The cacti by the windows are now the Meshy potted_plant (PlantBack and
+PlantFront). Still free pack inside: only the fish bones left on the board
+after filleting (FishBone.fbx); a `fish_bones` picture would replace it.
 
 Outside (street, buildings, trees) waits for the woodland redesign.
