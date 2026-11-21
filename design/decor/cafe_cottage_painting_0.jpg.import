@@ -2,13 +2,10 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://omrlpmid7oep"
+uid="uid://ddob4rq7vbql3"
 path="res://.godot/imported/cafe_cottage_painting_0.jpg-2e83d3ed33241fa2d658e4ad98df260d.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "831575140882e9f38a63daf15b4f480e"
 }
 
 [deps]
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

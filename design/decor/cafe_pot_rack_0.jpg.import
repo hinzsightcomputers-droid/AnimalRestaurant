@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cht1jufjuwrga"
-path="res://.godot/imported/cafe_pot_rack_0.jpg-d68eec3f4072421f102f475635a4000d.ctex"
+path.s3tc="res://.godot/imported/cafe_pot_rack_0.jpg-d68eec3f4072421f102f475635a4000d.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "7e8ef60304bd860b9241f37c37e10d68"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://design/decor/cafe_pot_rack_0.jpg"
-dest_files=["res://.godot/imported/cafe_pot_rack_0.jpg-d68eec3f4072421f102f475635a4000d.ctex"]
+dest_files=["res://.godot/imported/cafe_pot_rack_0.jpg-d68eec3f4072421f102f475635a4000d.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +41,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

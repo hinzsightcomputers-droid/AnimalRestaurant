@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c02ti5b2wb2a8"
-path="res://.godot/imported/cafe_wall_shelf_0.jpg-ac73f5ee0e9d706c47b5b01ae80e5a06.ctex"
+path.s3tc="res://.godot/imported/cafe_wall_shelf_0.jpg-ac73f5ee0e9d706c47b5b01ae80e5a06.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "0d2fa5e4a2890579d07cdc463e5a6b51"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://design/decor/cafe_wall_shelf_0.jpg"
-dest_files=["res://.godot/imported/cafe_wall_shelf_0.jpg-ac73f5ee0e9d706c47b5b01ae80e5a06.ctex"]
+dest_files=["res://.godot/imported/cafe_wall_shelf_0.jpg-ac73f5ee0e9d706c47b5b01ae80e5a06.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +41,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

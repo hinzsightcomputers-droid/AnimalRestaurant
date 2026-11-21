@@ -22,7 +22,8 @@ func _ready() -> void:
 	await _pick_accounts()
 	var room: DecorRoom = _find(main, func(n): return n is DecorRoom)[0]
 	GameState.decor_placed.clear()
-	var items := Decor.items().filter(func(i): return i.get("meshy", false))
+	var only := OS.get_environment("DECOR_SET")  # e.g. garden: just that set.
+	var items := Decor.items().filter(func(i): return i.get("meshy", false) and (only.is_empty() or i.get("set", "") == only))
 	var spot := 0
 	var origin := Decor.grid_origin()
 	var cells := Decor.grid_cells()

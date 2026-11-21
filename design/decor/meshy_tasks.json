@@ -173,5 +173,167 @@
 		],
 		"credits": 30,
 		"done": true
+	},
+	"garden_mushroom_stool": {
+		"id": "01a1fba2-2548-74a3-b263-312a6b1b5e4e",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"garden_mushroom_stool.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"garden_birdbath": {
+		"id": "01a1fba2-256a-728b-aea1-67243f68d287",
+		"endpoint": "https://api.meshy.ai/openapi/v1/multi-image-to-3d",
+		"views": [
+			"garden_birdbath.png",
+			"garden_birdbath_back.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"garden_wheelbarrow": {
+		"id": "01a1fba2-254e-73e0-9aeb-2de9c39a682c",
+		"endpoint": "https://api.meshy.ai/openapi/v1/multi-image-to-3d",
+		"views": [
+			"garden_wheelbarrow.png",
+			"garden_wheelbarrow_back.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"garden_bench": {
+		"id": "01a1fba2-25e9-7286-b954-3ef4302685bb",
+		"endpoint": "https://api.meshy.ai/openapi/v1/multi-image-to-3d",
+		"views": [
+			"garden_bench.png",
+			"garden_bench_back.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"garden_lamp_post": {
+		"id": "01a1fba3-4b18-74e1-b79a-cbcd6000f6bd",
+		"endpoint": "https://api.meshy.ai/openapi/v1/multi-image-to-3d",
+		"views": [
+			"garden_lamp_post.png",
+			"garden_lamp_post_back.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"garden_herb_planter": {
+		"id": "01a1fba3-5f9f-7046-a6e6-2e525104285b",
+		"endpoint": "https://api.meshy.ai/openapi/v1/multi-image-to-3d",
+		"views": [
+			"garden_herb_planter.png",
+			"garden_herb_planter_back.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"garden_sunflower_pot": {
+		"id": "01a1fba3-728f-74b0-9571-26edb7ef49d0",
+		"endpoint": "https://api.meshy.ai/openapi/v1/multi-image-to-3d",
+		"views": [
+			"garden_sunflower_pot.png",
+			"garden_sunflower_pot_back.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"garden_hedgehog_statue": {
+		"id": "01a1fba3-ec7e-75cc-aa2e-a0b3deef07aa",
+		"endpoint": "https://api.meshy.ai/openapi/v1/multi-image-to-3d",
+		"views": [
+			"garden_hedgehog_statue.png",
+			"garden_hedgehog_statue_back.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"garden_rock_fountain": {
+		"id": "01a1fba4-8389-73d1-ae41-8684b6aeb7d9",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"garden_rock_fountain.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"garden_beehive": {
+		"id": "01a1fba4-9971-765c-bd7c-3151a674a5b1",
+		"endpoint": "https://api.meshy.ai/openapi/v1/multi-image-to-3d",
+		"views": [
+			"garden_beehive.png",
+			"garden_beehive_back.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"garden_fern_basket": {
+		"id": "01a1fba4-fcfb-7290-b5e4-48238e480b44",
+		"endpoint": "https://api.meshy.ai/openapi/v1/multi-image-to-3d",
+		"views": [
+			"garden_fern_basket.png",
+			"garden_fern_basket_back.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"garden_birdhouse": {
+		"id": "01a1fba5-3734-7716-a25e-60c3e5fbbd15",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"garden_birdhouse.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"garden_hanging_basket": {
+		"id": "01a1fba5-cbc4-70dc-85ba-b5e7f8ca6b6c",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"garden_hanging_basket.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"garden_wall_planter": {
+		"id": "01a1fba6-6254-757a-8d5d-02b3b5214874",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"garden_wall_planter.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"garden_flower_garland": {
+		"id": "01a1fba6-6c63-7587-91f7-02c1e859a8d9",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"garden_flower_garland.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"garden_tool_rack": {
+		"id": "01a1fba6-ebb2-702b-98e5-67316c511533",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"garden_tool_rack.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"garden_butterfly_frame": {
+		"id": "01a1fba7-11a9-748e-b688-f8dadd110973",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"garden_butterfly_frame.png"
+		],
+		"credits": 30,
+		"done": true
 	}
 }

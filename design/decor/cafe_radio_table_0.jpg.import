@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c8ankq281ktbr"
-path="res://.godot/imported/cafe_radio_table_0.jpg-6ff7d7784ae1e23ae9b1f576038bcb62.ctex"
+path.s3tc="res://.godot/imported/cafe_radio_table_0.jpg-6ff7d7784ae1e23ae9b1f576038bcb62.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "272469efd01b1366f7de3499d04b14f7"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://design/decor/cafe_radio_table_0.jpg"
-dest_files=["res://.godot/imported/cafe_radio_table_0.jpg-6ff7d7784ae1e23ae9b1f576038bcb62.ctex"]
+dest_files=["res://.godot/imported/cafe_radio_table_0.jpg-6ff7d7784ae1e23ae9b1f576038bcb62.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +41,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

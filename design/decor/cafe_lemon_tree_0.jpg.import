@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cxc56txu0crpv"
-path="res://.godot/imported/cafe_lemon_tree_0.jpg-7d5069e2fca0507f53aba9c4fadadf32.ctex"
+path.s3tc="res://.godot/imported/cafe_lemon_tree_0.jpg-7d5069e2fca0507f53aba9c4fadadf32.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "a4b62f1b63a050d3701ecc31816c848c"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://design/decor/cafe_lemon_tree_0.jpg"
-dest_files=["res://.godot/imported/cafe_lemon_tree_0.jpg-7d5069e2fca0507f53aba9c4fadadf32.ctex"]
+dest_files=["res://.godot/imported/cafe_lemon_tree_0.jpg-7d5069e2fca0507f53aba9c4fadadf32.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +41,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0
