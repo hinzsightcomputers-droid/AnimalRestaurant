@@ -34,7 +34,10 @@ Every single-item picture after the style sheet must be ready to turn into a
 - Three-quarter view from the front and slightly above (unless I say otherwise).
 - Plain pure white background, no ground, no shadow, no other objects, no text.
 - Even, soft front lighting so every colour is clear.
-- Solid, simple shapes; nothing thinner than a pencil at the size given.
+- Solid, simple shapes; nothing thinner than a pencil at the size given:
+  thick ropes, chunky fronds, no thin curls or wires.
+- No grass, stones, mushrooms or ground under or around it; it stands on its
+  own (except the fern clump and the flower patch, which are ground plants).
 
 First, make one style sheet showing 9 different things in this style (a
 cottage, a big tree, a pine tree, a bush, a mossy rock, a lantern post, a
@@ -74,7 +77,7 @@ background, so I can check the look before we do them one at a time.
 - `wood_mailbox`: "Now just one item: a chunky wooden mailbox on a post, shaped like a tiny house with a round red flag. About 1.2 m tall."
 
 ### Vehicle
-- `wood_cart`: "Now just one item: a small wooden two-seat cart with four chunky spoked wheels, a cream canvas cover and a lantern hanging at the front, no animal pulling it. About 2.5 m long and 1.8 m tall. Seen from the side and slightly above."
+- `wood_cart`: "Now just one item: a small wooden passenger cart with seats for two passengers, four chunky spoked wheels, a cream canvas cover and a lantern hanging at the front, no cargo and no animal pulling it (not a handcart or wheelbarrow). About 2.5 m long and 1.8 m tall. Seen from the side and slightly above."
 
 ## 3. Tileable ground textures (no Meshy)
 
@@ -90,6 +93,9 @@ direction, objects or text.
 - `mossy_cobbles`: replace the brackets with "rounded grey-brown cobblestones with soft green moss in the gaps".
 
 ## Tips
+- The style sheet (2026-11-21) was approved: keep that look. It drew ground
+  tufts under things and a one-wheel handcart; the rules above and the cart
+  prompt now ask for neither.
 - If a picture drifts from the style: "Closer to the style sheet: chunkier,
   flatter colours, fewer details."
 - Start a new chat with the style sheet every ~20 items.
