@@ -26,7 +26,7 @@ const FACTS_PATH := "res://data/cooking_facts.json"
 const FACT_WIDTH := 330.0                  # The tip card's text width (smaller in split screen).
 const FACT_SPLIT_WIDTH := 230.0
 const FACT_MARGIN := 24.0                  # From the corner of the cook's view.
-const FACT_SECONDS := 14.0                 # A long step without a tip of its own moves on to the next fact.
+const FACT_SECONDS := 20.0                 # A long step without a tip of its own moves on to the next fact.
 
 @export_group("Controls")
 @export var cursor_speed := 0.7            # Meters a second the keys move the cursor.
