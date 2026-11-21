@@ -14,7 +14,7 @@ signal cleanliness_changed(table: DiningTable)
 signal seat_requested(table: DiningTable, player_index: int)
 
 const TOP_HEIGHT := 0.82
-const PLATE_MODEL := "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/plate_dirty.gltf"
+const PLATE_MODEL := "res://design/restaurant/plate_dirty.glb"
 const RESULT_SHOW_TIME := 1.0  # Seconds the close-up stays after the chore is done.
 
 @export var view_manager: ViewManager  # For the close-up's mouse aiming (found if not set).

@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/furniture/table_mess_display.gd" id="3_mess"]
 [ext_resource type="Script" path="res://scripts/camera/camera_zoom_settings.gd" id="4_zoom"]
 [ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m0_model_fitgd"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/table_round_B_tablecloth_red.gltf" id="m1_table_round_B_ta"]
+[ext_resource type="PackedScene" path="res://design/restaurant/dining_table.glb" id="m1_table_round_B_ta"]
 [ext_resource type="PackedScene" path="res://scenes/cooking/table_closeup.tscn" id="5_closeup"]
 [ext_resource type="Resource" path="res://data/recipes/clear_table.tres" id="6_clear"]
 [ext_resource type="Resource" path="res://data/recipes/wipe_table.tres" id="7_wipe"]

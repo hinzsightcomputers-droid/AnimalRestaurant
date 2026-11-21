@@ -178,5 +178,95 @@
 		],
 		"credits": 30,
 		"done": true
+	},
+	"plate_dirty": {
+		"id": "01a1fc61-4446-7411-9511-7111d56f17ce",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"plate_dirty.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"plate": {
+		"id": "01a1fc61-4457-76ed-9ada-c20661c3fd3c",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"plate.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"dining_chair": {
+		"id": "01a1fc61-4447-704c-883f-601799a10240",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"dining_chair.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"dining_table": {
+		"id": "01a1fc61-4447-7162-94d8-1b615e3aa755",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"dining_table.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"bowl": {
+		"id": "01a1fc62-158c-743c-a336-4f666235f36a",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"bowl.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"bowl_dirty": {
+		"id": "01a1fc62-2836-77a5-bc64-f9d2dda6a415",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"bowl_dirty.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"standing_lamp": {
+		"id": "01a1fc62-2c4b-70d4-ad4b-c7694b815755",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"standing_lamp.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"picture_frame": {
+		"id": "01a1fc62-40f0-7725-ae5c-1fa869254966",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"picture_frame.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"rug": {
+		"id": "01a1fc62-d3fb-70be-bd13-5e3242cacac3",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"rug.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"wall_cabinet": {
+		"id": "01a1fc63-006a-7497-bbd8-4ae8a1e8bc72",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"wall_cabinet.png"
+		],
+		"credits": 30,
+		"done": true
 	}
 }

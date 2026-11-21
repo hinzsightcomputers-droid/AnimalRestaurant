@@ -7,7 +7,7 @@ class_name Sink
 extends Station
 
 const GROUP := "sink"
-const PLATE_MODEL := "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/plate.gltf"
+const PLATE_MODEL := "res://design/restaurant/plate.glb"
 const COUNTER_TOP := 0.9
 const RESULT_SHOW_TIME := 1.0
 

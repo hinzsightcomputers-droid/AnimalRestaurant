@@ -38,9 +38,11 @@ stove, oven, fridge, sink, griddle, dish_rack, cutting_board, soup_pot,
 frying_pan, rolling_pin, crates (carrots, potatoes, lettuce, cheese, ham,
 dough), barrel, storage_box
 
-## Batch 4: dining room (Meshy)
+## Batch 4: dining room (Meshy) (done 2026-11-20)
 dining_table, dining_chair, plate, plate_dirty, bowl, bowl_dirty,
-standing_lamp, picture_frame, rug
+standing_lamp, picture_frame, rug, wall_cabinet. Meshy left the painting out
+of the frame, so it is a flat canvas cut from the concept picture
+(picture_frame_painting.png); the rug is laid flat with tilt -90.
 
 ## Batch 5: food (Meshy)
 pancake, pancake_stack, fried_egg, bread_loaf, bread_slice, croissant,

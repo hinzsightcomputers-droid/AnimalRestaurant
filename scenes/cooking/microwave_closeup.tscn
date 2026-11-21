@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/cooking/cook_session.gd" id="1_session"]
 [ext_resource type="Script" path="res://scripts/cooking/cook_surface.gd" id="2_surface"]
 [ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="3_fit"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/bowl.gltf" id="4_bowl"]
+[ext_resource type="PackedScene" path="res://design/restaurant/bowl.glb" id="4_bowl"]
 
 [node name="MicrowaveCloseup" type="Node3D"]
 script = ExtResource("1_session")

@@ -6,12 +6,12 @@
 [ext_resource type="Script" path="res://scripts/style/room_look.gd" id="r1_room_look"]
 [ext_resource type="PackedScene" path="res://scenes/style/pendant_lamp.tscn" id="g2_lamp"]
 [ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m5_model_fitgd"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Furniture Bits/Assets/gltf/rug_rectangle_A.gltf" id="m6_rug_rectangle_Ag"]
+[ext_resource type="PackedScene" path="res://design/restaurant/rug.glb" id="m6_rug_rectangle_Ag"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/City Builder Bits/Assets/gltf/base.gltf" id="m7_basegltf"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Furniture Bits/Assets/gltf/pictureframe_large_A.gltf" id="m8_pictureframe_lar"]
+[ext_resource type="PackedScene" path="res://design/restaurant/picture_frame.glb" id="m8_pictureframe_lar"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Furniture Bits/Assets/gltf/cactus_medium_A.gltf" id="m9_cactus_medium_Ag"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Furniture Bits/Assets/gltf/lamp_standing.gltf" id="m10_lamp_standingglt"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/kitchencabinet.gltf" id="m11_kitchencabinetgl"]
+[ext_resource type="PackedScene" path="res://design/restaurant/standing_lamp.glb" id="m10_lamp_standingglt"]
+[ext_resource type="PackedScene" path="res://design/restaurant/wall_cabinet.glb" id="m11_kitchencabinetgl"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/City Builder Bits/Assets/gltf/road_straight.gltf" id="m2_road_straightglt"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/City Builder Bits/Assets/gltf/building_A.gltf" id="m4_building_Agltf"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/City Builder Bits/Assets/gltf/building_E.gltf" id="m5_building_Egltf"]
@@ -41,6 +41,8 @@
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Forest_Nature_Pack_1.0_FREE/Assets/gltf/Rock_1_A_Color1.gltf" id="m29_Rock_1_A_Color1g"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Forest_Nature_Pack_1.0_FREE/Assets/gltf/Rock_2_A_Color1.gltf" id="m30_Rock_2_A_Color1g"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Forest_Nature_Pack_1.0_FREE/Assets/gltf/Rock_3_A_Color1.gltf" id="m31_Rock_3_A_Color1g"]
+
+[ext_resource type="Texture2D" path="res://design/restaurant/picture_frame_painting.png" id="pf_painting"]
 
 [sub_resource type="StandardMaterial3D" id="Mat_wall"]
 albedo_color = Color(0.96, 0.9, 0.79, 1)
@@ -144,6 +146,14 @@ size = Vector3(0.3, 3, 6.6)
 albedo_color = Color(0.49, 0.7, 0.36, 1)
 roughness = 1.0
 
+[sub_resource type="StandardMaterial3D" id="Mat_painting"]
+albedo_texture = ExtResource("pf_painting")
+roughness = 0.9
+
+[sub_resource type="QuadMesh" id="Mesh_painting"]
+material = SubResource("Mat_painting")
+size = Vector2(1.12, 0.68)
+
 [sub_resource type="PlaneMesh" id="Mesh_grass"]
 material = SubResource("Mat_grass")
 size = Vector2(90, 90)
@@ -168,6 +178,7 @@ script = ExtResource("m5_model_fitgd")
 model = ExtResource("m6_rug_rectangle_Ag")
 size = Vector3(7, 0.02, 4.8)
 stretch = true
+tilt_degrees = -90.0
 
 [node name="Porch" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, -0.2, 6.6)
@@ -362,16 +373,26 @@ shape = SubResource("Shape_front_wall_right")
 [node name="Decor" type="Node3D" parent="."]
 
 [node name="FrameLeft" type="Node3D" parent="Decor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1.4, -4.98)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1.4, -4.9)
 script = ExtResource("m5_model_fitgd")
 model = ExtResource("m8_pictureframe_lar")
 size = Vector3(0, 0.9, 0)
+max_depth = 0.08
+
+[node name="Painting" type="MeshInstance3D" parent="Decor/FrameLeft"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, -0.005)
+mesh = SubResource("Mesh_painting")
 
 [node name="FrameRight" type="Node3D" parent="Decor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 1.4, -4.98)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 1.4, -4.9)
 script = ExtResource("m5_model_fitgd")
 model = ExtResource("m8_pictureframe_lar")
 size = Vector3(0, 0.9, 0)
+max_depth = 0.08
+
+[node name="Painting" type="MeshInstance3D" parent="Decor/FrameRight"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, -0.005)
+mesh = SubResource("Mesh_painting")
 
 [node name="CactusBack" type="Node3D" parent="Decor"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 0, -4.4)
