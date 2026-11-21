@@ -20,8 +20,6 @@ const DOOR_OPEN_DEGREES := 95.0  # Swings out, away from the room.
 const GROUNDS_MIN := Vector2(-22.0, -20.0)
 const GROUNDS_MAX := Vector2(22.0, 10.6)   # Up to the curb; wide enough for the regulars' houses either side.
 const SIGN_SPOT := Vector3(3.9, 0.0, 5.75)  # Outside, just left of the front door.
-const FRONT_WALL_MODEL := "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/wall.gltf"
-const FRONT_WINDOW_MODEL := "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/wall_window_closed_curtains_red.gltf"
 const TALL_FRONT_LAYER := 15  # Render layers: the full-height front wall, for views outside...
 const LOW_FRONT_LAYER := 16   # ...and the room's low one, for views inside.
 const SIDE_WALL_LAYER := 18   # The right-hand walls, hidden from inside views when the camera looks in over them (CameraRig.VIEW_YAW).
@@ -194,21 +192,13 @@ func _build_tall_front_wall() -> void:
 	var tall := Node3D.new()
 	tall.name = "TallFrontWall"
 	add_child(tall)
-	var window: PackedScene = load(FRONT_WINDOW_MODEL)
-	var wall: PackedScene = load(FRONT_WALL_MODEL)
 	var left_end := -7.3 - Stages.grown_left()
 	var door_left := FRONT_DOOR.x - FRONT_DOOR_WIDTH / 2.0
 	var door_right := FRONT_DOOR.x + FRONT_DOOR_WIDTH / 2.0
 	var windows := 4 + roundi(Stages.grown_left() / 3.0)  # About 3 m a window, as before a stage.
-	_wall_grid(tall, window, Vector3((left_end + door_left) / 2.0, 0.0, FRONT_DOOR.z), windows, (door_left - left_end) / windows)
-	_wall_grid(tall, wall, Vector3((door_right + 7.3) / 2.0, 0.0, FRONT_DOOR.z), 1, 7.3 - door_right)
-	var lintel := MeshInstance3D.new()
-	var mesh := BoxMesh.new()
-	mesh.size = Vector3(FRONT_DOOR_WIDTH, 0.8, 0.32)
-	mesh.material = _material(Color(0.96, 0.9, 0.79))
-	lintel.mesh = mesh
-	lintel.position = FRONT_DOOR + Vector3(0.0, 2.6, 0.0)
-	tall.add_child(lintel)
+	_front_panel(tall, Vector3((left_end + door_left) / 2.0, 0.0, FRONT_DOOR.z), Vector3(door_left - left_end, 3.0, 0.32), windows)
+	_front_panel(tall, Vector3((door_right + 7.3) / 2.0, 0.0, FRONT_DOOR.z), Vector3(7.3 - door_right, 3.0, 0.32))
+	_front_panel(tall, FRONT_DOOR + Vector3(0.0, 2.2, 0.0), Vector3(FRONT_DOOR_WIDTH, 0.8, 0.32))  # Over the doorway.
 	_put_on_layer(tall, TALL_FRONT_LAYER)
 	var low := get_parent().get_node_or_null("RestaurantRoom/Walls/FrontWall")
 	if low != null:
@@ -219,13 +209,13 @@ func _build_tall_front_wall() -> void:
 			_put_on_layer(side, SIDE_WALL_LAYER)
 
 
-func _wall_grid(parent: Node3D, model: PackedScene, at: Vector3, count: int, width: float) -> void:
-	var grid := ModelGrid.new()
-	grid.position = at
-	parent.add_child(grid)
-	grid.cells = Vector2i(count, 1)
-	grid.cell_size = Vector3(width, 3.0, 0.32)
-	grid.model = model
+func _front_panel(parent: Node3D, at: Vector3, box: Vector3, windows := 0) -> void:
+	var panel := RoomPanel.new()
+	panel.position = at
+	panel.size = box
+	panel.outside = Vector3.BACK
+	panel.windows = windows
+	parent.add_child(panel)
 
 
 # Every mesh under `node` only on render layer `layer`, and the tall one casts no shadow into the room.

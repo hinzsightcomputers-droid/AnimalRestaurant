@@ -76,6 +76,11 @@ func _ready() -> void:
 	player.global_position = Vector3(-5.0, player.global_position.y, 2.0)
 	await get_tree().create_timer(2.0).timeout
 	await _shot("room_1_player_left.png")
+	player.global_position = Vector3(4.0, player.global_position.y, -8.0)  # The kitchen.
+	await get_tree().create_timer(2.5).timeout
+	await _shot("room_1_player_kitchen.png")
+	player.global_position = Vector3(-2.0, player.global_position.y, 0.0)
+	await get_tree().create_timer(1.5).timeout
 	var manager: PlayerManager = _find(main, func(n): return n is PlayerManager)[0]
 	var spots := [Vector3(-5, 0, -2), Vector3(-1, 0, 2), Vector3(-5, 0, 3), Vector3(2, 0, -1)]
 	for index in range(1, 4):

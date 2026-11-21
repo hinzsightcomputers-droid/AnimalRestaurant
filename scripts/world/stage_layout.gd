@@ -8,7 +8,6 @@
 class_name StageLayout
 extends RefCounted
 
-const WALL_MODEL := "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/wall.gltf"
 const TABLE_SCENE := "res://scenes/furniture/table.tscn"
 const CHAIR_SCENE := "res://scenes/furniture/chair.tscn"
 const LAMP_SCENE := "res://scenes/style/pendant_lamp.tscn"
@@ -30,10 +29,10 @@ static func apply(main: Node) -> void:
 	var left_wall := room.get_node_or_null("Walls/LeftWall") as Node3D
 	if left_wall != null:
 		left_wall.position.x = left
-	_add_wall(room.get_node("Walls"), "BackWallStage", Vector3((DINING_LEFT + left) / 2.0, 0.0, DINING_BACK), grow, 3.0)
+	_add_wall(room.get_node("Walls"), "BackWallStage", Vector3((DINING_LEFT + left) / 2.0, 0.0, DINING_BACK), grow, 3.0, Vector3.FORWARD)
 	var front := room.get_node_or_null("Walls/FrontWall") as Node3D
 	if front != null:  # The front wall is low from inside (see RestaurantGrounds), so its new stretch is too.
-		_add_wall(front, "PiecesStage", Vector3((DINING_LEFT + left) / 2.0, 0.0, 0.0), grow, 0.6, 3.0)
+		_add_wall(front, "PiecesStage", Vector3((DINING_LEFT + left) / 2.0, 0.0, 0.0), grow, 0.6, Vector3.BACK, 3.0)
 	_add_floor(room, left, grow)
 	var furniture := main.get_node_or_null("Furniture")
 	for group in [furniture, room.get_node_or_null("Decor")]:
@@ -50,17 +49,17 @@ static func apply(main: Node) -> void:
 
 
 # A stretch of plain wall `width` wide and `height` tall (solid to
-# `solid_height`), its bottom middle at `at` in `parent`'s terms.
-static func _add_wall(parent: Node, wall_name: String, at: Vector3, width: float, height: float, solid_height := -1.0) -> void:
+# `solid_height`), its bottom middle at `at` in `parent`'s terms, its brick
+# side facing `outside`.
+static func _add_wall(parent: Node, wall_name: String, at: Vector3, width: float, height: float, outside: Vector3, solid_height := -1.0) -> void:
 	var body := StaticBody3D.new()
 	body.name = wall_name
 	body.position = at
 	parent.add_child(body)
-	var grid := ModelGrid.new()
-	grid.cells = Vector2i(1, 1)
-	grid.cell_size = Vector3(width, height, WALL_THICK)
-	grid.model = load(WALL_MODEL)
-	body.add_child(grid)
+	var panel := RoomPanel.new()
+	panel.size = Vector3(width, height, WALL_THICK)
+	panel.outside = outside
+	body.add_child(panel)
 	var shape := BoxShape3D.new()
 	var solid := solid_height if solid_height > 0.0 else height
 	shape.size = Vector3(width, solid, WALL_THICK)
@@ -70,23 +69,20 @@ static func _add_wall(parent: Node, wall_name: String, at: Vector3, width: float
 	body.add_child(collision)
 
 
-# Floor for the new strip, in the dining floor's own material.
+# Floor for the new strip, the dining floor carried on.
 static func _add_floor(room: Node3D, left: float, grow: float) -> void:
-	var old := room.get_node_or_null("Floor/Mesh") as MeshInstance3D
 	var body := StaticBody3D.new()
 	body.name = "FloorStage"
 	var width := grow + 0.3
 	body.position = Vector3(left + width / 2.0 - 0.15, -0.1, 0.0)
 	room.add_child(body)
-	var mesh := BoxMesh.new()
-	mesh.size = Vector3(width, 0.2, DINING_FRONT - DINING_BACK)
-	if old != null and old.mesh != null:
-		mesh.material = old.mesh.surface_get_material(0)
-	var instance := MeshInstance3D.new()
-	instance.mesh = mesh
-	body.add_child(instance)
+	var panel := RoomPanel.new()
+	panel.kind = RoomPanel.Kind.FLOOR
+	panel.size = Vector3(width, 0.2, DINING_FRONT - DINING_BACK)
+	panel.position.y = -0.1  # Its top level with the floor.
+	body.add_child(panel)
 	var shape := BoxShape3D.new()
-	shape.size = mesh.size
+	shape.size = panel.size
 	var collision := CollisionShape3D.new()
 	collision.shape = shape
 	body.add_child(collision)

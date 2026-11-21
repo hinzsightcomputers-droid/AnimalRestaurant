@@ -1,14 +1,10 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/world/model_grid.gd" id="m0_model_gridgd"]
+[ext_resource type="Script" path="res://scripts/world/room_panel.gd" id="rp_room_panel"]
 [ext_resource type="Script" path="res://scripts/world/griddle_corner.gd" id="g1_griddle_corner"]
 [ext_resource type="Script" path="res://scripts/style/room_look.gd" id="r1_room_look"]
 [ext_resource type="PackedScene" path="res://scenes/style/pendant_lamp.tscn" id="g2_lamp"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/wall.gltf" id="m1_wallgltf"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/wall_doorway.gltf" id="m1_wall_doorway"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/kitchencounter_straight_A.gltf" id="m2_kitchencounter_s"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/wall_window_closed_curtains_red.gltf" id="m3_wall_window_clos"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/floor_kitchen.gltf" id="m4_floor_kitchenglt"]
 [ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m5_model_fitgd"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Furniture Bits/Assets/gltf/rug_rectangle_A.gltf" id="m6_rug_rectangle_Ag"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/City Builder Bits/Assets/gltf/base.gltf" id="m7_basegltf"]
@@ -46,10 +42,6 @@
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Forest_Nature_Pack_1.0_FREE/Assets/gltf/Rock_2_A_Color1.gltf" id="m30_Rock_2_A_Color1g"]
 [ext_resource type="PackedScene" path="res://design/assets/KayKit_Forest_Nature_Pack_1.0_FREE/Assets/gltf/Rock_3_A_Color1.gltf" id="m31_Rock_3_A_Color1g"]
 
-[sub_resource type="StandardMaterial3D" id="Mat_floor"]
-albedo_color = Color(0.72, 0.53, 0.36, 1)
-roughness = 0.9
-
 [sub_resource type="StandardMaterial3D" id="Mat_wall"]
 albedo_color = Color(0.96, 0.9, 0.79, 1)
 roughness = 1.0
@@ -57,10 +49,6 @@ roughness = 1.0
 [sub_resource type="StandardMaterial3D" id="Mat_rug"]
 albedo_color = Color(0.75, 0.33, 0.29, 1)
 roughness = 1.0
-
-[sub_resource type="BoxMesh" id="Mesh_floor"]
-material = SubResource("Mat_floor")
-size = Vector3(14, 0.2, 10)
 
 [sub_resource type="BoxShape3D" id="Shape_floor"]
 size = Vector3(14, 0.2, 10)
@@ -165,8 +153,11 @@ size = Vector2(90, 90)
 [node name="Floor" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
 
-[node name="Mesh" type="MeshInstance3D" parent="Floor"]
-mesh = SubResource("Mesh_floor")
+[node name="Mesh" type="Node3D" parent="Floor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+script = ExtResource("rp_room_panel")
+kind = 1
+size = Vector3(14, 0.2, 10)
 
 [node name="Collision" type="CollisionShape3D" parent="Floor"]
 shape = SubResource("Shape_floor")
@@ -196,24 +187,22 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.3, 1.5, -5.15)
 
 [node name="Pieces" type="Node3D" parent="Walls/BackWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.667, -1.5, 0)
-script = ExtResource("m0_model_gridgd")
-model = ExtResource("m1_wallgltf")
-cells = Vector2i(1, 1)
-cell_size = Vector3(2.667, 3, 0.3)
+script = ExtResource("rp_room_panel")
+kind = 0
+size = Vector3(2.667, 3, 0.3)
 
 [node name="PiecesRight" type="Node3D" parent="Walls/BackWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.667, -1.5, 0)
-script = ExtResource("m0_model_gridgd")
-model = ExtResource("m1_wallgltf")
-cells = Vector2i(1, 1)
-cell_size = Vector3(2.667, 3, 0.3)
+script = ExtResource("rp_room_panel")
+kind = 0
+size = Vector3(2.667, 3, 0.3)
 
 [node name="BackDoorway" type="Node3D" parent="Walls/BackWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.5, 0)
-script = ExtResource("m0_model_gridgd")
-model = ExtResource("m1_wall_doorway")
-cells = Vector2i(1, 1)
-cell_size = Vector3(2.667, 3, 0.3)
+script = ExtResource("rp_room_panel")
+kind = 0
+size = Vector3(2.667, 3, 0.3)
+door_width = 1.2
 
 [node name="Collision" type="CollisionShape3D" parent="Walls/BackWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.3, 0, 0)
@@ -228,10 +217,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1, 0.55, -5.15)
 
 [node name="Pieces" type="Node3D" parent="Walls/KitchenDividerLeft"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.55, 0)
-script = ExtResource("m0_model_gridgd")
-model = ExtResource("m2_kitchencounter_s")
-cells = Vector2i(1, 1)
-cell_size = Vector3(0.8, 1.1, 0.3)
+script = ExtResource("rp_room_panel")
+kind = 2
+size = Vector3(0.8, 1.1, 0.3)
 
 [node name="Collision" type="CollisionShape3D" parent="Walls/KitchenDividerLeft"]
 shape = SubResource("Shape_divider_left")
@@ -241,10 +229,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.15, 0.55, -5.15)
 
 [node name="Pieces" type="Node3D" parent="Walls/KitchenDividerRight"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.55, 0)
-script = ExtResource("m0_model_gridgd")
-model = ExtResource("m2_kitchencounter_s")
-cells = Vector2i(2, 1)
-cell_size = Vector3(2.15, 1.1, 0.3)
+script = ExtResource("rp_room_panel")
+kind = 2
+size = Vector3(4.3, 1.1, 0.3)
 
 [node name="Collision" type="CollisionShape3D" parent="Walls/KitchenDividerRight"]
 shape = SubResource("Shape_divider_right")
@@ -256,10 +243,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, -0.1, -8.3)
 
 [node name="Tiles" type="Node3D" parent="Kitchen/Floor"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
-script = ExtResource("m0_model_gridgd")
-model = ExtResource("m4_floor_kitchenglt")
-cells = Vector2i(3, 3)
-cell_size = Vector3(2.1, 0.2, 2.1)
+script = ExtResource("rp_room_panel")
+kind = 1
+size = Vector3(6.3, 0.2, 6.3)
+kitchen_tiles = true
 
 [node name="Collision" type="CollisionShape3D" parent="Kitchen/Floor"]
 shape = SubResource("Shape_kitchen_floor")
@@ -269,10 +256,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 1.5, -11.45)
 
 [node name="Pieces" type="Node3D" parent="Kitchen/BackWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.5, 0)
-script = ExtResource("m0_model_gridgd")
-model = ExtResource("m1_wallgltf")
-cells = Vector2i(3, 1)
-cell_size = Vector3(2.2, 3, 0.3)
+script = ExtResource("rp_room_panel")
+kind = 0
+size = Vector3(6.6, 3, 0.3)
+outside = Vector3(0, 0, -1)
 
 [node name="Collision" type="CollisionShape3D" parent="Kitchen/BackWall"]
 shape = SubResource("Shape_kitchen_back_wall")
@@ -282,11 +269,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.85, 1.5, -8.3)
 
 [node name="Pieces" type="Node3D" parent="Kitchen/LeftWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.5, 0)
-script = ExtResource("m0_model_gridgd")
-model = ExtResource("m1_wallgltf")
-cells = Vector2i(1, 3)
-cell_size = Vector3(0.3, 3, 2.1)
-turn_degrees = 90.0
+script = ExtResource("rp_room_panel")
+kind = 0
+size = Vector3(0.3, 3, 6.3)
+outside = Vector3(-1, 0, 0)
 
 [node name="Collision" type="CollisionShape3D" parent="Kitchen/LeftWall"]
 shape = SubResource("Shape_kitchen_side_wall")
@@ -296,11 +282,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.15, 1.5, -8.3)
 
 [node name="Pieces" type="Node3D" parent="Kitchen/RightWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.5, 0)
-script = ExtResource("m0_model_gridgd")
-model = ExtResource("m1_wallgltf")
-cells = Vector2i(1, 3)
-cell_size = Vector3(0.3, 3, 2.1)
-turn_degrees = -90.0
+script = ExtResource("rp_room_panel")
+kind = 0
+size = Vector3(0.3, 3, 6.3)
+outside = Vector3(1, 0, 0)
 
 [node name="Collision" type="CollisionShape3D" parent="Kitchen/RightWall"]
 shape = SubResource("Shape_kitchen_side_wall")
@@ -326,11 +311,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.15, 1.5, 0)
 
 [node name="Pieces" type="Node3D" parent="Walls/LeftWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.5, 0)
-script = ExtResource("m0_model_gridgd")
-model = ExtResource("m3_wall_window_clos")
-cells = Vector2i(1, 4)
-cell_size = Vector3(0.3, 3, 2.5)
-turn_degrees = 90.0
+script = ExtResource("rp_room_panel")
+kind = 0
+size = Vector3(0.3, 3, 10)
+outside = Vector3(-1, 0, 0)
+windows = 4
 
 [node name="Collision" type="CollisionShape3D" parent="Walls/LeftWall"]
 shape = SubResource("Shape_side_wall")
@@ -340,11 +325,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.15, 1.5, 0)
 
 [node name="Pieces" type="Node3D" parent="Walls/RightWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.5, 0)
-script = ExtResource("m0_model_gridgd")
-model = ExtResource("m3_wall_window_clos")
-cells = Vector2i(1, 4)
-cell_size = Vector3(0.3, 3, 2.5)
-turn_degrees = -90.0
+script = ExtResource("rp_room_panel")
+kind = 0
+size = Vector3(0.3, 3, 10)
+outside = Vector3(1, 0, 0)
+windows = 4
 
 [node name="Collision" type="CollisionShape3D" parent="Walls/RightWall"]
 shape = SubResource("Shape_side_wall")
@@ -354,17 +339,17 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5.15)
 
 [node name="PiecesLeft" type="Node3D" parent="Walls/FrontWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 0, 0)
-script = ExtResource("m0_model_gridgd")
-model = ExtResource("m1_wallgltf")
-cells = Vector2i(4, 1)
-cell_size = Vector3(2.9, 0.6, 0.3)
+script = ExtResource("rp_room_panel")
+kind = 0
+size = Vector3(11.6, 0.6, 0.3)
+outside = Vector3(0, 0, 1)
 
 [node name="PiecesRight" type="Node3D" parent="Walls/FrontWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 0, 0)
-script = ExtResource("m0_model_gridgd")
-model = ExtResource("m1_wallgltf")
-cells = Vector2i(1, 1)
-cell_size = Vector3(1.6, 0.6, 0.3)
+script = ExtResource("rp_room_panel")
+kind = 0
+size = Vector3(1.6, 0.6, 0.3)
+outside = Vector3(0, 0, 1)
 
 [node name="Collision" type="CollisionShape3D" parent="Walls/FrontWall"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 1.5, 0)
