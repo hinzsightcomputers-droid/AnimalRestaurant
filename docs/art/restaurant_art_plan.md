@@ -54,4 +54,12 @@ were laid flat with tools/meshy/lay_flat.js (run it again after a --redo).
 Still to do: carrot_chopped, potato_chopped, fish_whole, salmon_pieces
 (the chopped and fish ingredients).
 
+## Left inside (2026-11-21)
+The pretzel close-up now uses the Meshy frying pan as its saucepan over a
+KitchenProps gas ring (the Meshy soup pot has its lid on, so sauce can't show).
+Still KayKit inside: the two potted cacti by the windows (CactusBack and
+CactusFront in restaurant_room.tscn). They need a concept picture
+(`potted_plant`, about 0.7 m tall) in Desktop/Asset photos; the Meshy plants
+we have are all buyable catalogue decor, so they can't double as the room's own.
+
 Outside (street, buildings, trees) waits for the woodland redesign.

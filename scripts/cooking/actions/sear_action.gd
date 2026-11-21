@@ -359,40 +359,9 @@ func scripted_hold(delta: float, input: CookInput) -> bool:
 
 # --- Building ---------------------------------------------------------------
 
-# A gas ring on the counter: a dark iron grate and a ring of little flames.
 func _build_burner() -> void:
-	_burner = Node3D.new()
+	_burner = KitchenProps.gas_ring()
 	session.add_child(_burner)
-	var iron := StandardMaterial3D.new()
-	iron.albedo_color = Color(0.16, 0.15, 0.15)
-	iron.roughness = 0.6
-	var plate := MeshInstance3D.new()
-	var disc := CylinderMesh.new()
-	disc.top_radius = 0.2
-	disc.bottom_radius = 0.21
-	disc.height = 0.012
-	disc.material = iron
-	plate.mesh = disc
-	plate.position.y = 0.006
-	_burner.add_child(plate)
-	var flame := StandardMaterial3D.new()
-	flame.albedo_color = Color(1.0, 0.62, 0.2)
-	flame.emission_enabled = true
-	flame.emission = Color(1.0, 0.5, 0.15)
-	flame.emission_energy_multiplier = 2.0
-	flame.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	for i in 12:
-		var tongue := MeshInstance3D.new()
-		var cone := CylinderMesh.new()
-		cone.top_radius = 0.0
-		cone.bottom_radius = 0.008
-		cone.height = 0.012  # Under the pan: they show round its edge when it moves off the middle.
-		cone.radial_segments = 6
-		cone.material = flame
-		tongue.mesh = cone
-		var spot := Vector2.from_angle(i * TAU / 12.0) * 0.07
-		tongue.position = Vector3(spot.x, 0.007, spot.y)
-		_burner.add_child(tongue)
 
 
 func _build_pan() -> void:

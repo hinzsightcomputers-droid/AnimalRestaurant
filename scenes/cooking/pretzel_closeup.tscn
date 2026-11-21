@@ -3,8 +3,8 @@
 [ext_resource type="Script" path="res://scripts/cooking/cook_session.gd" id="1_session"]
 [ext_resource type="Script" path="res://scripts/cooking/cook_surface.gd" id="2_surface"]
 [ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="3_fit"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/stove_single_countertop.gltf" id="4_burner"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/pot_B.gltf" id="5_pan"]
+[ext_resource type="Script" path="res://scripts/cooking/gas_ring.gd" id="4_burner"]
+[ext_resource type="PackedScene" path="res://design/restaurant/frying_pan.glb" id="5_pan"]
 [ext_resource type="PackedScene" path="res://design/restaurant/bowl.glb" id="6_bowl"]
 
 [node name="PretzelCloseup" type="Node3D"]
@@ -28,26 +28,26 @@ thickness = 0.012
 color = Color(0.42, 0.44, 0.48, 1)
 
 [node name="Saucepan" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0.07, 0.02)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0.036, 0.02)
 script = ExtResource("2_surface")
 size = Vector2(0.17, 0.17)
 round = true
 hidden = true
 slides_in = true
-depth = 0.06
+depth = 0.03
 color = Color(0.98, 0.9, 0.55, 1)
 
 [node name="Burner" type="Node3D" parent="Saucepan"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.07, 0)
-script = ExtResource("3_fit")
-model = ExtResource("4_burner")
-size = Vector3(0.3, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.036, 0)
+script = ExtResource("4_burner")
+radius = 0.12
 
 [node name="Pan" type="Node3D" parent="Saucepan"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.02, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.063, -0.024, 0)
 script = ExtResource("3_fit")
 model = ExtResource("5_pan")
-size = Vector3(0.24, 0, 0)
+size = Vector3(0.37, 0.04, 0.245)
+stretch = true
 
 [node name="Plate" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.012, 0.08)

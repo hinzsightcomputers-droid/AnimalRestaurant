@@ -8,6 +8,7 @@ extends Node
 # PREFIX=<text> starts every file name (to keep before and after apart).
 # RECIPE=<name> cooks data/recipes/<name>.tres instead of the pancakes, and
 # EVERY=<seconds> also takes a picture that often (a long single step).
+# STATION=<station_id> cooks there instead of the stove ("oven" for the bakes).
 
 var main: Node
 
@@ -23,7 +24,8 @@ func _ready() -> void:
 		await get_tree().create_timer(0.5).timeout
 	await _pick_accounts()
 	var player: Player = Player.find(get_tree(), 0)
-	var stoves := _find(main, func(n): return n is CookingStation and n.station_id == "stove")
+	var station_id := OS.get_environment("STATION") if not OS.get_environment("STATION").is_empty() else "stove"
+	var stoves := _find(main, func(n): return n is CookingStation and n.station_id == station_id)
 	var stove: CookingStation = stoves[0]
 	print("GRIDDLE stove ", stove.name, " at ", stove.global_position)
 	player.global_position = stove.global_position + stove.global_transform.basis.z * 0.9

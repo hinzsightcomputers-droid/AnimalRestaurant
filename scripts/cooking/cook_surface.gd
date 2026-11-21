@@ -215,13 +215,17 @@ func slide_in(distance := 0.8, seconds := 0.45) -> void:
 		return
 	visible = true
 	# Only what it draws slides: it stays where it is, so a step can aim at it straight away.
-	var shift := [distance]
+	# Only what is here now: something added on the way in (liquid poured in
+	# early) is already where it belongs.
+	var sliding: Array[Node3D] = []
 	for child in get_children():
 		if child is Node3D:
+			sliding.append(child)
 			child.position.x += distance
+	var shift := [distance]
 	create_tween().tween_method(func(to: float):
-		for child in get_children():
-			if child is Node3D:
+		for child in sliding:
+			if is_instance_valid(child):
 				child.position.x += to - shift[0]
 		shift[0] = to, distance, 0.0, seconds).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
