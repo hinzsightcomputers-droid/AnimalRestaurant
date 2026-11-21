@@ -92,6 +92,12 @@ direction, objects or text.
 - `dirt_path`: as written.
 - `mossy_cobbles`: replace the brackets with "rounded grey-brown cobblestones with soft green moss in the gaps".
 
+## Status (2026-11-21)
+All 22 pictures and both textures are in design/woodland/. Meshy ran out of
+credits after wood_tree_oak and wood_tree_pine; the rest wait for the credit
+reset (around 2026-12-05): `node tools/meshy/make_decor.js --woodland` makes
+only the missing ones. Then swap the whole outdoors in one go.
+
 ## Tips
 - The style sheet (2026-11-21) was approved: keep that look. It drew ground
   tufts under things and a one-wheel handcart; the rules above and the cart
