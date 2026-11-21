@@ -7,3 +7,5 @@ design/decor/**/*.glb filter=lfs diff=lfs merge=lfs -text
 design/decor/**/*.png filter=lfs diff=lfs merge=lfs -text
 design/decor/**/*.jpg filter=lfs diff=lfs merge=lfs -text
 design/textures/*.png filter=lfs diff=lfs merge=lfs -text
+design/restaurant/**/*.glb filter=lfs diff=lfs merge=lfs -text
+design/restaurant/**/*.png filter=lfs diff=lfs merge=lfs -text

@@ -1,0 +1,8 @@
+{
+	"_comment": "The restaurant's own Meshy pieces (not decor): id, size [width, depth] and height in meters, used by tools/meshy/make_decor.js --restaurant for the polycount. Concept pictures are <id>.png (+ _back.png) next to this file.",
+	"items": [
+		{ "id": "window_curtains", "size": [1.2, 0.3], "height": 1.3 },
+		{ "id": "kitchen_door", "size": [1.1, 0.08], "height": 2.2 },
+		{ "id": "front_door", "size": [1.3, 0.08], "height": 2.2 }
+	]
+}

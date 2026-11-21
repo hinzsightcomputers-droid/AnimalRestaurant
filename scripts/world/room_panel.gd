@@ -5,8 +5,9 @@
 # Like ModelGrid it sits with its bottom on this node and its middle on this
 # node's x and z, shows in the editor, and only the settings are saved. It's
 # only the look: walls and floors keep their own collision shapes.
-# A wall can have windows: evenly spaced openings along its length, each with a
-# stand-in frame, glass and curtains until the window model is made.
+# A wall can have windows: evenly spaced openings along its length, each with
+# the window model (design/restaurant, from Meshy: frame, glass and gingham
+# curtains) on the room side and a plain frame and glass seen from outdoors.
 class_name RoomPanel
 extends Node3D
 
@@ -22,6 +23,10 @@ const FRAME := 0.08
 const FRAME_COLOR := Color("71412c")
 const GLASS_COLOR := Color("a9d8e6")
 const CURTAIN_COLOR := Color("d63c3c")
+const WINDOW_MODEL := "res://design/restaurant/window_curtains.glb"
+const WINDOW_MODEL_WIDTH := 1.6   # Wider than the opening: the curtains and rod hang over the wall.
+const WINDOW_MODEL_BOTTOM := 0.72  # Its sill just under the opening's.
+const WINDOW_MODEL_DEPTH := 0.22
 
 @export var kind := Kind.WALL:
 	set(value):
@@ -158,7 +163,8 @@ func _box(holder: Node3D, at: Vector3, box: Vector3) -> void:
 	instance.set_instance_shader_parameter("top_y", global_position.y + size.y)
 
 
-# Stand-in window in an opening: a wood frame, pale glass, a curtain each side.
+# A window in an opening: a wood frame and pale glass, and on the room side the
+# window model (or, without it, a box curtain each side).
 func _window(holder: Node3D, along_x: bool, middle: float, opening: float, thick: float) -> void:
 	var tall := HEAD - SILL
 	var parts := [  # [middle along, bottom, width along, height, depth, color]
@@ -170,8 +176,19 @@ func _window(holder: Node3D, along_x: bool, middle: float, opening: float, thick
 		[middle, SILL + tall / 2.0 - FRAME * 0.3, opening, FRAME * 0.6, thick * 0.5, FRAME_COLOR],
 		[middle, SILL, opening, tall, 0.02, GLASS_COLOR],
 	]
-	for side in [-1.0, 1.0]:  # Curtains on both faces of the wall, gathered at the sides.
+	var inside := -outside.normalized() if outside != Vector3.ZERO else (Vector3.BACK if along_x else Vector3.RIGHT)
+	var model := ModelFit.place(WINDOW_MODEL, holder, Vector3.ZERO, Vector3(WINDOW_MODEL_WIDTH, 0.0, 0.0))
+	if model != null:
+		model.max_depth = WINDOW_MODEL_DEPTH
+		model.rotation.y = atan2(inside.x, inside.z)  # The model faces +z: turn it to the room.
+		var off := (inside.z if along_x else inside.x) * (thick / 2.0 + WINDOW_MODEL_DEPTH / 2.0 - 0.1)
+		model.position = Vector3(middle, WINDOW_MODEL_BOTTOM, off) if along_x else Vector3(off, WINDOW_MODEL_BOTTOM, middle)
+		if not Engine.is_editor_hint():
+			ToonStyle.apply_bare(model)
+	for side in [-1.0, 1.0]:  # Box curtains on both faces of the wall, gathered at the sides (only without the model).
 		for face in [-1.0, 1.0]:
+			if model != null:
+				continue
 			parts.append([middle + side * (opening / 2.0 - 0.14), SILL + 0.05, 0.26, tall + 0.1, 0.05, CURTAIN_COLOR, face * (thick / 2.0 + 0.04)])
 	for part in parts:
 		var mesh := BoxMesh.new()

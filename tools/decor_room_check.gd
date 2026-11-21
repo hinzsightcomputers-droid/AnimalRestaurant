@@ -76,6 +76,9 @@ func _ready() -> void:
 	player.global_position = Vector3(-5.0, player.global_position.y, 2.0)
 	await get_tree().create_timer(2.0).timeout
 	await _shot("room_1_player_left.png")
+	player.global_position = Vector3(-6.3, player.global_position.y, 1.2)  # Up to the window wall.
+	await get_tree().create_timer(2.0).timeout
+	await _shot("room_1_player_window.png")
 	player.global_position = Vector3(4.0, player.global_position.y, -8.0)  # The kitchen.
 	await get_tree().create_timer(2.5).timeout
 	await _shot("room_1_player_kitchen.png")

@@ -15,13 +15,16 @@ Counter runs are built in Godot (box + cabinet-front texture + counter-top
 texture) so they line up at any length; Meshy appliances (stove, sink,
 griddle) sit into them.
 
-## Batch 1: room textures (ChatGPT only, no Meshy credits)
+## Batch 1: room textures (ChatGPT only, no Meshy credits) (done 2026-11-20)
 floor_dining, floor_kitchen, wall_plaster, wainscot, wall_trim, counter_top,
 cabinet_front, brick_outside. Pictures go in Desktop/Asset photos/textures/
 named exactly as above.
 
 ## Batch 2: windows and doors (Meshy)
-window_curtains, front_door, kitchen_doorway
+window_curtains, kitchen_door, front_door. Models and pictures live in
+design/restaurant/ (sizes in parts.json; `node tools/meshy/make_decor.js --restaurant`).
+Done 2026-11-20: window_curtains (every window, room side) and kitchen_door
+(the back door). front_door skipped for now: the entrance stays an open gap.
 
 ## Batch 3: kitchen appliances and tools (Meshy)
 stove, oven, fridge, sink, griddle, dish_rack, cutting_board, soup_pot,

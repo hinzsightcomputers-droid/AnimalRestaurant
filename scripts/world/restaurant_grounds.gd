@@ -13,7 +13,7 @@ const FRONT_DOOR := Vector3(5.0, 0.0, 5.15)   # The gap in the front wall.
 const FRONT_DOOR_WIDTH := 1.4
 const BACK_DOOR := Vector3(-3.3, 0.0, -5.15)  # The doorway in the dining room's back wall.
 const BACK_DOOR_WIDTH := 1.2
-const DOOR_MODEL := "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/door_A.gltf"
+const DOOR_MODEL := "res://design/restaurant/kitchen_door.glb"  # Meshy (design/restaurant).
 const DOOR_SIZE := Vector3(1.1, 0.0, 0.0)  # Fit by width; it keeps its proportions.
 const DOOR_OPEN_DEGREES := 95.0  # Swings out, away from the room.
 # The grounds: walkable ground and the fence around them (x and z, meters).
@@ -121,7 +121,10 @@ func _build_back_door() -> void:
 	_back_door_hinge.name = "BackDoor"
 	_back_door_hinge.position = BACK_DOOR + Vector3(-DOOR_SIZE.x / 2.0, 0.0, 0.0)
 	add_child(_back_door_hinge)
-	ModelFit.place(DOOR_MODEL, _back_door_hinge, Vector3(DOOR_SIZE.x / 2.0, 0.0, 0.0), DOOR_SIZE)
+	var door := ModelFit.place(DOOR_MODEL, _back_door_hinge, Vector3(DOOR_SIZE.x / 2.0, 0.0, 0.0), DOOR_SIZE)
+	if door != null:
+		door.max_depth = 0.1
+		ToonStyle.apply_bare(door)
 
 
 # A little board on a post, with OPEN or CLOSED on both faces.

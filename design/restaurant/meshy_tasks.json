@@ -1,0 +1,20 @@
+{
+	"window_curtains": {
+		"id": "01a1fc43-6f0d-7540-9077-e36ac823a728",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"window_curtains.png"
+		],
+		"credits": 30,
+		"done": true
+	},
+	"kitchen_door": {
+		"id": "01a1fc43-6f0d-7407-a946-a614b2e5c6a4",
+		"endpoint": "https://api.meshy.ai/openapi/v1/image-to-3d",
+		"views": [
+			"kitchen_door.png"
+		],
+		"credits": 30,
+		"done": true
+	}
+}

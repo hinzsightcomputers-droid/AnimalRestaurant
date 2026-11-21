@@ -3,6 +3,7 @@
 //   node tools/meshy/make_decor.js            every catalogue item with a picture and no model yet
 //   node tools/meshy/make_decor.js cafe_bookcase cafe_lemon_tree   just these
 //   node tools/meshy/make_decor.js --redo cafe_bookcase            again, even if it has a model
+//   node tools/meshy/make_decor.js --restaurant                    the restaurant pieces (see below)
 //
 // The API key is read from %USERPROFILE%\.meshy_api_key (one line, never in the
 // repo). Each item uses <id>.png as the front view, plus <id>_back.png and/or
@@ -16,8 +17,12 @@ const path = require("path");
 const os = require("os");
 
 const ROOT = path.resolve(__dirname, "..", "..");
-const DECOR = path.join(ROOT, "design", "decor");
+// --restaurant: the restaurant's own pieces (windows, doors, appliances, food)
+// from design/restaurant/ instead, sized by design/restaurant/parts.json.
+const RESTAURANT = process.argv.includes("--restaurant");
+const DECOR = path.join(ROOT, "design", RESTAURANT ? "restaurant" : "decor");
 const CATALOGUE = path.join(ROOT, "data", "decor_catalogue");
+const PARTS = path.join(ROOT, "design", "restaurant", "parts.json");
 const TASKS = path.join(DECOR, "meshy_tasks.json");
 const API = "https://api.meshy.ai/openapi/v1";
 const SETTINGS = {
@@ -43,6 +48,10 @@ function key() {
 
 function catalogueRows() {
 	const rows = {};
+	if (RESTAURANT) {
+		for (const row of JSON.parse(fs.readFileSync(PARTS, "utf8")).items) rows[row.id] = row;
+		return rows;
+	}
 	for (const file of fs.readdirSync(CATALOGUE).filter((f) => f.endsWith(".json"))) {
 		for (const row of JSON.parse(fs.readFileSync(path.join(CATALOGUE, file), "utf8")).items || []) rows[row.id] = row;
 	}

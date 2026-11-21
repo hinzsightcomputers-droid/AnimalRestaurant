@@ -29,7 +29,8 @@ func _ready() -> void:
 
 func _on_node_added(node: Node) -> void:
 	if node is MeshInstance3D and _root.is_ancestor_of(node):
-		_dress.call_deferred(node)  # Once its model has finished setting up.
+		var ref: WeakRef = weakref(node)
+		(func(): _dress(ref.get_ref())).call_deferred()  # Once its model has finished setting up (unless it has gone by then).
 
 
 func _dress(mesh: MeshInstance3D) -> void:
