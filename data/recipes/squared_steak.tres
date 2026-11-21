@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="CookRecipe" format=3]
+
+[ext_resource type="Script" path="res://scripts/cooking/cook_recipe.gd" id="1_recipe"]
+[ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/sear_action.gd" id="sear"]
+[ext_resource type="PackedScene" path="res://scenes/cooking/pan_closeup.tscn" id="scene"]
+
+[sub_resource type="Resource" id="Resource_sear"]
+script = ExtResource("sear")
+title = "Sear every side"
+hint = "Move the pan with [stick]: the steak slides! Hold [button] and flick [stick] toward a side to toss it onto that side. Sear all six, then toss it toward the plate."
+cue = "Sizzle!"
+view_distance = 0.5
+view_pitch = 62.0
+
+[resource]
+script = ExtResource("1_recipe")
+display_name = "Squared Steak"
+pieces = 1
+serve_on = "Plate"
+scene = ExtResource("scene")
+steps = Array[ExtResource("2_action")]([SubResource("Resource_sear")])

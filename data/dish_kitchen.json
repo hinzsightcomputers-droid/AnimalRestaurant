@@ -42,6 +42,8 @@
 				"chop": { "name": "Fish Fillets", "verb": "Fillet", "recipe": "filleting", "chops": 5, "color": "#ee9466", "model": "res://design/assets/Ultimate Food Pack - Oct 2019/FBX/Sashimi_Salmon.fbx" } } },
 		"walters_storm_soup": { "model": "res://design/restaurant/walters_storm_soup.glb", "dirty_model": "res://design/restaurant/bowl_dirty.glb", "recipe": "soup", "cook_speed": 0.9,
 			"ingredient": { "name": "Soup Vegetables", "color": "#c9a24a", "model": "res://design/restaurant/crate_potatoes.glb",
-				"chop": { "name": "Chopped Vegetables", "chops": 8, "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/food_ingredient_potato_chopped.gltf" } } }
+				"chop": { "name": "Chopped Vegetables", "chops": 8, "model": "res://design/assets/KayKit_Bits_Bundle1_1.1/Restaurant Bits/Assets/gltf/food_ingredient_potato_chopped.gltf" } } },
+		"squared_steak": { "model": "", "recipe": "squared_steak", "cook_speed": 1.0,
+			"ingredient": { "name": "Steak", "color": "#c0504d", "model": "res://design/restaurant/crate_ham.glb" } }
 	}
 }

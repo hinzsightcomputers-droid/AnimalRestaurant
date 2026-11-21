@@ -250,6 +250,19 @@
       "unlock": "scene",
       "unlock_cost": 0,
       "unlocked_by": "mabel_big_moment"
+    },
+    {
+      "id": "squared_steak",
+      "name": "Squared Steak",
+      "origin": "Diner",
+      "description": "A perfect cube of steak, seared on every side.",
+      "ingredients": ["steak", "salt", "pepper", "butter"],
+      "steps": ["sear every side", "toss onto the plate"],
+      "base_price": 17,
+      "cook_time": 30,
+      "tags": ["savory", "hearty", "fun"],
+      "unlock": "upgrade",
+      "unlock_cost": 90
     }
   ]
 }

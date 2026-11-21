@@ -4,7 +4,8 @@
 # runs the recipe's steps in order (background steps alongside), reads the
 # player's controls through one CookInput, and when the last step is done
 # combines the steps' qualities and emits finished(quality). The step's
-# instructions show at the top of the cook's own view.
+# instructions show at the top of the cook's own view, and a real cooking tip or
+# fact about the dish (data/cooking_facts.json) in its top-right corner.
 #
 # Everything here is in the session's own coordinates (y is up from the top
 # of the station). Steps use the helpers below for the shared bits: pieces,
@@ -21,6 +22,11 @@ const HOW_SIZE := 0.72                     # The controls line, times hint_font_
 const STATUS_SIZE := 0.86
 const CARD_TEXT := Color("#502312")
 const CARD_STATUS := Color("#C2542A")
+const FACTS_PATH := "res://data/cooking_facts.json"
+const FACT_WIDTH := 330.0                  # The tip card's text width (smaller in split screen).
+const FACT_SPLIT_WIDTH := 230.0
+const FACT_MARGIN := 24.0                  # From the corner of the cook's view.
+const FACT_SECONDS := 14.0                 # A long step without a tip of its own moves on to the next fact.
 
 @export_group("Controls")
 @export var cursor_speed := 0.7            # Meters a second the keys move the cursor.
@@ -63,6 +69,13 @@ var _card := PanelContainer.new()          # Holds the three: a cream card, so n
 var _pops: Array[Label3D] = []             # Pop-up words still showing (one at a time, so they never pile up).
 var _framed := false                       # The camera is on a step's own view, not home_view.
 var _text_scale := 1.0                      # Pop-up text shrinks when the camera comes in closer than the station's view.
+var _fact_card := PanelContainer.new()     # "Chef's tip" and the tip, in the top-right corner.
+var _fact_label := Label.new()
+var _facts: Array = []                     # This recipe's dish facts, in turn...
+var _fact_next := 0
+var _fact_time := 0.0                      # ...and how long the one showing has been up.
+var _fact_is_tip := false                  # The card shows the current step's own tip.
+static var _all_facts := {}                # data/cooking_facts.json's recipes, loaded once.
 
 
 func start(cook_recipe: CookRecipe, cook: Player, view_manager: ViewManager, brought: Ingredients = null) -> void:
@@ -117,6 +130,9 @@ func _process(delta: float) -> void:
 	_cursor.visible = current != null and current.uses_cursor()
 	_cursor.position = input.cursor + Vector3(0.0, 0.003, 0.0)
 	_show_hint()
+	_fact_time += delta
+	if not _fact_is_tip and _fact_time >= FACT_SECONDS and _facts.size() > 1:
+		_show_fact(_next_fact())
 
 
 func _next_step() -> void:
@@ -140,6 +156,7 @@ func _next_step() -> void:
 			var middle := area.get_center()
 			input.cursor = Vector3(middle.x, input.height, middle.y)
 		_frame_step(action)
+		_fact_for(action)
 		if not action.cue.is_empty():
 			pop_text(action.cue, action.view_point(), 1)
 		return
@@ -159,6 +176,7 @@ func _finish() -> void:
 		_hint.text = "%s! %d%%" % [CookingMinigame.quality_label(quality), roundi(quality * 100)]
 	else:
 		_hint.text = recipe.finish_text
+	_fact_card.visible = false
 	_how.visible = false
 	_status_label.visible = false
 	play_sound("ding", Vector3(0.0, 0.1, 0.0))
@@ -860,6 +878,89 @@ func _build_hint(view_manager: ViewManager) -> void:
 		column.add_child(label)
 	UiStyle.title(_hint)
 	_style_card(false)
+	_build_fact_card()
+
+
+# --- Chef's tips -------------------------------------------------------------
+
+# The card in the top-right of the cook's view: a small heading and the tip.
+func _build_fact_card() -> void:
+	var split := InputSetup.active_players().size() > 1
+	_fact_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var style := UiStyle.panel(CARD_MARGIN * 0.8)
+	style.content_margin_top = CARD_MARGIN * 0.45
+	style.content_margin_bottom = CARD_MARGIN * 0.5
+	_fact_card.add_theme_stylebox_override("panel", style)
+	_screen.add_child(_fact_card)
+	_fact_card.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	_fact_card.grow_horizontal = Control.GROW_DIRECTION_BEGIN  # Its right edge stays put; it grows to the left.
+	var top := FACT_MARGIN + (split_hint_top if split else hint_top)
+	_fact_card.offset_right = -FACT_MARGIN
+	_fact_card.offset_left = -FACT_MARGIN
+	_fact_card.offset_top = top
+	_fact_card.offset_bottom = top
+	var column := VBoxContainer.new()
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_theme_constant_override("separation", 2)
+	_fact_card.add_child(column)
+	var heading := Label.new()
+	heading.text = "Chef's tip"
+	heading.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiStyle.title(heading)
+	heading.add_theme_font_size_override("font_size", roundi(hint_font_size * (0.62 if split else 0.78)))
+	heading.add_theme_color_override("font_color", CARD_STATUS)
+	column.add_child(heading)
+	_fact_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_fact_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_fact_label.custom_minimum_size.x = FACT_SPLIT_WIDTH if split else FACT_WIDTH
+	_fact_label.add_theme_font_size_override("font_size", roundi(hint_font_size * (0.55 if split else 0.68)))
+	_fact_label.add_theme_color_override("font_color", CARD_TEXT)
+	column.add_child(_fact_label)
+	_fact_card.visible = false
+	var recipe_id := recipe.resource_path.get_file().get_basename()
+	var entry: Dictionary = _facts_data().get(recipe_id, {})
+	_facts = entry.get("facts", [])
+
+
+# A step's own tip if it has one, else the dish's next fact.
+func _fact_for(action: CookAction) -> void:
+	var recipe_id := recipe.resource_path.get_file().get_basename()
+	var tips: Dictionary = _facts_data().get(recipe_id, {}).get("steps", {})
+	if tips.has(action.title):
+		_fact_is_tip = true
+		_show_fact(tips[action.title])
+	elif _fact_is_tip or not _fact_card.visible:
+		_fact_is_tip = false
+		_show_fact(_next_fact())
+
+
+func _next_fact() -> String:
+	if _facts.is_empty():
+		return ""
+	var fact: String = _facts[_fact_next % _facts.size()]
+	_fact_next += 1
+	return fact
+
+
+func _show_fact(text: String) -> void:
+	_fact_time = 0.0
+	if text.is_empty():
+		_fact_card.visible = false
+		return
+	var fresh := not _fact_card.visible or _fact_label.text != text
+	_fact_label.text = text
+	_fact_card.visible = true
+	if fresh:
+		_fact_card.modulate.a = 0.0
+		_fact_card.create_tween().tween_property(_fact_card, "modulate:a", 1.0, 0.35)
+
+
+static func _facts_data() -> Dictionary:
+	if _all_facts.is_empty() and FileAccess.file_exists(FACTS_PATH):
+		var parsed = JSON.parse_string(FileAccess.get_file_as_string(FACTS_PATH))
+		if parsed is Dictionary:
+			_all_facts = parsed.get("recipes", {})
+	return _all_facts
 
 
 # A player's card: dark words on cream. A reel's: just the outlined words, as before.

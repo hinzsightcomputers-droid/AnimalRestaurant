@@ -70,16 +70,25 @@ func _ready() -> void:
 		_soup = soup
 
 
-# The griddle's look: its top in the griddle shader, and a rounded steel rim
-# just outside its edges (so food never sits under it), lower at the front
-# where the spatula comes in.
+# The griddle's look: its top in the griddle shader (the heat glow), set into
+# the Meshy griddle (design/restaurant), whose lip runs just outside its edges so
+# food never sits under it; without the model, a rounded steel rim instead,
+# lower at the front where the spatula comes in.
 const GRIDDLE_SHADER := preload("res://assets/shaders/griddle.gdshader")
+const GRIDDLE_MODEL := "res://design/restaurant/griddle.glb"
+const GRIDDLE_MARGIN := Vector2(0.16, 0.12)  # The model is this much bigger than the cooking top (its lip).
+const GRIDDLE_HEIGHT := 0.16                  # How tall it's fitted; the rest sinks into the counter.
+const GRIDDLE_LIP := 0.012                    # Its lip stands this far over the cooking top.
 const RIM_STEEL := Color("#A9B3A4")  # The style guide's soft sage steel, lit.
 func _dress_griddle(top: MeshInstance3D) -> void:
 	var shader := ShaderMaterial.new()
 	shader.shader = GRIDDLE_SHADER
 	shader.set_shader_parameter("size", size)
 	top.material_override = shader
+	var body := ModelFit.place(GRIDDLE_MODEL, self, Vector3(0.0, GRIDDLE_LIP - GRIDDLE_HEIGHT, 0.0), Vector3(size.x + GRIDDLE_MARGIN.x, GRIDDLE_HEIGHT, size.y + GRIDDLE_MARGIN.y))
+	if body != null:
+		body.stretch = true
+		return
 	var steel := StandardMaterial3D.new()
 	steel.albedo_color = RIM_STEEL
 	steel.roughness = 0.45

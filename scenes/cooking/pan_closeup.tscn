@@ -1,0 +1,17 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/cooking/cook_session.gd" id="1_session"]
+[ext_resource type="Script" path="res://scripts/cooking/cook_surface.gd" id="2_surface"]
+
+[node name="PanCloseup" type="Node3D"]
+script = ExtResource("1_session")
+bounds = Rect2(-0.64, -0.32, 1.28, 0.64)
+
+[node name="Plate" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.38, 0.02, 0.06)
+script = ExtResource("2_surface")
+size = Vector2(0.3, 0.3)
+round = true
+thickness = 0.018
+color = Color(0.96, 0.95, 0.92, 1)
+slides_in = true

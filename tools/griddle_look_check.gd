@@ -6,6 +6,8 @@ extends Node
 # a copy of a save with an account and SHOTS=<folder>:
 #   godot --resolution 1920x1080 res://tools/griddle_look_check.tscn
 # PREFIX=<text> starts every file name (to keep before and after apart).
+# RECIPE=<name> cooks data/recipes/<name>.tres instead of the pancakes, and
+# EVERY=<seconds> also takes a picture that often (a long single step).
 
 var main: Node
 
@@ -50,14 +52,22 @@ func _ready() -> void:
 	rig.process_mode = Node.PROCESS_MODE_INHERIT
 	await get_tree().create_timer(0.5).timeout
 	# The pancakes, a picture a moment into each step.
-	stove.reel_cook(player, load("res://data/recipes/pancakes.tres"), {})
+	var recipe_name := OS.get_environment("RECIPE")
+	stove.reel_cook(player, load("res://data/recipes/%s.tres" % (recipe_name if not recipe_name.is_empty() else "pancakes")), {})
+	var every := float(OS.get_environment("EVERY")) if not OS.get_environment("EVERY").is_empty() else 0.0
+	var next_at := every
 	var session: CookSession = stove.session
 	var last := ""
 	var shot := 4
+	var started := Time.get_ticks_msec()
 	for t in 30000:
 		await get_tree().process_frame
 		if not is_instance_valid(session) or session.is_finished:
 			break
+		if every > 0.0 and (Time.get_ticks_msec() - started) / 1000.0 >= next_at:
+			next_at += every
+			await _shot("%d_at_%ds.png" % [shot, roundi(next_at - every)])
+			shot += 1
 		if session.current != null and session.current.title != last:
 			last = session.current.title
 			print("GRIDDLE step ", last)

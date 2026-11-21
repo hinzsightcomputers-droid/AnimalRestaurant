@@ -1,0 +1,205 @@
+{
+	"_about": "Real cooking tips and dish facts shown in the corner of a close-up while you cook (CookSession). By recipe id (data/recipes/<id>.tres): 'steps' are tips for one step (by its exact title), shown while that step is going; 'facts' are about the dish, shown on any step without a tip of its own, one after another.",
+	"recipes": {
+		"pancakes": {
+			"steps": {
+				"Pour the batter": "Don't over-mix pancake batter: a few lumps are fine. Mixing too much builds gluten and makes pancakes tough instead of fluffy.",
+				"Flip them": "Flip when bubbles on top pop and stay open, and the edges look dry: that means the bottom has set."
+			},
+			"facts": [
+				"Honey never really goes off: pots of it found in ancient Egyptian tombs were still edible.",
+				"The first pancake often comes out pale because the pan isn't evenly hot yet. Chefs call it the 'test pancake'."
+			]
+		},
+		"big_breakfast": {
+			"steps": {
+				"Butter the griddle": "Butter browns and burns at a lower heat than oil. For a hot griddle, a little oil with the butter helps stop it scorching.",
+				"Crack the eggs": "Never crack an egg on the edge of a bowl: it pushes bits of shell into the egg. Crack it on a flat surface instead.",
+				"Lay the bacon": "Lay bacon strips away from you, so any hot fat that spits goes away from you too.",
+				"Flip the bacon": "Bacon curls because the fat and the meat shrink by different amounts as they cook. Turning it now and then helps it stay flat.",
+				"Ketchup smile": "In the 1830s, tomato ketchup was even sold as a medicine, in pill form."
+			},
+			"facts": [
+				"Sunny-side-up eggs are never flipped: the top sets from the heat rising through the egg."
+			]
+		},
+		"omurice": {
+			"steps": {
+				"Pour the eggs": "Beat eggs until no streaks of white are left, so the omelette comes out an even yellow.",
+				"Fold it in half": "Take the omelette off the heat while the middle is still a little soft: it keeps cooking on its own."
+			},
+			"facts": [
+				"Omurice is a Japanese dish from the early 1900s: an omelette wrapped round or laid over ketchup fried rice.",
+				"In Japan, omurice is often decorated with a ketchup message or drawing on top."
+			]
+		},
+		"hotteok": {
+			"steps": {
+				"Press them flat": "Pressing hotteok flat spreads the sugar filling to the edges and crisps the outside."
+			},
+			"facts": [
+				"Hotteok is a Korean street-food pancake. Its brown sugar, cinnamon and nut filling melts into syrup as it cooks.",
+				"Careful with the first bite of hotteok: the melted sugar inside is much hotter than the outside."
+			]
+		},
+		"churros": {
+			"steps": {
+				"Pipe the dough": "Churros are piped through a star-shaped tip. The ridges help them cook evenly and stop them bursting in the hot oil.",
+				"Chocolate": "In Spain, churros are often dunked in hot chocolate thick enough to coat them."
+			},
+			"facts": [
+				"Churros are thought to come from Spain and Portugal, and are now loved all over Latin America."
+			]
+		},
+		"cherry_pie": {
+			"steps": {
+				"Roll the crust": "Keep pie dough cold. Little pieces of butter melt in the oven, and the steam they give off lifts the crust into flaky layers.",
+				"Lattice top": "A lattice top lets steam escape, so the fruit filling thickens instead of turning soupy."
+			},
+			"facts": [
+				"A pie needs to cool for a few hours before slicing, or the hot filling runs out."
+			]
+		},
+		"acorn_cookies": {
+			"steps": {
+				"Roll the dough": "Chill cookie dough before rolling and cutting: cold dough keeps its shape in the oven.",
+				"Bake": "Cookies keep cooking on the hot tray after they come out, so take them out when the edges are just golden."
+			},
+			"facts": [
+				"Real acorns are very bitter. People who eat them soak them in water first to wash the bitterness out."
+			]
+		},
+		"egg_tarts": {
+			"steps": {
+				"Fill with custard": "Fill the tart cases just short of the top: the custard puffs up a little as it bakes."
+			},
+			"facts": [
+				"Portuguese custard tarts (pastéis de nata) inspired the egg tarts of Macau and Hong Kong.",
+				"The dark spots on top of an egg tart come from the custard's sugar caramelising in a very hot oven."
+			]
+		},
+		"apple_strudel": {
+			"steps": {
+				"Roll the pastry thin": "Traditional strudel dough is stretched so thin you could read a newspaper through it."
+			},
+			"facts": [
+				"Apple strudel is a classic of Vienna, Austria. The oldest known strudel recipe is from 1696."
+			]
+		},
+		"croissant": {
+			"steps": {
+				"Fold in thirds": "Every fold multiplies the layers of butter and dough. After a few folds there are dozens of them; rolled and shaped, they make a croissant's flakes.",
+				"Turn it": "Keep the dough cold between folds, so the butter stays in its own layer instead of melting into the dough.",
+				"Bake": "In the oven, the water in the butter turns to steam and puffs the thin layers apart."
+			},
+			"facts": [
+				"Croissants are famously French, but they grew out of the Austrian kipferl, a crescent-shaped bread."
+			]
+		},
+		"soft_pretzel": {
+			"steps": {
+				"Twist them": "Legend says monks first twisted pretzels to look like arms folded in prayer.",
+				"Stir in the milk": "Add milk to a cheese sauce a little at a time and keep stirring, so it stays smooth.",
+				"Stir until smooth": "Keep cheese sauce on low heat. Too hot and the cheese turns stringy or grainy."
+			},
+			"facts": [
+				"Pretzels get their deep brown shine from a quick dip in an alkaline bath, like baking-soda water, before baking."
+			]
+		},
+		"mochi": {
+			"steps": {
+				"Whisk until smooth": "Whisk out every lump before cooking the mochi: lumps don't cook out.",
+				"Dust the counter": "Dust the counter with starch or powdered sugar, or the mochi sticks to everything."
+			},
+			"facts": [
+				"Mochi is made from glutinous rice, which has no gluten at all: 'glutinous' just means sticky.",
+				"In Japan, mochi is traditionally made at New Year by pounding steamed rice with a big wooden mallet."
+			]
+		},
+		"pork_dumplings": {
+			"steps": {
+				"Pleat them shut": "Pleating gathers the wrapper so it hugs the filling and seals tight.",
+				"Steam them": "Steam dumplings on a liner, like cabbage leaves or baking paper, so they don't stick."
+			},
+			"facts": [
+				"In China, dumplings are eaten at Lunar New Year: their shape is said to look like old gold ingots, for good luck."
+			]
+		},
+		"fire_noodles": {
+			"steps": {
+				"Chili oil": "Chili heat comes from capsaicin, which dissolves in fat, not water. That's why chili oil carries the heat so well."
+			},
+			"facts": [
+				"Too spicy? Milk helps more than water: a protein in milk breaks up capsaicin and washes it away."
+			]
+		},
+		"four_cheese_mac": {
+			"steps": {
+				"Cheese!": "Grate cheese yourself: ready-grated cheese is coated in starch so it doesn't clump, which can make a sauce grainy."
+			},
+			"facts": [
+				"Mixing cheeses works well: some melt smoothly, like cheddar, and others bring lots of flavour, like parmesan."
+			]
+		},
+		"cloud_foam_salad": {
+			"steps": {
+				"Arrange the greens": "Make sure salad leaves are dry, or the dressing slides right off them.",
+				"Whip on the foam": "Chefs often make foams with soy lecithin, which holds tiny air bubbles in place.",
+				"Vinaigrette": "Dress a salad just before serving: salt and vinegar pull water out of the leaves and make them wilt."
+			},
+			"facts": []
+		},
+		"soup": {
+			"steps": {
+				"Stir": "Stir soup from the bottom of the pot, so nothing catches and burns."
+			},
+			"facts": [
+				"Cut soup vegetables to the same size so they all finish cooking at the same time.",
+				"Simmer soup gently: a hard boil turns vegetables mushy and the broth cloudy."
+			]
+		},
+		"fish_stew": {
+			"steps": {
+				"Into the pot": "Fish cooks in just a few minutes. Add it near the end, or it falls apart in the stew.",
+				"Season: salt": "Season a little at a time and taste as you go: you can add more salt, but you can't take it out."
+			},
+			"facts": []
+		},
+		"chopping": {
+			"steps": {
+				"Peel": "Peel away from yourself, so the peeler can't slip toward your hand.",
+				"Chop": "Curl the fingertips of the hand holding the food under, like a claw, so the knife can't reach them."
+			},
+			"facts": [
+				"A sharp knife is safer than a blunt one: it needs less force, so it's less likely to slip."
+			]
+		},
+		"filleting": {
+			"steps": {},
+			"facts": [
+				"A fillet knife is thin and bendy, so it can follow the fish's bones and leave less fish behind."
+			]
+		},
+		"fishing": {
+			"steps": {},
+			"facts": [
+				"Fish often bite best around dawn and dusk, when the light is low and lots of insects are out."
+			]
+		},
+		"wash_dishes": {
+			"steps": {},
+			"facts": [
+				"Wash the cleanest things first, like glasses, then plates, then greasy pans, so the water stays cleaner for longer."
+			]
+		},
+		"squared_steak": {
+			"steps": {},
+			"facts": [
+				"Pat steak dry before searing: a wet surface steams instead of browning.",
+				"The brown crust on a seared steak is the Maillard reaction: proteins and sugars browning at around 140 °C (285 °F) and up.",
+				"Searing doesn't really seal in a steak's juices. What it adds is flavour, from all that browning.",
+				"Let a steak rest for a few minutes after cooking, so its juices settle before you cut it."
+			]
+		}
+	}
+}
