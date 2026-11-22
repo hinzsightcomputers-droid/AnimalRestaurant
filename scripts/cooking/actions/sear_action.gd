@@ -89,6 +89,9 @@ var _drops := 0
 var _ever_smoked := false
 var _smoking := false
 var _aim_arrow: Node3D
+var _guides: Array[Node3D] = []          # One arrow per way to toss, round the cube.
+var _go_paint: StandardMaterial3D        # A toss that way lands a face still to cook...
+var _done_paint: StandardMaterial3D      # ...or one already done.
 var _meter: MeshInstance3D
 var _meter_paint: StandardMaterial3D
 var _steam: CPUParticles3D
@@ -114,6 +117,15 @@ func _begin() -> void:
 	_build_steak()
 	_aim_arrow = session.make_arrow(0.07)
 	_aim_arrow.visible = false
+	for i in 4:
+		var guide := session.make_arrow(0.05)
+		guide.visible = false
+		_guides.append(guide)
+	var paint: StandardMaterial3D = ((_guides[0].get_child(0) as MeshInstance3D).mesh as PrimitiveMesh).material
+	_go_paint = paint.duplicate()
+	_go_paint.albedo_color = Color(0.45, 0.95, 0.4, 0.95)
+	_done_paint = paint.duplicate()
+	_done_paint.albedo_color = Color(0.65, 0.65, 0.65, 0.5)
 	_meter = session.make_meter(Vector3(0.0, pan_floor + 0.002, pan_inner_radius + 0.07), 0.24, Vector2(0.0, out_from), Color(1.0, 0.85, 0.3))
 	_meter_paint = (_meter.mesh as PrimitiveMesh).material
 	_meter.get_parent().visible = false
@@ -129,6 +141,8 @@ func end() -> void:
 	_sizzle.stop()
 	_steam.emitting = false
 	_aim_arrow.queue_free()
+	for guide in _guides:
+		guide.queue_free()
 	_meter.get_parent().queue_free()
 	_burner.queue_free()
 	_pan.queue_free()
@@ -137,6 +151,9 @@ func end() -> void:
 
 
 func update(delta: float, input: CookInput) -> void:
+	if _flying or _on_counter:
+		for guide in _guides:
+			guide.visible = false
 	if _flying:
 		return
 	if _on_counter:
@@ -171,6 +188,8 @@ func update(delta: float, input: CookInput) -> void:
 		session.set_status("Stuck! Nudge the pan to free it")
 	elif _all_cooked():
 		session.set_status("All sides cooked! Toss it toward the plate")
+	elif _doneness[_down_side()] >= perfect_from:
+		session.set_status("Seared! Toss it toward a green arrow (%d / 6)" % _seared_count())
 	else:
 		session.set_status("Sides seared: %d / 6" % _seared_count())
 
@@ -404,7 +423,8 @@ func _serve() -> void:
 # out of the pan) and an arrow the way it'll go.
 func _show_aim() -> void:
 	_meter.get_parent().visible = _winding
-	_aim_arrow.visible = _winding and _aim.length() > 0.2
+	_aim_arrow.visible = false
+	_show_guides()
 	if not _winding:
 		return
 	session.set_meter(_meter, _power)
@@ -413,6 +433,33 @@ func _show_aim() -> void:
 		var way := Vector2(signf(_aim.x), 0.0) if absf(_aim.x) > absf(_aim.y) else Vector2(0.0, signf(_aim.y))
 		_aim_arrow.position = _steak.position + Vector3(way.x, 0.0, way.y) * steak_size * 1.1 + Vector3(0.0, -steak_size * 0.4, 0.0)
 		_aim_arrow.rotation.y = -way.angle()
+
+
+# The four arrows round the cube: green if a toss that way lands a face still
+# to cook, grey if it's done. Winding up past the two-face mark, every way
+# lands the top, so they all go by the top. The way being aimed is bigger.
+func _show_guides() -> void:
+	var aimed := _snapped_way(_aim) if _winding else Vector2.ZERO
+	var strong := _winding and _power >= two_faces_from
+	for i in 4:
+		var guide := _guides[i]
+		var way: Vector2 = WAYS[i]
+		guide.visible = true
+		var lands := _up_side() if strong else _side_facing(way)
+		var paint := _done_paint if _doneness[lands] >= raw_at else _go_paint
+		for part in guide.get_children():
+			(part as MeshInstance3D).material_override = paint
+		var big := way == aimed
+		var bob := 0.006 * (1.0 + sin(Time.get_ticks_msec() * 0.012)) if big else 0.0
+		guide.scale = Vector3.ONE * (1.6 if big else 1.0)
+		guide.position = _steak.position + Vector3(way.x, 0.0, way.y) * (steak_size * 0.95 + bob) + Vector3(0.0, -steak_size * 0.4, 0.0)
+		guide.rotation.y = -way.angle()
+
+
+static func _snapped_way(way: Vector2) -> Vector2:
+	if way.length() < 0.2:
+		return Vector2.ZERO
+	return Vector2(signf(way.x), 0.0) if absf(way.x) > absf(way.y) else Vector2(0.0, signf(way.y))
 
 
 func _place_steak() -> void:
@@ -554,7 +601,22 @@ func _show_map() -> void:
 		var down := key == "down"
 		style.set_border_width_all(4 if down else 2)
 		style.border_color = (Color(1.0, 0.45, 0.25) if _stuck else Color(1.0, 0.85, 0.3)) if down else Color(1.0, 0.97, 0.9, 0.9)
+		if key == _landing_tile():  # Where the wind-up being held would land.
+			style.set_border_width_all(5)
+			style.border_color = Color(0.45, 0.95, 0.4)
+			style.shadow_color = Color(0.45, 0.95, 0.4, 0.6)
+			style.shadow_size = 6
 		(_tiles[key] as Panel).add_theme_stylebox_override("panel", style)
+
+
+# The map square a toss now would land ("" when not winding up or not aimed).
+func _landing_tile() -> String:
+	if not _winding or _power >= out_from:
+		return ""
+	if _power >= two_faces_from:
+		return "top"
+	var aimed := _snapped_way(_aim)
+	return "" if aimed == Vector2.ZERO else str(WAYS.find(aimed))
 
 
 # --- For a reel ---------------------------------------------------------------------
