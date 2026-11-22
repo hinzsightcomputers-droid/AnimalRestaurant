@@ -84,7 +84,7 @@ var rating: Dictionary = {}
 var decor: Dictionary = {}
 # The day each shop item arrives in stock, by id (see in_stock()).
 var shop_arrivals: Dictionary = {}
-# Phone tuning: ring and gap timings, voicemail size, who calls, the courier.
+# Phone tuning: ring and gap timings, how many app orders can wait, who calls, the courier.
 var phone_settings: Dictionary = {}
 # The named townsfolk who walk in and come and go, one file each in
 # data/townsfolk/ (see _template.json there and Townsfolk): { id, name, species,

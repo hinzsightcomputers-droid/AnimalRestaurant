@@ -21,6 +21,7 @@ signal camera_focus_released
 
 var movement_locked := false      # True while busy (e.g. cooking).
 var scripted_move := Vector2.ZERO # A reel steering the chef instead of a player (see ReelDirector).
+var on_phone := false              # Looking at an app order (MooberOrders): interact is for that.
 var decorating := false           # In Decorate mode: interact belongs to that, not the room.
 var hidden_from_own_view := false  # In a close-up: their own camera leaves them out.
 var has_acted := false            # Becomes true the first time this player moves or interacts.
@@ -222,7 +223,7 @@ func _physics_process(delta: float) -> void:
 # A dialogue box of ours is open: interact moves the conversation on, so it
 # mustn't also use the counter, chair or table in front of us.
 func in_conversation() -> bool:
-	return decorating or get_tree().get_nodes_in_group(ConversationBox.GROUP).any(func(box): return box.player_index == player_index and not box.is_queued_for_deletion())
+	return decorating or on_phone or get_tree().get_nodes_in_group(ConversationBox.GROUP).any(func(box): return box.player_index == player_index and not box.is_queued_for_deletion())
 
 
 # The press that's down right now (e.g. the one that closed a dialogue box)

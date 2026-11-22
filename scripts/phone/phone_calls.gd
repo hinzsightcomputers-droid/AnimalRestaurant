@@ -14,8 +14,8 @@ extends RefCounted
 
 
 # Who rings next (Withdrawn regulars first, sometimes a friend just to chat,
-# otherwise someone from town), or {} if nobody. Skips anyone already waiting
-# in voicemail, and `last_id` so the same townsfolk don't call twice in a row.
+# otherwise someone from town), or {} if nobody. Skips anyone with a
+# Moober order already waiting, and `last_id` so the same townsfolk don't call twice in a row.
 # Townsfolk phone at most once a meal (and once a night), saved, so a restart
 # or a new day's reload doesn't let them straight back on the line.
 # Regulars mostly call at `night` (in the day their chance is scaled by
@@ -23,7 +23,7 @@ extends RefCounted
 # and are likelier then (night_only_weight).
 static func next_call(last_id := "", night := false) -> Dictionary:
 	var settings := GameData.phone_settings
-	var waiting := GameState.voicemails.map(func(v): return v["id"])
+	var waiting := GameState.app_orders.map(func(v): return v["id"])
 	var factor: float = 1.0 if night else settings.get("regular_day_call_factor", 0.25)
 	for kind in ["order", "chat"]:
 		var chance: float = settings.get("regular_%s_call_chance" % kind, 0.0) * factor
@@ -82,8 +82,8 @@ static func _call_slot() -> String:
 	return "%s %s" % [GameState.date, DayCycle.phase_id()]
 
 
-# Everything said on `call`, for chef `chef_id` (live or played back from
-# voicemail): { name, regular_id, lines: [text...], ask: {} or { text, options,
+# Everything said on `call`, for chef `chef_id` (on the wall phone, or in
+# the Moober app, where nobody can reply): { name, regular_id, lines: [text...], ask: {} or { text, options,
 # choices }, dish: {} or the dish ordered }. The caller's lines are picked now,
 # so a regular's memory (like an answered note) moves on.
 static func build(call: Dictionary, chef_id: String, voicemail: bool) -> Dictionary:
@@ -177,16 +177,15 @@ static func caller_info(call: Dictionary) -> Dictionary:
 	return { "kind": call["kind"], "id": call["id"], "name": record.get("name", "?"), "species": record.get("species", ""), "regular_id": call["id"] }
 
 
-# Debug panel: fill the voicemail with calls from town, one per caller, up to
-# max_voicemails.
-static func fill_voicemail() -> void:
-	var max_count := int(GameData.phone_settings.get("max_voicemails", 6))
+# Debug panel: Moober orders from townsfolk, one per caller, up to max_app_orders.
+static func fill_app_orders() -> void:
+	var max_count := int(GameData.phone_settings.get("max_app_orders", 3))
 	var callers := GameData.callers.duplicate()
 	callers.shuffle()
 	for caller in callers:
-		if GameState.voicemails.size() >= max_count:
+		if GameState.app_orders.size() >= max_count:
 			return
-		GameState.voicemails.append({ "kind": "townsfolk", "id": caller["id"] })
+		GameState.app_orders.append({ "kind": "townsfolk", "id": caller["id"] })
 
 
 static func _random_part(caller: Dictionary, part: String) -> Dictionary:

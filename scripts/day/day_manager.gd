@@ -37,6 +37,7 @@ const AFTER_HOURS_LIGHT_CHECK_SECONDS := 60.0
 
 var decor_room := DecorRoom.new()  # What's been placed (see Decor).
 var _announced_bell := false
+var _announced_orders := false
 var _lighting: Tween
 var _night_ending := false
 var _after_hours_block := ""  # The hour block After Hours is lit for.
@@ -85,6 +86,9 @@ func _process(delta: float) -> void:
 	customer_manager.bell.wants_ringing = bell_ready()
 	match DayCycle.phase:
 		DayCycle.Phase.MEAL:
+			if DayCycle.is_open() and customer_manager.phase_finished() and orders_outstanding() and not _announced_orders:
+				_announced_orders = true
+				GameEvents.announce("Everyone's been served! Finish the delivery orders, then ring the bell.")
 			if bell_ready() and not _announced_bell:
 				_announced_bell = true
 				GameEvents.announce("Everyone's been served! Ring the bell at the counter %s." % (
@@ -108,9 +112,15 @@ func _process(delta: float) -> void:
 					_light_after_hours()
 
 
-# The meal's customers have all been and gone, so the bell can be rung.
+# The meal's customers have all been and gone, so the bell can be rung, once
+# every app order's been viewed and every delivery handed over.
 func bell_ready() -> bool:
-	return DayCycle.is_open() and customer_manager.phase_finished()
+	return DayCycle.is_open() and customer_manager.phase_finished() and not orders_outstanding()
+
+
+# App orders waiting to be viewed, or deliveries waiting for their dish.
+func orders_outstanding() -> bool:
+	return (phone != null and phone.moober.has_orders()) or _deliveries_waiting()
 
 
 # The counter's prompt while the bell's ready, e.g. "Ring the bell: Lunch".
@@ -253,6 +263,7 @@ func _reload() -> void:
 
 func _start_phase(phase: int, light_seconds := -1.0) -> void:
 	_announced_bell = false
+	_announced_orders = false
 	var info := GameState.phase_info(phase)
 	_light(info.get("lighting", {}), light_seconds)
 	var plan := GameState.todays_plan()

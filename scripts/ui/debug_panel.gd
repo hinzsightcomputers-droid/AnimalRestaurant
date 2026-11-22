@@ -2,7 +2,7 @@
 # Pick a regular to see everything they remember, set their relationship (or
 # jump to a stage), queue them to visit next, or reset them. It can also fake the
 # date forward to test "you've been gone" lines, show and re-roll which regulars
-# come in today, ring the phone for any caller or fill its voicemail, send a
+# come in today, ring the phone for any caller or fill the Moober app orders, send a
 # regular to Gone and skip through winning them back, and play each big moment
 # scene at closing (or set up its trigger), and practice close-up recipes or
 # put only one dish on the menu, play a reel scenario in its own window, or wipe
@@ -243,14 +243,14 @@ func _ring_phone() -> void:
 	_refresh()
 
 
-func _fill_voicemail() -> void:
-	PhoneCalls.fill_voicemail()
+func _fill_app_orders() -> void:
+	PhoneCalls.fill_app_orders()
 	_changed = true
 	_refresh()
 
 
-func _clear_voicemail() -> void:
-	GameState.voicemails.clear()
+func _clear_app_orders() -> void:
+	GameState.app_orders.clear()
 	_changed = true
 	_refresh()
 
@@ -447,9 +447,9 @@ Forage Log: %d of %d." % [
 		_houses_label.text = "\n".join(lines)
 	if GameState.forced_fish.is_empty() and _fish_picker.selected != 0:
 		_fish_picker.select(0)  # The forced fish was caught.
-	_phone_label.text = "Phone: %s.  Voicemails: %d%s" % [
+	_phone_label.text = "Phone: %s.  App orders: %d%s" % [
 		"on the wall" if GameState.phone_unlocked else ("goes up tomorrow" if GameState.delivery_asked else "not yet (a townsfolk asks at the bill on day 3+)"),
-		GameState.voicemails.size(),
+		GameState.app_orders.size(),
 		"   Rings next: %s" % GameState.forced_caller if not GameState.forced_caller.is_empty() else ""]
 
 	var record := _selected_record()
@@ -770,8 +770,8 @@ func _build() -> void:
 	box.add_child(_caller_picker)
 	var phone_row := _add_row(box)
 	_add_button(phone_row, "Ring now", _ring_phone)
-	_add_button(phone_row, "Fill voicemail", _fill_voicemail)
-	_add_button(phone_row, "Clear voicemail", _clear_voicemail)
+	_add_button(phone_row, "Fill app orders", _fill_app_orders)
+	_add_button(phone_row, "Clear app orders", _clear_app_orders)
 	var phone_row_2 := _add_row(box)
 	_add_button(phone_row_2, "Unlock the phone", _unlock_phone)
 	_add_button(phone_row_2, "Remove the phone", _remove_phone)

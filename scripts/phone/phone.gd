@@ -1,22 +1,23 @@
 # Phone: the phone on the wall by the host stand. It isn't there at first: it
 # goes up the morning after a customer asks whether you deliver (see
-# GameState.phone_unlocked). Every so often during the meals it rings (sound, shaking, "Ring! Ring!"). Walk up and
-# interact to answer: the call plays in the dialogue box (greeting, order,
-# sometimes one quick reply) and the order goes to DeliveryManager.
-# Nobody is ever punished for missing a call: if it rings out, it goes to
-# voicemail, and voicemails wait on the phone (with a blinking light) to be
-# played back any time. A ring that comes while someone is in a conversation
+# GameState.phone_unlocked), and with it the chefs get the Moober Treats app.
+# Every so often during the meals an order comes in: from townsfolk it pings
+# the chefs' phones (MooberOrders, a child of this); from a regular (a
+# Withdrawn one ordering, or a friend calling to chat) the wall phone rings
+# (sound, shaking, "Ring! Ring!"). Walk up and interact to answer: the call
+# plays in the dialogue box and any order goes to DeliveryManager.
+# Nobody is ever punished for missing a call: if it rings out, they just call
+# again another time (there's no voicemail). A ring that comes while someone is in a conversation
 # keeps ringing (a little quieter) and its time stands still, so another chef
 # can answer it, or whoever was talking can once they're done; after the chat
-# it rings at least ring_after_chat_seconds more before voicemail.
+# it rings at least ring_after_chat_seconds more before it gives up.
 # The time until the next ring stands still during conversations, and the
 # phone stays quiet while a regular is walking in. Timings: data/phone.json.
 # When it's quiet, you can also pick it up to call a friend of someone Gone and
 # ask them to talk to that regular for you (see Redemption).
 # The night shift after closing (see DayManager) is phone orders only: a few
-# calls (night in data/phone.json), closer together, then it goes quiet.
-# With max_voicemails waiting, the day's calls stop until some are played
-# back (the Guide points at them in a quiet moment); the night's still ring.
+# orders (night in data/phone.json), closer together, then it goes quiet.
+# With max_app_orders waiting, no more come in until some are viewed.
 class_name Phone
 extends Station
 
@@ -28,7 +29,7 @@ const SHAKE_DEGREES := 6.0
 @export var customer_manager: CustomerManager
 
 var _ringing: Dictionary = {}   # The call ringing right now, {} when quiet.
-var _ring_left := 0.0           # Seconds before it goes to voicemail.
+var _ring_left := 0.0           # Seconds before it rings out.
 var _ring_time := 0.0           # Seconds it's been ringing, for the shake (keeps going while _ring_left is held).
 var _held_for_chat := false     # The ring is waiting out a conversation.
 var _until_next_ring := 0.0
@@ -41,6 +42,7 @@ var _light_material := StandardMaterial3D.new()
 var _time := 0.0
 var _was_night := false
 var _collision_layer := 0
+var moober := MooberOrders.new()
 
 @onready var ring_label: Label3D = $RingLabel
 @onready var voicemail_label: Label3D = $VoicemailLabel
@@ -56,6 +58,9 @@ func _ready() -> void:
 	voicemail_light.material_override = _light_material
 	_until_next_ring = _random_seconds("first_ring_delay")
 	_collision_layer = collision_layer
+	moober.delivery_manager = delivery_manager
+	moober.view_manager = view_manager
+	add_child(moober)
 	_show_installed()
 
 
@@ -66,12 +71,10 @@ func is_ringing() -> bool:
 func _prompt_for(player_index: int) -> String:
 	if _in_call:
 		return ""
-	if (is_ringing() or not GameState.voicemails.is_empty()) and TicketWheel.is_full(get_tree()):
+	if is_ringing() and TicketWheel.is_full(get_tree()):
 		return "Ticket wheel full!"  # A call is an order, and there's no clip for it.
 	if is_ringing():
 		return "Answer"
-	if not GameState.voicemails.is_empty():
-		return "Voicemail (%d)" % GameState.voicemails.size()
 	if not Redemption.all_helpers(Accounts.id_of(player_index)).is_empty():
 		return "Call a friend"
 	return ""
@@ -81,30 +84,23 @@ func _on_interacted(player_index: int) -> void:
 	var player := Player.find(get_tree(), player_index)
 	if _in_call or player == null:
 		return
-	if (is_ringing() or not GameState.voicemails.is_empty()) and TicketWheel.is_full(get_tree()):
+	if is_ringing() and TicketWheel.is_full(get_tree()):
 		GameEvents.announce("The ticket wheel is full! Finish an order first.")
 		return
 	if is_ringing():
 		var call := _ringing
 		_stop_ringing()
 		_play_bounce()
-		_take_call(player, call, false)
-	elif not GameState.voicemails.is_empty():
-		_play_bounce()
-		_take_call(player, GameState.voicemails.pop_front(), true)
+		_take_call(player, call)
 	elif not Redemption.all_helpers(Accounts.id_of(player_index)).is_empty():
 		_play_bounce()
 		_call_friend(player)
 
 
-# Voicemails waiting that someone could play back right now (for the Guide).
-func voicemail_to_play() -> bool:
-	return not _in_call and not is_ringing() and not GameState.voicemails.is_empty() and not TicketWheel.is_full(get_tree())
-
-
-# The night's calls have all rung and nobody's on the phone.
+# The night's calls have all come in, nobody's on the phone, and every app
+# order's been viewed.
 func quiet_for_tonight() -> bool:
-	return GameState.night_calls_used >= GameState.night_calls_total and not is_ringing() and not _in_call
+	return GameState.night_calls_used >= GameState.night_calls_total and not is_ringing() and not _in_call and not moober.has_orders()
 
 
 # Only on the wall once it's been put up.
@@ -144,13 +140,18 @@ func _process(delta: float) -> void:
 	if DayCycle.is_night():
 		GameState.night_calls_used += 1  # Counts even if it doesn't ring, so the night always ends.
 		SaveGame.save_game()
-	if GameState.voicemails.size() >= _max_voicemails() and not DayCycle.is_night():
-		return  # Plenty waiting already: this call just doesn't happen.
-	# (At night it rings anyway: the night shift is only calls, so skipping them
-	# with a full mailbox left a minute and a half of nothing, then the day over.)
 	var call := PhoneCalls.next_call(_last_caller, DayCycle.is_night())
-	if not call.is_empty():
+	if call.is_empty():
+		return
+	if call["kind"] != "townsfolk":
 		_ring(call)
+	elif moober.is_full():
+		return  # Plenty waiting already: this order just doesn't happen.
+	elif not DayCycle.is_night() and customer_manager != null and customer_manager.phase_finished():
+		return  # The meal's done: nothing new to hold the bell up.
+	else:
+		_last_caller = call["id"]
+		moober.add_order(call)
 
 
 func _ring(call: Dictionary) -> void:
@@ -172,7 +173,10 @@ func _ring_forced(caller_id: String) -> void:
 		var regular_name: String = GameState.regulars.get(caller_id, {}).get("name", caller_id)
 		GameEvents.announce("%s only phones when Withdrawn (to order) or at their top stage (to chat)." % regular_name)
 		return
-	_ring(call)
+	if call["kind"] == "townsfolk":
+		moober.add_order(call)
+	else:
+		_ring(call)
 
 
 func _stop_ringing() -> void:
@@ -182,7 +186,7 @@ func _stop_ringing() -> void:
 	_ring_sound.volume_db = 0.0
 
 
-# Counts a ring down to voicemail, except while someone's in a conversation:
+# Counts a ring down until it rings out, except while someone's in a conversation:
 # the ring holds (quieter, so it doesn't drown the chat) and picks up again
 # afterwards with enough time left for them to walk over and answer.
 func _tick_ring(delta: float) -> void:
@@ -197,31 +201,27 @@ func _tick_ring(delta: float) -> void:
 		return
 	_ring_left -= delta
 	if _ring_left <= 0.0:
-		_to_voicemail()
+		_missed()
 
 
-func _to_voicemail() -> void:
+# Rang out: no voicemail, they'll just call again (their call today doesn't count).
+func _missed() -> void:
 	var call := _ringing
 	_stop_ringing()
-	var caller_name: String = PhoneCalls.caller_info(call)["name"]
-	if GameState.voicemails.size() < _max_voicemails():
-		GameState.voicemails.append(call)
-		GameEvents.announce("Missed a call from %s. They left a voicemail." % caller_name)
-	else:  # Said out loud, so a full mailbox isn't a silent mystery.
-		GameEvents.announce("Missed a call from %s. The voicemail's full!" % caller_name)
+	if GameState.regulars.has(call["id"]):
+		GameState.regulars[call["id"]]["last_called"] = ""
+	GameEvents.announce("Missed a call from %s. They'll call back." % PhoneCalls.caller_info(call)["name"])
 
 
-# Answer `call` (or play it back from voicemail): the lines in a dialogue box,
-# then the order goes in. The player stays at the phone until it's done.
-func _take_call(player: Player, call: Dictionary, voicemail: bool) -> void:
+# Answer `call`: the lines in a dialogue box, then the order goes in. The
+# player stays at the phone until it's done.
+func _take_call(player: Player, call: Dictionary) -> void:
 	_in_call = true
 	var chef_id := Accounts.id_of(player.player_index)
 	player.movement_locked = true
 	player.interactor.lock_to(interactable)
-	var built := PhoneCalls.build(call, chef_id, voicemail)
+	var built := PhoneCalls.build(call, chef_id, false)
 	var speaker: String = built["name"]
-	if voicemail:
-		speaker += GameData.phone_settings.get("voicemail_suffix", " (voicemail)")
 	var box := ConversationBox.open(_view_of(player), player.player_index, built["regular_id"])
 	for line in built["lines"]:
 		await box.tell(speaker, line)
@@ -295,23 +295,15 @@ func _view_of(player: Player) -> Control:
 	return ConversationBox.parent_for(view_manager, player.player_index, self)
 
 
-# Shakes and shows "Ring! Ring!" in time with the ring; the light blinks while
-# voicemails are waiting.
+# Shakes and shows "Ring! Ring!" in time with the ring.
 func _update_look() -> void:
 	var sounding := is_ringing() and fmod(_ring_time, 3.0) < 1.2
 	visual.rotation.z = deg_to_rad(sin(_time * 45.0) * SHAKE_DEGREES) if sounding else 0.0
 	ring_label.visible = is_ringing()
 	ring_label.position.y = 2.45 + (0.06 * sin(_time * 12.0) if sounding else 0.0)
-	var waiting := GameState.voicemails.size()
-	voicemail_label.visible = waiting > 0 and not is_ringing()
-	voicemail_label.text = "%d voicemail%s" % [waiting, "" if waiting == 1 else "s"]
-	var lit := waiting > 0 and fmod(_time, 1.2) < 0.7
-	_light_material.albedo_color = Color(0.95, 0.2, 0.15) if lit else Color(0.35, 0.12, 0.1)
-	_light_material.emission = Color(1.0, 0.25, 0.15) if lit else Color.BLACK
-
-
-func _max_voicemails() -> int:
-	return int(GameData.phone_settings.get("max_voicemails", 6))
+	voicemail_label.visible = false  # (No voicemail any more: the light stays dark.)
+	_light_material.albedo_color = Color(0.35, 0.12, 0.1)
+	_light_material.emission = Color.BLACK
 
 
 # A random time from data/phone.json (the night's own timings at night).

@@ -51,9 +51,9 @@ var townsfolk: Dictionary = {}
 var forced_visitors: Array[String] = []
 # Debug panel: the next regular who can asks "What do you recommend?" / "Surprise me". Not saved.
 var force_pick_for_me := false
-# Missed phone calls waiting on the phone, oldest first: { kind, id } (see PhoneCalls).
-# Saved, so they keep until someone plays them.
-var voicemails: Array = []
+# Moober Treats orders waiting on the chefs' phones, oldest first: { kind, id }
+# (see MooberOrders, PhoneCalls). Saved, so they keep until someone views them.
+var app_orders: Array = []
 # Debug panel: who rings the phone next (a caller or regular id). Not saved.
 var forced_caller := ""
 # Rewards from big moment scenes, e.g. "patchwork_apron", "mabel_bell" (see
@@ -144,7 +144,7 @@ func _ready() -> void:
 
 # Closing the window mid-day keeps everything since the last save: what
 # regulars remember (a rude reply, a new friend, a letter on its way),
-# voicemails, money, which meal it is and who's been in. A brand-new game that
+# app orders, money, which meal it is and who's been in. A brand-new game that
 # was never named doesn't get a save file.
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST and (SaveGame.has_save() or not restaurant_name.is_empty()):
@@ -425,7 +425,7 @@ func to_save_data() -> Dictionary:
 		"upgrades": upgrades,
 		"stage": stage,
 		"stage_building": stage_building,
-		"voicemails": voicemails,
+		"app_orders": app_orders,
 		"unlocks": unlocks,
 		"delivery_asked": delivery_asked,
 		"phone_unlocked": phone_unlocked,
@@ -530,7 +530,11 @@ func apply_save_data(data: Dictionary) -> void:
 	forage_today = data.get("forage_today", {}) if data.get("forage_today", {}) is Dictionary else {}
 	forage_today["picked"] = forage_today.get("picked", []).map(func(i): return int(i))
 	forage_today["salt"] = int(forage_today.get("salt", 0))
-	voicemails = data.get("voicemails", []).filter(func(v): return v is Dictionary and v.has("kind") and v.has("id"))
+	# Old saves had voicemails: townsfolk orders among them become app orders
+	# (regulars just call again another day).
+	var saved_orders: Array = data.get("app_orders", data.get("voicemails", []))
+	app_orders = saved_orders.filter(func(v): return v is Dictionary and v.get("kind", "") == "townsfolk" and v.has("id"))
+	app_orders.resize(mini(app_orders.size(), int(GameData.phone_settings.get("max_app_orders", 3))))
 	var legacy_account_id := _account_from_old_save(data)
 	var saved_regulars: Dictionary = data.get("regulars", {})
 	for id in saved_regulars:
