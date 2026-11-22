@@ -8,7 +8,7 @@
 [sub_resource type="Resource" id="Resource_sear"]
 script = ExtResource("sear")
 title = "Sear every side"
-hint = "Move the pan with [stick]: the steak slides! Hold [button] and flick [stick] toward a side to toss it onto that side. Sear all six, then toss it toward the plate."
+hint = "Tilt the pan with [stick] to roll the cube onto a raw side (green arrows); only the bottom cooks, hottest in the middle. Wiggle if it sticks. [button] salts the top. Cook all six, then [button] to plate it."
 cue = "Sizzle!"
 view_distance = 0.5
 view_pitch = 62.0
