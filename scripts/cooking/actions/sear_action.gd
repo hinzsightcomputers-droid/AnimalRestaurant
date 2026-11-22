@@ -435,16 +435,20 @@ func _show_aim() -> void:
 		_aim_arrow.rotation.y = -way.angle()
 
 
-# The four arrows round the cube: green if a toss that way lands a face still
+# The four arrows round the cube, once the face down is seared: green if a toss that way lands a face still
 # to cook, grey if it's done. Winding up past the two-face mark, every way
 # lands the top, so they all go by the top. The way being aimed is bigger.
 func _show_guides() -> void:
 	var aimed := _snapped_way(_aim) if _winding else Vector2.ZERO
 	var strong := _winding and _power >= two_faces_from
+	# Only when it wants turning: the face down is seared (or a toss is being wound up).
+	var needed: bool = _winding or _doneness[_down_side()] >= perfect_from
 	for i in 4:
 		var guide := _guides[i]
 		var way: Vector2 = WAYS[i]
-		guide.visible = true
+		guide.visible = needed
+		if not needed:
+			continue
 		var lands := _up_side() if strong else _side_facing(way)
 		var paint := _done_paint if _doneness[lands] >= raw_at else _go_paint
 		for part in guide.get_children():
