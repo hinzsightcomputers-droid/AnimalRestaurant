@@ -13,9 +13,9 @@
 		"usual_order": "four_cheese_mac",
 		"night_only": true,
 		"lines": [
-			{ "part": "greeting", "text": "Mrrhello. It's Juniper. I just woke up. Is it dinner or breakfast?" },
-			{ "part": "greeting", "text": "Hi... sorry, I'm yawning. It's Juniper." },
-			{ "part": "order", "text": "Could I get the [dish]? The warm kind. All of it is the warm kind. Okay." },
+			{ "part": "note", "text": "just woke up. is it breakfast or dinner. either way, warm please" },
+			{ "part": "note", "text": "sorry if this is late. or early. mrrr. thank you" },
+			{ "part": "note", "text": "leave it on the step, I might be napping again" },
 			{ "part": "chat", "text": "Is it raining where you are? It's raining on my windowsill.", "choices": [ { "tone": "warm", "text": "Stay cozy. The food will warm you up.", "reply": "Mm. That sounds nice." }, { "tone": "straight", "text": "Dry here so far.", "reply": "Lucky. Okay. Bye-bye." } ] }
 		]
 	}

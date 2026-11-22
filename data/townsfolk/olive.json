@@ -12,9 +12,9 @@
 	"phone": {
 		"usual_order": "vegetable_soup",
 		"lines": [
-			{ "part": "greeting", "text": "Hello... dear. It's Olive. Take your time. I always do." },
-			{ "part": "order", "text": "I would like... the [dish]. Please. ...Thank you." },
-			{ "part": "order", "text": "Just the [dish], if it's no trouble. No hurry. Truly." },
+			{ "part": "note", "text": "Take your time... dear. No hurry. Truly. ...Thank you." },
+			{ "part": "note", "text": "Thank you. ...And thank you to the courier. ...Thank you." },
+			{ "part": "note", "text": "It took me a while to type this. Worth it. Thank you, dear." },
 			{ "part": "chat", "text": "Is that a new restaurant name I keep hearing? [restaurant]... how lovely.", "choices": [ { "tone": "warm", "text": "Thank you! We picked it ourselves.", "reply": "You picked well... dear." }, { "tone": "playful", "text": "Tell all your friends.", "reply": "I will... slowly." } ] }
 		]
 	}

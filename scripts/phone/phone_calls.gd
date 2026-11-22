@@ -82,17 +82,18 @@ static func _call_slot() -> String:
 	return "%s %s" % [GameState.date, DayCycle.phase_id()]
 
 
-# Everything said on `call`, for chef `chef_id` (on the wall phone, or in
-# the Moober app, where nobody can reply): { name, regular_id, lines: [text...], ask: {} or { text, options,
+# Everything said on `call`, for chef `chef_id` (a regular on the wall phone,
+# or a Moober order's note): { name, regular_id, lines: [text...], ask: {} or { text, options,
 # choices }, dish: {} or the dish ordered }. The caller's lines are picked now,
 # so a regular's memory (like an answered note) moves on.
-static func build(call: Dictionary, chef_id: String, voicemail: bool) -> Dictionary:
+static func build(call: Dictionary, chef_id: String) -> Dictionary:
 	if call["kind"] == "townsfolk":
-		return _build_townsfolk(GameData.get_caller(call["id"]), voicemail)
+		return _build_townsfolk(GameData.get_caller(call["id"]))
 	return _build_regular(GameState.regulars.get(call["id"], {}), call["kind"], chef_id)
 
 
-static func _build_townsfolk(caller: Dictionary, voicemail: bool) -> Dictionary:
+# A Moober order: the dish (their usual, mostly) and the note they sent with it.
+static func _build_townsfolk(caller: Dictionary) -> Dictionary:
 	var result := { "name": caller.get("name", "Someone"), "regular_id": "", "lines": [], "ask": {}, "dish": {} }
 	if caller.is_empty():
 		return result
@@ -104,14 +105,9 @@ static func _build_townsfolk(caller: Dictionary, voicemail: bool) -> Dictionary:
 		"dish": dish.get("name", ""),
 		"restaurant": GameState.restaurant_name if not GameState.restaurant_name.is_empty() else "your restaurant",
 	}
-	for part in ["greeting", "order"]:
-		var line := _random_part(caller, part)
-		if not line.is_empty():
-			result["lines"].append(DialoguePicker.fill(line["text"], context))
-	# Sometimes one quick reply (not on a recording: there's nobody to reply to).
-	var chat := _random_part(caller, "chat")
-	if not voicemail and not chat.is_empty() and randf() < settings.get("townsfolk_chat_chance", 0.4):
-		result["ask"] = _ask(chat, context)
+	var note := _random_part(caller, "note")
+	if not note.is_empty():
+		result["lines"].append(DialoguePicker.fill(note["text"], context))
 	return result
 
 

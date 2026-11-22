@@ -22,6 +22,8 @@ const CASE := Color(0.12, 0.1, 0.1)
 const RIM := Color(0.98, 0.72, 0.6)       # The MyFone's pastel peach rim.
 const INK := Color(0.22, 0.16, 0.12)
 const WIDTH := 300.0
+const PHONE_CAMERA_DISTANCE := 2.3        # The camera close in front of the chef on their phone...
+const PHONE_CAMERA_PITCH := 14.0          # ...and only a little above.
 
 var delivery_manager: DeliveryManager
 var view_manager: ViewManager
@@ -88,9 +90,10 @@ func _view(player: Player) -> void:
 	var index := player.player_index
 	_viewing[index] = true
 	var call: Dictionary = GameState.app_orders.pop_front()
-	var built := PhoneCalls.build(call, Accounts.id_of(index), true)
+	var built := PhoneCalls.build(call, Accounts.id_of(index))
 	player.on_phone = true
 	player.movement_locked = true
+	_phone_out(player, true)
 	var phone := _build_phone(built, InputSetup.interact_hint(index))
 	ConversationBox.parent_for(view_manager, index, player).add_child(phone)
 	var shown := phone.position.y
@@ -110,6 +113,7 @@ func _view(player: Player) -> void:
 	drop.tween_property(phone, "position:y", shown + 700.0, 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	await drop.finished
 	phone.queue_free()
+	_phone_out(player, false)
 	player.on_phone = false
 	player.ignore_interact_until_released()
 	if not built["dish"].is_empty():
@@ -121,8 +125,32 @@ func _view(player: Player) -> void:
 	SaveGame.save_game()
 
 
+# The chef gets their phone out (or puts it away): they turn to face the
+# camera's side of the room, hold a little MyFone up in both hands, and their
+# camera swings down in front of them, low and close, with them on the left so
+# the phone's screen fits on the right. Putting it away undoes all that.
+func _phone_out(player: Player, out: bool) -> void:
+	var chef := player.visual.get_node_or_null("Chef") as ChefModel
+	if chef != null:
+		chef.show_phone(out)
+		chef.carrying = out or player.held_item != null  # Both hands up to hold it.
+	if not out:
+		player.release_camera_focus()
+		return
+	var yaw := deg_to_rad(CameraRig.VIEW_YAW)  # Facing the side the room's seen from: never a wall in the way.
+	var turn := player.create_tween()
+	turn.tween_property(player.visual, "rotation:y", player.visual.rotation.y + wrapf(yaw - player.visual.rotation.y, -PI, PI), 0.25)
+	var right := Vector3(cos(yaw), 0.0, -sin(yaw))  # The camera's right, looking at them from that side.
+	var zoom := CameraZoomSettings.new()
+	zoom.distance = PHONE_CAMERA_DISTANCE
+	zoom.pitch_degrees = PHONE_CAMERA_PITCH
+	zoom.yaw_degrees = CameraRig.VIEW_YAW
+	zoom.duration = 0.45
+	player.request_camera_focus(player.global_position + Vector3(0.0, 0.8, 0.0) + right * 0.42, zoom)
+
+
 # The phone in hand: a dark case round a cream screen with the app's orange
-# header, then who ordered, their message, the dish and how to accept.
+# header, then who ordered what, the order number, their note, and how to accept.
 func _build_phone(built: Dictionary, button: String) -> Control:
 	var holder := Control.new()
 	holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -175,25 +203,30 @@ func _build_phone(built: Dictionary, button: String) -> Control:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 10)
 	body.add_child(column)
-	column.add_child(_label("New order from", 15, INK.lightened(0.35)))
-	var who := _label(built["name"], 26, INK)
+	var who := _label("%s ordered" % built["name"], 22, INK)
 	UiStyle.title(who)
 	column.add_child(who)
+	var dish := _label(String(built["dish"].get("name", "something")), 24, ORANGE.darkened(0.2))
+	dish.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	UiStyle.title(dish)
+	column.add_child(dish)
+	column.add_child(_label("Order #%06d" % randi_range(1, 999999), 15, INK.lightened(0.4)))
+	if not built["lines"].is_empty():
+		var said := _label("They sent a message with their order:", 15, INK.lightened(0.3))
+		said.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		column.add_child(said)
 	for line in built["lines"]:
 		var bubble := PanelContainer.new()
 		var bubble_style := StyleBoxFlat.new()
 		bubble_style.bg_color = Color(0.93, 0.88, 0.8)
 		bubble_style.set_corner_radius_all(14)
+		bubble_style.corner_radius_top_left = 4  # A message bubble's tail corner.
 		bubble_style.set_content_margin_all(10)
 		bubble.add_theme_stylebox_override("panel", bubble_style)
 		var text := _label(String(line), 16, INK)
 		text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		bubble.add_child(text)
 		column.add_child(bubble)
-	if not built["dish"].is_empty():
-		var dish := _label("Order: %s" % built["dish"].get("name", "something"), 19, ORANGE.darkened(0.25))
-		UiStyle.title(dish)
-		column.add_child(dish)
 	var accept := _label("Press %s to accept" % button, 16, INK.lightened(0.2))
 	accept.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(accept)

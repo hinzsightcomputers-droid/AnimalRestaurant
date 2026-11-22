@@ -31,6 +31,7 @@ const NATIVE_HEIGHT := 2.27        # The characters' height as modeled.
 
 const ARM_BONES := ["upperarm", "lowerarm", "wrist", "hand", "handslot"]
 const SKELETON_PATH := "Rig_Medium/Skeleton3D"
+const PHONE_AT := Vector3(0.0, 1.18, 0.6)  # Where their phone is held, in the model's own (unscaled) space: between the carry pose's hands.
 
 var carrying := false
 var look: CharacterAppearance  # What they look like now (see apply_appearance).
@@ -46,6 +47,7 @@ var _model: Node3D
 var _animations := AnimationTree.new()
 var _move := ""  # Requested on the first frame.
 var _carry_amount := 0.0
+var _phone: Node3D = null  # Their MyFone, held up while they look at an app order (show_phone).
 var _last := Vector3.ZERO
 var _speed := 0.0
 
@@ -100,6 +102,42 @@ func attach(bone: String, node: Node3D, at: Transform3D) -> void:
 	skeleton.add_child(holder)
 	holder.add_child(node)
 	node.transform = skeleton.get_bone_global_rest(skeleton.find_bone(bone)).affine_inverse() * at
+
+
+# Their MyFone held up in front of them (or put away): a chunky little phone,
+# peach case toward whoever's looking at them, its screen glowing up at their
+# face. Set carrying too, so both hands come up to hold it (MooberOrders does).
+func show_phone(on: bool) -> void:
+	if on and _phone == null and skeleton != null:
+		_phone = _build_phone()
+		attach("chest", _phone, Transform3D(Basis(Vector3.RIGHT, deg_to_rad(40.0)), PHONE_AT))
+	if _phone != null:
+		_phone.visible = on
+
+
+func _build_phone() -> Node3D:
+	var phone := Node3D.new()
+	var parts := [  # [size, position, color, glows]
+		[Vector3(0.34, 0.6, 0.05), Vector3.ZERO, Color(0.12, 0.1, 0.1), false],  # Bezel.
+		[Vector3(0.36, 0.62, 0.03), Vector3(0.0, 0.0, 0.03), Color(0.98, 0.72, 0.6), false],  # Peach case on the back.
+		[Vector3(0.1, 0.1, 0.02), Vector3(-0.09, 0.22, 0.05), Color(0.16, 0.13, 0.12), false],  # Camera bump.
+		[Vector3(0.3, 0.55, 0.004), Vector3(0.0, 0.0, -0.027), Color(0.99, 0.96, 0.9), true],  # Screen, toward their face.
+	]
+	for part in parts:
+		var mesh := BoxMesh.new()
+		mesh.size = part[0]
+		var paint := StandardMaterial3D.new()
+		paint.albedo_color = part[2]
+		if part[3]:
+			paint.emission_enabled = true
+			paint.emission = Color(1.0, 0.85, 0.65)
+			paint.emission_energy_multiplier = 0.6
+		mesh.material = paint
+		var piece := MeshInstance3D.new()
+		piece.mesh = mesh
+		piece.position = part[1]
+		phone.add_child(piece)
+	return phone
 
 
 # "idle", "walk" or "run", at `speed_scale` times its normal pace.

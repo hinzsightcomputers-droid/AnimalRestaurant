@@ -12,10 +12,9 @@
 	"phone": {
 		"usual_order": "vegetable_soup",
 		"lines": [
-			{ "part": "greeting", "text": "Hi-hi! It's Pip! Are you open? You're open. Great!" },
-			{ "part": "greeting", "text": "Pip here! Quick call, I'm mid-hop." },
-			{ "part": "order", "text": "The [dish], please! To the lily pad by the bridge. You know the one." },
-			{ "part": "order", "text": "[dish]! Hot as you can make it! Okay bye! Wait. Thank you! Okay bye!" },
+			{ "part": "note", "text": "LILY PAD BY THE BRIDGE!! you know the one. hot as you can make it! thanks!! bye!!" },
+			{ "part": "note", "text": "quick quick quick!! (no rush) (some rush) THANK YOU" },
+			{ "part": "note", "text": "hi-hi!! typing mid-hop, sorry for typos!! thank yoi" },
 			{ "part": "chat", "text": "Do you deliver to ponds? Asking for me.", "choices": [ { "tone": "playful", "text": "Only if you bring a towel.", "reply": "Ha! Deal!" }, { "tone": "straight", "text": "The bridge is as close as we get.", "reply": "Bridge it is!" } ] }
 		]
 	}

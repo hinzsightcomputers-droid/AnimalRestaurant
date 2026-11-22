@@ -220,7 +220,7 @@ func _take_call(player: Player, call: Dictionary) -> void:
 	var chef_id := Accounts.id_of(player.player_index)
 	player.movement_locked = true
 	player.interactor.lock_to(interactable)
-	var built := PhoneCalls.build(call, chef_id, false)
+	var built := PhoneCalls.build(call, chef_id)
 	var speaker: String = built["name"]
 	var box := ConversationBox.open(_view_of(player), player.player_index, built["regular_id"])
 	for line in built["lines"]:

@@ -10,7 +10,6 @@
 		"quiet_while_regular_arrives": true,
 		"quiet_while_busy": 4,
 		"townsfolk_usual_order_chance": 0.75,
-		"townsfolk_chat_chance": 0.4,
 		"regular_order_call_stage": -3,
 		"regular_order_call_chance": 0.7,
 		"regular_chat_call_stage": 4,
