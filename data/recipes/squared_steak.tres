@@ -8,7 +8,7 @@
 [sub_resource type="Resource" id="Resource_sear"]
 script = ExtResource("sear")
 title = "Sear every side"
-hint = "Tilt the pan with [stick] to roll the cube onto a raw side (green arrows); only the bottom cooks, hottest in the middle. Wiggle if it sticks. [button] salts the top. Cook all six, then [button] to plate it."
+hint = "Tilt the pan with [stick] to slide the cube: the middle is hottest, and a still cube sticks. Hold [button] to wind up, let go pushing [stick] to toss: light rolls one face, strong rolls two, too strong flies out. Cook all six, then toss it toward the plate."
 cue = "Sizzle!"
 view_distance = 0.5
 view_pitch = 62.0
