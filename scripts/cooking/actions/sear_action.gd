@@ -450,7 +450,7 @@ func _show_guides() -> void:
 		if not needed:
 			continue
 		var lands := _up_side() if strong else _side_facing(way)
-		var paint := _done_paint if _doneness[lands] >= raw_at else _go_paint
+		var paint := _done_paint if _doneness[lands] >= perfect_from else _go_paint
 		for part in guide.get_children():
 			(part as MeshInstance3D).material_override = paint
 		var big := way == aimed
@@ -475,9 +475,9 @@ func _seared_count() -> int:
 	return _doneness.filter(func(amount: float): return amount >= perfect_from).size()
 
 
-# Every face cooked at least a little: it can go on the plate.
+# Every face seared (or past it): it can go on the plate.
 func _all_cooked() -> bool:
-	return _doneness.all(func(amount: float): return amount >= raw_at)
+	return _doneness.all(func(amount: float): return amount >= perfect_from)
 
 
 # Which side faces down now (0-5, as NORMALS).
@@ -654,13 +654,13 @@ func scripted_hold(delta: float, input: CookInput) -> bool:
 		return true
 	_scripted_aim = Vector2.ZERO
 	for way: Vector2 in WAYS:
-		if _doneness[_side_facing(way)] < raw_at:
+		if _doneness[_side_facing(way)] < perfect_from:
 			_scripted_aim = way
 			_scripted_goal = 0.25
 			break
 	if _scripted_aim == Vector2.ZERO:
 		_scripted_aim = Vector2.RIGHT
-		_scripted_goal = 0.6 if _doneness[_up_side()] < raw_at else 0.25
+		_scripted_goal = 0.6 if _doneness[_up_side()] < perfect_from else 0.25
 	return true
 
 
