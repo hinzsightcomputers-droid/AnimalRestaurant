@@ -75,6 +75,14 @@ func _ready() -> void:
 	ok = _check("accepted: a courier's coming", phone.delivery_manager._couriers.size() == deliveries_before + 1) and ok
 	ok = _check("the delivery still holds the bell", day_manager.orders_outstanding()) and ok
 	ok = _check("chef free again", not player.on_phone and not player.movement_locked) and ok
+	phone.moober.picked_up(player, "Pip", "Hearty Vegetable Soup", 24)  # As if the bag went off with its courier.
+	await get_tree().create_timer(1.6).timeout
+	ok = _check("picked up: phone out", player.on_phone and player.movement_locked) and ok
+	if not shots.is_empty():
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(shots.path_join("picked_up.png"))
+	await get_tree().create_timer(2.5).timeout
+	ok = _check("picked up: put away by itself", not player.on_phone and not player.movement_locked) and ok
 	print("PHONE ", "ALL OK" if ok else "FAILED")
 	get_tree().quit(0 if ok else 1)
 

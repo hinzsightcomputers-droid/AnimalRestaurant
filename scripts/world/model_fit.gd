@@ -41,6 +41,15 @@ extends Node3D
 		max_depth = value
 		_rebuild()
 
+# Cut the model off above this share of its height (0: whole): a pot Meshy
+# made with its lid on, shown open (meshy_cut.gdshader). Its texture's kept.
+@export_range(0.0, 1.0, 0.01) var cut_top := 0.0:
+	set(value):
+		cut_top = value
+		_rebuild()
+
+const CUT_SHADER := preload("res://assets/shaders/meshy_cut.gdshader")
+
 var _instance: Node3D = null
 
 
@@ -96,6 +105,26 @@ func _rebuild() -> void:
 	_instance.transform = Transform3D(Basis.from_scale(factor), -bottom_middle * factor) * _instance.transform
 	_instance.name = "_Model"
 	add_child(_instance, false, Node.INTERNAL_MODE_FRONT)
+	if cut_top > 0.0:
+		_cut(box.size.y * factor.y * cut_top)
+
+
+# Every mesh draws only below `height` (this node's space, its bottom at 0).
+func _cut(height: float) -> void:
+	for mesh: MeshInstance3D in _instance.find_children("*", "MeshInstance3D", true, false):
+		if mesh.mesh == null:
+			continue
+		var own := mesh.mesh.surface_get_material(0)
+		var cut := ShaderMaterial.new()
+		cut.shader = CUT_SHADER
+		if own is BaseMaterial3D:
+			cut.set_shader_parameter("base_color", own.albedo_color)
+			cut.set_shader_parameter("base_texture", own.albedo_texture)
+			cut.set_shader_parameter("roughness", own.roughness)
+		var to_here := global_transform.affine_inverse() * mesh.global_transform
+		cut.set_shader_parameter("height_row", Vector4(to_here.basis.x.y, to_here.basis.y.y, to_here.basis.z.y, to_here.origin.y))
+		cut.set_shader_parameter("cut_height", height)
+		mesh.material_override = cut
 
 
 # The bounds of every mesh under `node`, in the space `node`'s transform puts it in.

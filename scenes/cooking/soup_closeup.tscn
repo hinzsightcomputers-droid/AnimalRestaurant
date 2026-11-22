@@ -15,6 +15,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, 0, 0.02)
 script = ExtResource("3_fit")
 model = ExtResource("4_pot")
 size = Vector3(0.42, 0, 0)
+cut_top = 0.66
 
 [node name="Pot" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, 0.11, 0.02)

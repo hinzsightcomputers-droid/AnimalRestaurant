@@ -95,6 +95,9 @@ func _on_courier_interacted(player_index: int, courier: Courier) -> void:
 	if not goodbye:
 		GameEvents.announce("Handed %s's %s to the courier. +$%d" % [caller.get("name", "?"), plate.dish_name(), amount])
 		_send_out(courier, "Thanks! +$%d" % amount)
+		var app := get_tree().get_first_node_in_group(MooberOrders.GROUP) as MooberOrders
+		if app != null and caller.get("kind", "") == "townsfolk":  # A Moober order: the app says it's done.
+			app.picked_up(player, caller.get("name", "?"), plate.dish_name(), amount)
 		return
 
 	# Their last order: a note instead of a payment slip.

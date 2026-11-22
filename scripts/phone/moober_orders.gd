@@ -13,8 +13,15 @@
 # Phone decides when one comes in, the same timing calls used to have.
 # Regulars' own calls (a Withdrawn regular ordering, a friend calling to chat)
 # still ring the wall phone: they're personal.
+# Handing an app order's bag to its courier finishes it: the chef's phone comes
+# out again with the app's "Order picked up!" (a big tick popping in, confetti,
+# a chime and the pay counting up), then goes away by itself (picked_up).
 class_name MooberOrders
 extends Node
+
+const GROUP := "moober_orders"
+const GREEN := Color(0.36, 0.74, 0.38)
+const PICKED_UP_SECONDS := 2.6            # How long "Order picked up!" stays (interact puts it away sooner).
 
 const ORANGE := Color(0.94, 0.45, 0.16)
 const SCREEN := Color(0.99, 0.97, 0.92)
@@ -31,13 +38,23 @@ var _viewing := {}                  # player_index -> true while their phone is 
 var _badge := PanelContainer.new()
 var _badge_label := Label.new()
 var _ping := AudioStreamPlayer.new()
+var _chime := AudioStreamPlayer.new()
+var _tick := AudioStreamPlayer.new()
+var _busy := {}                     # player_index -> true while "Order picked up!" is showing.
 var _time := 0.0
 
 
 func _ready() -> void:
+	add_to_group(GROUP)
 	_ping.stream = _ping_stream()
 	_ping.volume_db = -4.0
 	add_child(_ping)
+	_chime.stream = _chime_stream()
+	_chime.volume_db = -3.0
+	add_child(_chime)
+	_tick.stream = _tick_stream()
+	_tick.volume_db = -12.0
+	add_child(_tick)
 	_build_badge()
 
 
@@ -69,7 +86,7 @@ func _process(delta: float) -> void:
 	if not GameState.phone_unlocked:
 		return
 	for player_index in InputSetup.active_players():
-		if _viewing.has(player_index):
+		if _viewing.has(player_index) or _busy.has(player_index):
 			continue
 		if not Input.is_action_just_pressed(InputSetup.action_name(player_index, "phone")):
 			continue
@@ -94,25 +111,10 @@ func _view(player: Player) -> void:
 	player.on_phone = true
 	player.movement_locked = true
 	_phone_out(player, true)
-	var phone := _build_phone(built, InputSetup.interact_hint(index))
-	ConversationBox.parent_for(view_manager, index, player).add_child(phone)
-	var shown := phone.position.y
-	phone.position.y = shown + 700.0
-	var rise := phone.create_tween()
-	rise.tween_property(phone, "position:y", shown, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	await rise.finished
-	var interact := InputSetup.action_name(index, "interact")
-	var was_down := true  # A press already down (e.g. the one before) doesn't count: wait for a new one.
-	while true:
-		await get_tree().process_frame
-		var down := Input.is_action_pressed(interact)
-		if down and not was_down:
-			break
-		was_down = down
-	var drop := phone.create_tween()
-	drop.tween_property(phone, "position:y", shown + 700.0, 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	await drop.finished
-	phone.queue_free()
+	var phone := _build_phone(_fill_order.bind(built, InputSetup.interact_hint(index)))
+	await _raise(player, phone)
+	await _press_or_wait(index, INF)
+	await _lower(phone)
 	_phone_out(player, false)
 	player.on_phone = false
 	player.ignore_interact_until_released()
@@ -123,6 +125,164 @@ func _view(player: Player) -> void:
 	player.movement_locked = false
 	_viewing.erase(index)
 	SaveGame.save_game()
+
+
+# The bag's gone off with its courier (DeliveryManager): out comes the phone
+# with "Order picked up!", a tick popping in, confetti, a chime and the pay
+# counting up, and after a moment (or a press) it's put away. Any chef can be
+# mid-something else: then it's just the message.
+func picked_up(player: Player, who: String, dish_name: String, amount: int) -> void:
+	var index := player.player_index
+	if _viewing.has(index) or _busy.has(index) or player.movement_locked or player.in_conversation():
+		return
+	_busy[index] = true
+	player.on_phone = true
+	player.movement_locked = true
+	_phone_out(player, true)
+	var parts := {}
+	var phone := _build_phone(_fill_picked_up.bind(who, dish_name, parts))
+	await _raise(player, phone)
+	_celebrate(parts, amount)
+	await _press_or_wait(index, PICKED_UP_SECONDS)
+	await _lower(phone)
+	_phone_out(player, false)
+	player.on_phone = false
+	player.ignore_interact_until_released()
+	player.movement_locked = false
+	_busy.erase(index)
+
+
+# "Order picked up!": a green tick (popped in by _celebrate), the dish on its
+# way, the app's own message, and the pay. Fills `parts` with what animates.
+func _fill_picked_up(column: VBoxContainer, who: String, dish_name: String, parts: Dictionary) -> void:
+	var tick_holder := CenterContainer.new()
+	tick_holder.custom_minimum_size.y = 96.0
+	column.add_child(tick_holder)
+	var tick := PanelContainer.new()
+	var tick_style := StyleBoxFlat.new()
+	tick_style.bg_color = GREEN
+	tick_style.set_corner_radius_all(44)
+	tick.add_theme_stylebox_override("panel", tick_style)
+	tick.custom_minimum_size = Vector2(88.0, 88.0)
+	tick_holder.add_child(tick)
+	var mark := _label("✓", 56, Color.WHITE)
+	mark.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	mark.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	tick.add_child(mark)
+	tick.scale = Vector2.ZERO
+	parts["tick"] = tick
+	var title := _label("Order picked up!", 26, GREEN.darkened(0.25))
+	UiStyle.title(title)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	column.add_child(title)
+	var what := _label("%s's %s is on its way." % [who, dish_name], 16, INK)
+	what.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	what.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	column.add_child(what)
+	var bubble := PanelContainer.new()
+	var bubble_style := StyleBoxFlat.new()
+	bubble_style.bg_color = ORANGE.lightened(0.75)
+	bubble_style.set_corner_radius_all(14)
+	bubble_style.corner_radius_top_left = 4
+	bubble_style.set_content_margin_all(10)
+	bubble.add_theme_stylebox_override("panel", bubble_style)
+	var message := _label("%s: Your courier has the order. Delivery complete. Thanks for cooking with us!" % app_name(), 15, INK)
+	message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	bubble.add_child(message)
+	column.add_child(bubble)
+	var pay := _label("+$0", 34, GREEN.darkened(0.2))
+	UiStyle.title(pay)
+	pay.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	column.add_child(pay)
+	parts["pay"] = pay
+	parts["column"] = column
+
+
+# The tick pops in with a chime, confetti bursts from it, and the pay counts up
+# with little ticks.
+func _celebrate(parts: Dictionary, amount: int) -> void:
+	var tick: Control = parts["tick"]
+	tick.pivot_offset = tick.custom_minimum_size * 0.5
+	var pop := tick.create_tween()
+	pop.tween_property(tick, "scale", Vector2.ONE * 1.25, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	pop.tween_property(tick, "scale", Vector2.ONE, 0.14).set_trans(Tween.TRANS_SINE)
+	_chime.play()
+	_confetti(tick)
+	var pay: Label = parts["pay"]
+	var count := pay.create_tween()
+	count.tween_interval(0.25)
+	count.tween_method(_show_pay.bind(pay), 0.0, float(amount), clampf(0.04 * amount, 0.4, 0.9)).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	count.tween_callback(_bump_pay.bind(pay))
+
+
+func _show_pay(value: float, pay: Label) -> void:
+	var text := "+$%d" % roundi(value)
+	if text != pay.text:
+		pay.text = text
+		if not _tick.playing:
+			_tick.play()
+
+
+func _bump_pay(pay: Label) -> void:
+	pay.pivot_offset = pay.size * 0.5
+	var bump := pay.create_tween()
+	bump.tween_property(pay, "scale", Vector2.ONE * 1.2, 0.1)
+	bump.tween_property(pay, "scale", Vector2.ONE, 0.15)
+
+
+# Little bits of colored paper bursting out round the tick, falling and fading.
+func _confetti(from: Control) -> void:
+	var colors := [ORANGE, GREEN, RIM, Color(1.0, 0.82, 0.3), Color(0.55, 0.75, 0.95)]
+	var center := from.global_position + from.size * 0.5
+	for i in 22:
+		var bit := ColorRect.new()
+		bit.color = colors[i % colors.size()]
+		bit.size = Vector2(randf_range(6.0, 10.0), randf_range(9.0, 14.0))
+		bit.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		bit.top_level = true
+		from.add_child(bit)
+		bit.global_position = center
+		bit.pivot_offset = bit.size * 0.5
+		var angle := randf_range(-PI, 0.0) if i % 3 != 0 else randf_range(0.0, PI)
+		var reach := randf_range(70.0, 150.0)
+		var out := center + Vector2(cos(angle), sin(angle)) * reach
+		var fly := bit.create_tween().set_parallel()
+		fly.tween_property(bit, "global_position", out, 0.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		fly.tween_property(bit, "rotation", randf_range(-6.0, 6.0), 1.1)
+		fly.chain().tween_property(bit, "global_position:y", out.y + randf_range(60.0, 120.0), 0.75).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		fly.parallel().tween_property(bit, "modulate:a", 0.0, 0.75)
+		fly.chain().tween_callback(bit.queue_free)
+
+
+# The phone slides up into `player`'s view (springing a little at the top).
+func _raise(player: Player, phone: Control) -> void:
+	ConversationBox.parent_for(view_manager, player.player_index, player).add_child(phone)
+	phone.set_meta("shown_y", phone.position.y)
+	phone.position.y += 700.0
+	var rise := phone.create_tween()
+	rise.tween_property(phone, "position:y", float(phone.get_meta("shown_y")), 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	await rise.finished
+
+
+func _lower(phone: Control) -> void:
+	var drop := phone.create_tween()
+	drop.tween_property(phone, "position:y", float(phone.get_meta("shown_y")) + 700.0, 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	await drop.finished
+	phone.queue_free()
+
+
+# Until a fresh interact press (one already down doesn't count), or `seconds`.
+func _press_or_wait(player_index: int, seconds: float) -> void:
+	var interact := InputSetup.action_name(player_index, "interact")
+	var was_down := true
+	var left := seconds
+	while left > 0.0:
+		await get_tree().process_frame
+		left -= get_process_delta_time()
+		var down := Input.is_action_pressed(interact)
+		if down and not was_down:
+			return
+		was_down = down
 
 
 # The chef gets their phone out (or puts it away): they turn to face the
@@ -150,8 +310,8 @@ func _phone_out(player: Player, out: bool) -> void:
 
 
 # The phone in hand: a dark case round a cream screen with the app's orange
-# header, then who ordered what, the order number, their note, and how to accept.
-func _build_phone(built: Dictionary, button: String) -> Control:
+# header; `fill` puts what's on the screen into its column.
+func _build_phone(fill: Callable) -> Control:
 	var holder := Control.new()
 	holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -203,6 +363,21 @@ func _build_phone(built: Dictionary, button: String) -> Control:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 10)
 	body.add_child(column)
+	fill.call(column)
+	var home := Panel.new()  # The home bar along the bottom.
+	var home_style := StyleBoxFlat.new()
+	home_style.bg_color = INK
+	home_style.set_corner_radius_all(3)
+	home.add_theme_stylebox_override("panel", home_style)
+	home.custom_minimum_size = Vector2(110.0, 6.0)
+	home.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	screen.add_child(home)
+	return holder
+
+
+# An order on the screen: who ordered what, the order number, their note, and
+# how to accept.
+func _fill_order(column: VBoxContainer, built: Dictionary, button: String) -> void:
 	var who := _label("%s ordered" % built["name"], 22, INK)
 	UiStyle.title(who)
 	column.add_child(who)
@@ -230,15 +405,6 @@ func _build_phone(built: Dictionary, button: String) -> Control:
 	var accept := _label("Press %s to accept" % button, 16, INK.lightened(0.2))
 	accept.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(accept)
-	var home := Panel.new()  # The home bar along the bottom.
-	var home_style := StyleBoxFlat.new()
-	home_style.bg_color = INK
-	home_style.set_corner_radius_all(3)
-	home.add_theme_stylebox_override("panel", home_style)
-	home.custom_minimum_size = Vector2(110.0, 6.0)
-	home.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	screen.add_child(home)
-	return holder
 
 
 # The top of the MyFone's screen: the time (real, like the restaurant's), the
@@ -339,6 +505,38 @@ func _phone_buttons() -> String:
 
 
 # A placeholder two-note ping (until there's a real sound).
+# A bright rising three-note chime (C, E, G, then a high C ringing on): done!
+func _chime_stream() -> AudioStream:
+	var notes := [[0.0, 1046.5], [0.09, 1318.5], [0.18, 1568.0], [0.27, 2093.0]]
+	return _wav(0.9, func(t: float) -> float:
+		var value := 0.0
+		for note in notes:
+			if t >= note[0]:
+				var since: float = t - note[0]
+				var ring := 9.0 if note[0] < 0.27 else 4.0
+				value += (sin(TAU * note[1] * t) + 0.3 * sin(TAU * note[1] * 2.0 * t)) * exp(-since * ring) * 0.16
+		return value)
+
+
+# A tiny coin tick, played as the pay counts up.
+func _tick_stream() -> AudioStream:
+	return _wav(0.05, func(t: float) -> float: return sin(TAU * 2400.0 * t) * exp(-t * 90.0) * 0.4)
+
+
+func _wav(seconds: float, sample: Callable) -> AudioStream:
+	var rate := 22050
+	var total := int(rate * seconds)
+	var data := PackedByteArray()
+	data.resize(total * 2)
+	for i in total:
+		data.encode_s16(i * 2, int(clampf(sample.call(float(i) / rate), -1.0, 1.0) * 32767.0))
+	var wav := AudioStreamWAV.new()
+	wav.format = AudioStreamWAV.FORMAT_16_BITS
+	wav.mix_rate = rate
+	wav.data = data
+	return wav
+
+
 func _ping_stream() -> AudioStream:
 	var rate := 22050
 	var total := int(rate * 0.36)
