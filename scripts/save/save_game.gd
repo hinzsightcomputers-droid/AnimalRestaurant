@@ -6,7 +6,7 @@ class_name SaveGame
 extends RefCounted
 
 const SAVE_PATH := "user://save.json"  # Slot 1 (and every save from before there were slots).
-const SLOTS := 3
+const SLOTS := 4
 
 static var restored_note := ""  # Set when the save was damaged and a backup was loaded instead (said once in game).
 
