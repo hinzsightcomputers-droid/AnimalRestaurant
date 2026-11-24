@@ -124,6 +124,7 @@ func _on_chopped(quality: float) -> void:
 			_ingredients.order.dish.get("ingredient", {}).get("name", "ingredients").to_lower(),
 			CookingMinigame.quality_label(quality).to_lower()])
 		GameState.record_chef_action(_chopper.player_index, "chopped")
+		FloorCare.chopped(self)
 	_chopper.movement_locked = false
 	_chopper.interactor.unlock()
 	_chopper.release_camera_focus()

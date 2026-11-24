@@ -521,7 +521,7 @@ static func drink_order(townsfolk_id: String, chef_id: String) -> Dictionary:
 # that talks about their favorite dish needs it on the menu, and has them order it.
 static func pick_order(townsfolk_id: String, chef_id: String) -> Dictionary:
 	var favorite: String = GameData.get_townsfolk(townsfolk_id).get("favorite_dish", "")
-	var can_have := GameData.menu().any(func(d): return d["id"] == favorite)
+	var can_have := GameData.meal_menu().any(func(d): return d["id"] == favorite)
 	var words := context(townsfolk_id, chef_id, { "name": "dish" }, { "name": "drink" })
 	var pool: Array = talk_of(townsfolk_id).get("order", []).filter(func(talk_line):
 		return (can_have or not talk_line.get("fav", false)) and _can_converse(townsfolk_id, chef_id, talk_line, words))

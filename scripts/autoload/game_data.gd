@@ -243,6 +243,20 @@ func menu() -> Array[Dictionary]:
 	return dishes.filter(func(d): return is_unlocked(d["id"]) and Pantry.can_make(d))
 
 
+# What's on for the meal being served (data/day.json "menu"), which walk-ins
+# and delivery orders choose from: the whole menu outside of meals, or when too
+# little of the meal's own can be made.
+func meal_menu() -> Array[Dictionary]:
+	var all := menu()
+	if not DayCycle.is_open() or not GameState.forced_dish.is_empty():
+		return all
+	var settings: Dictionary = GameState.phase_info(DayCycle.meal).get("menu", {})
+	if settings.is_empty():
+		return all
+	var on := all.filter(func(d): return d["id"] in settings["dishes"] if settings.has("dishes") else not d["id"] in settings.get("except", []))
+	return on if on.size() >= int(settings.get("least", day_settings.get("menu_least", 2))) else all
+
+
 # The drinks customers can order right now: the unlocked ones.
 func drink_menu() -> Array[Dictionary]:
 	return drinks.filter(func(d): return is_unlocked(d["id"]))
@@ -276,7 +290,7 @@ func shop_dishes() -> Array[Dictionary]:
 
 
 func random_dish() -> Dictionary:
-	var on_menu := menu()
+	var on_menu := meal_menu()
 	return on_menu.pick_random() if not on_menu.is_empty() else {}
 
 

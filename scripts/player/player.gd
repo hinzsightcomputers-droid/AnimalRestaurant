@@ -17,10 +17,21 @@ signal camera_focus_released
 @export var player_index := 0
 @export var move_speed := 4.0
 @export var acceleration := 25.0  # How quickly we reach full speed / stop.
+@export_group("Dash")
+@export var dash_speed := 9.5     # A short burst, pressing the dash button...
+@export var dash_seconds := 0.16
+@export var dash_wait := 0.6      # ...no sooner than this after the last.
+@export var run_share := 1.4      # Then holding it, this much faster than walking.
+@export var shove_walk := 1.6     # Walking into a friend nudges them along this fast...
+@export var shove_dash := 5.5     # ...and dashing into them bumps them aside.
+@export_group("")
 @export var turn_speed := 12.0    # How quickly the body turns to face the move direction.
 
 var movement_locked := false      # True while busy (e.g. cooking).
 var scripted_move := Vector2.ZERO # A reel steering the chef instead of a player (see ReelDirector).
+var well_fed := false             # Had the staff meal in the last break: a bit quicker (see MealBreak).
+var _dash_left := 0.0
+var _dash_wait_left := 0.0
 var on_phone := false              # Looking at an app order (MooberOrders): interact is for that.
 var decorating := false           # In Decorate mode: interact belongs to that, not the room.
 var hidden_from_own_view := false  # In a close-up: their own camera leaves them out.
@@ -196,14 +207,32 @@ func _physics_process(delta: float) -> void:
 		input_vector = scripted_move
 		direction = Vector3(input_vector.x, 0.0, input_vector.y)
 
-	var target_velocity := direction * move_speed * decor_carry.speed_share()
+	var pace := move_speed * decor_carry.speed_share()
+	if well_fed:
+		pace *= float(MealBreak.settings().get("speed", 1.0))
+	if not decorating and scripted_move == Vector2.ZERO and direction.length() > 0.1:
+		if input.is_dash_pressed():
+			pace *= run_share
+		if input.is_dash_just_pressed() and _dash_wait_left <= 0.0:
+			_dash(direction)
+	_dash_left -= delta
+	_dash_wait_left -= delta
+	if movement_locked:
+		_dash_left = 0.0
+
+	var target_velocity := direction * pace
 	velocity.x = move_toward(velocity.x, target_velocity.x, acceleration * delta)
 	velocity.z = move_toward(velocity.z, target_velocity.z, acceleration * delta)
+	if _dash_left > 0.0 and direction.length() > 0.1:
+		velocity.x = direction.normalized().x * dash_speed
+		velocity.z = direction.normalized().z * dash_speed
 
 	if not is_on_floor():
 		velocity += get_gravity() * delta
 
 	move_and_slide()
+	if direction.length() > 0.1:
+		_bump_friends(direction.normalized())
 
 	# Turn the visible body (not the collision shape) to face where we are walking.
 	if direction.length() > 0.1:
@@ -218,6 +247,76 @@ func _physics_process(delta: float) -> void:
 		has_acted = true
 		decor_carry.press(held_item == null)
 		interactor.try_interact(player_index)
+
+
+func _dash(direction: Vector3) -> void:
+	_dash_left = dash_seconds
+	_dash_wait_left = dash_wait
+	_sound("whoosh", -16.0, 1.3)
+	var puff := CPUParticles3D.new()  # Dust kicked up behind.
+	puff.one_shot = true
+	puff.explosiveness = 0.9
+	puff.amount = 8
+	puff.lifetime = 0.45
+	puff.direction = -direction + Vector3.UP * 0.5
+	puff.spread = 35.0
+	puff.initial_velocity_min = 0.6
+	puff.initial_velocity_max = 1.4
+	puff.gravity = Vector3.ZERO
+	puff.scale_amount_min = 0.5
+	puff.scale_amount_max = 1.2
+	var ball := SphereMesh.new()
+	ball.radius = 0.07
+	ball.height = 0.14
+	var dust := StandardMaterial3D.new()
+	dust.albedo_color = Color(1.0, 0.95, 0.86, 0.5)
+	dust.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	dust.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	ball.material = dust
+	puff.mesh = ball
+	puff.finished.connect(puff.queue_free)
+	get_parent().add_child(puff)
+	puff.global_position = global_position + Vector3.UP * 0.1
+	puff.emitting = true
+
+
+# Walking into another chef nudges them along; dashing into them bumps them
+# aside. Someone busy (cooking, talking, mopping) stays put.
+func _bump_friends(direction: Vector3) -> void:
+	for i in get_slide_collision_count():
+		var other := get_slide_collision(i).get_collider() as Player
+		if other == null or other.movement_locked:
+			continue
+		var away := other.global_position - global_position
+		away.y = 0.0
+		if away.normalized().dot(direction) < 0.3:
+			continue
+		var dashing := _dash_left > 0.0
+		other.shove((direction + away.normalized() * 0.5).normalized() * (shove_dash if dashing else shove_walk))
+		if dashing:
+			_dash_left = 0.0
+			_sound("plop", -8.0, 1.2)
+			var squash := other.create_tween()
+			squash.tween_property(other.visual, "scale", Vector3(1.12, 0.88, 1.12), 0.07)
+			squash.tween_property(other.visual, "scale", Vector3.ONE, 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+# Pushed along by a friend, up to the speed of the push.
+func shove(push: Vector3) -> void:
+	var along := push.normalized()
+	var more := push.length() - velocity.dot(along)
+	if more > 0.0:
+		velocity += along * more
+
+
+func _sound(sound: String, volume_db: float, pitch: float) -> void:
+	var sounding := AudioStreamPlayer3D.new()
+	sounding.stream = CookSounds.get_sound(sound)
+	sounding.volume_db = volume_db
+	sounding.pitch_scale = pitch
+	sounding.finished.connect(sounding.queue_free)
+	add_child(sounding)
+	sounding.play()
 
 
 # A dialogue box of ours is open: interact moves the conversation on, so it

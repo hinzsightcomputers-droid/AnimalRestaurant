@@ -471,7 +471,7 @@ func _setup_townsfolk(customer: Customer, person: Dictionary) -> void:
 	var species := GameData.get_species(person.get("species", "")).duplicate()
 	if person.has("color"):
 		species["color"] = person["color"]
-	customer.setup(species, Townsfolk.choose(person, "favorite_dish", GameData.menu(), GameData.random_dish()), null)
+	customer.setup(species, Townsfolk.choose(person, "favorite_dish", GameData.meal_menu(), GameData.random_dish()), null)
 	customer.townsfolk_id = person["id"]
 	customer.display_name = person.get("name", customer.display_name)
 	var linger := float(person.get("talk", {}).get("game_day_linger", 1.0))

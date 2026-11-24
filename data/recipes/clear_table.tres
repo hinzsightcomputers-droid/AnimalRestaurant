@@ -7,7 +7,7 @@
 [sub_resource type="Resource" id="Resource_bus"]
 script = ExtResource("3_bus")
 title = "Clear the table"
-hint = "Hold [grip] on a dish, carry it over the bin with [stick] and let go."
+hint = "Hold [grip] on a dish, sweep up the others with [stick], and let go over the bin."
 
 [resource]
 script = ExtResource("1_recipe")

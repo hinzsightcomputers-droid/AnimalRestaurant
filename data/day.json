@@ -1,11 +1,16 @@
 {
 	"_about": "How a restaurant day runs. One day per real day, starting at 5 AM local (GameClock.DAY_STARTS_AT_HOUR). Every day opens at the first phase, whatever the time. Each phase (meal) runs for a set time (data/pacing.json): townsfolk walk in at its pace, and some of the day's regulars (regulars_per_day in regulars.json, planned once a day into a meal their visit_window covers) come in among them. When its time for arrivals is up and everyone has gone, a player rings the bell at the counter for the next one; after the last, the restaurant closes (big moment scenes play then), the night shift runs if the phone is up, the summary shows, and then it is After Hours until a player opens up on the next restaurant day (see DayCycle). lighting: the sun's color and energy, the ambient light, and the sky color, faded in as the phase starts. 'closing' is the lighting after the last phase. Once the phone is on the wall, the night shift follows closing: chairs up, no walk-ins, phone orders only (see data/phone.json 'night'); 'night' is its name and lighting.",
+	"_menu": "A meal's menu: what its walk-ins and delivery orders choose from. 'dishes' lists them; 'except' is everything but these. Regulars and favourites of theirs can be had at any meal. If fewer than menu_least (or its own 'least') of a meal's dishes can be made, it serves the whole menu. Not listed: everything.",
+	"menu_least": 2,
 	"phases": [
 		{ "id": "breakfast", "name": "Breakfast",
+			"menu": { "dishes": ["honey_pancakes", "big_breakfast"] },
 			"lighting": { "sun_color": "#ffd2b0", "sun_energy": 0.85, "ambient_color": "#ffe4e0", "ambient_energy": 0.5, "sky_color": "#f2c9b8" } },
 		{ "id": "lunch", "name": "Lunch",
+			"menu": { "dishes": ["vegetable_soup", "four_cheese_mac"] },
 			"lighting": { "sun_color": "#fff6ea", "sun_energy": 1.15, "ambient_color": "#fff6ea", "ambient_energy": 0.65, "sky_color": "#8cc0e0" } },
 		{ "id": "dinner", "name": "Dinner",
+			"menu": { "except": ["honey_pancakes", "big_breakfast"], "least": 3 },
 			"lighting": { "sun_color": "#ff9a52", "sun_energy": 0.7, "ambient_color": "#e8a07a", "ambient_energy": 0.45, "sky_color": "#c8643e" } }
 	],
 	"closing": {

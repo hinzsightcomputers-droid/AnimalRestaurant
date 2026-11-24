@@ -15,7 +15,7 @@ signal seat_requested(table: DiningTable, player_index: int)
 
 const TOP_HEIGHT := 0.82
 const PLATE_MODEL := "res://design/restaurant/plate_dirty.glb"
-const RESULT_SHOW_TIME := 1.0  # Seconds the close-up stays after the chore is done.
+const RESULT_SHOW_TIME := 0.45  # Seconds the close-up stays after the chore is done.
 
 @export var view_manager: ViewManager  # For the close-up's mouse aiming (found if not set).
 @export var spills_per_dish := 2
@@ -62,6 +62,8 @@ func make_dirty(at: Vector3, dish: Dictionary = {}, spilled := true) -> void:
 		spills.append(at + side * randf_range(0.22, 0.3))
 	_update_interactable()
 	cleanliness_changed.emit(self)
+	if spilled:
+		FloorCare.left(self)
 	if was_clean:
 		GameEvents.announce("A table needs clearing.")
 

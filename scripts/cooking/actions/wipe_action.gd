@@ -5,8 +5,8 @@ class_name WipeAction
 extends CookAction
 
 @export var spill_radius := 0.1
-@export var scrub_needed := 0.7            # Meters of rubbing over a spill to clean it.
-@export var cloth_reach := 0.05            # How far past a spill's edge the cloth still cleans it.
+@export var scrub_needed := 0.4            # Meters of rubbing over a spill to clean it.
+@export var cloth_reach := 0.09            # How far past a spill's edge the cloth still cleans it.
 @export var spill_color := Color(0.55, 0.36, 0.2)
 @export var crumbs_per_spill := 5
 

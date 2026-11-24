@@ -87,6 +87,30 @@
 			"wait_bill": "{name}'s bill is on its way"
 		}
 	},
+	"dash_tip": "Tap {button} to dash (and bump a friend out of the way!), or hold it to run.",
+	"_floor_care": "Messes on the floor (FloorCare): chances (0..1) that a dish cooked well or badly leaves a spill, chopping leaves peelings, a customer leaves crumbs; most at once during a meal; seconds of one chef cleaning each. When a meal's customers have all gone, there are topped up to end_base + end_per_player for each chef. All clean when the bell is rung: clean_bonus, plus each for every one cleaned that meal. Wording is a placeholder.",
+	"floor_care": {
+		"cook_chance": 0.4,
+		"messy_cook_chance": 0.8,
+		"chop_chance": 0.25,
+		"leave_chance": 0.25,
+		"most": 4,
+		"seconds": 1.6,
+		"end_base": 1,
+		"end_per_player": 1,
+		"clean_bonus": 6,
+		"each": 1,
+		"bonus_text": "Spotless floors! +${money}"
+	},
+	"_break": "The breather between meals (MealBreak): a staff meal on this table's spot (or any clean one); whoever eats it moves at this much their usual speed for the next meal. Wording is a placeholder.",
+	"break": {
+		"table": "kitchen",
+		"speed": 1.08,
+		"prompt": "Eat your staff meal",
+		"text": "Breather! There's a staff meal on the table. Ring the bell when you're ready.",
+		"eaten_text": "{name} is well fed!",
+		"all_text": "Everyone's had their staff meal. Ring the bell when you're ready!"
+	},
 	"_table_spots": "How each table's spot is marked on its customers' tickets and over their heads (TableSpot): a name, a color and a shape (circle, square, triangle, diamond, pentagon, hexagon).",
 	"table_spots": {
 		"middle": { "name": "Middle", "color": "#D63C3C", "shape": "circle" },

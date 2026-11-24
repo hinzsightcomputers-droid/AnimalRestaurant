@@ -1,14 +1,14 @@
 # WashAction: wash a bin of dirty dishes at the sink. With more than one dish,
 # hold the button on the bin and let go over the sink: it tips them all into the
-# soapy water at once. Then for each: press in the sink to grab one, scrub its
-# grime off with the sponge (hold and rub), and hold on it again and carry it to
-# the rack. A single dish is lifted out of the bin and dropped in by itself. The session's context gives "dishes" (the dirty models, the
+# soapy water at once. Each comes up in turn: scrub its grime off with the sponge
+# (hold and rub), and once it sparkles it hops onto the rack by itself and the
+# next comes up. A single dish is lifted out of the bin and dropped in by itself. The session's context gives "dishes" (the dirty models, the
 # bin's order), "rack_spot" (a Callable: where the next clean dish goes, in
 # world space) and "on_racked" (a Callable, called as each one goes on).
 class_name WashAction
 extends CookAction
 
-enum Phase { PICK, SOAK, SCRUB, RACK }  # SOAK: dishes in the water, waiting to be grabbed.
+enum Phase { PICK, SOAK, SCRUB, RACK }  # SOAK: the next dish is about to come up. RACK: a clean one is on its way.
 
 @export var bin_surface := "Bin"           # Its DishBinModel child, "Bin", holds the dirty dishes.
 @export var sink_surface := "Sink"
@@ -20,10 +20,10 @@ enum Phase { PICK, SOAK, SCRUB, RACK }  # SOAK: dishes in the water, waiting to 
 @export var water_offset := Vector2(0.0, -0.07)  # From the sink surface's middle.
 @export var soak_tilt := 0.6               # Radians: dishes in the water lean on their sides, one against the next.
 @export var soak_spacing := 0.1           # Between dishes in the water (closer when there are lots, to fit).
-@export var spots_per_dish := 3
+@export var spots_per_dish := 2
 @export var big_load := 4                 # From this many dishes in a bin, each has one spot fewer (a big pile stays quick).
 @export var spot_radius := 0.035
-@export var scrub_needed := 0.45           # Meters of rubbing over a spot to clean it.
+@export var scrub_needed := 0.32           # Meters of rubbing over a spot to clean it.
 @export var grime_color := Color(0.45, 0.33, 0.2)
 
 var _phase := Phase.PICK
@@ -71,13 +71,14 @@ func update(delta: float, input: CookInput) -> void:
 		Phase.PICK:
 			_update_pick(delta, input, spot)
 		Phase.SOAK:
-			if not _busy and input.just_pressed and session.surface(sink_surface).contains(spot, 0.06) and not _soaking.is_empty():
+			if not _busy and not _soaking.is_empty():
 				_dish = _soaking.pop_back()  # The top one comes up to be scrubbed.
 				_into_sink()
 		Phase.SCRUB:
 			_update_scrub(delta, input, spot)
 		Phase.RACK:
-			_update_rack(delta, input, spot)
+			if not _busy:
+				_onto_rack()  # Up to the rack by itself.
 	session.set_status("Dishes left: %d" % _left)
 	if _left == 0 and not _busy:
 		finish(1.0)
@@ -144,22 +145,6 @@ func _update_scrub(delta: float, input: CookInput, spot: Vector3) -> void:
 		_water.volume_db = -40.0
 
 
-func _update_rack(delta: float, input: CookInput, spot: Vector3) -> void:
-	if _busy:
-		return
-	if _carrying:
-		_follow(delta, spot)
-		if not input.held:
-			_carrying = false
-			if session.surface(rack_surface).contains(spot, 0.06):
-				_onto_rack()
-			else:
-				_back_to_sink()
-	elif input.just_pressed and Vector2(spot.x - _dish.position.x, spot.z - _dish.position.z).length() <= dish_size * 0.5 + 0.03:
-		_carrying = true
-		session.play_sound("clack", _dish.position, -8.0, 1.8)
-
-
 func _follow(delta: float, spot: Vector3) -> void:
 	var goal := Vector3(spot.x, carry_height, spot.z)
 	_dish.position = _dish.position.lerp(goal, 1.0 - exp(-18.0 * delta))
@@ -198,16 +183,6 @@ func _back_to_bin() -> void:
 	_dish = null
 	_busy = false
 	session.pop_text("Into the sink!", session.surface(sink_surface).position, 0)
-
-
-func _back_to_sink() -> void:
-	var sink := session.surface(sink_surface).position
-	_busy = true
-	var tween := _dish.create_tween()
-	tween.tween_property(_dish, "position", Vector3(sink.x, sink.y + _scrub_height(), sink.z), 0.2).set_trans(Tween.TRANS_QUAD)
-	await tween.finished
-	_busy = false
-	session.pop_text("Onto the rack!", session.surface(rack_surface).position, 0)
 
 
 func _onto_rack() -> void:
@@ -366,11 +341,10 @@ func _build_sponge() -> void:
 # --- For a reel -----------------------------------------------------------------
 
 var _scripted_angle := 0.0
-var _scripted_soak := 0.0  # A reel lets the dishes sit in the water a moment before grabbing one.
 
 
 # The bin tipped into the sink (or a lone dish dropped in), then each dish:
-# grabbed from the water, small circles over each grime spot, onto the rack.
+# small circles over each grime spot.
 func scripted_hold(delta: float, input: CookInput) -> bool:
 	if _busy:
 		return false
@@ -379,14 +353,6 @@ func scripted_hold(delta: float, input: CookInput) -> bool:
 			if _carrying or _carrying_bin:
 				return not input.move_to(session.surface(sink_surface).position, delta, 0.9)
 			return input.move_to(session.surface(bin_surface).position, delta, 1.0) and not input.held and _bin.top() != null
-		Phase.SOAK:
-			_scripted_soak += delta
-			if _scripted_soak < 0.8:
-				return false
-			if input.move_to(session.surface(sink_surface).position, delta, 1.0) and not input.held:
-				_scripted_soak = 0.0
-				return true
-			return false
 		Phase.SCRUB:
 			for entry in _spots:
 				if entry["dirt"] > 0.0:
@@ -395,8 +361,4 @@ func scripted_hold(delta: float, input: CookInput) -> bool:
 					input.move_to(_dish.position + entry["offset"] + round_it, delta, 0.8)
 					return true
 			return false
-		Phase.RACK:
-			if _carrying:
-				return not input.move_to(session.surface(rack_surface).position, delta, 0.9)
-			return input.move_to(_dish.position, delta, 1.0) and not input.held
 	return false

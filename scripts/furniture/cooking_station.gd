@@ -275,6 +275,7 @@ func _on_minigame_finished(quality: float) -> void:
 			cooked.look_radius = session.surface(session.recipe.serve_on).radius()
 		_cook.set_held_item(cooked)
 		GameState.record_chef_action(_cook.player_index, "cooked")
+		FloorCare.cooked(self, quality)
 	if session != null:
 		session.queue_free()
 		session = null

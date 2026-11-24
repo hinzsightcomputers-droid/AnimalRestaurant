@@ -9,7 +9,7 @@ extends Station
 const GROUP := "sink"
 const PLATE_MODEL := "res://design/restaurant/plate.glb"
 const COUNTER_TOP := 0.9
-const RESULT_SHOW_TIME := 1.0
+const RESULT_SHOW_TIME := 0.5
 
 @export var view_manager: ViewManager     # For the close-up's mouse aiming (found if not set).
 @export var start_plates := 10

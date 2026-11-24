@@ -26,6 +26,7 @@ signal day_ended(summary: Dictionary)
 signal summary_requested  # Someone asked the host stand for today's summary (after hours).
 signal phase_started(phase: int)
 
+const DASH_TIP_DAYS := 2  # How many days the dash button's mentioned.
 const AFTER_HOURS_LIGHT_CHECK_SECONDS := 60.0
 
 @export var customer_manager: CustomerManager
@@ -36,6 +37,8 @@ const AFTER_HOURS_LIGHT_CHECK_SECONDS := 60.0
 @export var phone: Phone                          # Takes the night shift's calls.
 
 var decor_room := DecorRoom.new()  # What's been placed (see Decor).
+var floor_care := FloorCare.new()
+var meal_break := MealBreak.new()
 var _announced_bell := false
 var _announced_orders := false
 var _lighting: Tween
@@ -47,6 +50,8 @@ var _light_check_left := 0.0
 func _ready() -> void:
 	customer_manager.day_manager = self
 	add_child(decor_room)
+	add_child(floor_care)
+	add_child(meal_break)
 	GameState.begin_day()
 	Music.play_hour_themes()  # In the restaurant the music follows the real hour.
 	EventBanner.show_today(self)  # "Happy Halloween!", birthdays (see EventCalendar).
@@ -91,6 +96,9 @@ func _process(delta: float) -> void:
 				GameEvents.announce("Everyone's been served! Finish the delivery orders, then ring the bell.")
 			if bell_ready() and not _announced_bell:
 				_announced_bell = true
+				floor_care.end_of_meal()
+				if not DayCycle.is_last_meal():
+					meal_break.begin()
 				GameEvents.announce("Everyone's been served! Ring the bell at the counter %s." % (
 					"for %s" % GameState.phase_info(DayCycle.meal + 1).get("name", "the next meal") if not DayCycle.is_last_meal() else "to close up, once every table and dish is clean"))
 		DayCycle.Phase.CLOSING:
@@ -140,8 +148,10 @@ func ring_bell() -> bool:
 		if not left.is_empty():
 			GameEvents.announce("Clean up before closing: %s." % left)
 			return false
+		floor_care.settle()
 		_close()
 	else:
+		floor_care.settle()
 		DayCycle.to_meal(DayCycle.meal + 1)
 		_start_phase(DayCycle.meal)
 	return true
@@ -262,14 +272,22 @@ func _reload() -> void:
 
 
 func _start_phase(phase: int, light_seconds := -1.0) -> void:
+	meal_break.finish()
 	_announced_bell = false
 	_announced_orders = false
 	var info := GameState.phase_info(phase)
 	_light(info.get("lighting", {}), light_seconds)
 	var plan := GameState.todays_plan()
 	customer_manager.start_phase(plan[phase] if phase < plan.size() else [], GameState.phase_done)
-	GameEvents.announce("%s time!" % info.get("name", "Meal"))
+	var on := GameData.meal_menu()
+	GameEvents.announce("%s time!%s" % [info.get("name", "Meal"), "" if on.is_empty() or on.size() > 4 else " On the menu: %s." % ", ".join(on.map(func(d): return String(d["name"])))])
 	phase_started.emit(phase)
+	if phase == 0 and GameState.day_number <= DASH_TIP_DAYS and light_seconds == 0.0:
+		var hints: Array[String] = []
+		for player in InputSetup.active_players():
+			if not InputSetup.dash_hint(player) in hints:
+				hints.append(InputSetup.dash_hint(player))
+		get_tree().create_timer(8.0, false).timeout.connect(GameEvents.announce.bind(String(GameData.service.get("dash_tip", "Tap {button} to dash, hold it to run.")).format({ "button": " / ".join(hints) })))
 
 
 func _deliveries_waiting() -> bool:

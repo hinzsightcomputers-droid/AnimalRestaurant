@@ -5,7 +5,8 @@ extends Node
 # with APPDATA pointing at a copy of a save with an account and SHOTS=<folder>:
 #   godot --resolution 1920x1080 res://tools/split_check.tscn
 # PREFIX=<text> starts every file name; RECIPE=<name> is what the stove cooks;
-# PLAYERS=<n> how many chefs (4). ORDERS=1 takes pictures of the HUD's tickets instead.
+# PLAYERS=<n> how many chefs (4). ORDERS=1 takes pictures of the HUD's tickets instead,
+# BREAK=1 of the break between meals (staff meal, sweeping up, dashing, bumping).
 
 var main: Node
 
@@ -29,6 +30,10 @@ func _ready() -> void:
 	await _pick_accounts()
 	if not OS.get_environment("ORDERS").is_empty():
 		await _orders()
+		get_tree().quit()
+		return
+	if not OS.get_environment("BREAK").is_empty():
+		await _break()
 		get_tree().quit()
 		return
 	var stove: CookingStation = _find(main, func(n): return n is CookingStation and n.station_id == "stove")[0]
@@ -84,6 +89,57 @@ func _orders() -> void:
 	first.global_position = Vector3(2.2, 0.0, 0.7)
 	await get_tree().create_timer(3.0).timeout
 	await _shot("orders.png")
+
+
+# The break: a staff meal on the table, crumbs and spills about, mopping one up,
+# eating, then a dash into a friend.
+func _break() -> void:
+	var day: DayManager = _find(main, func(n): return n is DayManager)[0]
+	var a: Player = Player.find(get_tree(), 0)
+	var b: Player = Player.find(get_tree(), 1)
+	for station in _find(main, func(n): return n is CookingStation or n is ChoppingBoard):
+		day.floor_care.add_mess("spill" if station is CookingStation else "peelings", station.get_node("Interactable").global_position)
+	day.floor_care.end_of_meal()
+	day.meal_break.begin()
+	await get_tree().create_timer(1.5).timeout
+	for mess in get_tree().get_nodes_in_group(FloorMess.GROUP):
+		print("CHECK mess ", mess.kind, " ", mess.global_position.snapped(Vector3.ONE * 0.1))
+	var mess: FloorMess = get_tree().get_nodes_in_group(FloorMess.GROUP)[0]
+	a.global_position = mess.global_position + Vector3(0.0, 0.0, 0.7)
+	b.global_position = day.meal_break.global_position + Vector3(0.0, 0.0, 1.2)
+	await get_tree().create_timer(1.0).timeout
+	await _shot("break_0.png")
+	print("CHECK a sees ", a.interactor.focused.prompt_for(0) if a.interactor.focused != null else "nothing", ", b sees ", b.interactor.focused.prompt_for(1) if b.interactor.focused != null else "nothing")
+	var before := day.floor_care.count()
+	a.interactor.try_interact(0)
+	Input.action_press("p0_interact")
+	b.interactor.try_interact(1)
+	await get_tree().create_timer(0.8).timeout
+	await _shot("break_1.png")
+	await get_tree().create_timer(2.0).timeout
+	Input.action_release("p0_interact")
+	print("CHECK messes ", before, " -> ", day.floor_care.count(), ", free to move ", not a.movement_locked, " ", not b.movement_locked)
+	day.meal_break.finish()
+	print("CHECK well fed ", a.well_fed, " ", b.well_fed)
+	a.global_position = Vector3(2.2, 0.0, 2.4)
+	b.global_position = Vector3(2.2, 0.0, 1.0)
+	await get_tree().create_timer(0.5).timeout
+	var direction := CameraRig.screen_to_world(Vector3.RIGHT)
+	for action in ["move_left", "move_right", "move_up", "move_down"]:
+		var way := CameraRig.screen_to_world({ "move_left": Vector3.LEFT, "move_right": Vector3.RIGHT, "move_up": Vector3.FORWARD, "move_down": Vector3.BACK }[action])
+		if way.dot(Vector3.FORWARD) > 0.9:
+			Input.action_press("p0_" + action)
+			direction = way
+	var start_a := a.global_position
+	var start_b := b.global_position
+	Input.action_press("p0_dash")
+	await get_tree().create_timer(0.12).timeout
+	await _shot("break_2.png")
+	await get_tree().create_timer(0.35).timeout
+	print("CHECK dash: a moved ", start_a.distance_to(a.global_position), ", b bumped ", start_b.distance_to(b.global_position))
+	for action in ["move_left", "move_right", "move_up", "move_down", "dash"]:
+		Input.action_release("p0_" + action)
+	await _shot("break_3.png")
 
 
 func _shot(file: String) -> void:
