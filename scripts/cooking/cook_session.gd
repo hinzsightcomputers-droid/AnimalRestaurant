@@ -459,7 +459,7 @@ func burst(at: Vector3, color: Color, amount := 12, speed := 0.35) -> void:
 	particles.gravity = Vector3(0.0, -1.5, 0.0)
 	particles.scale_amount_min = 0.5
 	particles.scale_amount_max = 1.0
-	particles.mesh = _dot_mesh(0.008, color)
+	particles.mesh = dot_mesh(0.008, color)
 	particles.position = at
 	add_child(particles)
 	particles.emitting = true
@@ -1000,7 +1000,7 @@ func _style_card(reel: bool) -> void:
 # A bright dot, drawn over everything, gently pulsing. Steps where a tool or
 # a held piece already shows the spot hide it (uses_cursor).
 func _build_cursor() -> void:
-	_cursor.mesh = _dot_mesh(0.0125, Color(1.0, 0.92, 0.35, 0.99))
+	_cursor.mesh = dot_mesh(0.0125, Color(1.0, 0.92, 0.35, 0.99))
 	(_cursor.mesh.material as StandardMaterial3D).shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	(_cursor.mesh.material as StandardMaterial3D).no_depth_test = true
 	add_child(_cursor)
@@ -1018,7 +1018,8 @@ func _flat_material(color: Color) -> StandardMaterial3D:
 	return material
 
 
-func _dot_mesh(dot_radius: float, color: Color) -> SphereMesh:
+# A small ball of one color (particles, the cursor).
+func dot_mesh(dot_radius: float, color: Color) -> SphereMesh:
 	var mesh := SphereMesh.new()
 	mesh.radius = dot_radius
 	mesh.height = dot_radius * 2.0

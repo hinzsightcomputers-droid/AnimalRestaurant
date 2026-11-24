@@ -7,10 +7,32 @@
 [ext_resource type="Script" path="res://scripts/cooking/actions/flip_action.gd" id="5_gyj60"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/place_action.gd" id="6_a77i3"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/drizzle_action.gd" id="7_ju8yr"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/fill_action.gd" id="8_fill"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/stir_action.gd" id="9_stir"]
 
 [sub_resource type="Resource" id="Resource_n6xqa"]
 script = ExtResource("3_47a2j")
 background = true
+
+[sub_resource type="Resource" id="Resource_milk"]
+script = ExtResource("8_fill")
+title = "Milk in"
+hint = "Hold [button] to pour the milk and let go at the white line."
+weight = 0.5
+view_distance = 0.55
+into = "MixBowl"
+line = 0.55
+
+[sub_resource type="Resource" id="Resource_whisk"]
+script = ExtResource("9_stir")
+title = "Whisk the batter"
+hint = "Roll [stick] round counter-clockwise, the way the arrow goes, to whisk out the lumps (with the mouse, hold [grip] and circle the bowl)."
+weight = 0.5
+view_distance = 0.55
+in_surface = "MixBowl"
+turns = 4.0
+tint_to = Color(0.96, 0.88, 0.66, 1)
+lumps = 8
 
 [sub_resource type="Resource" id="Resource_pd7ri"]
 script = ExtResource("4_qrhs7")
@@ -51,4 +73,4 @@ hint = "Hold [button] and move to drizzle syrup over the top."
 script = ExtResource("1_wehfw")
 display_name = "Pancakes"
 pieces = 2
-steps = Array[ExtResource("2_ls588")]([SubResource("Resource_n6xqa"), SubResource("Resource_pd7ri"), SubResource("Resource_fortm"), SubResource("Resource_uysvd"), SubResource("Resource_ky8i2"), SubResource("Resource_y5gt6")])
+steps = Array[ExtResource("2_ls588")]([SubResource("Resource_n6xqa"), SubResource("Resource_milk"), SubResource("Resource_whisk"), SubResource("Resource_pd7ri"), SubResource("Resource_fortm"), SubResource("Resource_uysvd"), SubResource("Resource_ky8i2"), SubResource("Resource_y5gt6")])

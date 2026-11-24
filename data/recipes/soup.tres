@@ -4,6 +4,8 @@
 [ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/scrape_action.gd" id="3_scrape"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/stir_action.gd" id="4_stir"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/season_action.gd" id="season"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/ladle_action.gd" id="ladle"]
 [ext_resource type="PackedScene" path="res://scenes/cooking/soup_closeup.tscn" id="5_scene"]
 
 [sub_resource type="Resource" id="Resource_scrape"]
@@ -16,6 +18,20 @@ weight = 0.5
 script = ExtResource("4_stir")
 title = "Stir"
 hint = "Roll [stick] round counter-clockwise, the way the arrow goes, to whisk it (with the mouse, hold [grip] and circle the pot). Don't stop stirring!"
+turns = 6.0
+
+[sub_resource type="Resource" id="Resource_season"]
+script = ExtResource("season")
+title = "Season to taste"
+hint = "Move the shaker over the pot with [stick] and press [button] to shake. Stop when the meter is in the green."
+weight = 0.5
+
+[sub_resource type="Resource" id="Resource_ladle"]
+script = ExtResource("ladle")
+title = "Ladle it out"
+hint = "Press [button] over the pot to scoop, then move to the bowl with [stick] and press [button] over its middle to pour. Three ladles fill it."
+weight = 0.5
+view_distance = 0.85
 
 [resource]
 script = ExtResource("1_recipe")
@@ -23,4 +39,4 @@ display_name = "Soup"
 pieces = 1
 serve_on = ""
 scene = ExtResource("5_scene")
-steps = Array[ExtResource("2_action")]([SubResource("Resource_scrape"), SubResource("Resource_stir")])
+steps = Array[ExtResource("2_action")]([SubResource("Resource_scrape"), SubResource("Resource_stir"), SubResource("Resource_season"), SubResource("Resource_ladle")])

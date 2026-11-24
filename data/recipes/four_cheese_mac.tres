@@ -2,33 +2,52 @@
 
 [ext_resource type="Script" path="res://scripts/cooking/cook_recipe.gd" id="1_recipe"]
 [ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
-[ext_resource type="Script" path="res://scripts/cooking/actions/scrape_action.gd" id="scrape"]
-[ext_resource type="Script" path="res://scripts/cooking/actions/season_action.gd" id="season"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/boil_action.gd" id="boil"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/grate_action.gd" id="grate"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/drain_action.gd" id="drain"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/tip_in_action.gd" id="tip_in"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/stir_action.gd" id="stir"]
-[ext_resource type="PackedScene" path="res://scenes/cooking/soup_closeup.tscn" id="scene"]
+[ext_resource type="PackedScene" path="res://scenes/cooking/mac_closeup.tscn" id="scene"]
 
-[sub_resource type="Resource" id="Resource_0"]
-script = ExtResource("scrape")
-title = "Pasta in"
-hint = "Hold [grip] on the board and carry it to the pot. Then hold [grip] and push the knife to sweep everything in. Gently, or it splashes!"
+[sub_resource type="Resource" id="Resource_boil"]
+script = ExtResource("boil")
+title = "Boil the pasta"
+hint = "Move the bowl over the pot with [stick] and press [button] to tip the macaroni into the boiling water."
+view_distance = 0.75
+
+[sub_resource type="Resource" id="Resource_grate"]
+script = ExtResource("grate")
+title = "Grate the cheese"
+cue = "Four cheeses!"
+hint = "While the pasta boils: hold [grip] and rub up and down with [stick] on the grater. Let go when the meter's in the green, before the rind!"
+view_distance = 0.85
+
+[sub_resource type="Resource" id="Resource_drain"]
+script = ExtResource("drain")
+title = "Drain it"
+hint = "When the meter's in the green, press [button] to take the pot off. Then hold [button] to pour the water out, and let go at the line."
 weight = 0.5
-piece_radius = 0.014
-piece_thickness = 0.01
+view_distance = 0.7
+view_pitch = 52.0
 
-[sub_resource type="Resource" id="Resource_1"]
-script = ExtResource("season")
-title = "Cheese!"
-hint = "Shake [button] over the pot to melt in the cheese. All four kinds. Stop when the meter is in the green."
-seasoning = "Cheese"
-flake_color = Color(0.98, 0.8, 0.25, 1)
-cap_color = Color(0.95, 0.75, 0.2, 1)
-band = Vector2(0.65, 0.85)
+[sub_resource type="Resource" id="Resource_tip"]
+script = ExtResource("tip_in")
+title = "Cheese in!"
+hint = "Move over the pot with [stick] and press [button] to tip all the cheese in."
+weight = 0.0
+view_distance = 0.8
 
-[sub_resource type="Resource" id="Resource_2"]
+[sub_resource type="Resource" id="Resource_fold"]
 script = ExtResource("stir")
-title = "Mix it"
-hint = "Roll [stick] round counter-clockwise, the way the arrow goes, to stir it (with the mouse, hold [grip] and circle the pot). Don't stop stirring!"
-turns = 6
+title = "Fold in the cheese"
+hint = "Roll [stick] round counter-clockwise, the way the arrow goes, to fold it till it's melted (with the mouse, hold [grip] and circle the pot)."
+weight = 0.7
+view_distance = 0.7
+turns = 5.0
+melt = true
+coat = true
+tint_to = Color(0.98, 0.76, 0.28, 1)
+tool = "spatula"
 
 [resource]
 script = ExtResource("1_recipe")
@@ -36,4 +55,4 @@ display_name = "Four-Cheese Mac"
 pieces = 1
 serve_on = ""
 scene = ExtResource("scene")
-steps = Array[ExtResource("2_action")]([SubResource("Resource_0"), SubResource("Resource_1"), SubResource("Resource_2")])
+steps = Array[ExtResource("2_action")]([SubResource("Resource_boil"), SubResource("Resource_grate"), SubResource("Resource_drain"), SubResource("Resource_tip"), SubResource("Resource_fold")])

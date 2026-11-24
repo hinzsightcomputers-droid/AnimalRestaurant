@@ -13,7 +13,8 @@ extends Node3D
 @export var color := Color(0.2, 0.2, 0.22)
 @export var hidden := false
 @export_range(0.0, 1.0) var ingredient_tint := 0.0  # How much it takes on the ingredients' color (a pot's broth).
-@export var slides_in := false            # Out of sight until a step uses it.
+@export var slides_in := false            # Out of sight until a step uses it...
+@export var slide_from := 0.8             # ...then in from this far to the right (below zero: the left).
 @export var ledge := Vector3.ZERO          # Above zero: a counter top this big (x, thickness, z) under it.
 @export_enum("plain", "griddle", "pastry", "tray", "board", "soup") var look := "plain"  # griddle: seasoned warm steel with a heat glow and a raised rim. pastry: a pale floured pastry board. tray: a sheet pan with a rolled rim. board: a light wood cutting board (on its model too, when hidden). soup: a glossy simmering soup (tint changes its color).
 @export var depth := 0.0                  # A container (a saucepan, a bowl): how high liquid can come up in it.
@@ -209,10 +210,11 @@ func contains(point: Vector3, margin := 0.0) -> bool:
 	return absf(offset.x) <= size.x * 0.5 + margin and absf(offset.y) <= size.y * 0.5 + margin
 
 
-# Out of sight until now (slides_in): slides in from the right, `distance` away.
-func slide_in(distance := 0.8, seconds := 0.45) -> void:
+# Out of sight until now (slides_in): slides in from slide_from away.
+func slide_in(seconds := 0.45) -> void:
 	if visible:
 		return
+	var distance := slide_from
 	visible = true
 	# Only what it draws slides: it stays where it is, so a step can aim at it straight away.
 	# Only what is here now: something added on the way in (liquid poured in

@@ -9,6 +9,7 @@ extends CookAction
 enum Phase { CARRY, PLACING, SCRAPE, DONE }
 
 const SCRIPTED_PUSH := 0.3      # Meters a second a reel's chef pushes the knife: under splash_speed.
+const SPLASH_RUN_SECONDS := 1.0  # Splashes this close together are one message.
 const SCRIPTED_ARRIVED := 0.02  # How near the rim the board gets before it's let go.
 
 @export var from_surface := "Board"
@@ -26,7 +27,9 @@ const SCRIPTED_ARRIVED := 0.02  # How near the rim the board gets before it's le
 @export var tilt_degrees := 14.0            # How far it tips toward the pot on the rim.
 @export var near_pot := 0.1                 # How far from the pot you can let go and it still goes on the rim.
 @export var grab_margin := 0.02
-@export var splash_speed := 0.55            # Knife speed (meters a second) that splashes what it pushes in.
+@export var splash_speed := 1.0             # Knife speed (meters a second) that splashes what it pushes in...
+@export_range(0.0, 1.0) var warn_share := 0.7  # ...and this share of it warns "Easy...".
+@export_range(0.0, 1.0) var splash_score := 0.65  # What a piece that splashed scores.
 
 var _phase := Phase.CARRY
 var _board: CookSurface
@@ -38,6 +41,12 @@ var _knife: Node3D
 var _knife_u := 0.0                         # The knife along the board: bigger is nearer the pot.
 var _falling := 0
 var _scores: Array[float] = []
+var _count := 1                             # Pieces there were to start with.
+var _splashed := 0                          # Pieces that splashed...
+var _splash_run := 0                        # ...in the push that's going (one message for the lot)...
+var _splash_at := -10.0                     # ...and when the last one was, in seconds.
+var _time := 0.0
+var _speed := 0.0                           # The knife's, smoothed, for the warning.
 var _scripted_u := 0.0                      # Where a reel's chef wants the knife.
 
 
@@ -47,6 +56,7 @@ func _begin() -> void:
 	var count := pieces
 	if count <= 0:
 		count = session.ingredients.chops_needed() + 1 if session.ingredients != null else 9
+	_count = maxi(count, 1)
 	var color := session.ingredients.color() if session.ingredients != null else piece_color
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
@@ -73,6 +83,7 @@ func end() -> void:
 
 
 func update(delta: float, input: CookInput) -> void:
+	_time += delta
 	match _phase:
 		Phase.CARRY:
 			_carry(delta, input)
@@ -89,7 +100,7 @@ func update(delta: float, input: CookInput) -> void:
 		tween.tween_property(_board, "position", Vector3(_home.x, _carry_y(), _home.z), 0.25).set_trans(Tween.TRANS_QUAD)
 		tween.tween_property(_board, "position", _home, 0.15).set_trans(Tween.TRANS_QUAD)
 		finish(average(_scores))
-	session.set_status("Pieces left: %d" % _on_board.size() if _phase == Phase.SCRAPE else "")
+	session.set_status(_status() if _phase == Phase.SCRAPE else "")
 
 
 # Takes the board to the pot, then sweeps the knife along it, gently, until it's clear.
@@ -171,6 +182,7 @@ func _scrape(delta: float, input: CookInput) -> void:
 	var before := _knife_u
 	_knife_u = lerpf(_knife_u, target, 1.0 - exp(-25.0 * delta))
 	var speed := absf(_knife_u - before) / maxf(delta, 0.0001)
+	_speed = lerpf(_speed, speed if input.held else 0.0, 1.0 - exp(-8.0 * delta))
 	_knife.position = Vector3(-_knife_u * _side, 0.0 if input.held else 0.03, 0.0)
 	if not input.held or _knife_u <= before:
 		return
@@ -198,11 +210,43 @@ func _drop(piece: Node3D, speed: float) -> void:
 	tween.tween_callback(func():
 		_falling -= 1
 		pot.contents.append(piece)
-		_scores.append(0.4 if splash else 1.0)
+		_scores.append(splash_score if splash else 1.0)
 		session.play_sound("plop", at, -2.0 if splash else -6.0, 0.8 if splash else 1.2)
-		session.burst(at, pot.color, 16 if splash else 4, 0.55 if splash else 0.15)
+		session.burst(at, pot.color, 26 if splash else 4, 0.7 if splash else 0.15)
 		if splash:
-			session.pop_text("Splash!", at, -1))
+			_show_splash(at))
+
+
+# One message for everything a push splashed in, with what it cost the dish,
+# and a ring of soup jumping out over the rim so it's plain what happened.
+func _show_splash(at: Vector3) -> void:
+	_splashed += 1
+	_splash_run = _splash_run + 1 if _time - _splash_at < SPLASH_RUN_SECONDS else 1
+	_splash_at = _time
+	session.pop_text("Too fast, it splashed! -%d%%" % maxi(roundi(_cost(_splash_run)), 1), at, -1)
+	var pot := session.surface(into)
+	for i in 6:
+		var out := Vector3.RIGHT.rotated(Vector3.UP, TAU * i / 6.0 + randf() * 0.5)
+		session.burst(pot.position + out * pot.radius() * 0.8 + Vector3(0.0, 0.03, 0.0), pot.color, 5, 0.5)
+
+
+# What so many splashed pieces take off the finished dish, in percent.
+func _cost(splashed: int) -> float:
+	var weights := 0.0
+	for step in session.steps:
+		weights += step.weight
+	return (1.0 - splash_score) * splashed / _count * weight / maxf(weights, 0.001) * 100.0
+
+
+func _status() -> String:
+	var words := "Pieces left: %d" % _on_board.size()
+	if _speed > splash_speed:
+		words += "  -  Too fast!"
+	elif _speed > splash_speed * warn_share:
+		words += "  -  Easy..."
+	if _splashed > 0:
+		words += "  -  Splashed: -%d%%" % maxi(roundi(_cost(_splashed)), 1)
+	return words
 
 
 # A knife lying across the board, edge down, for pushing with.

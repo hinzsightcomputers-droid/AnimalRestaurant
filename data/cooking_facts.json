@@ -3,7 +3,7 @@
 	"recipes": {
 		"pancakes": {
 			"steps": {
-				"Pour the batter": "Don't over-mix pancake batter: a few lumps are fine. Mixing too much builds gluten and makes pancakes tough instead of fluffy.",
+				"Whisk the batter": "Don't over-mix pancake batter: a few lumps are fine. Mixing too much builds gluten and makes pancakes tough instead of fluffy.",
 				"Flip them": "Flip when bubbles on top pop and stay open, and the edges look dry: that means the bottom has set."
 			},
 			"facts": [
@@ -135,7 +135,9 @@
 		},
 		"four_cheese_mac": {
 			"steps": {
-				"Cheese!": "Grate cheese yourself: ready-grated cheese is coated in starch so it doesn't clump, which can make a sauce grainy."
+				"Boil the pasta": "Al dente is Italian for 'to the tooth': cooked, but still a little firm when you bite it.",
+				"Drain it": "Save a little of the cloudy pasta water: the starch in it helps a cheese sauce turn silky instead of clumping.",
+				"Grate the cheese": "Grate cheese yourself: ready-grated cheese is coated in starch so it doesn't clump, which can make a sauce grainy."
 			},
 			"facts": [
 				"Mixing cheeses works well: some melt smoothly, like cheddar, and others bring lots of flavour, like parmesan."
@@ -151,7 +153,8 @@
 		},
 		"soup": {
 			"steps": {
-				"Stir": "Stir soup from the bottom of the pot, so nothing catches and burns."
+				"Stir": "Stir soup from the bottom of the pot, so nothing catches and burns.",
+				"Season to taste": "Season a soup near the end: as it simmers, water boils off and it gets saltier on its own."
 			},
 			"facts": [
 				"Cut soup vegetables to the same size so they all finish cooking at the same time.",

@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/cooking/cook_session.gd" id="1_session"]
 [ext_resource type="Script" path="res://scripts/cooking/cook_surface.gd" id="2_surface"]
+[ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="3_fit"]
+[ext_resource type="PackedScene" path="res://design/restaurant/bowl.glb" id="4_bowl"]
 
 [node name="StovetopCloseup" type="Node3D"]
 script = ExtResource("1_session")
@@ -24,3 +26,21 @@ thickness = 0.018
 color = Color(0.96, 0.95, 0.92, 1)
 slides_in = true
 ledge = Vector3(0.5, 0.04, 0.42)
+
+[node name="MixBowl" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.38, 0.04, 0.52)
+script = ExtResource("2_surface")
+size = Vector2(0.2, 0.2)
+round = true
+hidden = true
+depth = 0.08
+color = Color(0.96, 0.93, 0.85, 1)
+slides_in = true
+slide_from = -0.8
+ledge = Vector3(0.5, 0.04, 0.42)
+
+[node name="Model" type="Node3D" parent="MixBowl"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.02, 0)
+script = ExtResource("3_fit")
+model = ExtResource("4_bowl")
+size = Vector3(0.26, 0, 0)

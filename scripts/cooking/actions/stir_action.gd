@@ -23,6 +23,7 @@ extends CookAction
 @export var splash_every := 0.2           # Seconds between splashes while stirring too fast.
 @export var melt := false                 # What's been dropped in (its stack) melts away as you stir.
 @export var tint_to := Color(0, 0, 0, 0)  # The liquid turns this color as you stir (none if see-through).
+@export var coat := false                 # What else is in there takes on tint_to as well (macaroni in its sauce).
 @export var lumps := 0                    # Lumps of flour that stir out.
 @export_enum("whisk", "spatula") var tool := "whisk"
 
@@ -44,6 +45,7 @@ var _wrong_way := 99.0                    # Seconds since they last stirred cloc
 var _melting: Array[Node3D] = []           # Shrinking away as it's stirred (melt, lumps).
 var _from_color := Color.WHITE
 var _scripted_angle := 0.0
+var _coated := {}                         # coat: material -> the color it started.
 
 
 func _begin() -> void:
@@ -59,6 +61,12 @@ func _begin() -> void:
 	if melt:
 		for entry in session.stack_of(in_surface):
 			_melting.append(entry["node"])
+	if coat:
+		for item in pot.contents:
+			if item is MeshInstance3D and not item in _melting:
+				var material := (item as MeshInstance3D).mesh.surface_get_material(0) as StandardMaterial3D
+				if material != null:
+					_coated[material] = material.albedo_color
 	for i in lumps:
 		var lump := MeshInstance3D.new()
 		var mesh := SphereMesh.new()
@@ -161,6 +169,8 @@ func update(delta: float, input: CookInput) -> void:
 			item.scale = Vector3.ONE * maxf(1.0 - share * 1.15, 0.001)
 	if tint_to.a > 0.0:
 		pot.set_liquid_color(_from_color.lerp(tint_to, share))
+	for material: StandardMaterial3D in _coated:
+		material.albedo_color = (_coated[material] as Color).lerp(tint_to, share * 0.8)
 
 	_swish.volume_db = lerpf(-30.0, -6.0, clampf(_speed / fast_speed, 0.0, 1.0))
 	_splash_timer -= delta
@@ -198,11 +208,11 @@ func _middle(pot: CookSurface) -> Vector3:
 # A wet spatula for folding, standing up with its blade in the pot.
 func _make_spatula() -> Node3D:
 	var holder := Node3D.new()
+	session.add_child(holder)  # In the tree first: moved under it after, the spatula would end up meters away.
 	var spatula := session.make_spatula()
-	spatula.reparent(holder)
+	spatula.reparent(holder, false)
 	spatula.rotation.x = deg_to_rad(-75.0)
-	spatula.position.y = 0.05
-	session.add_child(holder)
+	spatula.position = Vector3(0.0, 0.05, 0.0)
 	return holder
 
 
