@@ -177,6 +177,17 @@
 				"A sharp knife is safer than a blunt one: it needs less force, so it's less likely to slip."
 			]
 		},
+		"soup_vegetables": {
+			"steps": {
+				"Peel the carrot": "Peel away from yourself, so the peeler can't slip toward your hand.",
+				"Skin the onion": "Cutting an onion lets out a gas that stings your eyes. A sharp knife crushes fewer cells, so there are fewer tears.",
+				"Chop the carrot": "Curl the fingertips of the hand holding the food under, like a claw, so the knife can't reach them."
+			},
+			"facts": [
+				"Onions turn sweet as they cook: heat drives off the sharp flavor and leaves the sugars.",
+				"A sharp knife is safer than a blunt one: it needs less force, so it's less likely to slip."
+			]
+		},
 		"filleting": {
 			"steps": {},
 			"facts": [

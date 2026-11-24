@@ -59,6 +59,11 @@ func leafy_top() -> bool:
 	return bool(_chop().get("leafy_top", false))
 
 
+# The pieces of onion it's chopped into as well (none without one).
+func onion_pieces() -> int:
+	return int(_chop().get("onion", 0))
+
+
 # How many presses at the chopping board (a Sharp Knife takes fewer, but always at least 1).
 func chops_needed() -> int:
 	return maxi(1, int(_chop().get("chops", 5)) + int(GameState.upgrade_bonus("chops")))

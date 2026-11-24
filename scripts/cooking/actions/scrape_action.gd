@@ -2,7 +2,9 @@
 # the board and carry it over (let go near the pot and it rests on the rim,
 # tipped in), then hold the button and push the knife along the board to sweep
 # the pieces over the edge. Push gently: a piece shoved in too fast splashes.
-# What lands in the pot goes into its contents, for the steps after (stirring).
+# The pieces are what's on the board already (its contents, e.g. grated cheese)
+# or what was chopped for it. What lands in the pot goes into its contents and
+# onto its stack, for the steps after (stirring, melting it in).
 class_name ScrapeAction
 extends CookAction
 
@@ -53,10 +55,14 @@ var _scripted_u := 0.0                      # Where a reel's chef wants the knif
 func _begin() -> void:
 	_board = session.surface(from_surface)
 	_home = _board.position
+	if not _board.contents.is_empty():
+		_on_board.assign(_board.contents.filter(func(piece): return is_instance_valid(piece)))
+		_board.contents.clear()
+		_count = maxi(_on_board.size(), 1)
+		return
 	var count := pieces
 	if count <= 0:
 		count = session.ingredients.chops_needed() + 1 if session.ingredients != null else 9
-	_count = maxi(count, 1)
 	var color := session.ingredients.color() if session.ingredients != null else piece_color
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
@@ -75,6 +81,29 @@ func _begin() -> void:
 		piece.rotation.y = randf() * TAU
 		_board.add_child(piece)
 		_on_board.append(piece)
+	if session.ingredients != null:
+		_add_onion(session.ingredients.onion_pieces())
+	_count = maxi(_on_board.size(), 1)
+
+
+# Rings of onion among the rest.
+func _add_onion(count: int) -> void:
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Veg.ONION_FLESH
+	material.roughness = 0.4
+	for i in count:
+		var ring := MeshInstance3D.new()
+		var mesh := TorusMesh.new()
+		mesh.outer_radius = piece_radius * randf_range(1.0, 1.3)
+		mesh.inner_radius = mesh.outer_radius * 0.6
+		mesh.rings = 18
+		mesh.ring_segments = 8
+		mesh.material = material
+		ring.mesh = mesh
+		ring.position = Vector3(randf_range(-0.4, 0.4) * _board.size.x, piece_thickness * 0.5, randf_range(-0.35, 0.35) * _board.size.y)
+		ring.rotation = Vector3(randf_range(-0.15, 0.15), 0.0, randf_range(-0.15, 0.15))
+		_board.add_child(ring)
+		_on_board.append(ring)
 
 
 func end() -> void:
@@ -210,15 +239,18 @@ func _drop(piece: Node3D, speed: float) -> void:
 	var pot := session.surface(into)
 	var spot := Vector2.from_angle(randf() * TAU) * randf_range(0.0, pot.radius() * 0.6)
 	var at := pot.position + Vector3(spot.x, piece_thickness * 0.5, spot.y)
+	if pot.depth > 0.0:  # On top of what's in it already.
+		at.y = pot.position.y + pot.depth * 0.5 + 0.02 + randf() * 0.01
 	var splash := speed > splash_speed
 	var tween := piece.create_tween()
 	tween.tween_property(piece, "position", at, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	tween.tween_callback(func():
 		_falling -= 1
 		pot.contents.append(piece)
+		session.stack_push(into, piece, pot.position, 0.0)
 		_scores.append(splash_score if splash else 1.0)
 		session.play_sound("plop", at, -2.0 if splash else -6.0, 0.8 if splash else 1.2)
-		session.burst(at, pot.color, 26 if splash else 4, 0.7 if splash else 0.15)
+		session.burst(at, pot.liquid_color(), 26 if splash else 4, 0.7 if splash else 0.15)
 		if splash:
 			_show_splash(at))
 
@@ -233,7 +265,7 @@ func _show_splash(at: Vector3) -> void:
 	var pot := session.surface(into)
 	for i in 6:
 		var out := Vector3.RIGHT.rotated(Vector3.UP, TAU * i / 6.0 + randf() * 0.5)
-		session.burst(pot.position + out * pot.radius() * 0.8 + Vector3(0.0, 0.03, 0.0), pot.color, 5, 0.5)
+		session.burst(pot.position + out * pot.radius() * 0.8 + Vector3(0.0, 0.03, 0.0), pot.liquid_color(), 5, 0.5)
 
 
 # What so many splashed pieces take off the finished dish, in percent.

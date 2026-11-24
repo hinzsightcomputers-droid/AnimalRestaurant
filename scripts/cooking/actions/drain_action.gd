@@ -1,8 +1,9 @@
-# DrainAction: take the boiling pasta off the heat (the first press: this is
-# what BoilAction is scored on) and hold to tip the water out, letting go at
-# the line so a little of the pasta water stays for the sauce. Tipped right out
-# it's dry; plenty left, it's watery. The press that takes it off can just be
-# kept down.
+# DrainAction: take the boiling pasta off the heat (a press: this is what
+# BoilAction is scored on), then hold to tip the water out, letting go at the
+# line so a little of the pasta water stays for the sauce. Tipped right out
+# it's dry; plenty left, it's watery. Presses left over from the step before
+# (still rubbing cheese) never count: the button has to have been up a moment
+# first, it can't come off before it's cooked, and pouring takes a new press.
 class_name DrainAction
 extends CookAction
 
@@ -13,10 +14,14 @@ extends CookAction
 @export var tilt_degrees := 16.0
 
 const SCRIPTED_DONE := 1.0                 # How boiled a reel's chef lets it get.
-const TIP_AFTER := 0.3                     # Holding on this long after taking it off starts the pouring.
+const ARM_AFTER := 0.35                    # The button's up this long before a press takes the pasta off.
+const TAP_SECONDS := 0.3                   # Letting go of the pour this soon was a stray tap: it just stops.
 
-var _off := false                          # Off the heat.
-var _held_for := 0.0
+var _armed := false
+var _up_for := 0.0                         # Seconds the button's been up.
+var _off := false                          # Off the heat...
+var _let_go := false                       # ...and the press that did it has been let go.
+var _poured_for := 0.0
 var _pouring := false
 var _mark: MeshInstance3D
 var _sound: AudioStreamPlayer3D
@@ -70,23 +75,33 @@ func end() -> void:
 
 func update(delta: float, input: CookInput) -> void:
 	var pot := session.surface(in_surface)
+	_up_for = 0.0 if input.held else _up_for + delta
 	if not _off:
-		var early := _boil() != null and _boil().doneness < _boil().perfect_from
-		session.set_status("Wait for the green" if early else "Now!")
-		if input.just_pressed:
-			_off = true
-			if _boil() != null:
-				_boil().take_off()
-			_mark.visible = true
+		var early := _early()
+		session.set_status("Wait for the green" if early else ("Now!" if _armed else "Let go, then press to take it off"))
+		if _armed and input.just_pressed:
+			if early:
+				session.pop_text("Not ready yet!", pot.position, 0)
+			else:
+				_off = true
+				if _boil() != null:
+					_boil().take_off()
+				_mark.visible = true
+		_armed = _armed or _up_for >= ARM_AFTER
 		return
-	_held_for = _held_for + delta if input.held else 0.0
-	if not _pouring and input.held and (_held_for >= TIP_AFTER or input.just_pressed):
+	_let_go = _let_go or not input.held
+	if not _pouring and _let_go and input.just_pressed:
 		_pouring = true
+		_poured_for = 0.0
 		_sound.play()
 	if _pouring:
+		_poured_for += delta
 		pot.fill_to(pot.level - delta / pour_seconds * GameState.difficulty_value("closeup_pace"))
 		_sink_pasta(pot)
-		if not input.held or pot.level <= 0.0:
+		if not input.held and _poured_for < TAP_SECONDS:
+			_pouring = false
+			_sound.stop()
+		elif not input.held or pot.level <= 0.0:
 			_finish_pour(pot)
 			return
 	_stream.emitting = _pouring
@@ -98,8 +113,13 @@ func update(delta: float, input: CookInput) -> void:
 # For a reel: off the heat once it's al dente, then down to the line.
 func scripted_hold(_delta: float, _input: CookInput) -> bool:
 	if not _off:
-		return _boil() == null or _boil().doneness >= SCRIPTED_DONE
-	return session.surface(in_surface).level > line
+		return _armed and (_boil() == null or _boil().doneness >= SCRIPTED_DONE)
+	return _let_go and session.surface(in_surface).level > line
+
+
+# Not cooked yet (it can't come off).
+func _early() -> bool:
+	return _boil() != null and _boil().doneness < _boil().perfect_from
 
 
 func _boil() -> BoilAction:

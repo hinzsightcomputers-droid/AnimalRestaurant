@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/cooking/actions/boil_action.gd" id="boil"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/grate_action.gd" id="grate"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/drain_action.gd" id="drain"]
-[ext_resource type="Script" path="res://scripts/cooking/actions/tip_in_action.gd" id="tip_in"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/scrape_action.gd" id="scrape"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/stir_action.gd" id="stir"]
 [ext_resource type="PackedScene" path="res://scenes/cooking/mac_closeup.tscn" id="scene"]
 
@@ -25,16 +25,16 @@ view_distance = 0.85
 [sub_resource type="Resource" id="Resource_drain"]
 script = ExtResource("drain")
 title = "Drain it"
-hint = "When the meter's in the green, press [button] to take the pot off. Then hold [button] to pour the water out, and let go at the line."
+hint = "When the meter's in the green, press [button] to take the pot off. Let go, then hold [button] to pour the water out, and let go again at the line."
 weight = 0.5
 view_distance = 0.7
 view_pitch = 52.0
 
-[sub_resource type="Resource" id="Resource_tip"]
-script = ExtResource("tip_in")
+[sub_resource type="Resource" id="Resource_scrape"]
+script = ExtResource("scrape")
 title = "Cheese in!"
-hint = "Move over the pot with [stick] and press [button] to tip all the cheese in."
-weight = 0.0
+hint = "Hold [grip] on the board and carry it to the pot. Then hold [grip] and push the knife to sweep all the cheese in. Gently, or it splashes!"
+weight = 0.5
 view_distance = 0.8
 
 [sub_resource type="Resource" id="Resource_fold"]
@@ -55,4 +55,4 @@ display_name = "Four-Cheese Mac"
 pieces = 1
 serve_on = ""
 scene = ExtResource("scene")
-steps = Array[ExtResource("2_action")]([SubResource("Resource_boil"), SubResource("Resource_grate"), SubResource("Resource_drain"), SubResource("Resource_tip"), SubResource("Resource_fold")])
+steps = Array[ExtResource("2_action")]([SubResource("Resource_boil"), SubResource("Resource_grate"), SubResource("Resource_drain"), SubResource("Resource_scrape"), SubResource("Resource_fold")])

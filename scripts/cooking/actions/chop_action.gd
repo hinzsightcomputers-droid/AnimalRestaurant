@@ -3,12 +3,14 @@
 # fresh one) with faint marks where the cuts go. The knife waits over the next
 # mark: press and it comes down there, then moves on to the next by itself, so
 # the pieces always come out the right size. Each cut scores how close the
-# press falls to the beat, which ticks (and pulses the next mark).
+# press falls to the beat, which ticks (and pulses the next mark). vegetable
+# "onion" chops the skinned onion (context "onion") into rings instead.
 class_name ChopAction
 extends CookAction
 
 @export var on_surface := "Board"
-@export var cuts := 0                      # Cuts in all; 0 = the ingredients' own count ("chops" in data/dish_kitchen.json).
+@export_enum("carrot", "onion") var vegetable := "carrot"
+@export var cuts := 0                      # Cuts in all (a Sharp Knife takes fewer); 0 = the ingredients' own count ("chops" in data/dish_kitchen.json).
 @export_group("Carrot")
 @export var piece_length := 0.34           # A fresh one, when nothing was peeled first.
 @export var piece_radius := 0.034
@@ -103,8 +105,10 @@ func _begin() -> void:
 	var total := cuts
 	if total <= 0:
 		total = session.ingredients.chops_needed() if session.ingredients != null else 8
+	elif session.ingredients != null:
+		total = maxi(1, total + int(GameState.upgrade_bonus("chops")))
 	_board_y = session.surface(on_surface).position.y
-	var carrot: Dictionary = session.context.get("carrot", {})
+	var carrot: Dictionary = session.context.get(vegetable, {})
 	if carrot.is_empty():
 		var board := session.surface(on_surface).position
 		carrot = { "left": board.x - piece_length * 0.5, "right": board.x + piece_length * 0.5, "z": board.z,
@@ -231,15 +235,18 @@ func _build() -> void:
 		var a: float = edges[i] + (slice_gap * 0.5 if i > 0 else 0.0)
 		var b: float = edges[i + 1] - (slice_gap * 0.5 if i < count - 1 else 0.0)
 		var slice := MeshInstance3D.new()
-		var mesh := CylinderMesh.new()
-		mesh.bottom_radius = _radius_at(a)
-		mesh.top_radius = _radius_at(b)
-		mesh.height = b - a
-		mesh.radial_segments = 16
-		mesh.rings = 1
-		mesh.material = flesh
-		slice.mesh = mesh
-		slice.rotation.z = -PI * 0.5  # Its top (the thin end) points right.
+		if _is_onion():
+			slice.mesh = Veg.turned(b - a, func(x): return _radius_at((a + b) * 0.5 + x), flesh)
+		else:
+			var mesh := CylinderMesh.new()
+			mesh.bottom_radius = _radius_at(a)
+			mesh.top_radius = _radius_at(b)
+			mesh.height = b - a
+			mesh.radial_segments = 16
+			mesh.rings = 1
+			mesh.material = flesh
+			slice.mesh = mesh
+			slice.rotation.z = -PI * 0.5  # Its top (the thin end) points right.
 		# Pieces shuffle apart a touch from the middle once cut.
 		var spread := (i - (count - 1) * 0.5) * slice_gap if count > 1 else 0.0
 		slice.position = Vector3((a + b) * 0.5 - middle_x + spread, 0.0, 0.0)
@@ -248,6 +255,10 @@ func _build() -> void:
 			_add_face(node, a - middle_x + spread, _radius_at(a), -1.0, ring, core)
 		if i < count - 1:
 			_add_face(node, b - middle_x + spread, _radius_at(b), 1.0, ring, core)
+		if _is_onion() and i == 0:
+			Veg.add_tip(node, a - middle_x + spread)
+		if _is_onion() and i == count - 1:
+			Veg.add_root(node, b - middle_x + spread)
 		if i == 0 and _piece.get("greens", false):
 			add_greens(node, a - middle_x + spread, _radius_at(a))
 	var marks := []
@@ -259,7 +270,12 @@ func _build() -> void:
 # A cut face at x (the carrot's own), facing `way` (-1 left, 1 right): a lighter
 # ring with a paler core, a hair out from the piece so it shows.
 func _add_face(parent: Node3D, x: float, radius: float, way: float, ring: Material, core: Material) -> void:
-	for part in [[radius * 0.97, ring, 0.0006], [radius * 0.45, core, 0.0012]]:
+	var parts := [[radius * 0.97, ring, 0.0006], [radius * 0.45, core, 0.0012]]
+	if _is_onion():  # Its layers, one inside another.
+		parts = []
+		for layer in 3:
+			parts.append([radius * (0.97 - layer * 0.3), Veg.onion_paint(layer % 2 == 1), 0.0006 + layer * 0.0006])
+	for part in parts:
 		var disc := MeshInstance3D.new()
 		var mesh := CylinderMesh.new()
 		mesh.top_radius = part[0]
@@ -283,7 +299,13 @@ func _pulse(mark: Node3D) -> void:
 
 func _radius_at(x: float) -> float:
 	var t := clampf((x - _piece["left"]) / (_piece["right"] - _piece["left"]), 0.0, 1.0)
+	if _is_onion():
+		return Veg.onion_radius(t, _piece["radius"])
 	return _piece["radius"] * (1.0 - _piece["taper"] * t)
+
+
+func _is_onion() -> bool:
+	return vegetable == "onion"
 
 
 # A thin white line over the carrot where a cut goes.

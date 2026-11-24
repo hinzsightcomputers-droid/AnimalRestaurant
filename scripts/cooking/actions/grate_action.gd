@@ -2,7 +2,7 @@
 # colors). Hold the button and rub up and down on the grater; a meter in front
 # of the board fills as the block wears away. Let go in the green; keep going
 # and you grate the rind. Letting go early just pauses. The shreds pile up on
-# the board (its contents), for TipInAction.
+# the board (its contents), for ScrapeAction.
 class_name GrateAction
 extends CookAction
 
@@ -15,6 +15,7 @@ extends CookAction
 @export var shreds := 12                   # Per cheese.
 
 const LEAST := 0.5                         # What a block grated down to the rind scores.
+const HEAP := Vector2(0.06, 0.065)         # How far the shreds spread (x, z) about the heap's middle.
 const SCRIPTED_STROKES := 1.6              # Strokes a second for a reel's chef.
 
 var _index := 0
@@ -156,8 +157,9 @@ func _drop_shred(board: CookSurface) -> void:
 	shred.mesh = mesh
 	board.add_child(shred)
 	board.contents.append(shred)
-	var heap := Vector2.from_angle(randf() * TAU) * sqrt(randf()) * 0.045
-	var layer := 0.004 + 0.018 * (1.0 - heap.length() / 0.045) * (_index + 1) / cheeses.size()
+	var heap := Vector2.from_angle(randf() * TAU) * sqrt(randf())
+	var layer := 0.004 + 0.018 * (1.0 - heap.length()) * (_index + 1) / cheeses.size()
+	heap *= HEAP
 	shred.position = Vector3(-board.size.x * 0.2 + 0.03, 0.04, 0.0)
 	shred.rotation = Vector3(randf_range(-0.3, 0.3), randf() * TAU, randf_range(-0.3, 0.3))
 	var tween := shred.create_tween()

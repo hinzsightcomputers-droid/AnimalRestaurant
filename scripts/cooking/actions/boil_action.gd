@@ -2,7 +2,7 @@
 # pot to tip it in. Then it boils on its own in the background while the cook
 # gets on with the next step (grating the cheese), a meter in front of the pot
 # filling toward its green part: al dente. DrainAction takes it off the heat,
-# and the closer to the green, the better (short of it: crunchy, past it: mushy).
+# in the green or after; the further past it, the mushier.
 class_name BoilAction
 extends CookAction
 
@@ -110,14 +110,12 @@ func take_off() -> void:
 	if done:
 		return
 	var result := score_now()
-	var words := "Al dente!" if result >= 1.0 else ("Still crunchy!" if doneness < perfect_from else "Mushy!")
+	var words := "Al dente!" if result >= 1.0 else "Mushy!"
 	session.pop_text(words, session.surface(in_surface).position, CookSession.mood_of(result))
 	finish(result)
 
 
 func score_now() -> float:
-	if doneness < perfect_from:
-		return clampf(doneness / perfect_from, least_score, 1.0)
 	if doneness <= perfect_to:
 		return 1.0
 	return lerpf(1.0, least_score, clampf((doneness - perfect_to) / (mushy_at - perfect_to), 0.0, 1.0))

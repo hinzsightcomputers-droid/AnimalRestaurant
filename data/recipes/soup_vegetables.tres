@@ -1,0 +1,47 @@
+[gd_resource type="Resource" script_class="CookRecipe" format=3]
+
+[ext_resource type="Script" path="res://scripts/cooking/cook_recipe.gd" id="1_recipe"]
+[ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/peel_action.gd" id="4_peel"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/chop_action.gd" id="3_chop"]
+
+[sub_resource type="Resource" id="Resource_peel"]
+script = ExtResource("4_peel")
+title = "Peel the carrot"
+hint = "Hold [grip] and drag the peeler along the carrot with [stick], left to right in one straight line. All four sides!"
+weight = 0.5
+offset_x = -0.06
+
+[sub_resource type="Resource" id="Resource_skin"]
+script = ExtResource("4_peel")
+title = "Skin the onion"
+hint = "Hold [grip] at the onion's tip and pull along it with [stick], left to right, to strip off the papery skin. All three sides!"
+weight = 0.5
+vegetable = "onion"
+offset_x = 0.25
+sides = 3
+segments = 4
+length = 0.13
+radius = 0.055
+taper = 0.0
+skin_darken = 0.08
+
+[sub_resource type="Resource" id="Resource_chop"]
+script = ExtResource("3_chop")
+title = "Chop the carrot"
+hint = "Press [button] on the beat. The knife moves along to the next cut by itself."
+
+[sub_resource type="Resource" id="Resource_chop_onion"]
+script = ExtResource("3_chop")
+title = "Chop the onion"
+hint = "Press [button] on the beat. The knife moves along to the next cut by itself."
+weight = 0.5
+vegetable = "onion"
+cuts = 5
+
+[resource]
+script = ExtResource("1_recipe")
+display_name = "Soup Vegetables"
+pieces = 1
+serve_on = "Board"
+steps = Array[ExtResource("2_action")]([SubResource("Resource_peel"), SubResource("Resource_skin"), SubResource("Resource_chop"), SubResource("Resource_chop_onion")])
