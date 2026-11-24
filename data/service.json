@@ -87,6 +87,15 @@
 			"wait_bill": "{name}'s bill is on its way"
 		}
 	},
+	"_table_spots": "How each table's spot is marked on its customers' tickets and over their heads (TableSpot): a name, a color and a shape (circle, square, triangle, diamond, pentagon, hexagon).",
+	"table_spots": {
+		"middle": { "name": "Middle", "color": "#D63C3C", "shape": "circle" },
+		"kitchen": { "name": "Kitchen", "color": "#E98A2B", "shape": "square" },
+		"corner": { "name": "Corner", "color": "#6FA83A", "shape": "triangle" },
+		"window": { "name": "Window", "color": "#4C8FD0", "shape": "diamond" },
+		"nook": { "name": "Nook", "color": "#8E5BB5", "shape": "pentagon" },
+		"bay": { "name": "Bay", "color": "#2FA39A", "shape": "hexagon" }
+	},
 	"_takeout": "The takeout counter (TakeoutCounter): a cooked dish has to be bagged here before the courier takes it, or before it can be given as a gift. After hours, free hands can also pack something from the pantry, or order a dish to go (its ticket goes in your pocket, and it's cooked the usual way). A bag can be unpacked again. per_page: choices shown at once.",
 	"takeout": {
 		"per_page": 4,

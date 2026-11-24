@@ -27,6 +27,9 @@ const FACTS_PATH := "res://data/cooking_facts.json"
 const FACT_WIDTH := 330.0                  # The tip card's text width (smaller in split screen).
 const FACT_SPLIT_WIDTH := 230.0
 const FACT_MARGIN := 24.0                  # From the corner of the cook's view.
+const SMALL_VIEW_PLAYERS := 3               # This many players or more: a quarter-screen view (ViewManager's four-way split)...
+const SMALL_VIEW_MARKS := 1.7              # ...where the cursor, rings, outlines and meters are drawn this much bolder...
+const SMALL_CARD_WIDTH := 560.0            # ...and the instructions are kept small.
 const FACT_SECONDS := 20.0                 # A long step without a tip of its own moves on to the next fact.
 
 @export_group("Controls")
@@ -56,6 +59,7 @@ var current: CookAction = null
 var pieces: Array[CookPiece] = []
 var quality := 0.0
 var is_finished := false
+var small_view := false                    # Cooking in a quarter of the screen: bolder marks, smaller words.
 
 var _next := 0
 var _background: Array[CookAction] = []
@@ -84,6 +88,7 @@ static var _all_facts := {}                # data/cooking_facts.json's recipes, 
 func start(cook_recipe: CookRecipe, cook: Player, view_manager: ViewManager, brought: Ingredients = null) -> void:
 	recipe = cook_recipe
 	player = cook
+	small_view = InputSetup.active_players().size() >= SMALL_VIEW_PLAYERS
 	ingredients = brought
 	input = CookInput.new(self, cook.player_index, view_manager)
 	input.cursor = Vector3(0.0, work_height, 0.0)  # The middle of the station.
@@ -437,6 +442,11 @@ static func mood_of(score: float) -> int:
 	return 1 if score >= 0.8 else (-1 if score < 0.45 else 0)
 
 
+# How much bolder marks are drawn: rings, outlines, the cursor, meters.
+func _marks() -> float:
+	return SMALL_VIEW_MARKS if small_view else 1.0
+
+
 # A quick squash and stretch.
 func wobble(node: Node3D, amount := 0.2) -> void:
 	var tween := node.create_tween()
@@ -672,10 +682,11 @@ func make_meter(at: Vector3, length: float, band: Vector2, fill_color: Color, st
 	if standing:
 		meter.rotation.x = PI * 0.5
 	add_child(meter)
+	var thick := 1.0 + (_marks() - 1.0) * 0.5
 	var parts := [
-		[Vector3(length, 0.002, 0.04), 0.0, Color(0.2, 0.15, 0.1, 0.75), 0.0],
-		[Vector3((band.y - band.x) * length, 0.003, 0.048), ((band.x + band.y) * 0.5 - 0.5) * length, Color(0.4, 0.95, 0.45, 0.65), 0.002],
-		[Vector3(length, 0.004, 0.026), 0.0, fill_color, 0.004],
+		[Vector3(length, 0.002, 0.04 * thick), 0.0, Color(0.2, 0.15, 0.1, 0.75), 0.0],
+		[Vector3((band.y - band.x) * length, 0.003, 0.048 * thick), ((band.x + band.y) * 0.5 - 0.5) * length, Color(0.4, 0.95, 0.45, 0.65), 0.002],
+		[Vector3(length, 0.004, 0.026 * thick), 0.0, fill_color, 0.004],
 	]
 	var fill: MeshInstance3D = null
 	for part in parts:
@@ -793,13 +804,14 @@ func make_tongs() -> Node3D:
 # things in (Rect2 on x/z, like a cursor area).
 func make_box_outline(box: Rect2, y: float, color := Color(1.0, 1.0, 1.0, 0.55)) -> Node3D:
 	var outline := Node3D.new()
+	var line := 0.006 * _marks()
 	var paint := _flat_material(color)
 	var middle := Vector3(box.get_center().x, y + 0.002, box.get_center().y)
 	for side in 4:
 		var across := side < 2
 		var bar := MeshInstance3D.new()
 		var mesh := BoxMesh.new()
-		mesh.size = Vector3(box.size.x + 0.006 if across else 0.006, 0.002, 0.006 if across else box.size.y)
+		mesh.size = Vector3(box.size.x + line if across else line, 0.002, line if across else box.size.y)
 		mesh.material = paint
 		bar.mesh = mesh
 		var way := -1.0 if side % 2 == 0 else 1.0
@@ -812,8 +824,8 @@ func make_box_outline(box: Rect2, y: float, color := Color(1.0, 1.0, 1.0, 0.55))
 func make_ring(ring_radius: float, color := Color(1.0, 1.0, 1.0, 0.55)) -> MeshInstance3D:
 	var ring := MeshInstance3D.new()
 	var mesh := TorusMesh.new()
-	mesh.inner_radius = ring_radius - 0.003
-	mesh.outer_radius = ring_radius + 0.003
+	mesh.inner_radius = ring_radius - 0.003 * _marks()
+	mesh.outer_radius = ring_radius + 0.003 * _marks()
 	mesh.material = _flat_material(color)
 	ring.mesh = mesh
 	ring.scale.y = 0.3
@@ -891,7 +903,7 @@ func _build_hint(view_manager: ViewManager) -> void:
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		label.custom_minimum_size.x = CARD_WIDTH
+		label.custom_minimum_size.x = SMALL_CARD_WIDTH if small_view else CARD_WIDTH
 		label.add_theme_font_size_override("font_size", roundi(hint_font_size * float(pair[1])))
 		column.add_child(label)
 	UiStyle.title(_hint)
@@ -912,7 +924,11 @@ func _build_fact_card() -> void:
 	_screen.add_child(_fact_card)
 	_fact_card.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	_fact_card.grow_horizontal = Control.GROW_DIRECTION_BEGIN  # Its right edge stays put; it grows to the left.
-	var top := FACT_MARGIN + (split_hint_top if split else hint_top)
+	if small_view:  # Bottom right: at the top it would cover the instructions in a view this small.
+		_fact_card.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+		_fact_card.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+		_fact_card.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	var top := -FACT_MARGIN if small_view else FACT_MARGIN + (split_hint_top if split else hint_top)
 	_fact_card.offset_right = -FACT_MARGIN
 	_fact_card.offset_left = -FACT_MARGIN
 	_fact_card.offset_top = top
@@ -987,8 +1003,8 @@ func _style_card(reel: bool) -> void:
 		return
 	_card.set_meta(&"reel", reel)
 	var style := UiStyle.panel(CARD_MARGIN)
-	style.content_margin_top = CARD_MARGIN * 0.5
-	style.content_margin_bottom = CARD_MARGIN * 0.5
+	style.content_margin_top = CARD_MARGIN * (0.32 if small_view else 0.5)
+	style.content_margin_bottom = CARD_MARGIN * (0.32 if small_view else 0.5)
 	_card.add_theme_stylebox_override("panel", StyleBoxEmpty.new() if reel else style)
 	for label in [_hint, _how, _status_label]:
 		label.add_theme_color_override("font_color", Color(1.0, 0.97, 0.88) if reel else CARD_TEXT)
@@ -1000,7 +1016,7 @@ func _style_card(reel: bool) -> void:
 # A bright dot, drawn over everything, gently pulsing. Steps where a tool or
 # a held piece already shows the spot hide it (uses_cursor).
 func _build_cursor() -> void:
-	_cursor.mesh = dot_mesh(0.0125, Color(1.0, 0.92, 0.35, 0.99))
+	_cursor.mesh = dot_mesh(0.0125 * _marks(), Color(1.0, 0.92, 0.35, 0.99))
 	(_cursor.mesh.material as StandardMaterial3D).shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	(_cursor.mesh.material as StandardMaterial3D).no_depth_test = true
 	add_child(_cursor)

@@ -62,6 +62,8 @@ var _aura: CPUParticles3D = null       # Sparkles or smoke over their plate whil
 var _bill_sign := Sprite3D.new()       # A receipt over their head while they want the bill.
 var _bill_sign_rest := 0.0             # Its offset when not bobbing.
 var _wait_icon := WaitIcon.new()       # A food or drink symbol over the order bubble while they wait for it.
+var _serve_marker := ServeMarker.new() # Their table's badge, and the arrow while a chef carries their order.
+var model_path := ""      # The model they ended up with ("" for the placeholder).
 var _height := 1.2                     # How tall they stand.
 var _skeleton: Skeleton3D = null       # A rigged model's, to find the top of its head as it sits and stands.
 var _head_bone := -1
@@ -78,6 +80,8 @@ func _ready() -> void:
 	_load_model()
 	_build_bill_sign()
 	add_child(_emotions)
+	_serve_marker.customer = customer
+	add_child(_serve_marker)
 	_wait_icon.customer = customer
 	_wait_icon.pixel_size = ICON_PIXEL
 	add_child(_wait_icon)
@@ -330,15 +334,32 @@ func _apply_species_color() -> void:
 			child.material_override = material
 
 
+# For a picture of them (DishIcons): what they look like, as a key...
+func portrait_key() -> String:
+	return model_path if not model_path.is_empty() else "species:%s" % customer.species.get("id", "")
+
+
+# ...and a copy of it to take the picture of.
+func portrait() -> Node3D:
+	if not model_path.is_empty():
+		return load(model_path).instantiate()
+	var copy := Node3D.new()
+	for child in get_children():
+		if child is MeshInstance3D:
+			copy.add_child(child.duplicate())
+	return copy
+
+
 func _load_model() -> void:
 	var settings := _model_settings()
 	var path: String = settings.get("path", "")
 	if path.is_empty() or not ResourceLoader.exists(path):
 		return
+	model_path = path
 	_model = load(path).instantiate()
 	add_child(_body)
 	_body.add_child(_model)
-	var height := _bounds(_model).size.y
+	var height := bounds(_model).size.y
 	if height > 0.0:
 		_model.scale = Vector3.ONE * (float(settings.get("height", 1.2)) / height)
 	_emotions.body_root = _body
@@ -487,6 +508,10 @@ func _place_overhead() -> void:
 	var over_text := text_top * bubble.pixel_size / ICON_PIXEL + ICON_GAP
 	_bill_sign_rest = over_text + _bill_sign.texture.get_height() * 0.5
 	_wait_icon.rest_offset = over_text + WaitIcon.PIXELS * 0.5
+	_serve_marker.head_top = top
+	_serve_marker.badge.position.y = bubble.position.y
+	_serve_marker.beside = _wait_icon.visible or _bill_sign.visible
+	_serve_marker.rest_offset = over_text * ICON_PIXEL / ServeMarker.BADGE_PIXEL + TableSpot.PIXELS * (0.65 if _serve_marker.beside else 0.5)
 
 
 # The top of their head, in this node's space: from a rigged model's head bone
@@ -528,7 +553,7 @@ func _play(what: String) -> void:
 		_animations.seek(float(part[0]), true)
 
 
-func _bounds(node: Node) -> AABB:
+static func bounds(node: Node) -> AABB:
 	var box := AABB()
 	var first := true
 	for mesh in node.find_children("*", "MeshInstance3D", true, false):

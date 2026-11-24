@@ -44,6 +44,10 @@ func end() -> void:
 	_meter.queue_free()
 
 
+func view_point() -> Vector3:
+	return session.surface(in_surface).position
+
+
 func cursor_height() -> float:
 	return session.surface(in_surface).position.y
 

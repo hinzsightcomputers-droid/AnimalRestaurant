@@ -1,20 +1,16 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/hud.gd" id="1_hud"]
+[ext_resource type="Script" path="res://scripts/ui/order_tickets.gd" id="2_tickets"]
 
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1_hud")
 
-[node name="OrdersLabel" type="Label" parent="."]
+[node name="OrderTickets" type="VBoxContainer" parent="."]
 offset_left = 20.0
 offset_top = 16.0
-offset_right = 520.0
-offset_bottom = 216.0
-theme_override_colors/font_color = Color(1, 0.98, 0.92, 1)
-theme_override_colors/font_outline_color = Color(0.25, 0.18, 0.12, 1)
-theme_override_constants/outline_size = 8
-theme_override_font_sizes/font_size = 22
-text = "Orders"
+mouse_filter = 2
+script = ExtResource("2_tickets")
 
 [node name="MoneyLabel" type="Label" parent="."]
 anchors_preset = 1

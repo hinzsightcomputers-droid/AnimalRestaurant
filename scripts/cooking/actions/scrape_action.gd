@@ -103,6 +103,12 @@ func update(delta: float, input: CookInput) -> void:
 	session.set_status(_status() if _phase == Phase.SCRAPE else "")
 
 
+# Between the pot and the board.
+func view_point() -> Vector3:
+	var pot := session.surface(into).position
+	return pot.lerp(Vector3(_home.x, pot.y, _home.z), 0.45)
+
+
 # Takes the board to the pot, then sweeps the knife along it, gently, until it's clear.
 func scripted_hold(delta: float, input: CookInput) -> bool:
 	match _phase:

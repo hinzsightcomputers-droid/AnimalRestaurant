@@ -146,6 +146,17 @@ func _build() -> void:
 	_for = _label("for " + _order.for_name(), 22, INK)
 	_for.visible_ratio = 0.0
 	lines.add_child(_for)
+	var spot := TableSpot.of(_order.customer)
+	if not spot.is_empty():  # The badge that's over their head.
+		var place := HBoxContainer.new()
+		place.add_theme_constant_override("separation", 6)
+		var badge := TextureRect.new()
+		badge.texture = TableSpot.badge(spot)
+		badge.custom_minimum_size = Vector2.ONE * 26.0
+		badge.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		place.add_child(badge)
+		place.add_child(_label("%s table" % TableSpot.title(spot), 20, INK))
+		lines.add_child(place)
 
 
 func _label(text: String, font_size: int, color: Color) -> Label:

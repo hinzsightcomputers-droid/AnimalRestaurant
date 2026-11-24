@@ -31,7 +31,7 @@ const LAYOUTS := {
 	4: [Rect2(0, 0, 0.5, 0.5), Rect2(0.5, 0, 0.5, 0.5), Rect2(0, 0.5, 0.5, 0.5), Rect2(0.5, 0.5, 0.5, 0.5)],
 }
 const FOLLOW_ZOOM := { 1: 1.0, 2: 0.95, 4: 0.8 }  # Camera follow distance for each layout (the solo view is already close).
-const FOCUS_ZOOM := { 1: 1.0, 2: 0.9, 4: 0.78 }    # Close-up (minigame) distance for each layout.
+const FOCUS_ZOOM := { 1: 1.0, 2: 0.9, 4: 0.74 }    # Close-up (minigame) distance for each layout.
 const OVERVIEW_LOOK_AT := Vector3(0.0, 0.0, -2.0)  # The overview's camera: the dining room and kitchen.
 const OVERVIEW_OFFSET := Vector3(0.0, 10.0, 6.0)  # As the screen sees it: turned to the side the room is seen from (CameraRig.VIEW_YAW).
 const OVERVIEW_EVERY := 3  # Frames per redraw of the overview: it shows the whole grounds, trees and all, which costs more than a player's view.

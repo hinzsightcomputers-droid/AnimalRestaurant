@@ -146,6 +146,7 @@ func _open_closeup(player: Player, recipe: CookRecipe, bin: DishBin) -> void:
 	var zoom: CameraZoomSettings = closeup_zoom.duplicate()
 	zoom.yaw_degrees += CameraRig.VIEW_YAW  # From the side the room's seen from.
 	player.request_camera_focus(global_position + CameraRig.screen_to_world(closeup_look_offset), zoom)
+	player.hide_from_own_view(true)  # The chef would stand in the way.
 	session.finished.connect(_on_done)
 	var views := view_manager if view_manager != null else get_tree().root.find_children("*", "ViewManager", true, false).front() as ViewManager
 	session.start(recipe, player, views)
@@ -180,6 +181,7 @@ func _on_done(_quality: float) -> void:
 	_worker.movement_locked = false
 	_worker.interactor.unlock()
 	_worker.release_camera_focus()
+	_worker.hide_from_own_view(false)
 	_worker.ignore_interact_until_released()
 	_worker = null
 	_bin = null
