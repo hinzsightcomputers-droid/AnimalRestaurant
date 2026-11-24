@@ -45,7 +45,7 @@ const THIN_SIDE := 0.15  # Meters: a catalogue item's side thinner than this doe
 # Fishing) (see is_unlocked()). "uses" is what it takes from the Pantry.
 var dishes: Array[Dictionary] = []
 # Each drink, from design/menu/drinks.json: { id, name, type, description,
-# prep (grab | pour | brew), temperature, base_price, tags, unlock, unlock_cost },
+# prep (pour | brew), temperature, base_price, tags, unlock, unlock_cost },
 # plus color and vessel from data/drink_kitchen.json. Unlocked like dishes.
 var drinks: Array[Dictionary] = []
 var drink_settings: Dictionary = {}

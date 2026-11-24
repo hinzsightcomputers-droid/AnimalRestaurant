@@ -408,19 +408,33 @@ func play_step(p := 0) -> void:
 			me.global_position = Vector3(to.x, from.y, to.z) - away.normalized() * 0.8
 
 
-# A pour at the drinks counter: hold interact until the fill line, let go.
+# At a drink machine: along to the right tap, hold interact until the fill line,
+# let go, then the marshmallows if it has them.
 func pour_step(station: DrinkStation, p := 0) -> void:
-	await hold(p, false)
-	await get_tree().create_timer(0.2, true, false, false).timeout
-	presses += 1
-	await hold(p, true)
-	var held := 0.0
-	while station._pour != DrinkStation.Pour.NONE and station._fill < DrinkStation.LINE - 0.02 and held < 8.0:
-		await get_tree().process_frame
-		held += get_process_delta_time()
-	await hold(p, false)
-	note("%s   poured %s to %.2f in %.1fs" % ["" if p == 0 else "P%d" % (p + 1), station._pour_drink.get("name", "?"), station._fill, held])
-	await tick(0.5)
+	match station.next_move():
+		"left", "right":
+			var way := "move_" + station.next_move()
+			await hold(p, true, way)
+			await get_tree().create_timer(0.08, true, false, false).timeout
+			await hold(p, false, way)
+			await get_tree().create_timer(0.1, true, false, false).timeout
+		"top":
+			await hold(p, true)
+			presses += 1
+			await get_tree().create_timer(0.1, true, false, false).timeout
+			await hold(p, false)
+		"pour":
+			presses += 1
+			await hold(p, true)
+			var held := 0.0
+			while station._pour != DrinkStation.Pour.NONE and station._fill < DrinkStation.LINE - 0.02 and held < 8.0:
+				await get_tree().process_frame
+				held += get_process_delta_time()
+			await hold(p, false)
+			note("%s   poured %s to %.2f in %.1fs" % ["" if p == 0 else "P%d" % (p + 1), station._pour_drink.get("name", "?"), station._fill, held])
+		_:
+			await hold(p, false)
+			await tick(0.2)
 
 
 # A cooking close-up plays itself (scripted input); just note each step's time.

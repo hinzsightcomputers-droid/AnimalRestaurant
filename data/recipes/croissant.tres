@@ -51,7 +51,7 @@ weight = 0.5
 script = ExtResource("roll")
 title = "Roll it long and thin"
 hint = "Hold [grip] and roll the pin across the dough with [stick]. It stretches the way you roll: fill the dashed rectangle."
-target_size = Vector2(0.42, 0.2)
+target_size = Vector2(0.48, 0.22)
 use_sheet = true
 
 [sub_resource type="Resource" id="Resource_6"]
@@ -61,7 +61,8 @@ hint = "Move the cutter with [stick] and press [button] to cut long triangles. K
 cookies = 4
 piece_name = "Triangles"
 shape = "triangle"
-shape_size = Vector2(0.085, 0.17)
+shape_size = Vector2(0.08, 0.155)
+view_distance = 0.58
 columns = 4
 tray_spacing = Vector2(0.1, 0.13)
 

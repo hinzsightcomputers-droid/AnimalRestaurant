@@ -32,6 +32,10 @@ func uses_cursor() -> bool:
 	return false  # The shaker shows the spot.
 
 
+func marks_spot() -> bool:
+	return true
+
+
 func _begin() -> void:
 	var pot := session.surface(in_surface)
 	_shaker = _make_shaker()

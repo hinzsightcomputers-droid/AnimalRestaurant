@@ -39,6 +39,10 @@ func uses_cursor() -> bool:
 	return false  # The piece in hand shows the spot.
 
 
+func marks_spot() -> bool:
+	return true
+
+
 func _begin() -> void:
 	var cookies: Array = session.context.get("cookies", [])
 	if cookies.size() < 2:

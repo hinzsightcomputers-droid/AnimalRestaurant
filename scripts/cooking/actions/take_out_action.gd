@@ -19,6 +19,10 @@ func view_point() -> Vector3:
 	return _bake.oven_front if _bake != null else super.view_point()
 
 
+func aims() -> bool:
+	return false
+
+
 func _begin() -> void:
 	_bake = session.step_of(BakeAction) as BakeAction
 	if _bake == null or _bake.done:

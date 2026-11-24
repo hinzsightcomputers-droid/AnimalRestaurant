@@ -30,6 +30,10 @@ func uses_cursor() -> bool:
 	return false  # The ladle shows the spot.
 
 
+func marks_spot() -> bool:
+	return true
+
+
 func cursor_height() -> float:
 	return session.surface(from_surface).position.y
 

@@ -50,6 +50,10 @@ func uses_cursor() -> bool:
 	return false  # The topping in hand shows the spot.
 
 
+func marks_spot() -> bool:
+	return true
+
+
 func _begin() -> void:
 	_cookies = session.context.get("cookies", [])
 	_hand = _make_acorn()

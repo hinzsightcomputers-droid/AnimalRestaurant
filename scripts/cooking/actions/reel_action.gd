@@ -37,6 +37,15 @@ var _swim_angle := 0.0
 var _scripted_reeling := true
 
 
+# Hooked by a press, reeled by holding on.
+func keeps_press() -> bool:
+	return true
+
+
+func aims() -> bool:
+	return false
+
+
 func _begin() -> void:
 	if session.context.get("failed", false):
 		weight = 0.0

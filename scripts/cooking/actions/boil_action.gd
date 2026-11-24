@@ -37,6 +37,10 @@ func uses_cursor() -> bool:
 	return false  # The bowl shows the spot.
 
 
+func marks_spot() -> bool:
+	return true
+
+
 func view_point() -> Vector3:
 	return session.surface(in_surface).position
 

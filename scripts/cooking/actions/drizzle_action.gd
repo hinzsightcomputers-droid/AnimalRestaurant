@@ -43,6 +43,10 @@ func uses_cursor() -> bool:
 	return false  # The bottle shows the spot.
 
 
+func marks_spot() -> bool:
+	return true
+
+
 func _begin() -> void:
 	_left = syrup_seconds
 	_bottle = session.make_bottle(syrup_color)

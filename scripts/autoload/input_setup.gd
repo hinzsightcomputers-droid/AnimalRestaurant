@@ -11,11 +11,11 @@ extends Node
 
 const MAX_PLAYERS := 4
 const DEADZONE := 0.2
-const ACTIONS := ["move_left", "move_right", "move_up", "move_down", "interact", "decor_rotate", "decor_next", "decor_store", "decor_done", "phone", "dash"]
+const ACTIONS := ["move_left", "move_right", "move_up", "move_down", "interact", "decor_rotate", "decor_next", "decor_store", "decor_done", "phone", "dash", "orders"]
 
 const KEYBOARD_LAYOUTS := {
-	"keys_left": {"move_left": KEY_A, "move_right": KEY_D, "move_up": KEY_W, "move_down": KEY_S, "interact": KEY_E, "decor_rotate": KEY_Q, "decor_next": KEY_R, "decor_store": KEY_F, "decor_done": KEY_X, "phone": KEY_TAB, "dash": KEY_SPACE},
-	"keys_right": {"move_left": KEY_LEFT, "move_right": KEY_RIGHT, "move_up": KEY_UP, "move_down": KEY_DOWN, "interact": KEY_ENTER, "decor_rotate": KEY_COMMA, "decor_next": KEY_PERIOD, "decor_store": KEY_SLASH, "decor_done": KEY_BACKSPACE, "phone": KEY_BRACKETRIGHT, "dash": KEY_APOSTROPHE},
+	"keys_left": {"move_left": KEY_A, "move_right": KEY_D, "move_up": KEY_W, "move_down": KEY_S, "interact": KEY_E, "decor_rotate": KEY_Q, "decor_next": KEY_R, "decor_store": KEY_F, "decor_done": KEY_X, "phone": KEY_TAB, "dash": KEY_SPACE, "orders": KEY_R},
+	"keys_right": {"move_left": KEY_LEFT, "move_right": KEY_RIGHT, "move_up": KEY_UP, "move_down": KEY_DOWN, "interact": KEY_ENTER, "decor_rotate": KEY_COMMA, "decor_next": KEY_PERIOD, "decor_store": KEY_SLASH, "decor_done": KEY_BACKSPACE, "phone": KEY_BRACKETRIGHT, "dash": KEY_APOSTROPHE, "orders": KEY_PERIOD},
 }
 const KEYBOARD_HINTS := {"keys_left": "E", "keys_right": "Enter"}
 const PAD_HINT := "A"
@@ -28,6 +28,10 @@ const KEYBOARD_PHONE_HINTS := {"keys_left": "Tab", "keys_right": "]"}
 const PAD_PHONE_HINT := "View"
 const KEYBOARD_DASH_HINTS := {"keys_left": "Space", "keys_right": "' (apostrophe)"}
 const PAD_DASH_HINT := "X"
+const KEYBOARD_ORDERS_HINTS := {"keys_left": "R", "keys_right": "."}
+const PAD_ORDERS_HINT := "RB"
+const KEYBOARD_BACK_HINTS := {"keys_left": "X", "keys_right": "Backspace"}
+const PAD_BACK_HINT := "B"
 
 # Gamepad stick direction for each move action: [axis, direction].
 const PAD_AXES := {
@@ -49,6 +53,7 @@ const PAD_BUTTONS := {
 	"decor_store": JOY_BUTTON_Y,
 	"decor_done": JOY_BUTTON_B,
 	"dash": JOY_BUTTON_X,  # (Rotates a piece while decorating.)
+	"orders": JOY_BUTTON_RIGHT_SHOULDER,  # (The next piece while decorating.)
 	"phone": JOY_BUTTON_BACK,  # View / Select / Share: the chef's phone (Moober Treats).
 }
 
@@ -140,6 +145,18 @@ func phone_hint(player_index: int) -> String:
 func dash_hint(player_index: int) -> String:
 	var device: String = _devices.get(player_index, "")
 	return KEYBOARD_DASH_HINTS.get(device, PAD_DASH_HINT)
+
+
+# Text for the button that looks through the orders, e.g. "R" or "RB".
+func orders_hint(player_index: int) -> String:
+	var device: String = _devices.get(player_index, "")
+	return KEYBOARD_ORDERS_HINTS.get(device, PAD_ORDERS_HINT)
+
+
+# Text for the back button (decor_done) in prompts, e.g. "X" or "B".
+func back_hint(player_index: int) -> String:
+	var device: String = _devices.get(player_index, "")
+	return KEYBOARD_BACK_HINTS.get(device, PAD_BACK_HINT)
 
 
 # Text for moving in prompts, e.g. "WASD" or "the stick".

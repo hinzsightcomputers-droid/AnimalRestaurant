@@ -5,7 +5,9 @@
 # alternating across and up-and-down: each comes off the pile into your hand;
 # move over the pie and press. Dashed lines on the pie show the even spots
 # still free the way the next one goes (the strips per way spread evenly, the
-# middle one through its centre). Laid within snap_within of a line it snaps
+# middle one through its centre). A strip can't be cut from where the pie's
+# crust (or another strip) already was; if there's no room left for the next,
+# the scraps are rolled together again. Laid within snap_within of a line it snaps
 # onto it, perfect; further off it stays where it was laid, scoring less.
 class_name LatticeAction
 extends CookAction
@@ -18,6 +20,8 @@ extends CookAction
 @export var lay_view := Vector2(0.45, 64.0)  # Camera distance and pitch on the pie once the strips are cut.
 @export var worst_offset := 0.045
 
+const CUT_LENGTH := 0.075                  # A strip's length on the sheet: short, so it fits round the pie's hole.
+
 var _pie: MeshInstance3D
 var _radius := 0.0
 var _laid := 0
@@ -27,6 +31,7 @@ var _scores: Array[float] = []
 var _taken := {}                           # "across" / "down" -> slot indices with a strip.
 var _knife: MeshInstance3D                 # Over the sheet: where the next strip comes off.
 var _sheet: Dictionary
+var _scripted_at := Vector2.INF            # A reel: where it cuts next.
 var _guides := Node3D.new()               # Dashed lines where the next strips go.
 
 
@@ -77,9 +82,9 @@ func _begin() -> void:
 	_taken = { "across": [], "down": [] }
 	_knife = MeshInstance3D.new()
 	var blade := BoxMesh.new()
-	blade.size = Vector3(0.09, 0.004, strip_width)
+	blade.size = Vector3(CUT_LENGTH, 0.004, strip_width)
 	var see_through := StandardMaterial3D.new()
-	see_through.albedo_color = Color(0.95, 0.97, 1.0, 0.6)
+	see_through.albedo_color = Color(CutAction.CLEAR, 0.65)
 	see_through.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	see_through.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	see_through.no_depth_test = true
@@ -102,6 +107,7 @@ func end() -> void:
 		_holding.queue_free()
 	for strip in _pile:
 		strip.queue_free()
+	CutAction.clear_cuts(_sheet)
 	var dough: MeshInstance3D = _sheet.get("node")
 	if is_instance_valid(dough):  # The last of the scraps go.
 		var shrink := dough.create_tween()
@@ -116,9 +122,14 @@ func update(delta: float, input: CookInput) -> void:
 	_knife.visible = cutting
 	if cutting:
 		_knife.position = Vector3(spot.x, _sheet_top() + 0.004, spot.z)
+		var blocked := CutAction.is_cut(_sheet, _strip_outline(), Vector2(spot.x, spot.z))
+		((_knife.mesh as BoxMesh).material as StandardMaterial3D).albedo_color = Color(CutAction.BLOCKED if blocked or not _on_sheet(spot) else CutAction.CLEAR, 0.65)
 		session.set_status("Strips cut: %d of %d" % [_pile.size(), per_way * 2])
 		if input.just_pressed:
-			if _on_sheet(spot):
+			if blocked:
+				session.pop_text("Already cut there!", spot, -1)
+				session.play_sound("clack", spot, -6.0)
+			elif _on_sheet(spot):
 				_cut_strip(spot)
 			else:
 				session.pop_text("Cut it from the dough!", spot, -1)
@@ -136,8 +147,23 @@ func update(delta: float, input: CookInput) -> void:
 func _cut_strip(spot: Vector3) -> void:
 	var dough: MeshInstance3D = _sheet["node"]
 	var strip := _make_strip()
-	(strip.mesh as BoxMesh).size.x = 0.09  # Short while it lies on the sheet.
-	strip.position = Vector3(spot.x, _sheet_top() + 0.003 + _pile.size() * 0.002, spot.z)
+	(strip.mesh as BoxMesh).size.x = CUT_LENGTH  # Short while it lies on the sheet.
+	strip.position = Vector3(spot.x, _sheet_top() + 0.006, spot.z)
+	var line := MeshInstance3D.new()  # The cut line it leaves.
+	var line_mesh := BoxMesh.new()
+	line_mesh.size = Vector3(CUT_LENGTH + 0.007, 0.0012, strip_width + 0.007)
+	var paint := StandardMaterial3D.new()
+	paint.albedo_color = CutAction.GROOVE
+	paint.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	line_mesh.material = paint
+	line.mesh = line_mesh
+	line.position = Vector3(spot.x, _sheet_top() + 0.0008, spot.z)
+	session.add_child(line)
+	_sheet["marks"] = _sheet.get("marks", []) + [line]
+	var outline := PackedVector2Array()
+	for point in _strip_outline():
+		outline.append(point + Vector2(spot.x, spot.z))
+	_sheet["cuts"] = _sheet.get("cuts", []) + [outline]
 	_pile.append(strip)
 	session.play_sound("chop", spot, -8.0, 1.4)
 	session.burst(Vector3(spot.x, _sheet_top(), spot.z), (dough.mesh.surface_get_material(0) as StandardMaterial3D).albedo_color, 6, 0.15)
@@ -145,6 +171,14 @@ func _cut_strip(spot: Vector3) -> void:
 	if _pile.size() >= per_way * 2:
 		session.pop_text("Lattice!", spot, 1)
 		_take_next()
+	elif CutAction.free_spot(_sheet, _strip_outline(), _cutting_area()) == Vector2.INF:  # No room for the next.
+		CutAction.clear_cuts(_sheet)
+		session.pop_text("Scraps rolled out again!", spot, 0)
+		session.wobble(dough, 0.15)
+		for i in _pile.size():
+			var size: Vector2 = _sheet["size"]
+			var aside: Vector3 = _sheet["center"] + Vector3(-size.x * 0.5 - CUT_LENGTH * 0.7, 0.0, -size.y * 0.5 + i * strip_width * 1.4)
+			_pile[i].create_tween().tween_property(_pile[i], "position", Vector3(aside.x, _pile[i].position.y, aside.z), 0.3)
 
 
 # The next strip off the pile, into your hand at full length.
@@ -153,6 +187,8 @@ func _take_next() -> void:
 		return
 	if _holding == null and _laid == 0:  # Done cutting: in close on the pie to lay them.
 		session.frame(_pie.position, lay_view.x, lay_view.y, 0.6)
+		CutAction.clear_cuts(_sheet)
+		session.input.new_step(_pie.position)
 	_holding = _pile.pop_back()
 	_holding.visible = true
 	(_holding.mesh as BoxMesh).size.x = _radius * 2.0
@@ -259,6 +295,29 @@ func _on_sheet(spot: Vector3) -> bool:
 	return absf(spot.x - center.x) <= size.x * 0.5 and absf(spot.z - center.z) <= size.y * 0.5
 
 
+# A strip's outline on the sheet (x, z), round its middle.
+func _strip_outline() -> PackedVector2Array:
+	var half := Vector2(CUT_LENGTH, strip_width) * 0.5
+	return PackedVector2Array([-half, Vector2(half.x, -half.y), half, Vector2(-half.x, half.y)])
+
+
+# Where a whole strip fits on the sheet (x, z).
+func _cutting_area() -> Rect2:
+	var size: Vector2 = _sheet["size"]
+	var center: Vector3 = _sheet["center"]
+	var inside := (size - Vector2(CUT_LENGTH, strip_width)).max(Vector2.ONE * 0.001)
+	return Rect2(center.x - inside.x * 0.5, center.z - inside.y * 0.5, inside.x, inside.y)
+
+
+# The knife stays on the sheet, then the strip in hand by the pie.
+func cursor_area() -> Rect2:
+	if _pie == null:
+		return Rect2()
+	if _laid == 0 and _holding == null and not _sheet.is_empty():
+		return _cutting_area()
+	return Rect2(_pie.position.x - _radius, _pie.position.z - _radius, _radius * 2.0, _radius * 2.0)
+
+
 func _sheet_top() -> float:
 	var dough: MeshInstance3D = _sheet.get("node")
 	if not is_instance_valid(dough):
@@ -270,9 +329,9 @@ func _sheet_top() -> float:
 func scripted_hold(delta: float, input: CookInput) -> bool:
 	var cutting := _laid == 0 and _holding == null and _pile.size() < per_way * 2
 	if cutting:
-		var size: Vector2 = _sheet["size"]
-		var along := lerpf(-0.3, 0.3, float(_pile.size()) / maxi(per_way * 2 - 1, 1))
-		return input.move_to(_sheet["center"] + Vector3(along * size.x, 0.0, 0.0), delta, 0.8) and not input.held
+		if _scripted_at == Vector2.INF or CutAction.is_cut(_sheet, _strip_outline(), _scripted_at):
+			_scripted_at = CutAction.free_spot(_sheet, _strip_outline(), _cutting_area())
+		return input.move_to(Vector3(_scripted_at.x, 0.0, _scripted_at.y), delta, 0.8) and not input.held
 	if _holding == null:
 		return false
 	var across := _laid % 2 == 0

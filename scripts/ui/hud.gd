@@ -14,8 +14,9 @@ const MESSAGE_TIME := 4.0
 const MAX_MESSAGES := 3
 const MESSAGE_BOTTOM_GAP := 30.0  # Pixels from the bottom of the screen, with nothing below.
 const MESSAGE_SPACING := 8.0      # Pixels kept between the messages and what's under them.
-const MAX_ORDERS_IN_QUARTERS := 3  # In the four-way split.
-const MAX_ORDERS_SHOWN := 4  # Then "+2 more", so the list doesn't fill the screen.
+const MAX_ORDERS_IN_QUARTERS := 2  # In the four-way split.
+const MAX_ORDERS_SHOWN := 3  # The rest are under them.
+const ORDERS_PAGE_SECONDS := 8.0  # Looking through the rest, back to the first ones after this long.
 const ORDER_TIMES_EVERY := 1.0  # Seconds between updates of the orders' time left.
 const ORDERS_AT := Vector2(20.0, 16.0)  # From the screen's top left, or the corner of the view they're moved to.
 
@@ -38,6 +39,8 @@ var _clock_tween: Tween
 var _view_manager: ViewManager
 var _ui_scale := 1.0
 var _order_times_left := 0.0
+var _orders_page := 0       # Which few orders are showing: 0 the most urgent.
+var _orders_page_left := 0.0
 
 
 func _ready() -> void:
@@ -56,6 +59,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	_look_through(delta)
 	_refresh_scale()
 	_refresh_day_and_money()
 	_refresh_streak()
@@ -215,14 +219,47 @@ func _place_orders() -> void:
 	tickets.position = place
 
 
-# The first MAX_ORDERS_SHOWN orders, then "+2 more": the most urgent first.
+# The first MAX_ORDERS_SHOWN orders, the most urgent first; any more are under
+# them, a page at a time for whoever presses the orders button (_look_through).
 # With a serving time limit (ServiceStreak.timed), a seated customer's order
 # starts with how long is left to keep the streak going; without one, nothing.
 func _refresh_orders() -> void:
 	var orders := order_board.orders.duplicate()
 	orders.sort_custom(func(a, b): return _urgency(a) < _urgency(b) or (_urgency(a) == _urgency(b) and a.number < b.number))
 	var count := MAX_ORDERS_SHOWN if InputSetup.active_players().size() < 3 else MAX_ORDERS_IN_QUARTERS
-	tickets.show_orders(orders.slice(0, count), maxi(orders.size() - count, 0), _ui_scale, _time_left)
+	var pages := maxi(ceili(float(orders.size()) / count), 1)
+	if _orders_page >= pages:
+		_orders_page = 0
+	var first := _orders_page * count
+	var shown := orders.slice(first, first + count)
+	var below := ""
+	if pages > 1:
+		var buttons: Array[String] = []  # Everyone's, each once.
+		for player_index in InputSetup.active_players():
+			if not InputSetup.orders_hint(player_index) in buttons:
+				buttons.append(InputSetup.orders_hint(player_index))
+		var button := " / ".join(buttons)
+		below = "%d more   [%s] look through" % [orders.size() - count, button] if _orders_page == 0 else "%d to %d of %d   [%s] %s" % [first + 1, first + shown.size(), orders.size(), button, "next" if _orders_page + 1 < pages else "back to the first"]
+	tickets.show_orders(shown, orders.size() - shown.size(), below, _ui_scale, _time_left)
+
+
+# Anyone's orders button: the next few orders, round to the first ones again;
+# left alone a while, it goes back to those by itself.
+func _look_through(delta: float) -> void:
+	for player_index in InputSetup.active_players():
+		if not Input.is_action_just_pressed(InputSetup.action_name(player_index, "orders")):
+			continue
+		var player := Player.find(get_tree(), player_index)
+		if player != null and (player.decorating or player.on_phone):
+			continue  # It's another button there.
+		_orders_page += 1
+		_orders_page_left = ORDERS_PAGE_SECONDS
+		_refresh_orders()
+	if _orders_page > 0:
+		_orders_page_left -= delta
+		if _orders_page_left <= 0.0:
+			_orders_page = 0
+			_refresh_orders()
 
 
 # Seconds left for a customer at a table waiting on this order, or INF for

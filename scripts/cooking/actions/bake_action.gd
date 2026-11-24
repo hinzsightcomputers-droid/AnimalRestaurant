@@ -50,6 +50,10 @@ func view_point() -> Vector3:
 	return oven_front
 
 
+func aims() -> bool:
+	return false
+
+
 func _begin() -> void:
 	_tray = session.surface(tray)
 	_home = _tray.position

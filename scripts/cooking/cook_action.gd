@@ -69,6 +69,23 @@ func uses_cursor() -> bool:
 	return true
 
 
+# Whether to ring the spot under a tool held up over it (a shaker, a ladle), so
+# it's clear where it'll land. Only without the aiming dot.
+func marks_spot() -> bool:
+	return false
+
+
+# Whether there's anything to aim (false: only a button to press, at the oven door).
+func aims() -> bool:
+	return true
+
+
+# Whether a button held over from the step before still counts (reeling in the
+# fish that's just been hooked).
+func keeps_press() -> bool:
+	return false
+
+
 # How high above the session the cursor should sit, so the mouse points at
 # what this step works on (e.g. the top of a stack).
 func cursor_height() -> float:

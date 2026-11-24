@@ -81,6 +81,8 @@ func _orders() -> void:
 		i += 1
 	board.add_delivery(GameData.dishes[2], { "kind": "townsfolk", "name": "Pip" })
 	board.add_delivery(GameData.dishes[4], { "kind": "takeout", "name": "To go" })
+	for more in [1, 3, 0]:
+		board.add_delivery(GameData.dishes[more], { "kind": "townsfolk", "name": "Friend" })
 	if board.orders.size() > 1:
 		board.set_state(board.orders[0], Order.State.READY)
 		Player.find(get_tree(), 0).set_held_item(CookedDish.new(board.orders[0], 0.9))
@@ -89,6 +91,17 @@ func _orders() -> void:
 	first.global_position = Vector3(2.2, 0.0, 0.7)
 	await get_tree().create_timer(3.0).timeout
 	await _shot("orders.png")
+	for page in 3:  # Through the rest, and round again.
+		var event := InputEventAction.new()
+		event.action = "p0_orders"
+		event.pressed = true
+		Input.parse_input_event(event)
+		await get_tree().create_timer(0.1).timeout
+		event = event.duplicate()
+		event.pressed = false
+		Input.parse_input_event(event)
+		await get_tree().create_timer(0.3).timeout
+		await _shot("orders_page_%d.png" % page)
 
 
 # The break: a staff meal on the table, crumbs and spills about, mopping one up,

@@ -110,6 +110,11 @@ func copy_view_from(other: CameraRig, duration: float) -> void:
 		_change_mode(Mode.FOLLOW, duration)
 
 
+# Not gliding anywhere just now.
+func settled() -> bool:
+	return _blend >= 1.0
+
+
 # Zoom in on `point` with `settings` (null = default_zoom).
 func focus_on(point: Vector3, settings: CameraZoomSettings = null) -> void:
 	focus_point = point

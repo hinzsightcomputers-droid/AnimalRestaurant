@@ -11,6 +11,11 @@
 #     for one frame.
 # The mouse only drives the player whose view it's over. Tuning is on the
 # CookSession (cursor_speed, pad_cursor_speed, flick_*).
+# Every step starts fresh (new_step): the cursor (and the mouse pointer) in its
+# middle, staying there till the camera's arrived and a stick still pushed from
+# the last step has been let go; and a button still held, or being mashed, from
+# the last step doesn't count until it's been let go for RELEASE_SECONDS. The
+# cursor never leaves what the cook's view shows (VIEW_MARGIN).
 class_name CookInput
 extends RefCounted
 
@@ -27,6 +32,9 @@ var scripted := false          # A reel is playing: the step plays itself (CookA
 const SCRIPTED_HAND_SPEED := 0.9  # Meters a second a reel's chef moves the cursor.
 # The keys start the cursor slow, so a tap can aim to a few millimeters (a
 # perfect topping or cover is within about 6 mm), and speed up to full while held.
+const RELEASE_SECONDS := 0.22     # A button has to be up this long after a step starts before presses count.
+const STICK_WAIT_SECONDS := 1.5   # A stick that never comes back to the middle moves the cursor after this long anyway.
+const VIEW_MARGIN := Vector2(0.05, 0.06)  # The cursor stays this far (of its width and height) in from the view's edges.
 const KEY_START_SHARE := 0.15     # Of the full key speed, at first...
 const KEY_SLOW_SECONDS := 0.2     # ...for this long...
 const KEY_FULL_SECONDS := 0.55    # ...reaching full speed by this long held.
@@ -36,11 +44,15 @@ var _player_index: int
 var _view_manager: ViewManager
 var _time := 0.0
 var _last_mouse := Vector2(-1.0, -1.0)
+var _skip_mouse := 0           # Frames its position isn't to be trusted (it's just been put somewhere).
 var _stick_out_time := 0.0     # Seconds since the stick left the center.
 var _stick_flicked := false    # This push already flicked: wait for the stick to come back.
 var _mouse_trail: Array = []   # [time, point on the surface] for the last moment of mouse movement.
 var _mouse_flicked := false
-var _wait_for_release := true  # Until every button's been let go once.
+var _wait_for_release := true  # Until every button's been let go (for RELEASE_SECONDS).
+var _up_time := 0.0            # How long they've been up, while waiting.
+var _stick_wait := 0.0         # Seconds left of ignoring a stick still pushed from the last step.
+var _to_middle := false        # Put the mouse pointer on the cursor once the camera's there.
 var _keys_down := {}           # Direction keys held at the last update (for _key_flick).
 var _key_move_time := 0.0      # Seconds the direction keys have been moving the cursor.
 var _scripted_step: CookAction = null  # The step a reel's hand was last on: a new one starts with the button up.
@@ -50,6 +62,28 @@ func _init(session: CookSession, player_index: int, view_manager: ViewManager) -
 	_session = session
 	_player_index = player_index
 	_view_manager = view_manager
+
+
+# A new step: nothing left over from the last one counts, and it starts at
+# `middle`. With keeps_press, a button held over is still held (reeling in the
+# fish that's just been hooked).
+func new_step(middle: Vector3, keeps_press := false) -> void:
+	cursor = Vector3(middle.x, height, middle.z)
+	if scripted:
+		return
+	if not keeps_press:
+		_wait_for_release = true
+		_up_time = 0.0
+		held = false
+	just_pressed = false
+	just_released = false
+	flick = Vector2.ZERO
+	_stick_flicked = true  # (A push has to start from the middle.)
+	_stick_wait = STICK_WAIT_SECONDS
+	_key_move_time = 0.0
+	_mouse_trail.clear()
+	_mouse_flicked = true
+	_to_middle = true
 
 
 func update(delta: float) -> void:
@@ -67,12 +101,18 @@ func update(delta: float) -> void:
 	var raw := _raw_stick()
 	var mouse_point = _mouse_point()  # null while the mouse isn't over this player's view.
 	var mouse_position := _session.get_viewport().get_mouse_position()
-	var mouse_moved := mouse_point != null and mouse_position.distance_to(_last_mouse) > 0.5
+	var mouse_moved := mouse_point != null and _skip_mouse == 0 and mouse_position.distance_to(_last_mouse) > 0.5
+	_skip_mouse = maxi(_skip_mouse - 1, 0)
 	_last_mouse = mouse_position
-	if mouse_moved:
+	_stick_wait = maxf(_stick_wait - delta, 0.0) if raw.length() > InputSetup.DEADZONE else 0.0
+	if _to_middle:
+		if _settled():
+			_to_middle = false
+			_mouse_to_cursor(mouse_point)
+	elif mouse_moved:
 		cursor = mouse_point
 		using_mouse = true
-	elif raw.length() > InputSetup.DEADZONE:
+	elif raw.length() > InputSetup.DEADZONE and _stick_wait <= 0.0:
 		using_mouse = false
 		_key_move_time += delta
 		var move := _on_surface(raw) * _cursor_speed(raw) * delta
@@ -81,14 +121,16 @@ func update(delta: float) -> void:
 		_key_move_time = 0.0
 	cursor = _session.clamp_to_bounds(cursor)
 	cursor.y = height
+	cursor = _keep_in_view(cursor)
 	stick = _on_surface(raw).limit_length(1.0) if raw.length() > InputSetup.DEADZONE else Vector2.ZERO
 
 	var pad := InputSetup.pad_of(_player_index)
 	var now_held := Input.is_action_pressed(_action("interact")) \
 		or (mouse_point != null and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)) \
 		or (pad >= 0 and Input.get_joy_axis(pad, JOY_AXIS_TRIGGER_RIGHT) > 0.5)
-	if _wait_for_release:  # The press that opened the close-up: it doesn't count as the first one.
-		_wait_for_release = now_held
+	if _wait_for_release:  # The press that opened the close-up, or went on from the last step: it doesn't count as the first one.
+		_up_time = 0.0 if now_held else _up_time + delta
+		_wait_for_release = _up_time < RELEASE_SECONDS
 		now_held = false
 	_press(now_held)
 
@@ -212,6 +254,59 @@ func _mouse_point() -> Variant:
 	var plane := Plane(up, _session.to_global(Vector3(0.0, height, 0.0)))
 	var hit = plane.intersects_ray(camera.project_ray_origin(screen), camera.project_ray_normal(screen))
 	return _session.to_local(hit) if hit != null else null
+
+
+# The camera's where the step wants it.
+func _settled() -> bool:
+	var view := _view() as PlayerView
+	return view == null or view.rig == null or view.rig.settled()
+
+
+# The mouse pointer onto the cursor, so it starts in the middle too: only for a
+# cook on the keyboard and mouse, with the pointer over their view.
+func _mouse_to_cursor(mouse_point) -> void:
+	var view := _view() as PlayerView
+	if mouse_point == null or view == null or InputSetup.pad_of(_player_index) >= 0 or not _session.get_window().has_focus():
+		return
+	var at := screen_point(cursor)
+	if at == Vector2.INF:
+		return
+	var rect := view.get_global_rect()
+	view.get_viewport().warp_mouse(rect.position + at * rect.size)
+	_last_mouse = Vector2(-1.0, -1.0)
+	_skip_mouse = 2
+	_mouse_trail.clear()
+
+
+# Where a point in the session is on the cook's view (0..1 across and down), or
+# INF when there's no view or it's behind the camera.
+func screen_point(point: Vector3) -> Vector2:
+	var view := _view() as PlayerView
+	if view == null or not view.is_visible_in_tree() or view.rig == null:
+		return Vector2.INF
+	var camera := view.rig.camera
+	var world := _session.to_global(point)
+	if camera.is_position_behind(world):
+		return Vector2.INF
+	return camera.unproject_position(world) / Vector2(view.viewport.size)
+
+
+# The cursor, moved in from past the edge of what the cook can see.
+func _keep_in_view(point: Vector3) -> Vector3:
+	if not _settled():
+		return point
+	var at := screen_point(point)
+	if at == Vector2.INF:
+		return point
+	var inside := at.clamp(VIEW_MARGIN, Vector2.ONE - VIEW_MARGIN)
+	if inside.is_equal_approx(at):
+		return point
+	var view := _view() as PlayerView
+	var camera := view.rig.camera
+	var screen := inside * Vector2(view.viewport.size)
+	var plane := Plane(_session.global_basis.y.normalized(), _session.to_global(Vector3(0.0, height, 0.0)))
+	var hit = plane.intersects_ray(camera.project_ray_origin(screen), camera.project_ray_normal(screen))
+	return _session.to_local(hit) if hit != null else point
 
 
 func _view() -> Control:

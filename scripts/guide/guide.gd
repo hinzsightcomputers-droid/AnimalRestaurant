@@ -154,8 +154,8 @@ func next_step(player: Player, claimed: Dictionary) -> Dictionary:
 	jobs.append([_job(pass_counter.interactable if pass_counter != null and pass_counter.has_items() else null, "pick_up", "pass")])
 	var freezer := _first(Freezer) as Freezer
 	jobs.append([_job(freezer.interactable if freezer != null and order_board.next_to_gather() != null else null, "freezer", "freezer")])
-	var drinks := _first(DrinkStation) as DrinkStation
-	jobs.append([_job(drinks.interactable if drinks != null and not drinks.interactable.prompt_for(index).is_empty() else null, "make_drink", "drinks")])
+	var drinks := DrinkStation.with_work_for(get_tree(), index)
+	jobs.append([_job(drinks.interactable if drinks != null else null, "make_drink", "drinks")])
 	var sink := _first(Sink) as Sink
 	var cleaning: Array = []
 	for table in _tables():
@@ -260,8 +260,8 @@ func _lesson_step(player: Player) -> Dictionary:
 		Customer.State.WAITING_DRINK_ORDER:
 			return _lesson_job(customer.interactable, "drink_order", words, customer)
 		Customer.State.WAITING_FOR_DRINK:
-			var drinks := _first(DrinkStation) as DrinkStation
-			if drinks != null and not drinks.interactable.prompt_for(player.player_index).is_empty():
+			var drinks := DrinkStation.with_work_for(get_tree(), player.player_index)
+			if drinks != null:
 				return _lesson_job(drinks.interactable, "make_drink", words, "drinks")
 			return _wait("wait_drink", words)
 		Customer.State.WAITING_FOOD_ORDER:

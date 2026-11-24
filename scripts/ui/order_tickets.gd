@@ -1,18 +1,21 @@
 # OrderTickets: the HUD's orders, as a stack of little paper tickets: a picture of
 # the dish, its name, who it's for (and their face) with their table's badge (TableSpot, the same
 # one that's over that customer's head), and how far along it is. The most
-# urgent come first, then "+2 more". The HUD says which orders and how big.
+# urgent come first; the rest peek out from under the last one, with how many and
+# the button that looks through them (HUD). The HUD says which orders and how big.
 class_name OrderTickets
 extends VBoxContainer
 
 const PAPER := Color(0.99, 0.96, 0.88)
 const INK := Color("#502312")
 const FADED := Color("#90523C")
-const WIDTH := 322.0
-const ICON := 62.0
-const BADGE := 24.0
-const FACE := 46.0              # Whoever ordered it, on the right.
-const STRIP := 7.0              # The colored edge that says how far along it is.
+const WIDTH := 248.0
+const ICON := 44.0
+const BADGE := 19.0
+const FACE := 34.0              # Whoever ordered it, on the right.
+const STRIP := 6.0              # The colored edge that says how far along it is.
+const PEEK := 9.0               # How much of each ticket underneath shows.
+const MOST_PEEKING := 3
 const STATES := {               # Words and color.
 	Order.State.WAITING: ["Waiting", Color("#A97251")],
 	Order.State.GATHERED: ["Ingredients out", Color("#FFB347")],
@@ -25,6 +28,7 @@ var _icons := DishIcons.new()
 var _shown := ""                # What the tickets say now, to leave them be till it changes.
 var _orders: Array = []
 var _more := 0
+var _note_below := ""
 var _scale := 1.0
 var _note: Callable
 
@@ -34,17 +38,19 @@ func _ready() -> void:
 	add_child(_icons)
 	_icons.ready_to_show.connect(func():
 		_shown = ""
-		show_orders(_orders, _more, _scale, _note))
+		show_orders(_orders, _more, _note_below, _scale, _note))
 
 
-# Show these orders, then "+`more` more", at `ui_scale`. `note` gives an
-# order's extra words (its time left), or "".
-func show_orders(orders: Array, more: int, ui_scale: float, note: Callable) -> void:
+# Show these orders, with `more` peeking out from under the last and `below` in
+# words under that, at `ui_scale`. `note` gives an order's extra words (its time
+# left), or "".
+func show_orders(orders: Array, more: int, below: String, ui_scale: float, note: Callable) -> void:
 	_orders = orders
 	_more = more
+	_note_below = below
 	_scale = ui_scale
 	_note = note
-	var key := "%s %d" % [ui_scale, more]
+	var key := "%s %d %s" % [ui_scale, more, below]
 	for order: Order in orders:
 		key += "|%d %d %s %s %s %s" % [order.number, order.state, order.on_wheel, TableSpot.of(order.customer), order.for_name(), note.call(order)]
 	if key == _shown:
@@ -54,15 +60,39 @@ func show_orders(orders: Array, more: int, ui_scale: float, note: Callable) -> v
 		if child != _icons:
 			remove_child(child)
 			child.queue_free()
-	add_theme_constant_override("separation", roundi(7.0 * ui_scale))
+	add_theme_constant_override("separation", roundi(5.0 * ui_scale))
 	for order: Order in orders:
 		add_child(_ticket(order, note.call(order)))
 	if more > 0:
-		var label := _label("+%d more" % more, 20, Color.WHITE)
+		add_child(_peeking(mini(more, MOST_PEEKING)))
+	if not below.is_empty():
+		var label := _label(below, 16, Color.WHITE)
 		UiStyle.hud_label(label)
-		label.add_theme_constant_override("outline_size", roundi(7.0 * ui_scale))
+		label.add_theme_constant_override("outline_size", roundi(6.0 * ui_scale))
 		add_child(label)
 	reset_size()
+
+
+# The bottom edges of the tickets underneath.
+func _peeking(count: int) -> Control:
+	var pile := Control.new()
+	pile.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pile.custom_minimum_size = Vector2(WIDTH, PEEK * count) * _scale
+	for i in range(count - 1, -1, -1):  # The furthest under first.
+		var edge := Panel.new()
+		edge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var style := StyleBoxFlat.new()
+		style.bg_color = PAPER.darkened(0.07 * (i + 1))
+		style.border_color = FADED
+		style.border_width_bottom = maxi(roundi(1.5 * _scale), 1)
+		style.set_corner_radius_all(roundi(7.0 * _scale))
+		edge.add_theme_stylebox_override("panel", style)
+		edge.size = Vector2(WIDTH - 10.0 * (i + 1), PEEK * 2.6) * _scale
+		edge.position = Vector2(5.0 * (i + 1), PEEK * (i + 1 - 2.6) - 5.0 + PEEK * 0.3) * _scale
+		pile.add_child(edge)
+	pile.show_behind_parent = true
+	pile.z_index = -1
+	return pile
 
 
 func _ticket(order: Order, note: String) -> Control:
@@ -74,18 +104,18 @@ func _ticket(order: Order, note: String) -> Control:
 	style.bg_color = PAPER
 	style.border_color = state[1]
 	style.border_width_left = roundi(STRIP * _scale)
-	style.set_corner_radius_all(roundi(9.0 * _scale))
+	style.set_corner_radius_all(roundi(7.0 * _scale))
 	style.shadow_color = Color(0.2, 0.1, 0.05, 0.35)
-	style.shadow_size = roundi(5.0 * _scale)
+	style.shadow_size = roundi(4.0 * _scale)
 	style.shadow_offset = Vector2(1.0, 3.0) * _scale
 	style.content_margin_left = (STRIP + 5.0) * _scale
-	style.content_margin_right = 10.0 * _scale
-	style.content_margin_top = 3.0 * _scale
-	style.content_margin_bottom = 4.0 * _scale
+	style.content_margin_right = 7.0 * _scale
+	style.content_margin_top = 1.0 * _scale
+	style.content_margin_bottom = 2.0 * _scale
 	paper.add_theme_stylebox_override("panel", style)
 	var row := HBoxContainer.new()
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_theme_constant_override("separation", roundi(7.0 * _scale))
+	row.add_theme_constant_override("separation", roundi(5.0 * _scale))
 	paper.add_child(row)
 	row.add_child(_picture(_icons.icon(order.dish), ICON))
 	var lines := VBoxContainer.new()
@@ -94,7 +124,7 @@ func _ticket(order: Order, note: String) -> Control:
 	lines.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	lines.add_theme_constant_override("separation", roundi(-3.0 * _scale))
 	row.add_child(lines)
-	var dish := _label(String(order.dish.get("name", "?")), 20, INK)
+	var dish := _label(String(order.dish.get("name", "?")), 16, INK)
 	UiStyle.title(dish)
 	_trim(dish)
 	lines.add_child(dish)
@@ -105,10 +135,10 @@ func _ticket(order: Order, note: String) -> Control:
 	var spot := TableSpot.of(order.customer)
 	if not spot.is_empty():
 		who.add_child(_picture(TableSpot.badge(spot), BADGE))
-	var whom := _label(order.for_name() if spot.is_empty() else "%s, %s" % [order.for_name(), TableSpot.title(spot)], 17, INK)
+	var whom := _label(order.for_name() if spot.is_empty() else "%s, %s" % [order.for_name(), TableSpot.title(spot)], 13, INK)
 	_trim(whom)
 	who.add_child(whom)
-	var status := _label("#%d  %s%s" % [order.number, note, state[0]], 16, (state[1] as Color).darkened(0.35) if order.state != Order.State.WAITING or not order.on_wheel else FADED)
+	var status := _label("#%d  %s%s" % [order.number, note, state[0]], 12, (state[1] as Color).darkened(0.35) if order.state != Order.State.WAITING or not order.on_wheel else FADED)
 	_trim(status)
 	lines.add_child(status)
 	var display: CustomerDisplay = order.customer.get_node_or_null("Display") as CustomerDisplay if is_instance_valid(order.customer) else null

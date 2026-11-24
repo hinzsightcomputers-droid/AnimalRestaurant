@@ -36,6 +36,10 @@ func uses_cursor() -> bool:
 	return false  # The tongs show the spot.
 
 
+func marks_spot() -> bool:
+	return true
+
+
 func _begin() -> void:
 	_cookies = session.context.get("cookies", [])
 	if _cookies.is_empty():

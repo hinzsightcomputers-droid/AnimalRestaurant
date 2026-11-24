@@ -1,7 +1,10 @@
 # CutAction: press cookies out of a rolled sheet of dough (the session's
-# context "dough", from RollAction). A cutter follows the cursor; each press
-# cuts one. A cookie scores how cleanly it came out: wholly on the sheet and
-# clear of the others. Once they're all cut, the scraps go (unless
+# context "dough", from RollAction). A cutter follows the cursor (pale where it
+# can cut, red where it can't); each press cuts one, which lifts a little out of
+# a dark cut line that stays in the sheet. It can't cut into one already cut:
+# trying to costs a little. If there's no room left for the next, the scraps are
+# rolled together into a whole sheet again (that costs a little too), so you can
+# never get stuck. Once they're all cut, the scraps go (unless
 # keep_scraps) and the cookies hop onto the tray. Leaves them in the session's
 # context "cookies".
 # The cutter's round, or a rectangle or a long triangle (shape, shape_size): a
@@ -24,9 +27,21 @@ extends CookAction
 @export var become := ""                   # "dome": each rounds up into a ball once it's on the tray.
 @export var become_color := Color.WHITE
 
+const CLEAR := Color(0.95, 0.97, 1.0)      # The cutter, where it can cut...
+const BLOCKED := Color(1.0, 0.16, 0.1)     # ...and where it can't.
+const GROOVE := Color(0.24, 0.12, 0.06)    # The cut line left in the sheet...
+const GROOVE_WIDTH := 0.006
+const LIFT := 0.006                        # ...and how far a cut piece comes up out of it.
+const TOUCH := 0.003                       # Cuts this close to (or into) each other still count as apart.
+const MISS_COST := 0.08
+const REROLL_COST := 0.1
+
 var _sheet: Dictionary
 var _cut: Array[MeshInstance3D] = []
-var _scores: Array[float] = []
+var _misses := 0                           # Presses on one already cut.
+var _rerolls := 0
+var _set_aside := 0                        # How many of the cut ones are off the sheet (it's been rolled out again since).
+var _paint: StandardMaterial3D             # The cutter's.
 var _cutter: MeshInstance3D
 var _moving := false
 var _top_y := 0.0                          # The sheet's top (it's gone once the cookies move).
@@ -58,18 +73,20 @@ func _begin() -> void:
 	_material = (dough.mesh.surface_get_material(0) as StandardMaterial3D).duplicate() if dough != null else StandardMaterial3D.new()
 	_material.albedo_color = _material.albedo_color.lightened(0.18)
 	if shape == "round":
-		_cutter = session.make_ring(cookie_radius, Color(0.9, 0.92, 0.95, 0.95))
+		_cutter = session.make_ring(cookie_radius, Color(CLEAR, 0.95))
 		_cutter.scale.y = 1.5
+		_paint = (_cutter.mesh as TorusMesh).material
 	else:  # A see-through shape of what it'll cut.
 		_cutter = MeshInstance3D.new()
 		_cutter.mesh = CookSession.prism(_outline(), 0.003)
 		var see_through := StandardMaterial3D.new()
-		see_through.albedo_color = Color(0.95, 0.97, 1.0, 0.45)
+		see_through.albedo_color = Color(CLEAR, 0.5)
 		see_through.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		see_through.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		see_through.cull_mode = BaseMaterial3D.CULL_DISABLED
 		see_through.no_depth_test = true
 		_cutter.material_override = see_through
+		_paint = see_through
 		session.add_child(_cutter)
 
 
@@ -87,6 +104,8 @@ func uses_cursor() -> bool:
 
 func update(delta: float, input: CookInput) -> void:
 	_cutter.visible = not _moving
+	var here := Vector2(input.cursor.x, input.cursor.z)
+	_paint.albedo_color = Color(CLEAR, _paint.albedo_color.a) if not _blocked(here) else Color(BLOCKED, _paint.albedo_color.a)
 	_cutter.position = _cutter.position.lerp(Vector3(input.cursor.x, _top() + 0.01, input.cursor.z), 1.0 - exp(-25.0 * delta))
 	if _moving:
 		return
@@ -103,43 +122,114 @@ func _half() -> Vector2:
 # The cutter's shape (x, z), round its middle.
 func _outline() -> PackedVector2Array:
 	var half := _half()
+	if shape == "round":
+		var circle := PackedVector2Array()
+		for i in 24:
+			circle.append(Vector2.from_angle(TAU * i / 24.0) * half.x)
+		return circle
 	if shape == "triangle":
 		return PackedVector2Array([Vector2(-half.x, half.y), Vector2(0.0, -half.y), Vector2(half.x, half.y)])
 	return PackedVector2Array([Vector2(-half.x, -half.y), Vector2(half.x, -half.y), Vector2(half.x, half.y), Vector2(-half.x, half.y)])
 
 
 func _press(at: Vector3) -> void:
-	var size: Vector2 = _sheet.get("size", Vector2.ONE)
-	var center: Vector3 = _sheet.get("center", Vector3.ZERO)
-	var half := _half()
-	# How far the cutter pokes off the sheet, and into another cookie.
-	var over_x := maxf(absf(at.x - center.x) + half.x - size.x * 0.5, 0.0)
-	var over_z := maxf(absf(at.z - center.z) + half.y - size.y * 0.5, 0.0)
-	var off_sheet := maxf(over_x, over_z)
-	var small := minf(half.x, half.y)
-	if off_sheet >= small * 1.5:
-		session.pop_text("Cut on the dough!", at, -1)
+	if _blocked(Vector2(at.x, at.z)):
+		_misses += 1
+		session.pop_text("Already cut there!", at, -1)
 		session.play_sound("clack", at, -6.0)
+		session.wobble(_cutter, 0.2)
 		return
-	var overlap := 0.0
-	for other in _cut:
-		var gap := Vector2(absf(other.position.x - at.x), absf(other.position.z - at.z))
-		if shape == "round":
-			overlap = maxf(overlap, cookie_radius * 2.0 - gap.length())
-		else:
-			overlap = maxf(overlap, minf(half.x * 2.0 - gap.x, half.y * 2.0 - gap.y))
-	var score := clampf(1.0 - (off_sheet + maxf(overlap, 0.0)) / small, 0.0, 1.0)
-	_scores.append(score)
+	_mark(at)
 	_cut.append(_make_cookie(at))
 	session.play_sound("plop", at, -6.0, 1.5)
 	session.wobble(_cutter, 0.3)
-	session.pop_text("Clean!" if score >= 0.9 else ("Bit squashed" if score >= 0.5 else "Messy!"), at, CookSession.mood_of(score))
+	session.pop_text("Clean!", at, 1)
 	if _cut.size() >= cookies:
 		_moving = true
 		session.frame(session.surface(onto).position, view_distance, view_pitch, 0.6)  # Along with them.
 		await _to_tray()
 		session.context["cookies"] = _cut
-		finish(average(_scores))
+		finish(maxf(1.0 - _misses * MISS_COST - _rerolls * REROLL_COST, 0.4))
+	elif free_spot(_sheet, _outline(), cursor_area()) == Vector2.INF:
+		_roll_again()
+
+
+# Whether cutting here would cut into one already cut.
+func _blocked(at: Vector2) -> bool:
+	return is_cut(_sheet, _outline(), at)
+
+
+# The sheet's cuts so far (its "cuts"): outlines (x, z) in the session. Also for
+# LatticeAction, cutting strips from what's left.
+static func is_cut(sheet: Dictionary, outline: PackedVector2Array, at: Vector2) -> bool:
+	var shape_here := PackedVector2Array()
+	for point in outline:
+		shape_here.append(point * (1.0 - TOUCH / maxf(point.length(), 0.001)) + at)
+	for other: PackedVector2Array in sheet.get("cuts", []):
+		if not Geometry2D.intersect_polygons(shape_here, other).is_empty():
+			return true
+	return false
+
+
+# Somewhere in `area` there's still room to cut `outline`, or INF.
+static func free_spot(sheet: Dictionary, outline: PackedVector2Array, area: Rect2) -> Vector2:
+	var steps := Vector2i(maxi(ceili(area.size.x / 0.008), 1), maxi(ceili(area.size.y / 0.008), 1))
+	for x in steps.x + 1:
+		for z in steps.y + 1:
+			var at := area.position + area.size * Vector2(float(x) / steps.x, float(z) / steps.y)
+			if not is_cut(sheet, outline, at):
+				return at
+	return Vector2.INF
+
+
+# The dark line round a cut.
+func _mark(at: Vector3) -> void:
+	var placed := PackedVector2Array()
+	var wider := PackedVector2Array()
+	for point in _outline():
+		placed.append(point + Vector2(at.x, at.z))
+		wider.append(point * (1.0 + GROOVE_WIDTH * (1.0 if shape == "round" else 1.8) / point.length()))
+	var cuts: Array = _sheet.get("cuts", [])
+	cuts.append(placed)
+	_sheet["cuts"] = cuts
+	var line := MeshInstance3D.new()
+	line.mesh = CookSession.prism(wider, 0.0012)
+	var paint := StandardMaterial3D.new()
+	paint.albedo_color = GROOVE
+	paint.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	paint.cull_mode = BaseMaterial3D.CULL_DISABLED
+	line.material_override = paint
+	line.position = Vector3(at.x, _top(), at.z)
+	session.add_child(line)
+	var marks: Array = _sheet.get("marks", [])
+	marks.append(line)
+	_sheet["marks"] = marks
+
+
+static func clear_cuts(sheet: Dictionary) -> void:
+	for mark: Node3D in sheet.get("marks", []):
+		if is_instance_valid(mark):
+			mark.queue_free()
+	sheet["marks"] = []
+	sheet["cuts"] = []
+
+
+# No room for the next one: what's been cut is set aside in front of the sheet
+# and the scraps are rolled out whole again.
+func _roll_again() -> void:
+	_rerolls += 1
+	clear_cuts(_sheet)
+	var size: Vector2 = _sheet.get("size", Vector2.ONE * 0.3)
+	var center: Vector3 = _sheet.get("center", Vector3.ZERO)
+	for i in range(_set_aside, _cut.size()):
+		var spot := Vector3(center.x - size.x * 0.5 - _half().x * 1.3, _cut[i].position.y, center.z - size.y * 0.5 + _half().y + i * 0.03)
+		_cut[i].create_tween().tween_property(_cut[i], "position", spot, 0.35).set_trans(Tween.TRANS_QUAD)
+	_set_aside = _cut.size()
+	session.pop_text("Scraps rolled out again!", center, 0)
+	var dough: MeshInstance3D = _sheet.get("node")
+	if dough != null:
+		session.wobble(dough, 0.15)
+	session.play_sound("whoosh", center, -6.0)
 
 
 func _make_cookie(at: Vector3) -> MeshInstance3D:
@@ -154,6 +244,7 @@ func _make_cookie(at: Vector3) -> MeshInstance3D:
 	cookie.mesh = mesh
 	cookie.position = Vector3(at.x, _top() + cookie_thickness * 0.5, at.z)
 	session.add_child(cookie)
+	cookie.create_tween().tween_property(cookie, "position:y", cookie.position.y + LIFT, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	if shape != "round":
 		var look := MeshInstance3D.new()
 		look.mesh = CookSession.prism(_outline(), cookie_thickness)
@@ -166,6 +257,8 @@ func _make_cookie(at: Vector3) -> MeshInstance3D:
 # the tray in rows.
 func _to_tray() -> void:
 	var dough: MeshInstance3D = _sheet.get("node")
+	if not keep_scraps:
+		clear_cuts(_sheet)
 	if dough != null and not keep_scraps:
 		var shrink := dough.create_tween()
 		shrink.tween_property(dough, "scale", Vector3(0.01, 0.01, 0.01), 0.3)
@@ -220,4 +313,9 @@ func _scripted_spot(i: int) -> Vector3:
 		across = maxi(ceili(sqrt(cookies * size.x / size.y)), 1)
 		rows = ceili(float(cookies) / across)
 	var cell := Vector2(size.x / across, size.y / rows)
-	return center + Vector3(-size.x * 0.5 + cell.x * (i % across + 0.5), 0.0, -size.y * 0.5 + cell.y * (i / across + 0.5))
+	var spot := center + Vector3(-size.x * 0.5 + cell.x * (i % across + 0.5), 0.0, -size.y * 0.5 + cell.y * (i / across + 0.5))
+	if _blocked(Vector2(spot.x, spot.z)):  # A lopsided sheet: wherever there's room.
+		var free := free_spot(_sheet, _outline(), cursor_area())
+		if free != Vector2.INF:
+			spot = Vector3(free.x, spot.y, free.y)
+	return spot

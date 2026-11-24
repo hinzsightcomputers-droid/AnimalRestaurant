@@ -5,7 +5,7 @@
 # player's controls through one CookInput, and when the last step is done
 # combines the steps' qualities and emits finished(quality). The step's
 # instructions show at the top of the cook's own view, and a real cooking tip or
-# fact about the dish (data/cooking_facts.json) in its top-right corner.
+# fact about the dish (data/cooking_facts.json) in its bottom-right corner.
 #
 # Everything here is in the session's own coordinates (y is up from the top
 # of the station). Steps use the helpers below for the shared bits: pieces,
@@ -66,6 +66,7 @@ var _background: Array[CookAction] = []
 var _stacks := {}  # Surface name -> [{ node, at, height }], bottom first.
 var _status := ""
 var _cursor := MeshInstance3D.new()
+var _spot := MeshInstance3D.new()          # A ring on the spot under a tool that's held up (CookAction.marks_spot).
 var _screen: Control                       # The instructions' holder, on the cook's own view.
 var _hint := Label.new()                   # The step's name (a reel: the recipe's), then how it went.
 var _how := Label.new()                    # The controls, smaller, under it.
@@ -76,7 +77,7 @@ var _framed := false                       # The camera is on a step's own view,
 var _text_scale := 1.0                      # Pop-up text shrinks when the camera comes in closer than the station's view.
 var _how_time := 0.0                       # How long this step's controls have been showing.
 var _home_lifted := false                  # The station's own view has been moved down under the card.
-var _fact_card := PanelContainer.new()     # "Chef's tip" and the tip, in the top-right corner.
+var _fact_card := PanelContainer.new()     # "Chef's tip" and the tip, in the bottom-right corner.
 var _fact_label := Label.new()
 var _facts: Array = []                     # This recipe's dish facts, in turn...
 var _fact_next := 0
@@ -137,6 +138,9 @@ func _process(delta: float) -> void:
 			_next_step()
 	_cursor.visible = current != null and current.uses_cursor()
 	_cursor.position = input.cursor + Vector3(0.0, 0.003, 0.0)
+	_spot.visible = current != null and not _cursor.visible and current.marks_spot() and not input.scripted
+	_spot.position = _cursor.position
+	_clear_the_cursor(delta)
 	_how_time += delta
 	_show_hint()
 	_fact_time += delta
@@ -161,9 +165,10 @@ func _next_step() -> void:
 		current = action
 		input.height = action.cursor_height()
 		var area := action.cursor_area()
-		if area.has_area():  # Start it in the middle of where the step is (and the camera will be).
-			var middle := area.get_center()
-			input.cursor = Vector3(middle.x, input.height, middle.y)
+		var middle := action.view_point()  # Start in the middle of where the step is (and the camera will be).
+		if area.has_area():
+			middle = Vector3(area.get_center().x, 0.0, area.get_center().y)
+		input.new_step(clamp_to_bounds(middle), action.keeps_press())
 		_how_time = 0.0
 		_frame_step(action)
 		_fact_for(action)
@@ -180,6 +185,7 @@ func _finish() -> void:
 	quality = CookRecipe.combine(steps)
 	is_finished = true
 	_cursor.visible = false
+	_spot.visible = false
 	if context.has("finish_text"):  # A step said how it went (e.g. "Caught a Bluegill!").
 		_hint.text = context["finish_text"]
 	elif recipe.finish_text.is_empty():
@@ -279,7 +285,7 @@ func snapshot(surface_name: String) -> Array:
 	var origin := plate.global_transform.affine_inverse()
 	for node in find_children("*", "MeshInstance3D", true, false):
 		var mesh_instance := node as MeshInstance3D
-		if mesh_instance == _cursor or not mesh_instance.is_visible_in_tree() or (mesh_instance.get_parent() is CookSurface and not mesh_instance.has_meta("food")) or mesh_instance.transparency >= 1.0:
+		if mesh_instance == _cursor or mesh_instance.get_parent() == _cursor or mesh_instance == _spot or mesh_instance.get_parent() == _spot or not mesh_instance.is_visible_in_tree() or (mesh_instance.get_parent() is CookSurface and not mesh_instance.has_meta("food")) or mesh_instance.transparency >= 1.0:
 			continue
 		var placed := origin * mesh_instance.global_transform
 		if Vector2(placed.origin.x, placed.origin.z).length() > plate.radius() * 1.3 or placed.origin.y < -0.03:
@@ -308,6 +314,16 @@ func react(trigger: String) -> void:
 
 func set_status(text: String) -> void:
 	_status = text
+
+
+# The cards go see-through while the cursor's under them, so it never gets lost there.
+const CARD_FADED := 0.22
+func _clear_the_cursor(delta: float) -> void:
+	var at := input.screen_point(input.cursor) if not input.scripted and _screen != null and current != null and current.aims() else Vector2.INF
+	for card: Control in [_card, _fact_card]:
+		var view := _screen.get_global_rect() if _screen != null else Rect2()
+		var under := at != Vector2.INF and card.get_global_rect().grow(18.0).has_point(view.position + at * view.size)
+		card.modulate.a = lerpf(card.modulate.a, CARD_FADED if under else 1.0, 1.0 - exp(-12.0 * delta))
 
 
 func _show_hint() -> void:
@@ -913,7 +929,8 @@ func _build_hint(view_manager: ViewManager) -> void:
 
 # --- Chef's tips -------------------------------------------------------------
 
-# The card in the top-right of the cook's view: a small heading and the tip.
+# The card in the bottom-right of the cook's view (at the top it would cover the
+# instructions): a small heading and the tip.
 func _build_fact_card() -> void:
 	var split := InputSetup.active_players().size() > 1
 	_fact_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -922,13 +939,10 @@ func _build_fact_card() -> void:
 	style.content_margin_bottom = CARD_MARGIN * 0.5
 	_fact_card.add_theme_stylebox_override("panel", style)
 	_screen.add_child(_fact_card)
-	_fact_card.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
-	_fact_card.grow_horizontal = Control.GROW_DIRECTION_BEGIN  # Its right edge stays put; it grows to the left.
-	if small_view:  # Bottom right: at the top it would cover the instructions in a view this small.
-		_fact_card.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
-		_fact_card.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-		_fact_card.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	var top := -FACT_MARGIN if small_view else FACT_MARGIN + (split_hint_top if split else hint_top)
+	_fact_card.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+	_fact_card.grow_horizontal = Control.GROW_DIRECTION_BEGIN  # Its corner stays put; it grows to the left and up.
+	_fact_card.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	var top := -FACT_MARGIN
 	_fact_card.offset_right = -FACT_MARGIN
 	_fact_card.offset_left = -FACT_MARGIN
 	_fact_card.offset_top = top
@@ -1016,13 +1030,32 @@ func _style_card(reel: bool) -> void:
 # A bright dot, drawn over everything, gently pulsing. Steps where a tool or
 # a held piece already shows the spot hide it (uses_cursor).
 func _build_cursor() -> void:
-	_cursor.mesh = dot_mesh(0.0125 * _marks(), Color(1.0, 0.92, 0.35, 0.99))
+	_cursor.mesh = dot_mesh(0.0145 * _marks(), Color(1.0, 0.92, 0.35, 0.99))
 	(_cursor.mesh.material as StandardMaterial3D).shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	(_cursor.mesh.material as StandardMaterial3D).no_depth_test = true
 	add_child(_cursor)
+	_add_ring(_cursor, 0.0175 * _marks(), 0.0035 * _marks(), Color(0.22, 0.1, 0.05))  # A dark edge: it shows on pale dough and dark pans alike.
+	add_child(_spot)
+	_spot.visible = false
+	_add_ring(_spot, 0.015 * _marks(), 0.0045 * _marks(), Color(0.22, 0.1, 0.05))
+	_add_ring(_spot, 0.015 * _marks(), 0.0022 * _marks(), Color(1.0, 0.92, 0.35), 3)
 	var pulse := _cursor.create_tween().set_loops()
 	pulse.tween_property(_cursor, "scale", Vector3.ONE * 1.2, 0.5).set_trans(Tween.TRANS_SINE)
 	pulse.tween_property(_cursor, "scale", Vector3.ONE, 0.5).set_trans(Tween.TRANS_SINE)
+
+
+# A ring lying on the surface, drawn over everything.
+func _add_ring(on: Node3D, at_radius: float, half_width: float, color: Color, priority := 2) -> void:
+	var ring := MeshInstance3D.new()
+	var mesh := TorusMesh.new()
+	mesh.inner_radius = at_radius - half_width
+	mesh.outer_radius = at_radius + half_width
+	var paint := _flat_material(Color(color, 0.99))  # (Not quite solid, so it's drawn after everything that is.)
+	paint.render_priority = priority
+	mesh.material = paint
+	ring.mesh = mesh
+	ring.scale.y = 0.2
+	on.add_child(ring)
 
 
 func _flat_material(color: Color) -> StandardMaterial3D:

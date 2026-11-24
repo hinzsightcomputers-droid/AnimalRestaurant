@@ -67,7 +67,9 @@ func _begin() -> void:
 		_box = _dough.mesh as BoxMesh
 		_size = sheet["size"]
 		_volume = _size.x * _size.y * _box.size.y
-		_center = sheet["center"]
+		var slide := _dough.create_tween()  # Back to the middle of the counter, with room all round it.
+		slide.tween_property(_dough, "position:x", _center.x, 0.3).set_trans(Tween.TRANS_QUAD)
+		slide.parallel().tween_property(_dough, "position:z", _center.z, 0.3).set_trans(Tween.TRANS_QUAD)
 	else:
 		_size = Vector2(start_size, start_size)
 		_volume = start_size * start_size * start_thickness

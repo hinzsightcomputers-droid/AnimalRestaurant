@@ -1527,7 +1527,7 @@ func _on_customer_interacted(player_index: int, customer: Customer) -> void:
 				_give_drink(player, customer, held)
 			else:
 				var wanted := "the usual" if customer.drink_secret else _a(customer.drink.get("name", "a drink"))
-				GameEvents.announce("%s is waiting for %s. Make it at the drinks counter." % [_who(customer).capitalize(), wanted])
+				GameEvents.announce("%s is waiting for %s. Make it at the drink machines." % [_who(customer).capitalize(), wanted])
 		Customer.State.WAITING_FOOD_ORDER:
 			if held == null:
 				_take_food_order(player, customer)

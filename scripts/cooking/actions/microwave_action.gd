@@ -40,6 +40,10 @@ func uses_cursor() -> bool:
 	return false
 
 
+func aims() -> bool:
+	return false
+
+
 func _begin() -> void:
 	_model = session.get_parent().find_child("MicrowaveModel", true, false) as MicrowaveModel if session.get_parent() != null else null
 	_home = session.surface(bowl).position

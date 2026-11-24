@@ -59,7 +59,7 @@
 			"seat": "A customer is waiting: seat them at the host stand",
 			"lead": "Lead {name} to a free table",
 			"drink_order": "Take {name}'s drink order",
-			"make_drink": "Make the drink at the drinks counter",
+			"make_drink": "Make the drink: cold ones at the fountain, hot ones at the brew machine",
 			"give_drink": "Bring the drink to the customer who ordered it",
 			"food_order": "Take {name}'s food order",
 			"clip": "Clip the ticket on the ticket wheel",

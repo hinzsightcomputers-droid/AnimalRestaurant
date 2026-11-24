@@ -131,22 +131,26 @@ func serve_regular() -> void:
 	_stop()
 
 
-# The drinks counter: pick what they asked for, then pour it (or brew it, wait,
-# and pour), or grab it from the fridge.
+# The drink machine that makes what's wanted: along to its tap, hold to the line
+# (then the marshmallows).
 func _make_drink() -> void:
-	var station: DrinkStation = main.find_children("*", "DrinkStation", true, false).front()
+	var station := DrinkStation.with_work_for(get_tree(), chef.player_index)
 	await _use(station.interactable)
-	await _until(func(): return station._pourer == chef or not station._brewing.is_empty() or _holding(Drink), "a drink to be picked")
-	if not station._brewing.is_empty() and station._pourer == null:
-		await _until(func(): return station._brew_left <= 0.0, "the brew", 30.0)
-		await _seconds(_rng.randf_range(0.3, 0.6))
-		await _press()
-		await _until(func(): return station._pourer == chef, "the pour to start")
-	if station._pourer == chef:
-		await _until(func(): return station._pour == DrinkStation.Pour.WAIT_PRESS, "the cup")
-		await _seconds(_rng.randf_range(0.6, 1.0))
-		var fill := float(GameData.drink_settings.get("fill_seconds", 1.6)) * _rng.randf_range(0.97, 1.03)
-		await _press(fill)
+	await _until(func(): return station._pourer == chef, "the machine")
+	await _seconds(_rng.randf_range(0.5, 0.8))
+	while station._pourer == chef:
+		match station.next_move():
+			"left", "right":
+				await _press_action("move_" + station.next_move(), 0.1)
+				await _seconds(_rng.randf_range(0.15, 0.3))
+			"pour":
+				await _seconds(_rng.randf_range(0.2, 0.4))
+				var full := float(GameData.drink_settings.get("brew_fill_seconds" if station.brewer else "fill_seconds", 1.8))
+				await _press(full * (1.0 - station._fill / DrinkStation.LINE) * _rng.randf_range(0.97, 1.03))
+			"top":
+				await _seconds(_rng.randf_range(0.3, 0.5))
+				await _press()
+		await get_tree().process_frame
 	await _until(func(): return _holding(Drink) and _free(), "the drink")
 	await _seconds(_rng.randf_range(0.2, 0.4))
 

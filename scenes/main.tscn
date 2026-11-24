@@ -26,6 +26,7 @@
 [ext_resource type="PackedScene" path="res://scenes/furniture/sink.tscn" id="24_sink"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/oven.tscn" id="25_oven"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/drink_station.tscn" id="26_drinks"]
+[ext_resource type="PackedScene" path="res://scenes/furniture/brew_station.tscn" id="26_brewer"]
 [ext_resource type="Script" path="res://scripts/world/restaurant_grounds.gd" id="27_grounds"]
 [ext_resource type="Script" path="res://scripts/outdoors/back_garden.gd" id="28_garden"]
 [ext_resource type="Script" path="res://scripts/outdoors/car_trip.gd" id="29_trip"]
@@ -211,7 +212,11 @@ order_board = NodePath("../../OrderBoard")
 view_manager = NodePath("../../Views")
 
 [node name="DrinkStation" parent="Furniture" node_paths=PackedStringArray("view_manager") instance=ExtResource("26_drinks")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -6.55, 0, 0.6)
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -6.55, 0, 0.98)
+view_manager = NodePath("../../Views")
+
+[node name="BrewStation" parent="Furniture" node_paths=PackedStringArray("view_manager") instance=ExtResource("26_brewer")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -6.55, 0, -0.12)
 view_manager = NodePath("../../Views")
 
 [node name="PassCounter" parent="Furniture" unique_id=1418804096 instance=ExtResource("16_pass")]

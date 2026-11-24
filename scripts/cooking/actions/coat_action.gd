@@ -79,6 +79,10 @@ func uses_cursor() -> bool:
 	return false  # The brush or shaker shows the spot.
 
 
+func marks_spot() -> bool:
+	return true
+
+
 func _begin() -> void:
 	_left = seconds
 	_cookies = session.context.get("cookies", []) if on_surface.is_empty() else []

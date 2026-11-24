@@ -19,6 +19,7 @@ title = "Line the tins"
 hint = "Move the cutter with [stick] and press [button] to cut. Keep them on the dough and apart!"
 cookies = 6
 piece_name = "Tart cases"
+cookie_radius = 0.041
 
 [sub_resource type="Resource" id="Resource_2"]
 script = ExtResource("fill")
