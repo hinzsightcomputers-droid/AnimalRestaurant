@@ -59,9 +59,10 @@ func leafy_top() -> bool:
 	return bool(_chop().get("leafy_top", false))
 
 
-# The pieces of onion it's chopped into as well (none without one).
-func onion_pieces() -> int:
-	return int(_chop().get("onion", 0))
+# The other vegetables chopped with it, and how many pieces of each, e.g.
+# { "onion": 5 } (none for most).
+func chopped_with() -> Dictionary:
+	return _chop().get("with", {})
 
 
 # How many presses at the chopping board (a Sharp Knife takes fewer, but always at least 1).

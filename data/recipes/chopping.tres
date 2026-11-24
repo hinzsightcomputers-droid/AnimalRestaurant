@@ -14,7 +14,7 @@ weight = 0.5
 [sub_resource type="Resource" id="Resource_chop"]
 script = ExtResource("3_chop")
 title = "Chop"
-hint = "Press [button] on the beat. The knife moves along to the next cut by itself."
+hint = "Press [button] to chop: on the beat, or as fast as you like if you keep it steady. The knife moves along by itself."
 
 [resource]
 script = ExtResource("1_recipe")

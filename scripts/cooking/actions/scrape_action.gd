@@ -82,28 +82,21 @@ func _begin() -> void:
 		_board.add_child(piece)
 		_on_board.append(piece)
 	if session.ingredients != null:
-		_add_onion(session.ingredients.onion_pieces())
+		var extra := session.ingredients.chopped_with()
+		for kind: String in extra:
+			_add_extra(kind, int(extra[kind]))
 	_count = maxi(_on_board.size(), 1)
 
 
-# Rings of onion among the rest.
-func _add_onion(count: int) -> void:
-	var material := StandardMaterial3D.new()
-	material.albedo_color = Veg.ONION_FLESH
-	material.roughness = 0.4
+# The other vegetables chopped with it (Veg): rings of onion, bits of celery...
+func _add_extra(kind: String, count: int) -> void:
 	for i in count:
-		var ring := MeshInstance3D.new()
-		var mesh := TorusMesh.new()
-		mesh.outer_radius = piece_radius * randf_range(1.0, 1.3)
-		mesh.inner_radius = mesh.outer_radius * 0.6
-		mesh.rings = 18
-		mesh.ring_segments = 8
-		mesh.material = material
-		ring.mesh = mesh
-		ring.position = Vector3(randf_range(-0.4, 0.4) * _board.size.x, piece_thickness * 0.5, randf_range(-0.35, 0.35) * _board.size.y)
-		ring.rotation = Vector3(randf_range(-0.15, 0.15), 0.0, randf_range(-0.15, 0.15))
-		_board.add_child(ring)
-		_on_board.append(ring)
+		var bit := MeshInstance3D.new()
+		bit.mesh = Veg.chopped_mesh(kind, piece_radius)
+		bit.position = Vector3(randf_range(-0.4, 0.4) * _board.size.x, piece_thickness * 0.5, randf_range(-0.35, 0.35) * _board.size.y)
+		bit.rotation = Vector3(randf_range(-0.15, 0.15), randf() * TAU, randf_range(-0.15, 0.15))
+		_board.add_child(bit)
+		_on_board.append(bit)
 
 
 func end() -> void:

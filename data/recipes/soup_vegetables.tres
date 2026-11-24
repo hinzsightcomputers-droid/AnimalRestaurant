@@ -10,7 +10,9 @@ script = ExtResource("4_peel")
 title = "Peel the carrot"
 hint = "Hold [grip] and drag the peeler along the carrot with [stick], left to right in one straight line. All four sides!"
 weight = 0.5
-offset_x = -0.06
+offset_x = 0.03
+brought_from = 0.6
+set_aside = Vector3(0.5, 0.02, 90)
 
 [sub_resource type="Resource" id="Resource_skin"]
 script = ExtResource("4_peel")
@@ -18,30 +20,80 @@ title = "Skin the onion"
 hint = "Hold [grip] at the onion's tip and pull along it with [stick], left to right, to strip off the papery skin. All three sides!"
 weight = 0.5
 vegetable = "onion"
-offset_x = 0.25
 sides = 3
 segments = 4
-length = 0.13
-radius = 0.055
+length = 0.12
+radius = 0.052
 taper = 0.0
 skin_darken = 0.08
+offset_x = 0.07
+offset_z = 0.02
+brought_from = 0.6
+set_aside = Vector3(0.41, -0.1, 0)
+
+[sub_resource type="Resource" id="Resource_potato"]
+script = ExtResource("4_peel")
+title = "Peel the potato"
+hint = "Hold [grip] and drag the peeler along the potato with [stick], left to right in one straight line. All three sides!"
+weight = 0.5
+vegetable = "potato"
+sides = 3
+segments = 5
+length = 0.14
+radius = 0.046
+taper = 0.0
+skin_darken = 0.1
+offset_x = 0.07
+offset_z = 0.02
+brought_from = 0.6
+set_aside = Vector3(0.41, 0.06, 75)
 
 [sub_resource type="Resource" id="Resource_chop"]
 script = ExtResource("3_chop")
 title = "Chop the carrot"
-hint = "Press [button] on the beat. The knife moves along to the next cut by itself."
+hint = "Press [button] to chop: on the beat, or as fast as you like if you keep it steady. The knife moves along by itself."
+weight = 0.5
+slides = true
+rest = Vector2(0.04, -0.15)
 
 [sub_resource type="Resource" id="Resource_chop_onion"]
 script = ExtResource("3_chop")
 title = "Chop the onion"
-hint = "Press [button] on the beat. The knife moves along to the next cut by itself."
+hint = "Press [button] to chop: on the beat, or as fast as you like if you keep it steady. The knife moves along by itself."
 weight = 0.5
 vegetable = "onion"
+cuts = 4
+slides = true
+rest = Vector2(0.28, -0.03)
+
+[sub_resource type="Resource" id="Resource_chop_potato"]
+script = ExtResource("3_chop")
+title = "Chop the potato"
+hint = "Press [button] to chop: on the beat, or as fast as you like if you keep it steady. The knife moves along by itself."
+weight = 0.5
+vegetable = "potato"
+cuts = 4
+slides = true
+rest = Vector2(0.25, 0.13)
+
+[sub_resource type="Resource" id="Resource_chop_celery"]
+script = ExtResource("3_chop")
+title = "Chop the celery"
+hint = "Press [button] to chop: on the beat, or as fast as you like if you keep it steady. The knife moves along by itself."
+weight = 0.5
+vegetable = "celery"
 cuts = 5
+piece_length = 0.2
+piece_radius = 0.026
+taper = 0.2
+slides = true
+offset_x = 0.07
+offset_z = 0.02
+rest = Vector2(0.03, 0.08)
 
 [resource]
 script = ExtResource("1_recipe")
 display_name = "Soup Vegetables"
 pieces = 1
 serve_on = "Board"
-steps = Array[ExtResource("2_action")]([SubResource("Resource_peel"), SubResource("Resource_skin"), SubResource("Resource_chop"), SubResource("Resource_chop_onion")])
+steps = Array[ExtResource("2_action")]([SubResource("Resource_peel"), SubResource("Resource_skin"), SubResource("Resource_potato"), SubResource("Resource_chop"), SubResource("Resource_chop_onion"), SubResource("Resource_chop_potato"), SubResource("Resource_chop_celery")])

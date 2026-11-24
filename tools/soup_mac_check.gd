@@ -4,7 +4,8 @@ extends Node
 # script with pictures of every step; at the mac's draining, stray presses
 # (mashing, or still holding from the grating) must not take the pasta off. Run
 # (not headless) with APPDATA pointing at a copy of a save with an account and
-# SHOTS=<folder>:  godot --resolution 1600x900 res://tools/soup_mac_check.tscn
+# SHOTS=<folder> (ONLY=chop: just the vegetables):
+#   godot --resolution 1600x900 res://tools/soup_mac_check.tscn
 
 var main: Node
 var player: Player
@@ -32,6 +33,9 @@ func _ready() -> void:
 	board._open_closeup(player, Ingredients.new(Order.new(null, soup)))
 	board.session.input.scripted = true
 	await _play("chop", board.session)
+	if OS.get_environment("ONLY") == "chop":
+		get_tree().quit()
+		return
 	player.set_held_item(null)
 	player.global_position = stove.global_position + stove.global_transform.basis.z * 0.9
 	for job in [["soup", soup], ["four_cheese_mac", {}]]:
@@ -42,6 +46,7 @@ func _ready() -> void:
 
 
 func _play(prefix: String, session: CookSession) -> void:
+	Input.action_release("p0_interact")
 	var last: CookAction = null
 	var shot := 1
 	var clock := 0.0

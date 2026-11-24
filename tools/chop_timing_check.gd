@@ -20,5 +20,17 @@ func _ready() -> void:
 		var passed := last == "PPPPPPPP"
 		ok = ok and passed
 		print("CHOP %s delay %.2f s: %s (learned %.3f s)" % ["ok  " if passed else "FAIL", delay, "".join(words), ChopAction._heard_after])
+	for pace in [0.12, 0.2, 0.3, 0.6]:  # Their own pace, off the beat: steady is perfect, wild isn't.
+		for wild in [false, true]:
+			ChopAction._heard_after = -1.0
+			var chop := ChopAction.new()
+			var total := 0.0
+			for i in 30:
+				chop._time += pace * (randf_range(0.2, 1.8) if wild else randf_range(0.9, 1.1))
+				chop._tick_at = floorf(chop._time / chop.beat_seconds) * chop.beat_seconds
+				total += chop.score_press()
+			var mean := total / 30.0
+			print("CHOP pace %.2f %s: %.2f" % [pace, "wild" if wild else "steady", mean])
+			ok = ok and (wild or mean > 0.97)
 	print("CHOP ", "ALL OK" if ok else "FAILED")
 	get_tree().quit(0 if ok else 1)

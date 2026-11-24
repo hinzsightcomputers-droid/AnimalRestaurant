@@ -173,6 +173,53 @@ static func knife(blade_length := 0.14, blade_height := 0.04) -> Node3D:
 	return root
 
 
+# A wooden spoon, origin at the tip of its bowl, the handle straight up.
+static func wooden_spoon() -> Node3D:
+	var root := Node3D.new()
+	var wood := StandardMaterial3D.new()
+	wood.albedo_color = Color("#C98B4E")
+	wood.roughness = 0.75
+	var bowl := MeshInstance3D.new()  # Rounded and flat, standing on its tip.
+	var bowl_mesh := SphereMesh.new()
+	bowl_mesh.radius = 0.03
+	bowl_mesh.height = 0.06
+	bowl_mesh.radial_segments = 20
+	bowl_mesh.rings = 10
+	bowl_mesh.material = wood
+	bowl.mesh = bowl_mesh
+	bowl.scale = Vector3(1.0, 1.35, 0.4)
+	bowl.position.y = 0.04
+	root.add_child(bowl)
+	var hollow := MeshInstance3D.new()
+	var hollow_mesh := bowl_mesh.duplicate() as SphereMesh
+	var shade := wood.duplicate() as StandardMaterial3D
+	shade.albedo_color = wood.albedo_color.darkened(0.22)
+	hollow_mesh.material = shade
+	hollow.mesh = hollow_mesh
+	hollow.scale = Vector3(0.74, 1.05, 0.2)
+	hollow.position = Vector3(0.0, 0.04, 0.0075)
+	root.add_child(hollow)
+	var handle := MeshInstance3D.new()
+	var handle_mesh := CylinderMesh.new()
+	handle_mesh.bottom_radius = 0.0075
+	handle_mesh.top_radius = 0.0105
+	handle_mesh.height = 0.19
+	handle_mesh.radial_segments = 12
+	handle_mesh.material = wood
+	handle.mesh = handle_mesh
+	handle.position.y = 0.165
+	root.add_child(handle)
+	var knob := MeshInstance3D.new()
+	var knob_mesh := SphereMesh.new()
+	knob_mesh.radius = 0.0105
+	knob_mesh.height = 0.021
+	knob_mesh.material = wood
+	knob.mesh = knob_mesh
+	knob.position.y = 0.26
+	root.add_child(knob)
+	return root
+
+
 # A balloon whisk, origin at the bottom of the wires, the handle straight up.
 static func whisk() -> Node3D:
 	var root := Node3D.new()

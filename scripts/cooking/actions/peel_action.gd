@@ -5,17 +5,25 @@
 # quarter turn to the next, `sides` in all. A side scores how straight the
 # strokes ran down the middle of the carrot and how few it took. Leaves the
 # peeled carrot in the session's context "carrot" (see ChopAction.lay_along)
-# for chopping. vegetable "onion" skins an onion the same way, by hand: pull the
-# papery skin off it in strips, from its tip to its root (context "onion").
-# An onion to be skinned next already lies there beside the carrot.
+# for chopping. The other vegetables (Veg) go the same way, under their own names
+# in the context: a potato with the peeler, an onion by hand (pull the papery skin
+# off it in strips, from its tip to its root). With brought_from it slides onto
+# the board for its turn, and with set_aside it's put down beside the board after
+# (its peelings swept off), leaving the board for the next one.
 class_name PeelAction
 extends CookAction
 
+const SLIDE_SECONDS := 0.35
+const ASIDE_DROP := 0.035                  # The counter's this much lower than the board.
+
 @export var on_surface := "Board"
-@export_enum("carrot", "onion") var vegetable := "carrot"
-@export var offset_x := 0.0                # How far right of the board's middle it lies.
+@export_enum("carrot", "onion", "potato") var vegetable := "carrot"
+@export var offset_x := 0.0                # How far right of the board's middle it lies...
+@export var offset_z := 0.0                # ...and how far in front of it.
 @export var sides := 4
 @export var segments := 10                 # Strips of skin along each side.
+@export var brought_from := 0.0            # Slides in from this far to the right (0: it's there already).
+@export var set_aside := Vector3.ZERO      # Where it's put once peeled: from the board's middle (x, z), and how far turned (degrees).
 @export_group("Carrot")
 @export var length := 0.34
 @export var radius := 0.034
@@ -40,8 +48,8 @@ var _board_y := 0.0
 var _side := 0
 var _strips: Array = []                    # Per side: its skin strips (null once peeled), left to right.
 var _rolling := false
+var _peelings: Array[Node3D] = []
 var _peeler: Node3D
-var _waiting: Node3D
 var _last_x := 0.0
 var _was_peeling := false
 var _told_direction := false               # Said "Left to right!" this stroke.
@@ -68,13 +76,13 @@ func _begin() -> void:
 	_board_y = board.y
 	_left = board.x + offset_x - length * 0.5
 	_right = board.x + offset_x + length * 0.5
-	_z = board.z
+	_z = board.z + offset_z
 	var color := session.ingredients.color() if session.ingredients != null else carrot_color
 	_flesh_color = color.lightened(flesh_lighten)
 	_greens = session.ingredients == null or session.ingredients.leafy_top()
-	if _is_onion():
-		color = Veg.ONION_SKIN
-		_flesh_color = Veg.ONION_FLESH
+	if vegetable != "carrot":
+		color = Veg.SKIN[vegetable]
+		_flesh_color = Veg.FLESH[vegetable]
 		_greens = false
 	for shade in [0.0, 0.025, -0.02]:  # A few skin tones, so it isn't one flat orange.
 		var skin := StandardMaterial3D.new()
@@ -86,8 +94,8 @@ func _begin() -> void:
 	session.add_child(_carrot)
 	ChopAction.lay_along(_carrot, _left, _right, radius, radius * (1.0 - taper), _z, _board_y)
 	_carrot.add_child(_spin)
-	if _is_onion():
-		Veg.add_onion(_spin, length, radius, _flesh_color)
+	if _bulges():
+		Veg.add_whole(_spin, vegetable, length, radius, taper, _flesh_color)
 	else:
 		_add_core()
 	if _greens:
@@ -106,26 +114,23 @@ func _begin() -> void:
 		session.add_child(_peeler)
 	else:
 		_peeler = _make_peeler()
+	if brought_from > 0.0:
+		_rolling = true  # Not yet.
+		var home := _carrot.position.x
+		_carrot.position.x += brought_from
+		var slide := _carrot.create_tween()
+		slide.tween_property(_carrot, "position:x", home, SLIDE_SECONDS).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		slide.tween_callback(func(): _rolling = false)
 	_peeler.position = Vector3((_left + _right) * 0.5, _top() + peeler_height, _z + 0.08)
-	_lay_waiting()
 
 
 func _is_onion() -> bool:
 	return vegetable == "onion"
 
 
-# The onion that's skinned next already lies beside the carrot.
-func _lay_waiting() -> void:
-	if _is_onion():
-		return
-	for step in session.steps:
-		var next := step as PeelAction
-		if next != null and next._is_onion():
-			_waiting = Node3D.new()
-			session.add_child(_waiting)
-			var x := session.surface(on_surface).position.x + next.offset_x
-			ChopAction.lay_along(_waiting, x - next.length * 0.5, x + next.length * 0.5, next.radius, next.radius, _z, _board_y)
-			Veg.add_onion(_waiting, next.length, next.radius, Veg.ONION_SKIN.darkened(next.skin_darken))
+# Round rather than a straight taper.
+func _bulges() -> bool:
+	return vegetable != "carrot"
 
 
 func _add_core() -> void:
@@ -147,8 +152,20 @@ func _add_core() -> void:
 
 func end() -> void:
 	_peeler.queue_free()
-	if _waiting != null:
-		_waiting.queue_free()  # The next step lays the real one.
+	if set_aside == Vector3.ZERO:
+		return
+	var board := session.surface(on_surface).position
+	var out := _carrot.create_tween().set_parallel(true).set_trans(Tween.TRANS_QUAD)
+	out.tween_property(_carrot, "position:x", board.x + set_aside.x, SLIDE_SECONDS)
+	out.tween_property(_carrot, "position:z", board.z + set_aside.y, SLIDE_SECONDS)
+	out.tween_property(_carrot, "position:y", _carrot.position.y - ASIDE_DROP, SLIDE_SECONDS)
+	out.tween_property(_carrot, "rotation:y", deg_to_rad(set_aside.z), SLIDE_SECONDS)
+	for peeling in _peelings:  # Swept off the back of the board.
+		var sweep := peeling.create_tween()
+		sweep.tween_interval(0.2)
+		sweep.tween_property(peeling, "position:z", peeling.position.z - 0.16, 0.3).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		sweep.parallel().tween_property(peeling, "scale", Vector3.ONE * 0.05, 0.3).set_ease(Tween.EASE_IN)
+		sweep.tween_callback(peeling.queue_free)
 
 
 func cursor_area() -> Rect2:
@@ -218,6 +235,7 @@ func _peel_between(from_x: float, to_x: float) -> void:
 func _peel_off(strip: MeshInstance3D) -> void:
 	var pivot := Node3D.new()
 	session.add_child(pivot)
+	_peelings.append(pivot)
 	pivot.global_position = strip.global_transform * (strip.get_meta("centre") as Vector3)
 	strip.reparent(pivot)
 	var land := Vector3(pivot.position.x + randf_range(-0.03, 0.03), _board_y + 0.004, _z - radius - randf_range(0.04, 0.11))
@@ -258,8 +276,8 @@ func _strip_mesh(i: int, side: int) -> ArrayMesh:
 	var x1 := x0 + length / segments
 	var arc := TAU / sides
 	var middle := -side * arc  # Up (+y), once the carrot has rolled `side` times.
-	var steps := 8 if _is_onion() else 5
-	var along := 5 if _is_onion() else 1  # An onion bulges.
+	var steps := 8 if _bulges() else 5
+	var along := 5 if _bulges() else 1
 	var tool := SurfaceTool.new()
 	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
 	tool.set_material(_skins[(i * 7 + side * 3) % _skins.size()])
@@ -276,7 +294,7 @@ func _strip_mesh(i: int, side: int) -> ArrayMesh:
 				points.append(Vector3(corner[0], cos(corner[1]) * r, sin(corner[1]) * r))
 			for index in [0, 1, 2, 0, 2, 3]:
 				var point: Vector3 = points[index]
-				var slope := (_radius_at_local(point.x + 0.001) - _radius_at_local(point.x - 0.001)) / 0.002 if _is_onion() else 0.0
+				var slope := (_radius_at_local(point.x + 0.001) - _radius_at_local(point.x - 0.001)) / 0.002 if _bulges() else 0.0
 				tool.set_normal(Vector3(-slope * Vector2(point.y, point.z).length(), point.y, point.z).normalized())
 				tool.add_vertex(point)
 	return tool.commit()
@@ -292,13 +310,13 @@ func _strip_centre(i: int, side: int) -> Vector3:
 # Radius at x along the carrot (its own coordinates: 0 is the middle).
 func _radius_at_local(x: float) -> float:
 	var t := clampf(x / length + 0.5, 0.0, 1.0)
-	return Veg.onion_radius(t, radius) if _is_onion() else radius * (1.0 - taper * t)
+	return Veg.radius_at(vegetable, t, radius, taper)
 
 
 # The top of the carrot at session x, and at its middle.
 func _top_at(x: float) -> float:
 	var r := _radius_at_local(clampf(x - (_left + _right) * 0.5, -length * 0.5, length * 0.5))
-	return _board_y + (radius + r if _is_onion() else r * 2.0)
+	return _board_y + (radius + r if _bulges() else r * 2.0)
 
 
 func _top() -> float:

@@ -1,19 +1,26 @@
-# ChopAction: chop a carrot into even pieces, on the beat. It lies on the
+# ChopAction: chop a carrot into even pieces, in rhythm. It lies on the
 # board (the peeled one from PeelAction, the session's context "carrot", or a
 # fresh one) with faint marks where the cuts go. The knife waits over the next
 # mark: press and it comes down there, then moves on to the next by itself, so
 # the pieces always come out the right size. Each cut scores how close the
-# press falls to the beat, which ticks (and pulses the next mark). vegetable
-# "onion" chops the skinned onion (context "onion") into rings instead.
+# press falls to the beat, which ticks (and pulses the next mark), or how even it
+# is with the cook's own pace, whichever's better: they can chop as fast as they
+# like. vegetable names another (Veg): a skinned onion, a peeled potato, celery.
+# With slides it comes onto the board for its turn (from where it was set aside,
+# or from the right), and its pieces move over to `rest` after.
 class_name ChopAction
 extends CookAction
 
 @export var on_surface := "Board"
-@export_enum("carrot", "onion") var vegetable := "carrot"
+@export_enum("carrot", "onion", "potato", "celery") var vegetable := "carrot"
 @export var cuts := 0                      # Cuts in all (a Sharp Knife takes fewer); 0 = the ingredients' own count ("chops" in data/dish_kitchen.json).
 @export_group("Carrot")
 @export var piece_length := 0.34           # A fresh one, when nothing was peeled first.
 @export var piece_radius := 0.034
+@export var slides := false
+@export var rest := Vector2.ZERO           # Where on the board (from its middle) its pieces go after (zero: they stay put).
+@export var offset_x := 0.0                # How far right of the board's middle it lies...
+@export var offset_z := 0.0                # ...and how far in front of it.
 @export var taper := 0.45                  # How much thinner the right end is (0 = straight, like a cucumber).
 @export var piece_color := Color(0.95, 0.55, 0.15)  # When there are no ingredients to take the color from.
 @export_group("Feel")
@@ -22,13 +29,21 @@ extends CookAction
 @export var perfect_seconds := 0.06        # This close to the beat (either side) is a perfect chop; the score falls off from here to beat_tolerance.
 @export var knife_height := 0.08           # How high the knife hovers between chops.
 @export var knife_tilt := 25.0             # Degrees the knife leans, so you see the blade from above.
-@export var chop_seconds := 0.1            # The knife's way down (and twice that back up).
+@export var pace_slack := 0.25             # A gap this share off the cook's own pace is still perfect...
+@export var pace_worst := 0.8              # ...and this far off it scores nothing.
+@export var slowest_pace := 1.0            # A longer wait between chops than this isn't a pace.
+@export var chop_seconds := 0.07           # The knife's way down (and twice that back up).
 @export var slice_gap := 0.007             # How far apart the pieces sit once cut (enough to see the cut faces).
 
 var _piece := {}                           # { node, left, right, z, radius, taper, color, marks (x, left to right), cuts, mark_nodes }
 var _board_y := 0.0
 var _knife: Node3D
+var _arriving := false                     # Still sliding in.
 var _chopping := false
+var _falling := []                         # The chop on its way down: [x, score].
+var _swing: Tween
+var _last_press := -1.0                    # When they last pressed (_time)...
+var _pace := 0.0                           # ...and the seconds between presses they've settled into (0: none yet).
 var _time := 0.0
 var _last_beat := -1
 var _rhythm: Array[float] = []
@@ -39,6 +54,8 @@ var _tick_at := 0.0                        # When the last tick was played (_tim
 # beat. Learned from their chops, so pressing right on the sound is perfect
 # whatever they're listening on. Kept for the whole run.
 static var _heard_after := -1.0
+const SLIDE_SECONDS := 0.35
+const FROM_RIGHT := 0.6
 const HEARD_AFTER_START := 0.04            # Before anything's learned, on top of the reported output latency.
 const HEARD_AFTER_MAX := 0.3
 const HEARD_AFTER_LEARN := 0.5             # How much each close chop moves it.
@@ -111,11 +128,19 @@ func _begin() -> void:
 	var carrot: Dictionary = session.context.get(vegetable, {})
 	if carrot.is_empty():
 		var board := session.surface(on_surface).position
-		carrot = { "left": board.x - piece_length * 0.5, "right": board.x + piece_length * 0.5, "z": board.z,
+		var middle := board.x + offset_x
+		carrot = { "left": middle - piece_length * 0.5, "right": middle + piece_length * 0.5, "z": board.z + offset_z,
 			"radius": piece_radius, "taper": taper,
 			"color": session.ingredients.color() if session.ingredients != null else piece_color,
 			"greens": session.ingredients == null or session.ingredients.leafy_top() }
-	elif carrot.has("node"):
+		if vegetable != "carrot":
+			carrot["color"] = Veg.FLESH[vegetable]
+			carrot["greens"] = false
+	var came_from := Vector3.ZERO
+	var came_turned := 0.0
+	if carrot.has("node"):
+		came_from = carrot["node"].position
+		came_turned = carrot["node"].rotation.y
 		carrot["node"].queue_free()  # Its pieces take over from here.
 	_piece = carrot.duplicate()
 	_piece["node"] = Node3D.new()
@@ -129,6 +154,16 @@ func _begin() -> void:
 	_build()
 	_knife = _make_knife()
 	_knife.position = _over_next()
+	if slides:
+		_arriving = true
+		var node: Node3D = _piece["node"]
+		var home := node.position
+		node.position = came_from if came_from != Vector3.ZERO else home + Vector3(FROM_RIGHT, 0.0, 0.0)
+		node.rotation.y = came_turned
+		var slide := node.create_tween().set_parallel(true).set_trans(Tween.TRANS_QUAD)
+		slide.tween_property(node, "position", home, SLIDE_SECONDS)
+		slide.tween_property(node, "rotation:y", 0.0, SLIDE_SECONDS)
+		slide.chain().tween_callback(func(): _arriving = false)
 
 
 func end() -> void:
@@ -147,23 +182,30 @@ func update(delta: float, input: CookInput) -> void:
 	if beat != _last_beat and not marks.is_empty():
 		_last_beat = beat
 		_tick_at = _time
-		session.play_sound("tick", _knife.position, -10.0, 0.8)
+		if not _own_pace():  # Their own chops are the beat.
+			session.play_sound("tick", _knife.position, -10.0, 0.8)
 		if not _piece["mark_nodes"].is_empty():
 			_pulse(_piece["mark_nodes"][0])
 	session.set_status("Chops left: %d" % marks.size())
-	if _chopping:
-		return
 	if marks.is_empty():
-		finish(average(_rhythm))
+		if not _chopping:
+			if rest != Vector2.ZERO:
+				var board := session.surface(on_surface).position
+				var node: Node3D = _piece["node"]
+				node.create_tween().tween_property(node, "position", Vector3(board.x + rest.x, node.position.y, board.z + rest.y), SLIDE_SECONDS).set_trans(Tween.TRANS_QUAD)
+			finish(average(_rhythm))
 		return
-	_knife.position = _knife.position.lerp(_over_next(), 1.0 - exp(-18.0 * delta))
+	if _arriving:
+		return
+	if not _chopping:
+		_knife.position = _knife.position.lerp(_over_next(), 1.0 - exp(-18.0 * delta))
 	if input.just_pressed:
 		_chop()
 
 
 # For a reel: press right on each tick.
 func scripted_hold(_delta: float, _input: CookInput) -> bool:
-	if _chopping or _piece["marks"].is_empty():
+	if _chopping or _arriving or _piece["marks"].is_empty():
 		return false
 	return fmod(_time, beat_seconds) < 0.04
 
@@ -176,30 +218,67 @@ func _over_next() -> Vector3:
 
 
 func _chop() -> void:
+	if _swing != null:
+		_swing.kill()  # Faster than the knife: the one on its way down lands now.
+	if not _falling.is_empty():
+		_land()
+		if _piece["marks"].is_empty():
+			_chopping = false
+			return
 	_chopping = true
 	var x: float = _piece["marks"][0]
-	var off_beat := _off_beat()
+	_falling = [x, score_press()]
+	_knife.position.x = x
+	_swing = _knife.create_tween()
+	_swing.tween_property(_knife, "position", Vector3(x, _board_y, _piece["z"]), chop_seconds).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	_swing.tween_callback(_land)
+	_swing.tween_property(_knife, "position:y", _board_y + knife_height, chop_seconds * 2.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_swing.tween_callback(func(): _chopping = false)
+
+
+# How good a press now is: on the beat, or as even as their own pace (the first
+# press and the one that sets the pace are always good).
+func score_press() -> float:
+	var gap := _time - _last_press if _last_press >= 0.0 else -1.0
+	_last_press = _time
+	var off_beat := _off_beat(gap < 0.0 or absf(gap - beat_seconds) < beat_tolerance)
 	var on_beat := 1.0 - clampf((off_beat - perfect_seconds) / (beat_tolerance - perfect_seconds), 0.0, 1.0)
-	var tween := _knife.create_tween()
-	tween.tween_property(_knife, "position", Vector3(x, _board_y, _piece["z"]), chop_seconds).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	tween.tween_callback(_land.bind(x, on_beat))
-	tween.tween_property(_knife, "position:y", _board_y + knife_height, chop_seconds * 2.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.tween_callback(func(): _chopping = false)
+	var even := 0.0
+	if gap < 0.0:
+		even = 1.0
+	elif gap > slowest_pace:
+		_pace = 0.0
+	elif _pace <= 0.0:
+		even = 1.0
+		_pace = gap
+	else:
+		var slack := maxf(_pace * pace_slack, perfect_seconds)
+		even = 1.0 - clampf((absf(gap - _pace) - slack) / maxf(maxf(_pace * pace_worst, beat_tolerance) - slack, 0.01), 0.0, 1.0)
+		_pace = lerpf(_pace, gap, 0.5)
+	return maxf(on_beat, even)
+
+
+# Chopping away faster than the beat.
+func _own_pace() -> bool:
+	return _pace > 0.0 and _pace < beat_seconds * 0.8 and _time - _last_press < beat_seconds
 
 
 # Seconds between this press and the nearest tick as the player hears it
 # (judged when you press, not when the knife lands), learning their delay.
-func _off_beat() -> float:
+func _off_beat(learn := true) -> float:
 	if _heard_after < 0.0:
 		_heard_after = AudioServer.get_output_latency() + HEARD_AFTER_START
 	# Early (negative) or late against the last tick heard, or the next one.
 	var off := wrapf(_time - _tick_at - _heard_after, -beat_seconds * 0.5, beat_seconds * 0.5)
-	if absf(off) < beat_seconds * 0.49:  # Any press in a rhythm is a try at the beat: learn from it (not one dead between two ticks).
+	if learn and absf(off) < beat_seconds * 0.49:  # Any press in a rhythm is a try at the beat: learn from it (not one dead between two ticks).
 		_heard_after = clampf(_heard_after + off * HEARD_AFTER_LEARN, 0.0, HEARD_AFTER_MAX)
 	return absf(off)
 
 
-func _land(x: float, on_beat: float) -> void:
+func _land() -> void:
+	var x: float = _falling[0]
+	var on_beat: float = _falling[1]
+	_falling = []
 	_piece["marks"].pop_front()
 	_piece["cuts"].append(x)
 	_rhythm.append(on_beat)
@@ -235,7 +314,9 @@ func _build() -> void:
 		var a: float = edges[i] + (slice_gap * 0.5 if i > 0 else 0.0)
 		var b: float = edges[i + 1] - (slice_gap * 0.5 if i < count - 1 else 0.0)
 		var slice := MeshInstance3D.new()
-		if _is_onion():
+		if vegetable == "celery":
+			slice.mesh = Veg.stalk(b - a, _radius_at(a), _radius_at(b), _piece["color"])
+		elif vegetable != "carrot":
 			slice.mesh = Veg.turned(b - a, func(x): return _radius_at((a + b) * 0.5 + x), flesh)
 		else:
 			var mesh := CylinderMesh.new()
@@ -251,9 +332,9 @@ func _build() -> void:
 		var spread := (i - (count - 1) * 0.5) * slice_gap if count > 1 else 0.0
 		slice.position = Vector3((a + b) * 0.5 - middle_x + spread, 0.0, 0.0)
 		node.add_child(slice)
-		if i > 0:  # Its left end is a cut.
+		if i > 0 and vegetable != "celery":  # Its left end is a cut.
 			_add_face(node, a - middle_x + spread, _radius_at(a), -1.0, ring, core)
-		if i < count - 1:
+		if i < count - 1 and vegetable != "celery":
 			_add_face(node, b - middle_x + spread, _radius_at(b), 1.0, ring, core)
 		if _is_onion() and i == 0:
 			Veg.add_tip(node, a - middle_x + spread)
@@ -299,9 +380,7 @@ func _pulse(mark: Node3D) -> void:
 
 func _radius_at(x: float) -> float:
 	var t := clampf((x - _piece["left"]) / (_piece["right"] - _piece["left"]), 0.0, 1.0)
-	if _is_onion():
-		return Veg.onion_radius(t, _piece["radius"])
-	return _piece["radius"] * (1.0 - _piece["taper"] * t)
+	return Veg.radius_at(vegetable, t, _piece["radius"], _piece["taper"])
 
 
 func _is_onion() -> bool:

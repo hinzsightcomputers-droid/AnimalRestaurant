@@ -39,15 +39,15 @@ view_distance = 0.8
 
 [sub_resource type="Resource" id="Resource_fold"]
 script = ExtResource("stir")
-title = "Fold in the cheese"
-hint = "Roll [stick] round counter-clockwise, the way the arrow goes, to fold it till it's melted (with the mouse, hold [grip] and circle the pot)."
+title = "Mix in the cheese"
+hint = "Roll [stick] round counter-clockwise, the way the arrow goes, to mix it till it's melted (with the mouse, hold [grip] and circle the pot)."
 weight = 0.7
 view_distance = 0.7
 turns = 5.0
 melt = true
 coat = true
 tint_to = Color(0.98, 0.76, 0.28, 1)
-tool = "spatula"
+tool = "spoon"
 
 [resource]
 script = ExtResource("1_recipe")

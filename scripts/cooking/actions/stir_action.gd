@@ -1,4 +1,4 @@
-# StirAction: stir a pot with a whisk, round and round, counter-clockwise (an
+# StirAction: stir a pot with a whisk (or a wooden spoon), round and round, counter-clockwise (an
 # arrow round the pot shows the way). With a stick (or the keys) the whisk goes
 # where the stick points, so rolling it round stirs; with the mouse, hold the
 # button and circle it round the pot. The soup and what's in it swirl along.
@@ -8,7 +8,7 @@
 # full_marks of it: it's meant to be easy to get right.
 # Stirring a container (a saucepan, a bowl) can melt what's been dropped in
 # (melt: butter, cheese), turn its liquid tint_to as it goes, and smooth out
-# lumps; tool "spatula" folds with a spatula instead of a whisk.
+# lumps; tool "spatula" folds with a spatula instead of a whisk, "spoon" with a wooden spoon.
 class_name StirAction
 extends CookAction
 
@@ -25,7 +25,7 @@ extends CookAction
 @export var tint_to := Color(0, 0, 0, 0)  # The liquid turns this color as you stir (none if see-through).
 @export var coat := false                 # What else is in there takes on tint_to as well (macaroni in its sauce).
 @export var lumps := 0                    # Lumps of flour that stir out.
-@export_enum("whisk", "spatula") var tool := "whisk"
+@export_enum("whisk", "spatula", "spoon") var tool := "whisk"
 
 const SCRIPTED_TURNS := 1.3  # Turns a second for a reel's chef.
 
@@ -53,7 +53,14 @@ func _begin() -> void:
 	slow_speed /= leeway
 	fast_speed *= leeway
 	var pot := session.surface(in_surface)
-	_whisk = _make_whisk() if tool == "whisk" else _make_spatula()
+	match tool:
+		"spatula":
+			_whisk = _make_spatula()
+		"spoon":
+			_whisk = KitchenProps.wooden_spoon()
+			session.add_child(_whisk)
+		_:
+			_whisk = _make_whisk()
 	_whisk.position = _middle(pot) + Vector3(pot.radius() * reach, -0.02, 0.0)
 	if melt and pot.depth > 0.0 and (pot.liquid == null or not pot.liquid.visible) and tint_to.a > 0.0:
 		pot.fill_to(0.05, tint_to)  # What melts makes a little pool.
