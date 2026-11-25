@@ -721,7 +721,7 @@ func _build() -> void:
 	_add_label(box, "Kitchen", 18, true)
 	var kitchen_row := _add_row(box)
 	_add_button(kitchen_row, "Practice pancakes (P1)", _practice.bind("pancakes"))
-	_add_button(kitchen_row, "Practice soup (P1)", _practice.bind("soup"))
+	_add_button(kitchen_row, "Practice soup (P1)", _practice_dish.bind("vegetable_soup"))
 	_add_button(kitchen_row, "Only serve pancakes", _only_serve.bind("honey_pancakes"))
 	var chopping_row := _add_row(box)
 	_add_button(chopping_row, "Practice chopping (P1)", _practice_chopping)
@@ -729,7 +729,7 @@ func _build() -> void:
 	_add_button(kitchen_row, "Whole menu", _only_serve.bind(""))
 	var fish_row := _add_row(box)
 	_add_button(fish_row, "Practice filleting (P1)", _practice_chopping.bind("filleting"))
-	_add_button(fish_row, "Practice fish stew (P1)", _practice.bind("fish_stew"))
+	_add_button(fish_row, "Practice fish stew (P1)", _practice_dish.bind("fish_stew"))
 	var cookie_row := _add_row(box)
 	_add_button(cookie_row, "Practice acorn cookies (P1)", _practice.bind("acorn_cookies", "oven"))
 	_add_button(cookie_row, "Unlock all dishes", _unlock_all_dishes)
@@ -839,7 +839,26 @@ func _practice_picked() -> void:
 	if not dish.has("recipe"):
 		_kitchen_label.text = "%s has no close-up recipe." % dish["name"]
 		return
-	_practice(dish["recipe"], CookingStation.station_of(dish))
+	_practice_dish(dish["id"])
+
+
+# A whole dish from the start: whatever has to be chopped (or filleted) first at
+# the board, then the cooking, with what was chopped. Closes the panel.
+func _practice_dish(dish_id: String) -> void:
+	var dish := GameData.get_dish(dish_id)
+	var player := Player.find(get_tree(), 0)
+	var at := CookingStation.station_of(dish)
+	var stations := get_tree().root.find_children("*", "CookingStation", true, false).filter(func(s): return s.station_id == at)
+	var boards := get_tree().root.find_children("*", "ChoppingBoard", true, false)
+	if stations.is_empty() or player == null or player.movement_locked:
+		return
+	_set_open(false)
+	var ingredients := Ingredients.new(Order.new(null, dish))
+	if ingredients.needs_chopping() and not boards.is_empty() and boards.front().session == null:
+		await boards.front().practice_chopping(player, ingredients)
+		if not is_inside_tree() or not is_instance_valid(player):
+			return
+	stations.front().practice(player, CookRecipe.for_dish(dish), ingredients)
 
 
 # Player 1 chops at the board right away, with nothing to hand back. Closes the panel.

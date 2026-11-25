@@ -148,9 +148,9 @@ func _update_steam(piece: CookPiece, steam: CPUParticles3D) -> void:
 	steam.emitting = amount > 0.25
 	var fat: CPUParticles3D = _fat[piece]
 	fat.emitting = not piece.busy and piece.radius > 0.03
-	if piece.kind == "bacon":  # All along it.
+	if piece.kind in ["bacon", "churro"]:  # All along it.
 		fat.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
-		fat.emission_box_extents = Vector3(piece.radius * 0.95, 0.001, piece.spread_to * 0.6)
+		fat.emission_box_extents = Vector3(piece.radius * 0.95, 0.001, piece.spread_to * 0.6 if piece.kind == "bacon" else piece.thickness * 0.6)
 	elif piece.folded:
 		fat.emitting = false
 	else:

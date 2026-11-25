@@ -49,6 +49,9 @@ size = Vector2(0.17, 0.17)
 round = true
 hidden = true
 depth = 0.07
+floor_at = 0.0235
+floor_radius = 0.07
+rim_radius = 0.1
 slides_in = true
 slide_from = -0.8
 

@@ -512,7 +512,7 @@ func _marks() -> float:
 
 # A quick squash and stretch.
 func wobble(node: Node3D, amount := 0.2) -> void:
-	if node is CookPiece and (node as CookPiece).kind != "bacon" and not (node as CookPiece).folded:  # Soft all by itself.
+	if node is CookPiece and not (node as CookPiece).kind in ["bacon", "churro"] and not (node as CookPiece).folded:  # Soft all by itself.
 		(node as CookPiece).jolt(amount)
 		return
 	var tween := node.create_tween()
@@ -542,6 +542,7 @@ func burst(at: Vector3, color: Color, amount := 12, speed := 0.35) -> void:
 	particles.finished.connect(particles.queue_free)
 
 
+const LOOP_MOMENT := 0.4  # How long play_sound plays a looping sound.
 func play_sound(sound: String, at: Vector3, volume_db := 0.0, pitch := 1.0) -> void:
 	var sound_player := AudioStreamPlayer3D.new()
 	sound_player.stream = CookSounds.get_sound(sound)
@@ -551,6 +552,12 @@ func play_sound(sound: String, at: Vector3, volume_db := 0.0, pitch := 1.0) -> v
 	sound_player.position = at
 	add_child(sound_player)
 	sound_player.play()
+	if sound in CookSounds.LOOPS:  # A moment of one that goes on forever (a splash of pouring): it fades, or they pile up.
+		var fade := sound_player.create_tween()
+		fade.tween_interval(LOOP_MOMENT)
+		fade.tween_property(sound_player, "volume_db", -50.0, 0.25)
+		fade.tween_callback(sound_player.queue_free)
+		return
 	sound_player.finished.connect(sound_player.queue_free)
 
 

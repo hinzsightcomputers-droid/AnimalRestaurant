@@ -31,9 +31,9 @@ func _ready() -> void:
 	_dress()
 
 
-# The chopping corner's knife (the counter and the board are the room's own
-# counter and the Meshy board now).
+# The chopping corner's knife, and its board's oak (the counter is the room's own).
 func _dress() -> void:
+	KitchenProps.dress($Visual/Board, KitchenProps.board_wood())
 	# The knife resting beside the board: the close-up's chef's knife, lying flat
 	# (on the Blade node, so it still hides while someone's chopping).
 	var blade: MeshInstance3D = $Visual/Blade
@@ -79,6 +79,17 @@ func practice(player: Player, with_recipe: CookRecipe = null) -> void:
 		_open_closeup(player, null, with_recipe)
 
 
+# The same with a dish's own ingredients, chopped when it returns (debug panel:
+# the stove's next).
+func practice_chopping(player: Player, ingredients: Ingredients) -> void:
+	_open_closeup(player, null, CookRecipe.for_dish({ "recipe": ingredients.chop_recipe() }), ingredients)
+	session.finished.connect(func(quality: float):
+		ingredients.chopped = true
+		ingredients.chop_quality = quality)
+	while session != null:
+		await get_tree().process_frame
+
+
 # For a reel (see ReelDirector): `recipe` played well by itself, no order.
 func reel_cook(player: Player, with_recipe: CookRecipe, _dish: Dictionary) -> void:
 	practice(player, with_recipe)
@@ -86,7 +97,8 @@ func reel_cook(player: Player, with_recipe: CookRecipe, _dish: Dictionary) -> vo
 	session.big_hint()
 
 
-func _open_closeup(player: Player, ingredients: Ingredients, with_recipe: CookRecipe = null) -> void:
+# practiced: looks like these ingredients, but they're not handed back.
+func _open_closeup(player: Player, ingredients: Ingredients, with_recipe: CookRecipe = null, practiced: Ingredients = null) -> void:
 	if with_recipe == null and ingredients != null:
 		with_recipe = CookRecipe.for_dish({ "recipe": ingredients.chop_recipe() })
 	if with_recipe == null:
@@ -104,7 +116,7 @@ func _open_closeup(player: Player, ingredients: Ingredients, with_recipe: CookRe
 	player.hide_from_own_view(true)
 	session.home_view = [global_position + closeup_look_offset, closeup_zoom]
 	session.finished.connect(_on_chopped)
-	session.start(with_recipe, player, view_manager if view_manager != null else get_tree().root.find_children("*", "ViewManager", true, false).front(), ingredients)
+	session.start(with_recipe, player, view_manager if view_manager != null else get_tree().root.find_children("*", "ViewManager", true, false).front(), ingredients if ingredients != null else practiced)
 	_play_bounce()
 
 

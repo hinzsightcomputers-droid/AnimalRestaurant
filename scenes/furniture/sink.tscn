@@ -8,7 +8,6 @@
 [ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m0_model_fitgd"]
 [ext_resource type="Script" path="res://scripts/world/room_panel.gd" id="rp_room_panel"]
 [ext_resource type="PackedScene" path="res://design/restaurant/sink.glb" id="m2_sink"]
-[ext_resource type="PackedScene" path="res://design/restaurant/dish_rack.glb" id="m3_rack"]
 
 [sub_resource type="Resource" id="Zoom_closeup"]
 script = ExtResource("3_zoom")
@@ -57,12 +56,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.775, 0, 0)
 script = ExtResource("rp_room_panel")
 kind = 2
 size = Vector3(0.55, 0.9, 0.76)
-
-[node name="Rack" type="Node3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 0.9, -0.05)
-script = ExtResource("m0_model_fitgd")
-model = ExtResource("m3_rack")
-size = Vector3(0.45, 0.0, 0.42)
 
 [node name="Collision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.275, 0.45, 0)

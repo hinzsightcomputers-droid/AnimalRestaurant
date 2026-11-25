@@ -4,9 +4,10 @@
 # spatula, rises as it cooks, and its wet top sets from the edge in, bubbling and
 # leaving holes (batter.gdshader draws it all). It can be folded in half (an
 # omelette): then it's a half-moon, twice as thick, its middle at its position.
-# make_egg and make_bacon give it another look (kind): a sunny-side-up egg (a
+# make_egg, make_bacon and make_churro give it another look (kind): a sunny-side-up egg (a
 # frilly white that sets as it cooks, a yolk on top) or a strip of bacon (pink
-# to crisp, with stripes of fat).
+# to crisp, with stripes of fat) or a ridged stick of dough (its radius is half
+# its length, lying along x as it was piped).
 class_name CookPiece
 extends Node3D
 
@@ -61,10 +62,13 @@ var _yolk_home := Vector3.ZERO
 static var _net: ArrayMesh = null
 var _stretch := Vector2.ONE   # An egg isn't quite round.
 var _yolk_material: StandardMaterial3D = null
-var _strip: MeshInstance3D = null  # Bacon.
+var _strip: MeshInstance3D = null  # Bacon (or a churro).
 var _strip_look: ShaderMaterial = null
 var _yolk: MeshInstance3D = null
 
+const CHURRO := preload("res://assets/shaders/churro.gdshader")
+static var _tube: ArrayMesh = null
+var _grow_from := 0.0  # Churro: where its left end is.
 const BACON := preload("res://assets/shaders/bacon.gdshader")
 const YOLK := Color(1.0, 0.68, 0.12)
 const YOLK_SET := Color(0.98, 0.84, 0.45)
@@ -161,6 +165,49 @@ func make_bacon(length: float, width: float) -> void:
 	refresh()
 
 
+# A churro lying along x, its left end staying at `from_x` as it's piped longer
+# (set_radius: half its length). Call after setup; its thickness is how thick it is.
+func make_churro(from_x: float) -> void:
+	kind = "churro"
+	_grow_from = from_x
+	_strip_look = ShaderMaterial.new()
+	_strip_look.shader = CHURRO
+	for pair in [["thick", thickness * 0.5], ["seed", randf() * 30.0], ["raw", raw_color], ["done", done_color], ["brown", BROWN], ["burnt", BURNT]]:
+		_strip_look.set_shader_parameter(pair[0], pair[1])
+	_strip = MeshInstance3D.new()
+	_strip.mesh = _make_tube()
+	_strip.material_override = _strip_look
+	add_child(_strip)
+	set_radius(0.0)
+	refresh()
+
+
+# The net a churro's drawn from.
+static func _make_tube() -> ArrayMesh:
+	const ALONG := 64
+	const ROUND := 96
+	if _tube != null:
+		return _tube
+	var tool := SurfaceTool.new()
+	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for i in ALONG + 1:
+		var u := 0.5 - 0.5 * cos(PI * i / ALONG)  # Closer together at its ends.
+		for k in ROUND + 1:
+			var turn := TAU * k / ROUND
+			tool.set_uv(Vector2(u, float(k) / ROUND))
+			tool.set_normal(Vector3(0.0, sin(turn), cos(turn)))
+			tool.add_vertex(Vector3(u - 0.5, sin(turn) * 0.01, cos(turn) * 0.01))
+	for i in ALONG:
+		for k in ROUND:
+			var a := i * (ROUND + 1) + k
+			var b := a + ROUND + 1
+			for index in [a, a + 1, b, a + 1, b + 1, b]:
+				tool.add_index(index)
+	_tube = tool.commit()
+	_tube.custom_aabb = AABB(Vector3(-0.17, -0.02, -0.04), Vector3(0.34, 0.08, 0.08))
+	return _tube
+
+
 # Salad leaves, dropping on one by one as it's filled out to `reach`. Call after setup.
 func make_greens(reach: float) -> void:
 	kind = "greens"
@@ -239,6 +286,10 @@ func set_radius(value: float) -> void:
 		while _leaves < LEAVES and _leaves < ceili(LEAVES * pow(value / _leaf_reach, 2.0)):
 			_add_leaf()
 	_look.set_shader_parameter("radius", r)
+	if kind == "churro":
+		_strip.visible = value > 0.004
+		_strip_look.set_shader_parameter("half_length", r)
+		position.x = _grow_from + value
 
 
 # Colors from how cooked each side is, and bubbles on a raw top as the
@@ -248,6 +299,9 @@ func refresh() -> void:
 	match kind:
 		"egg":  # Sunny side up: the heat from below sets the white, and its frilly edge browns.
 			_yolk_material.albedo_color = YOLK.lerp(YOLK_SET, clampf((down - 1.1) / 0.5, 0.0, 1.0))  # Goes pale and hard if overdone.
+		"churro":
+			_strip_look.set_shader_parameter("up", doneness[up_side()])
+			_strip_look.set_shader_parameter("down", down)
 		"bacon":
 			_strip_look.set_shader_parameter("up", maxf(doneness[up_side()], up_shade))
 			_strip_look.set_shader_parameter("down", down)
@@ -324,18 +378,43 @@ static func _make_net() -> ArrayMesh:
 func height_at(point: Vector2) -> float:
 	if not covers(point):
 		return -INF
+	if kind == "churro":
+		var across := (point - middle()).rotated(rotation.y).y
+		return position.y + thickness * 0.5 + sqrt(maxf(thickness * thickness * 0.25 - across * across, 0.0))
+	if folded:
+		var from_middle := (point - middle()) / maxf(radius, 0.001)
+		return position.y + pillow(from_middle, thickness)
 	var tall := thickness
+	if kind == "egg":  # Thin at its edge, and its yolk on top.
+		var u := (point - middle()).length() / maxf(radius, 0.001)
+		tall *= 0.28 + 0.9 * (1.0 - u * u)
+		var yolk := (_yolk.mesh as SphereMesh).radius
+		var gone := (point - middle() - Vector2(_yolk.position.x, _yolk.position.z)).length() / yolk
+		if gone < 1.0:
+			tall = maxf(tall, _yolk.position.y + yolk * 0.725 * sqrt(1.0 - gone * gone))
+		return position.y + tall
 	var gap := radius - (point - middle()).length()
 	var bulge := tall * 0.5
-	if not folded and gap < bulge:  # Its edge rounds over.
+	if gap < bulge:  # Its edge rounds over.
 		var in_from := 1.0 - gap / bulge
 		tall = bulge + bulge * sqrt(maxf(1.0 - in_from * in_from, 0.0))
 	return position.y + tall
 
 
+# How high a folded one's top is (m), at a point in radii from the middle of its
+# straight edge: pillowy, rounded over at the fold and the rim.
+static func pillow(at: Vector2, tall: float) -> float:
+	var out := at.length()
+	var in_from := clampf(minf(1.0 - out, absf(at.y)) / 0.3, 0.0, 1.0)
+	return tall * (0.32 + 0.78 * sqrt(1.0 - pow(1.0 - in_from, 2.0)) + 0.05 * in_from * sin(at.x * 7.0 + out * 3.0))
+
+
 # Whether it's over a point (x, z in the session), going by its shape.
 func covers(point: Vector2) -> bool:
 	var offset := point - middle()
+	if kind == "churro":
+		offset = offset.rotated(rotation.y)
+		return absf(offset.x) <= radius and absf(offset.y) <= thickness * 0.5
 	return offset.length() <= radius and (not folded or offset.y <= 0.0)
 
 
@@ -405,8 +484,7 @@ func _half_moon(side: float, height: float) -> MeshInstance3D:
 				for corner in [[ring, i], [ring + 1, i], [ring + 1, i + 1], [ring, i], [ring + 1, i + 1], [ring, i + 1]]:
 					var out_at := float(corner[0]) / RINGS
 					var way: Vector3 = edge[corner[1]]
-					var in_from := clampf(minf(1.0 - out_at, absf(way.z) * out_at) / 0.3, 0.0, 1.0)
-					var tall := height * (0.32 + 0.78 * sqrt(1.0 - pow(1.0 - in_from, 2.0)) + 0.05 * in_from * sin(way.x * out_at * 7.0 + out_at * 3.0))
+					var tall := pillow(Vector2(way.x, way.z) * out_at, height)
 					corners.append(way * out_at + Vector3(0.0, tall, 0.0))
 				add_triangles.call(top, corners)
 		top.generate_normals()

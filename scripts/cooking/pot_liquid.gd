@@ -55,6 +55,12 @@ func set_color(new_color: Color) -> void:
 	look.set_shader_parameter("soup", Color(new_color, 1.0))
 
 
+# How far across it is (a bowl's widens as it fills).
+func set_reach(new_reach: float) -> void:
+	reach = new_reach
+	look.set_shader_parameter("radius", new_reach)
+
+
 # clear, thick, oil, foam, glossy: how it looks (the shader's numbers).
 func dress(what: Dictionary) -> void:
 	for key: String in what:

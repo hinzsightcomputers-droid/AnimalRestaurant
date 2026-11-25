@@ -238,7 +238,7 @@ func _onto_rack() -> void:
 	var goal := session.to_local(rack_spot.call()) if rack_spot.is_valid() else session.surface(rack_surface).position
 	var tween := _dish.create_tween().set_parallel(true)
 	tween.tween_property(_dish, "position", goal + Vector3(0.0, 0.05, 0.0), 0.22).set_trans(Tween.TRANS_QUAD)
-	tween.tween_property(_dish, "rotation:x", PI * 0.5, 0.22)  # Stood up in the rack.
+	tween.tween_property(_dish, "rotation", Vector3(0.0, 0.0, session.context.get("rack_turn", PI * 0.5)), 0.22)  # Stood up in the rack.
 	tween.tween_property(_dish, "scale", Vector3.ONE * 0.7, 0.22)
 	await tween.finished
 	session.play_sound("clack", _dish.position, -4.0, 2.0)

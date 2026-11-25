@@ -66,6 +66,9 @@ round = true
 hidden = true
 slides_in = true
 depth = 0.022
+floor_at = 0.0095
+floor_radius = 0.029
+rim_radius = 0.04
 color = Color(0.96, 0.95, 0.92, 1)
 
 [node name="Model" type="Node3D" parent="DipBowl"]

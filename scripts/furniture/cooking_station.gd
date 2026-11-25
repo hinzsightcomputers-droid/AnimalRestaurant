@@ -175,12 +175,12 @@ func _sink() -> Sink:
 
 
 # Practice a recipe with no order (debug panel): nothing to hand over at the end.
-func practice(player: Player, recipe: CookRecipe) -> void:
+func practice(player: Player, recipe: CookRecipe, ingredients: Ingredients = null) -> void:
 	if session != null or minigame != null or player == null:
 		return
 	_cook = player
 	_order = null
-	_open_closeup(player, recipe)
+	_open_closeup(player, recipe, ingredients)
 
 
 # A reel's chef cooks a recipe by themselves, every step playing itself, with

@@ -9,6 +9,9 @@ extends Station
 const GROUP := "sink"
 const PLATE_MODEL := "res://design/restaurant/plate.glb"
 const COUNTER_TOP := 0.9
+const PLATE_SIZE := 0.2                   # A racked plate's across...
+const PLATE_THICK := 0.0162               # ...and how thick it is...
+const PLATE_LEAN := 0.07                  # ...leaning a little (radians), all the same way.
 const RESULT_SHOW_TIME := 0.5
 
 @export var view_manager: ViewManager     # For the close-up's mouse aiming (found if not set).
@@ -17,7 +20,7 @@ const RESULT_SHOW_TIME := 0.5
 @export var rack_slots := 14              # How many plates the rack shows (it holds any number).
 @export var bin_spot := Vector3(-1.325, COUNTER_TOP, 0.0)  # Where spare bins stack (clear of the one being washed).
 @export var rack_spot := Vector3(0.8, COUNTER_TOP, -0.05)   # The middle of the rack.
-@export var rack_width := 0.34            # From the first slot to the last.
+@export var rack_width := 0.34            # From the first slot to the last (plates never overlap: they're PLATE_THICK).
 @export_group("Close-up")
 @export var closeup_scene: PackedScene
 @export var recipe: CookRecipe
@@ -44,6 +47,9 @@ func _ready() -> void:
 		model.position = bin_spot + Vector3(0.0, i * 0.035, 0.0)
 		visual.add_child(model)
 		_bin_models.append(model)
+	var rack := KitchenProps.dish_rack(rack_slots, _rack_step(), PLATE_SIZE * 0.5)
+	rack.position = rack_spot
+	visual.add_child(rack)
 	visual.add_child(_rack_plates)
 	_refresh()
 
@@ -122,6 +128,7 @@ func _open_closeup(player: Player, bin: DishBin) -> void:
 	session.surface("Bin").add_child(model)
 	model.set_dishes(bin.dishes)
 	session.context["rack_spot"] = next_rack_spot
+	session.context["rack_turn"] = rack_turn()
 	session.context["on_racked"] = func():
 		add_clean_plate()
 		GameState.record_chef_action(player.player_index, "washed")
@@ -163,16 +170,24 @@ func _refresh() -> void:
 	for child in _rack_plates.get_children():
 		child.queue_free()
 	for i in mini(plates, rack_slots):
-		var plate := ModelFit.place(PLATE_MODEL, _rack_plates, Vector3.ZERO, Vector3(0.2, 0.0, 0.2))
+		var plate := ModelFit.place(PLATE_MODEL, _rack_plates, Vector3.ZERO, Vector3(PLATE_SIZE, 0.0, PLATE_SIZE))
 		if plate != null:
-			plate.position = _slot(i)
-			plate.rotation.z = PI * 0.5  # Standing on its edge.
+			plate.rotation.z = rack_turn()
+			plate.position = _slot(i) - plate.basis.y * PLATE_THICK * 0.5  # (It's placed by its bottom.)
 
 
 # A rack slot's middle, in the visual's coordinates: slots run left to right.
 func _slot(index: int) -> Vector3:
-	var step := rack_width / maxf(rack_slots - 1, 1)
-	return rack_spot + Vector3(-rack_width * 0.5 + index * step, 0.12, 0.0)
+	return rack_spot + Vector3(-rack_width * 0.5 + index * _rack_step(), KitchenProps.RACK_FLOOR + PLATE_SIZE * 0.5, 0.0)
+
+
+func _rack_step() -> float:
+	return rack_width / maxf(rack_slots - 1, 1)
+
+
+# How a plate on the rack is turned (about z): standing on its edge, leaning a little.
+func rack_turn() -> float:
+	return PI * 0.5 + PLATE_LEAN
 
 
 # For a reel (see ReelDirector): wash the bin in their hands, played well by

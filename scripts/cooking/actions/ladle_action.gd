@@ -158,8 +158,11 @@ func _take_bits(pot: CookSurface) -> void:
 	var here: Array = pot.contents.filter(func(bit): return is_instance_valid(bit) and bit is Node3D)
 	if here.is_empty():
 		return
-	for i in mini(BITS, maxi(here.size() / 2, 1)):
-		var bit: Node3D = here[(i * 7 + _poured * 3) % here.size()]
+	here.sort_custom(func(a, b): return _size_of(a) > _size_of(b))  # The chunks first, not just flakes of herb.
+	@warning_ignore("integer_division")
+	var among := maxi(here.size() / 2, 1)
+	for i in mini(BITS, among):
+		var bit: Node3D = here[(i * 7 + _poured * 3) % among]
 		if bit in _bits:
 			continue
 		pot.contents.erase(bit)
@@ -170,13 +173,19 @@ func _take_bits(pot: CookSurface) -> void:
 		_bits.append(bit)
 
 
+static func _size_of(bit: Node3D) -> float:
+	if bit is MeshInstance3D and (bit as MeshInstance3D).mesh != null:
+		return (bit as MeshInstance3D).get_aabb().size.length()
+	return 0.02
+
+
 # ...and goes into the bowl with the soup, to float there.
 func _drop_bits(bowl: CookSurface) -> void:
 	for i in _bits.size():
 		var bit := _bits[i]
 		bit.reparent(session)
 		var spot := Vector2.from_angle(randf() * TAU) * bowl.radius() * sqrt(randf()) * 0.5
-		var at := Vector3(bowl.position.x + spot.x, maxf(bowl.position.y + bowl.depth * _level_after(), bowl.liquid_top()), bowl.position.z + spot.y)
+		var at := Vector3(bowl.position.x + spot.x, maxf(bowl.top_when(_level_after()), bowl.liquid_top()), bowl.position.z + spot.y)
 		var fall := bit.create_tween()
 		fall.tween_interval(0.06 * i)
 		fall.tween_property(bit, "position", at, 0.2).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
@@ -204,6 +213,8 @@ func _pour(bowl: CookSurface, at: Vector3) -> void:
 	tween.tween_callback(func():
 		_pouring = 0.42
 		_pour_to = bowl
+		if bowl.level <= 0.0:
+			bowl.fill_to(0.0, pot.color)
 		_drop_bits(bowl)
 		_poured += 1
 		_scores.append(result)

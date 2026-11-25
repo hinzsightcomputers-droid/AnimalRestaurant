@@ -7,6 +7,7 @@ class_name KitchenProps
 extends RefCounted
 
 const WOOD := preload("res://assets/shaders/wood.gdshader")
+const OAK := preload("res://assets/shaders/oak.gdshader")
 const SOUP := preload("res://assets/shaders/soup.gdshader")
 
 const STEEL := Color("#D9DDD6")        # Blades and wires: light, a touch warm.
@@ -31,15 +32,100 @@ static func handle_wood() -> StandardMaterial3D:
 	return material
 
 
-# A cutting board's light wood with faint knife marks (the chopping corner's).
+# A cutting board's oak, with faint knife marks: brown enough that orange, yellow,
+# white and green food all stand out on it.
 static func board_wood() -> ShaderMaterial:
 	var material := ShaderMaterial.new()
-	material.shader = WOOD
+	material.shader = OAK
 	material.set_shader_parameter("knife_marks", 1.0)
-	material.set_shader_parameter("light_wood", Color("#EDBE88"))
-	material.set_shader_parameter("dark_wood", Color("#D9A26B"))
-	material.set_shader_parameter("grain", 40.0)
 	return material
+
+
+# Oak for things (the dish rack): the same, uncut.
+static func oak() -> ShaderMaterial:
+	var material := ShaderMaterial.new()
+	material.shader = OAK
+	return material
+
+
+# An oak rack for `slots` plates standing side by side `step` apart along x, its
+# origin the middle of its bottom: two rails front and back with pegs between the
+# plates, on a frame with rounded ends and brass studs. Plates `reach` in radius
+# stand on RACK_FLOOR.
+const RACK_FLOOR := 0.042
+static func dish_rack(slots: int, step: float, reach: float) -> Node3D:
+	var rack := Node3D.new()
+	var wood := oak()
+	wood.set_shader_parameter("figure", 0.12)
+	var long := (slots - 1) * step
+	var add := func(mesh: Mesh, at: Vector3, turn: Vector3, material: Material) -> void:
+		var part := MeshInstance3D.new()
+		part.mesh = mesh
+		part.material_override = material
+		part.position = at
+		part.rotation = turn
+		rack.add_child(part)
+	var half := reach * 0.62  # The plates rest on two bars this far front and back.
+	var bar_y := RACK_FLOOR + reach - sqrt(reach * reach - half * half)
+	for way: float in [-1.0, 1.0]:
+		add.call(_rod(0.009, long + 0.1), Vector3(0.0, bar_y - 0.011, way * half), Vector3(0.0, 0.0, PI * 0.5), wood)  # What they stand on.
+		add.call(PlaceAction.rounded_block(Vector3(long + 0.1, 0.03, 0.026), 0.009), Vector3(0.0, 0.036, way * (reach + 0.016)), Vector3.ZERO, wood)  # Along the front and back.
+		for i in slots + 1:  # A peg either side of every plate, leaning in a little.
+			var peg_x := -long * 0.5 + (i - 0.5) * step
+			add.call(_rod(0.0055, 0.105), Vector3(peg_x, 0.036 + 0.05, way * (reach * 0.9)), Vector3(way * -0.16, 0.0, 0.0), wood)
+		# The ends: an arch of wood, on feet.
+		var end_x := way * (long * 0.5 + 0.058)
+		add.call(_arch(reach + 0.016, 0.112, 0.028, 0.024), Vector3(end_x, 0.04, 0.0), Vector3.ZERO, wood)
+		add.call(PlaceAction.rounded_block(Vector3(0.026, 0.03, reach * 2.0 + 0.06), 0.009), Vector3(end_x, 0.036, 0.0), Vector3.ZERO, wood)
+		for front: float in [-1.0, 1.0]:
+			add.call(PlaceAction.rounded_block(Vector3(0.036, 0.034, 0.036), 0.01), Vector3(end_x, 0.015, front * (reach + 0.012)), Vector3.ZERO, wood)
+			var stud := SphereMesh.new()
+			stud.radius = 0.0075
+			stud.height = 0.009
+			var brass := steel(BRASS)
+			add.call(stud, Vector3(end_x, 0.037, front * (reach + 0.031)), Vector3(PI * 0.5, 0.0, 0.0), brass)
+	return rack
+
+
+# A wooden arch across z, `half` out to each side and `tall`, its band `wide` and
+# `thick` (along x), its foot's middle the origin.
+static func _arch(half: float, tall: float, wide: float, thick: float) -> ArrayMesh:
+	const PARTS := 32
+	const BEVEL := 0.005
+	var rings: Array = []
+	for k in PARTS + 1:
+		var turn := PI * k / PARTS
+		var way := Vector2(-cos(turn), pow(sin(turn), 0.55))  # (z, y)
+		var outer := Vector2(way.x * half, way.y * tall)
+		var inner := Vector2(way.x * (half - wide), way.y * (tall - wide))
+		var in_from := (inner - outer).normalized() * BEVEL
+		var x := thick * 0.5
+		var ring: Array[Vector3] = []
+		for corner in [[outer + in_from, x], [outer, x - BEVEL], [outer, BEVEL - x], [outer + in_from, -x], [inner - in_from, -x], [inner, BEVEL - x], [inner, x - BEVEL], [inner - in_from, x]]:
+			ring.append(Vector3(corner[1], corner[0].y, corner[0].x))
+		rings.append(ring)
+	var tool := SurfaceTool.new()
+	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for side in 8:
+		tool.set_smooth_group(side)
+		for k in PARTS:
+			var a: Vector3 = rings[k][side]
+			var b: Vector3 = rings[k][(side + 1) % 8]
+			var c: Vector3 = rings[k + 1][side]
+			var d: Vector3 = rings[k + 1][(side + 1) % 8]
+			for p in [a, b, c, b, d, c]:
+				tool.add_vertex(p)
+	tool.generate_normals()
+	return tool.commit()
+
+
+static func _rod(radius: float, length: float) -> CapsuleMesh:
+	var rod := CapsuleMesh.new()
+	rod.radius = radius
+	rod.height = length
+	rod.radial_segments = 16
+	rod.rings = 4
+	return rod
 
 
 # A honey butcher-block counter top: planks of slightly different tone.

@@ -5,6 +5,8 @@
 # target_radius. On a flat surface the batter goes in an outlined box (like the
 # big breakfast's): the guide ring can't leave it, and a pour stops growing at
 # its line, so nothing ever runs off the edge.
+# With lanes, it's piped along lines instead (churros): one line for each piece,
+# the nearest one left to the cursor is next, and target_radius is half its length.
 class_name PourAction
 extends CookAction
 
@@ -19,6 +21,8 @@ extends CookAction
 @export var batter_color := Color(0.96, 0.88, 0.66)
 @export var done_color := CookPiece.GOLDEN  # What it cooks to when just right (yellow for eggs).
 @export var thickness := 0.022
+@export var lanes := false                 # Piped in sticks along lines, one for each piece.
+@export var lane_gap := 0.085              # How far apart the lines are.
 @export var leaves := false                # Not batter: salad leaves, piling up as they're poured.
 @export var bottle_height := 0.2          # How high the nozzle is above the surface.
 @export var show_guide := true            # A faint ring the size of a perfect pour.
@@ -33,6 +37,9 @@ const EDGE_GAP := 0.02      # A round surface (no box): how far in from its edge
 var _bottle: Node3D
 var _stream: PourStream
 var _guide: MeshInstance3D
+var _lane_marks: Array = []                # Lanes: [faint outline, bright outline] for each...
+var _lane_done: Array[bool] = []           # ...and whether it's been piped.
+var _lane := 0                             # The one that's next.
 var _outline: Node3D = null
 var _glug: AudioStreamPlayer3D
 var _pouring: CookPiece = null
@@ -71,7 +78,14 @@ func _begin() -> void:
 	_bottle = session.make_bottle(batter_color)
 	_bottle.scale = Vector3.ONE * 0.8
 	_guide = session.make_ring(target_radius)
-	if _zone().has_area():
+	if lanes:
+		_guide.visible = false
+		for i in session.recipe.pieces:
+			var line := Rect2(_lane_start(i) + Vector2(0.0, -thickness * 0.75), Vector2(target_radius * 2.0, thickness * 1.5))
+			var height := session.surface(surface).position.y
+			_lane_marks.append([session.make_box_outline(line, height, Color(1.0, 1.0, 1.0, 0.3)), session.make_box_outline(line, height, Color(1.0, 1.0, 1.0, 0.9))])
+			_lane_done.append(false)
+	elif _zone().has_area():
 		_outline = session.make_box_outline(_zone(), session.surface(surface).position.y)
 	_glug = session.loop_sound("pour", -6.0)
 	_stream = PourStream.make(session, batter_color, 0.0085, 0.6)
@@ -81,16 +95,18 @@ func update(delta: float, input: CookInput) -> void:
 	var spot := input.cursor
 	var place := session.surface(surface)
 	spot.y = place.position.y
-	if _pouring == null:  # The guide ring never crosses the box's line (or a round surface's edge).
+	if lanes:
+		spot = _lane_spot(spot)
+	elif _pouring == null:  # The guide ring never crosses the box's line (or a round surface's edge).
 		spot = _keep_ring_in(spot, place)
 	if _pouring == null:
-		_guide.visible = show_guide
+		_guide.visible = show_guide and not lanes
 		_guide.position = spot + Vector3(0.0, 0.002, 0.0)
 		if input.just_pressed:
 			_try_start(spot)
 	elif input.held or _pouring.spread_to < target_radius * least_share:  # A quick press still pours enough to flip.
 		_area += PI * target_radius * target_radius / seconds_to_target * delta * GameState.difficulty_value("closeup_pace")  # Slower on Easy: easier to stop at the right size.
-		var largest := minf(target_radius + most_over, _room_at(_pouring.position, _pouring))  # Never into the next one or off the edge.
+		var largest := target_radius + most_over if lanes else minf(target_radius + most_over, _room_at(_pouring.position, _pouring))  # Never into the next one or off the edge.
 		_pouring.spread_to = minf(sqrt(_area / PI), largest)
 		if _pouring.spread_to >= largest:
 			_stop_pouring()
@@ -102,14 +118,15 @@ func update(delta: float, input: CookInput) -> void:
 			piece.set_radius(lerpf(piece.radius, piece.spread_to, 1.0 - exp(-spread_speed * delta)))
 
 	var pouring := _pouring != null
-	var tip := (_pouring.position if pouring else spot) + Vector3(0.0, bottle_height, 0.0)
+	var from := _pouring.position if pouring and not lanes else spot
+	var tip := from + Vector3(0.0, bottle_height, 0.0)
 	_bottle.position = _bottle.position.lerp(tip, 1.0 - exp(-20.0 * delta))
 	var tilt := deg_to_rad(-8.0 if pouring else -40.0)  # Nozzle straight down while pouring.
 	_bottle.rotation.z = lerp_angle(_bottle.rotation.z, tilt, 1.0 - exp(-14.0 * delta))
 	_bottle.rotation.x = deg_to_rad(-34.0)  # Leaning away, so the batter shows.
 	var squeezed := lerpf(_bottle.scale.x, 0.66 if pouring else 0.8, 1.0 - exp(-12.0 * delta))
 	_bottle.scale = Vector3(squeezed, 0.8, 0.8 + (0.8 - squeezed) * 0.5)
-	var land := (_pouring.position if pouring else spot) + Vector3(0.0, thickness * 0.6 if pouring else 0.0, 0.0)
+	var land := from + Vector3(0.0, thickness * 0.6 if pouring else 0.0, 0.0)
 	_stream.flow(_bottle.position, land, pouring, delta)
 	for piece in session.pieces:
 		piece.stream = 1.0 if piece == _pouring and _stream.landed else 0.0
@@ -119,6 +136,8 @@ func update(delta: float, input: CookInput) -> void:
 	elif _glug.playing:
 		_glug.stop()
 
+	if session.recipe.pieces > 1:
+		session.set_status("%d of %d" % [mini(_scores.size() + 1, session.recipe.pieces), session.recipe.pieces])
 	if _scores.size() >= session.recipe.pieces and _pouring == null:
 		finish(average(_scores))
 
@@ -133,6 +152,9 @@ func end() -> void:
 	_bottle.queue_free()
 	_stream.finish(_stream.position - Vector3(0.0, bottle_height, 0.0))
 	_guide.queue_free()
+	for marks in _lane_marks:
+		for mark: Node3D in marks:
+			mark.queue_free()
 	if _outline != null:
 		_outline.queue_free()
 
@@ -144,6 +166,9 @@ func scripted_hold(delta: float, input: CookInput) -> bool:
 	var count := session.recipe.pieces
 	if _scores.size() >= count:
 		return false
+	if lanes:
+		var start := _lane_start(_scores.size())
+		return input.move_to(Vector3(start.x + target_radius, 0.0, start.y), delta) and _lane == _scores.size()
 	var side := (_scores.size() - (count - 1) / 2.0) * SCRIPTED_GAP
 	return input.move_to(session.surface(surface).position + Vector3(side, 0.0, 0.0), delta)
 
@@ -153,16 +178,42 @@ func _try_start(spot: Vector3) -> void:
 		session.pop_text("Pour it on the %s!" % surface.to_lower(), spot, -1)
 		session.wobble(_bottle)
 		return
-	if _room_at(spot) < target_radius * least_share:  # Not even a small one fits between the others.
+	if not lanes and _room_at(spot) < target_radius * least_share:  # Not even a small one fits between the others.
 		session.pop_text("No room there", spot, -1)
 		session.wobble(_bottle)
 		return
 	_pouring = session.add_piece(batter_color, thickness, spot, surface)
 	_pouring.done_color = done_color
+	if lanes:
+		_lane_done[_lane] = true
+		_pouring.make_churro(spot.x)
 	if leaves:
 		_pouring.make_greens(target_radius)
 	_area = 0.0
 	session.wobble(_bottle, 0.12)
+
+
+# Where a lane starts (its left end, x and z in the session).
+func _lane_start(index: int) -> Vector2:
+	var middle := session.surface(surface).position
+	return Vector2(middle.x - target_radius, middle.z + (index - (session.recipe.pieces - 1) / 2.0) * lane_gap)
+
+
+# Where the nozzle is: at the start of the nearest lane that's left, or at the
+# end of what's being piped.
+func _lane_spot(spot: Vector3) -> Vector3:
+	if _pouring == null:
+		var nearest := INF
+		for i in _lane_done.size():
+			var gap := absf(_lane_start(i).y - spot.z) - (0.015 if i == _lane else 0.0)  # It doesn't flicker between two.
+			if not _lane_done[i] and gap < nearest:
+				nearest = gap
+				_lane = i
+	for i in _lane_marks.size():
+		_lane_marks[i][0].visible = not _lane_done[i] and i != _lane
+		_lane_marks[i][1].visible = i == _lane and (not _lane_done[i] or _pouring != null)
+	var start := _lane_start(_lane)
+	return Vector3(start.x + (_pouring.radius * 2.0 if _pouring != null else 0.0), spot.y, start.y)
 
 
 # Where the ring goes for a cursor at `spot`: moved in so the whole ring, and
@@ -203,7 +254,7 @@ func _stop_pouring() -> void:
 	var words := "Perfect size!" if error <= perfect_within else ("Too small" if piece.spread_to < target_radius else "Too big!")
 	if score >= 0.8 and error > perfect_within:
 		words = "Nice!"
-	if not session.surface(surface).contains(piece.position, -piece.spread_to):
+	if not lanes and not session.surface(surface).contains(piece.position, -piece.spread_to):
 		score *= 0.6
 		words = "Over the edge!"
 	piece.scores["pour"] = score

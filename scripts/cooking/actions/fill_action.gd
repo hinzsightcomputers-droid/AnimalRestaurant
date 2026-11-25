@@ -275,8 +275,8 @@ func _make_mark(target: Node3D) -> Node3D:
 	var at: Vector3
 	if not into.is_empty():
 		var pot := target as CookSurface
-		radius = pot.radius() * 0.95
-		at = Vector3(pot.position.x, pot.position.y + pot.depth * line, pot.position.z)
+		radius = (lerpf(pot.floor_radius, pot.rim_radius, sqrt(line)) if pot.floor_radius > 0.0 else pot.radius()) * 0.95
+		at = Vector3(pot.position.x, pot.top_when(line), pot.position.z)
 	else:
 		radius = CookSession.half_of(target).x * 0.9
 		at = Vector3(target.position.x, target.position.y + CookSession.top_of(target) + rim_height * line, target.position.z)

@@ -16,8 +16,11 @@ extends Node3D
 @export var slides_in := false            # Out of sight until a step uses it...
 @export var slide_from := 0.8             # ...then in from this far to the right (below zero: the left).
 @export var ledge := Vector3.ZERO          # Above zero: a counter top this big (x, thickness, z) under it.
-@export_enum("plain", "griddle", "pastry", "tray", "board", "soup") var look := "plain"  # griddle: seasoned warm steel with a heat glow and a raised rim. pastry: a pale floured pastry board. tray: a sheet pan with a rolled rim. board: a light wood cutting board (on its model too, when hidden). soup: a glossy simmering soup (tint changes its color).
+@export_enum("plain", "griddle", "pastry", "tray", "board", "soup") var look := "plain"  # griddle: seasoned warm steel with a heat glow and a raised rim. pastry: a pale floured pastry board. tray: a sheet pan with a rolled rim. board: a light wood cutting board (on its model too). soup: a glossy simmering soup (tint changes its color).
 @export var depth := 0.0                  # A container (a saucepan, a bowl): how high liquid can come up in it.
+@export var floor_at := 0.0               # ...and how high its floor really is (a bowl with a thick bottom), so a little shows on it.
+@export var floor_radius := 0.0           # Above zero: how far across its floor is (from the middle)...
+@export var rim_radius := 0.0             # ...and at `depth`: its liquid widens as it fills.
 
 var contents: Array[Node3D] = []  # What's been dropped in (e.g. chopped carrots in a pot).
 var level := 0.0                  # A container: how full it is (1 = depth).
@@ -33,9 +36,9 @@ func _ready() -> void:
 		_build_ledge()
 	if slides_in:
 		visible = false
-	if look == "board":  # A fitted stand-in model gets the wood too (a Meshy board keeps its own).
+	if look == "board":  # Its model is oak too.
 		for child in get_children():
-			if child is ModelFit and not (child as ModelFit).model.resource_path.begins_with("res://design/restaurant/"):
+			if child is ModelFit:
 				KitchenProps.dress(child, KitchenProps.board_wood())
 	if hidden:
 		return
@@ -192,7 +195,9 @@ func fill_to(new_level: float, liquid_color = null) -> void:
 	if liquid_color is Color:
 		set_liquid_color(liquid_color)
 	liquid.visible = level > 0.001
-	liquid.position.y = depth * minf(level, 1.0)
+	liquid.position.y = _top_at(level)
+	if floor_radius > 0.0:
+		liquid.set_reach(lerpf(floor_radius, rim_radius, sqrt(clampf(level, 0.0, 1.0))))
 
 
 func liquid_color() -> Color:
@@ -217,9 +222,19 @@ func set_liquid_color(new_color: Color) -> void:
 		liquid.set_color(new_color)
 
 
+# How high liquid comes at a level (over the surface).
+func _top_at(at_level: float) -> float:
+	return lerpf(floor_at, depth, minf(at_level, 1.0))
+
+
+# The same, in the session.
+func top_when(at_level: float) -> float:
+	return position.y + _top_at(at_level)
+
+
 # The top of its liquid (or of the surface, without any), in the session.
 func liquid_top() -> float:
-	return position.y + (depth * minf(level, 1.0) if liquid != null and liquid.visible else (_soup.position.y if _soup != null else 0.0))
+	return position.y + (_top_at(level) if liquid != null and liquid.visible else (_soup.position.y if _soup != null else floor_at))
 
 
 # The point moved onto this surface if it's off it, at least `inset` in from

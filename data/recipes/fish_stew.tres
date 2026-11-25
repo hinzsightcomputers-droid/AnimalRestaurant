@@ -5,6 +5,7 @@
 [ext_resource type="Script" path="res://scripts/cooking/actions/scrape_action.gd" id="3_scrape"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/stir_action.gd" id="4_stir"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/season_action.gd" id="5_season"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/ladle_action.gd" id="ladle"]
 [ext_resource type="PackedScene" path="res://scenes/cooking/soup_closeup.tscn" id="6_scene"]
 
 [sub_resource type="Resource" id="Resource_scrape"]
@@ -45,10 +46,18 @@ flake_color = Color(0.35, 0.65, 0.25, 1)
 cap_color = Color(0.3, 0.55, 0.3, 1)
 band = Vector2(0.4, 0.6)
 
+[sub_resource type="Resource" id="Resource_ladle"]
+script = ExtResource("ladle")
+title = "Ladle it out"
+view_distance = 0.58
+view_pitch = 56
+hint = "Press [button] over the pot to scoop, then move to the bowl with [stick] and press [button] over its middle to pour. Three ladles fill it."
+weight = 0.5
+
 [resource]
 script = ExtResource("1_recipe")
 display_name = "Fish Stew"
 pieces = 1
 serve_on = ""
 scene = ExtResource("6_scene")
-steps = Array[ExtResource("2_action")]([SubResource("Resource_scrape"), SubResource("Resource_stir"), SubResource("Resource_salt"), SubResource("Resource_herbs")])
+steps = Array[ExtResource("2_action")]([SubResource("Resource_scrape"), SubResource("Resource_stir"), SubResource("Resource_salt"), SubResource("Resource_herbs"), SubResource("Resource_ladle")])
