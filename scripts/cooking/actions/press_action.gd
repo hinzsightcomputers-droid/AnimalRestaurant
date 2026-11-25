@@ -96,6 +96,9 @@ func update(delta: float, input: CookInput) -> void:
 		var pot := target as CookSurface
 		_amount = minf(_amount + rise, 1.0)
 		_hiss.volume_db = lerpf(-24.0, -6.0, _amount)
+		if pot.liquid != null:
+			pot.liquid.set_boil(_amount)
+			pot.liquid.dress({ "foam": _amount * 0.7 })
 		_bubble_timer -= delta
 		if _bubble_timer <= 0.0:  # Busier as it heats up.
 			_bubble_timer = lerpf(0.5, 0.05, _amount)

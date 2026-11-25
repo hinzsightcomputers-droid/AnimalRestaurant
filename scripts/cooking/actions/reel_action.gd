@@ -28,6 +28,7 @@ var _low_time := 0.0
 var _time := 0.0
 var _band_time := 0.0
 var _tick := 0.0
+var _wake := 0.0               # Seconds to the next ring behind the fish.
 var _side := 0.0               # Where the fish has dragged the bobber sideways.
 var _tension_meter: FishingMeter
 var _progress_meter: FishingMeter
@@ -96,7 +97,7 @@ func update(delta: float, input: CookInput) -> void:
 			_pull_left = randf_range(float(seconds["min"]), float(seconds["max"]))
 			_next_pull = randf_range(_pull_gap() * 0.6, _pull_gap() * 1.4)
 			_side = clampf(_side + randf_range(-0.35, 0.35), -0.6, 0.6)
-			session.burst(_bobber.position, Color(0.8, 0.9, 1.0), 10, 0.45)
+			session.water_rings(Vector3(_bobber.position.x, session.context.get("water_y", 0.0), _bobber.position.z), 0.45, 18, 0.7)
 			session.play_sound("plop", _bobber.position, -8.0, 1.2)
 	var strength: Dictionary = _settings.get("pull_strength", { "min": 0.35, "max": 1.15 })
 	var pull := lerpf(float(strength["min"]), float(strength["max"]), _difficulty) if pulling else 0.0
@@ -163,7 +164,7 @@ func _land() -> void:
 	tween.tween_property(model, "position", show, 0.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.tween_property(model, "rotation", Vector3(0.0, PI / 2.0, 0.25), 0.5)
 	tween.chain().tween_callback(session.wobble.bind(model, 0.25))
-	session.burst(_bobber.position, Color(0.8, 0.9, 1.0), 20, 0.6)
+	session.water_rings(Vector3(_bobber.position.x, session.context.get("water_y", 0.0), _bobber.position.z), 0.7, 44, 1.1)
 	session.play_sound("plop", _bobber.position, 0.0, 0.6)
 	session.pop_text("%s! %d cm" % [name, size], show + Vector3(0.0, 0.2, 0.0), 1)
 	finish(_band_time / maxf(_time, 0.001))
@@ -196,6 +197,10 @@ func _swim(delta: float, pulling: bool) -> void:
 	at.y = water_y + (0.0 if pulling else -0.02)  # Its back breaks the surface, more so as it fights.
 	var heading := at - _swimmer.position
 	_swimmer.position = at
+	_wake -= delta * (2.5 if pulling else 1.0)
+	if _wake <= 0.0:  # A wake behind it.
+		_wake = 0.5
+		session.water_rings(Vector3(at.x, water_y, at.z), 0.22, 5 if pulling else 0, 0.5)
 	if Vector2(heading.x, heading.z).length() > 0.0001:
 		_swimmer.rotation = Vector3(0.0, atan2(-heading.x, -heading.z), sin(_time * (14.0 if pulling else 6.0)) * 0.15)
 

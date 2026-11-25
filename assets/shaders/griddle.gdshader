@@ -20,11 +20,18 @@ float hash(vec2 p) {
 	return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
+float soft_noise(vec2 p) {
+	vec2 c = floor(p);
+	vec2 f = fract(p);
+	f = f * f * (3.0 - 2.0 * f);
+	return mix(mix(hash(c), hash(c + vec2(1.0, 0.0)), f.x), mix(hash(c + vec2(0.0, 1.0)), hash(c + vec2(1.0, 1.0)), f.x), f.y);
+}
+
 void fragment() {
 	vec2 uv = local_pos.xz / size;  // -0.5..0.5 across the top.
 	// Scrape streaks: soft bands along the width, a little uneven.
 	float band = sin(local_pos.x * 140.0 + sin(local_pos.z * 11.0) * 0.8) * 0.5 + 0.5;  // Fine brushed lines along the depth, not wood grain.
-	float patch = hash(floor(local_pos.xz * 6.0)) * 0.2;
+	float patch = (soft_noise(local_pos.xz * 7.0) * 0.6 + soft_noise(local_pos.xz * 19.0) * 0.4) * 0.3;
 	float streak = smoothstep(0.7, 1.0, band) * 0.25 + patch;
 	vec3 base = mix(steel, seasoned, clamp(streak, 0.0, 1.0));
 	// Heat: an oval glow in the middle, fading to the edges.

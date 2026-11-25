@@ -14,12 +14,15 @@ hint = "Aim at the plate with [stick] and hold [button] to pile on the greens. L
 surface = "Plate"
 stack = true
 target_radius = 0.09
+leaves = true
 batter_color = Color(0.42, 0.72, 0.32, 1)
 thickness = 0.03
 
 [sub_resource type="Resource" id="Resource_1"]
 script = ExtResource("drizzle")
 title = "Whip on the foam"
+kind = "foam"
+flow_rate = 4.2e-05
 view_distance = 0.45
 hint = "Hold [button] and move to spoon the herb foam over the greens. Light and even!"
 syrup_color = Color(0.92, 0.97, 0.88, 1)
@@ -32,12 +35,15 @@ title = "Edible flower"
 view_distance = 0.45
 hint = "Plate artfully: move the flower with [stick] and press [button] to set it right on top."
 from_surface = ""
-item_size = Vector3(0.03, 0.012, 0.03)
+item_size = Vector3(0.044, 0.014, 0.044)
+item_shape = "flower"
 item_color = Color(0.95, 0.5, 0.75, 1)
 
 [sub_resource type="Resource" id="Resource_3"]
 script = ExtResource("drizzle")
 title = "Vinaigrette"
+kind = "thin"
+flow_rate = 9e-06
 view_distance = 0.45
 hint = "Just a few drops: hold [button] and move to drizzle."
 syrup_color = Color(0.85, 0.7, 0.2, 1)

@@ -148,13 +148,11 @@ func _spot(lift: float) -> Vector3:
 func _drop_shred(board: CookSurface) -> void:
 	_shredded += 1
 	var shred := MeshInstance3D.new()
-	var mesh := BoxMesh.new()
-	mesh.size = Vector3(0.03, 0.004, 0.005)
 	var material := StandardMaterial3D.new()
 	material.albedo_color = colors[_index % colors.size()]
 	material.roughness = 0.6
-	mesh.material = material
-	shred.mesh = mesh
+	material.set_meta(ToonStyle.FOOD, "cheese")
+	shred.mesh = _curl(material)
 	board.add_child(shred)
 	board.contents.append(shred)
 	var heap := Vector2.from_angle(randf() * TAU) * sqrt(randf())
@@ -163,9 +161,42 @@ func _drop_shred(board: CookSurface) -> void:
 	shred.position = Vector3(-board.size.x * 0.2 + 0.03, 0.04, 0.0)
 	shred.rotation = Vector3(randf_range(-0.3, 0.3), randf() * TAU, randf_range(-0.3, 0.3))
 	var tween := shred.create_tween()
-	tween.tween_property(shred, "position", Vector3(board.size.x * 0.22 + heap.x, layer, heap.y), 0.2).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	var rests := Vector3(board.size.x * 0.22 + heap.x, layer, heap.y)
+	tween.tween_property(shred, "position", rests, 0.24).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.parallel().tween_property(shred, "rotation", shred.rotation + Vector3(randf_range(-4.0, 4.0), randf_range(-3.0, 3.0), 0.0), 0.24)
+	tween.tween_property(shred, "position", rests + Vector3(randf_range(-0.004, 0.004), 0.008, randf_range(-0.004, 0.004)), 0.07).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(shred, "rotation", Vector3(randf_range(-0.35, 0.35), randf() * TAU, randf_range(-0.35, 0.35)), 0.14)
+	tween.tween_property(shred, "position", rests, 0.07).set_ease(Tween.EASE_IN)
 	if _shredded % 2 == 0:
 		session.play_sound("tick", _grater.position, -14.0, randf_range(0.5, 0.7))
+
+
+# A thin ribbon of cheese, curling and twisting a little.
+func _curl(material: Material) -> ArrayMesh:
+	const BITS := 9
+	var curve := randf_range(0.6, 2.0)
+	var long := randf_range(0.024, 0.04)
+	var twist := randf_range(-0.9, 0.9)
+	var tool := SurfaceTool.new()
+	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	tool.set_material(material)
+	tool.set_smooth_group(0)
+	for i in BITS + 1:
+		var t := float(i) / BITS - 0.5
+		var angle := t * curve
+		var middle := Vector3(sin(angle), 1.0 - cos(angle), 0.0) * long / curve
+		var wide := lerpf(0.0026, 0.0012, absf(t) * 2.0)
+		for spoke in 7:
+			var way := TAU * spoke / 6.0
+			var off := Vector3(0.0, sin(way) * 0.0011, cos(way) * wide).rotated(Vector3.RIGHT, twist * t)
+			tool.add_vertex(middle + off)
+	for i in BITS:
+		for spoke in 6:
+			var a := i * 7 + spoke
+			for index in [a, a + 1, a + 7, a + 1, a + 8, a + 7]:
+				tool.add_index(index)
+	tool.generate_normals()
+	return tool.commit()
 
 
 # A flat grater propped up on the board, sloping down toward the cook: a steel

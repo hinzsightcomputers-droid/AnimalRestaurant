@@ -13,6 +13,7 @@ extends CookAction
 var _spills: Array[Dictionary] = []        # { at, radius, dirt, material, crumbs }
 var _cloth := Node3D.new()
 var _last := Vector3.ZERO
+var _rubbed := 0.0                         # How far the cloth's gone since it last left a streak.
 var _swish: AudioStreamPlayer3D
 
 
@@ -39,6 +40,19 @@ func update(delta: float, input: CookInput) -> void:
 	var moved := Vector2(_cloth.position.x - _last.x, _cloth.position.z - _last.z).length() if input.held else 0.0
 	_last = _cloth.position
 	_cloth.rotation.y += moved * 6.0  # It twists as you rub.
+	_cloth.scale = _cloth.scale.lerp(Vector3(1.05, 0.75, 1.05) if input.held else Vector3.ONE, 1.0 - exp(-16.0 * delta))
+	_rubbed += moved
+	if _rubbed > 0.05:
+		_rubbed = 0.0
+		_leave_streak()
+	for spill in _spills:  # Crumbs get pushed along in front of it.
+		for crumb: Node3D in spill["crumbs"]:
+			var off := Vector2(crumb.position.x - _cloth.position.x, crumb.position.z - _cloth.position.z)
+			if input.held and off.length() < 0.075:
+				var to := off.normalized() * 0.076
+				crumb.position.x = _cloth.position.x + to.x
+				crumb.position.z = _cloth.position.z + to.y
+				crumb.rotate_y(moved * 20.0)
 	_swish.volume_db = lerpf(-40.0, -12.0, clampf(moved / maxf(delta, 0.001) / 0.6, 0.0, 1.0))
 
 	var left := 0
@@ -61,42 +75,61 @@ func update(delta: float, input: CookInput) -> void:
 
 
 func _show_dirt(spill: Dictionary) -> void:
-	spill["material"].albedo_color.a = 0.85 * spill["dirt"]
+	spill["material"].set_shader_parameter("left", spill["dirt"])
 	for crumb in spill["crumbs"]:
 		crumb.scale = Vector3.ONE * maxf(spill["dirt"], 0.01)
 
 
 func _make_spill(at: Vector3) -> Dictionary:
 	var radius := spill_radius * randf_range(0.8, 1.2)
-	var material := StandardMaterial3D.new()
-	material.albedo_color = Color(spill_color, 0.85)
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.roughness = 0.2
+	var material := _puddle(spill_color)
 	var disc := MeshInstance3D.new()
-	var mesh := CylinderMesh.new()
-	mesh.top_radius = radius
-	mesh.bottom_radius = radius
-	mesh.height = 0.002
-	mesh.material = material
+	var mesh := PlaneMesh.new()
+	mesh.size = Vector2.ONE * radius * 2.8
 	disc.mesh = mesh
+	disc.material_override = material
 	disc.position = Vector3(at.x, 0.002, at.z)
 	disc.scale = Vector3(randf_range(0.8, 1.2), 1.0, randf_range(0.8, 1.2))
 	session.add_child(disc)
 	var crumb_material := StandardMaterial3D.new()
-	crumb_material.albedo_color = spill_color.darkened(0.25)
+	crumb_material.albedo_color = spill_color.lightened(0.1)
+	crumb_material.set_meta(ToonStyle.FOOD, "baked")
 	var crumbs: Array[Node3D] = []
 	for i in crumbs_per_spill:
 		var crumb := MeshInstance3D.new()
-		var box := BoxMesh.new()
-		box.size = Vector3(0.016, 0.01, 0.012)
-		box.material = crumb_material
-		crumb.mesh = box
+		crumb.mesh = PlaceAction.rounded_block(Vector3(0.016, 0.01, 0.012) * randf_range(0.6, 1.1), 0.0035)
+		crumb.material_override = crumb_material
 		var offset := Vector2.from_angle(randf() * TAU) * randf_range(0.0, radius * 1.3)
 		crumb.position = Vector3(at.x + offset.x, 0.006, at.z + offset.y)
 		crumb.rotation.y = randf() * TAU
 		session.add_child(crumb)
 		crumbs.append(crumb)
 	return { "at": Vector3(at.x, 0.0, at.z), "radius": radius, "dirt": 1.0, "material": material, "crumbs": crumbs }
+
+
+func _puddle(color: Color) -> ShaderMaterial:
+	var look := ShaderMaterial.new()
+	look.shader = preload("res://assets/shaders/spill.gdshader")
+	look.set_shader_parameter("spill", color)
+	look.set_shader_parameter("seed", randf() * 20.0)
+	return look
+
+
+# The wet streak behind the cloth, drying away.
+func _leave_streak() -> void:
+	var streak := MeshInstance3D.new()
+	var mesh := PlaneMesh.new()
+	mesh.size = Vector2(0.15, 0.13)
+	streak.mesh = mesh
+	var look := _puddle(Color(0.95, 0.97, 1.0))
+	look.set_shader_parameter("film", 1.0)
+	streak.material_override = look
+	streak.position = Vector3(_cloth.position.x, 0.0012 + randf() * 0.0006, _cloth.position.z)
+	streak.rotation.y = randf() * TAU
+	session.add_child(streak)
+	var dry := streak.create_tween()
+	dry.tween_method(func(left: float): look.set_shader_parameter("left", left), 1.0, 0.0, 2.4).set_delay(0.3)
+	dry.tween_callback(streak.queue_free)
 
 
 # A folded cloth: a soft blue pad with a fold on top.

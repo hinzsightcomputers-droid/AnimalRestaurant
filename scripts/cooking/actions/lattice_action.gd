@@ -74,11 +74,29 @@ func _begin() -> void:
 	var red := StandardMaterial3D.new()
 	red.albedo_color = filling_color
 	red.roughness = 0.3
+	red.set_meta(ToonStyle.FOOD, "fruit")
 	mesh.material = red
 	filling.mesh = mesh
 	filling.set_meta("own_material", true)
 	filling.position.y = CookSession.top_of(_pie) + 0.003
 	_pie.add_child(filling)
+	for i in 70:  # Whole ones, heaped in their own juice.
+		var cherry := MeshInstance3D.new()
+		var ball := SphereMesh.new()
+		ball.radius = _radius * randf_range(0.07, 0.095)
+		ball.height = ball.radius * 1.8
+		ball.radial_segments = 14
+		ball.rings = 7
+		var skin := StandardMaterial3D.new()
+		skin.albedo_color = filling_color.lerp(Color(0.4, 0.02, 0.06), randf() * 0.5)
+		skin.roughness = 0.15
+		skin.set_meta(ToonStyle.FOOD, "fruit")
+		ball.material = skin
+		cherry.mesh = ball
+		cherry.set_meta("own_material", true)
+		var spot := Vector2.from_angle(i * 2.39996) * _radius * 0.8 * sqrt((i + 0.5) / 70.0)
+		cherry.position = Vector3(spot.x, CookSession.top_of(_pie) + 0.003, spot.y)
+		_pie.add_child(cherry)
 	_taken = { "across": [], "down": [] }
 	_knife = MeshInstance3D.new()
 	var blade := BoxMesh.new()

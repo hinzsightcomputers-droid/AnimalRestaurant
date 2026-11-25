@@ -10,7 +10,8 @@
 [sub_resource type="Resource" id="Resource_scrape"]
 script = ExtResource("3_scrape")
 title = "Into the pot"
-view_distance = 0.8
+view_distance = 0.6
+view_pitch = 56
 hint = "Hold [grip] on the board and carry it to the pot. Then hold [grip] and push the knife to sweep the fish in. Gently, or it splashes!"
 weight = 0.5
 piece_radius = 0.022
@@ -19,21 +20,24 @@ piece_thickness = 0.014
 [sub_resource type="Resource" id="Resource_stir"]
 script = ExtResource("4_stir")
 title = "Stir"
-view_distance = 0.7
+view_distance = 0.48
+view_pitch = 60
 hint = "Roll [stick] round counter-clockwise, the way the arrow goes, to whisk it (with the mouse, hold [grip] and circle the pot). Don't stop stirring!"
 turns = 6.0
 
 [sub_resource type="Resource" id="Resource_salt"]
 script = ExtResource("5_season")
 title = "Season: salt"
-view_distance = 0.7
+view_distance = 0.56
+view_pitch = 58
 hint = "Move the shaker over the pot with [stick] and press [button] to shake. Stop when the meter is in the green."
 weight = 0.5
 
 [sub_resource type="Resource" id="Resource_herbs"]
 script = ExtResource("5_season")
 title = "Season: herbs"
-view_distance = 0.7
+view_distance = 0.56
+view_pitch = 58
 hint = "Now the herbs. Shake [button] over the pot until the meter is in the green, then stop."
 weight = 0.5
 seasoning = "Herbs"

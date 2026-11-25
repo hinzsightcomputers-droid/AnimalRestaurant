@@ -30,6 +30,22 @@ const FROM_MESH := &"toon_from_mesh"  # Meta on a toon material: its original wa
 const TWINS := [&"toon_twin", &"toon_twin_mesh"]  # Meta on an original: its toon material (as an override, as the mesh's own).
 const ORIGINALS := &"toon_originals"  # Meta on a mesh: the override materials its toon ones replaced, {slot: material} (-1: the whole mesh's), so they live on for switching back.
 const THIN := &"toon_thin"  # Meta on a mesh in a close-up, and on its toon materials: a thinner outline.
+const FOOD := &"toon_food"  # Meta on a material: it's food, of this kind (FOOD_KINDS): drawn by soft_toon_food, with a texture of its own, instead.
+const FOOD_SHADER := preload("res://assets/shaders/soft_toon_food.gdshader")
+# How each kind of food looks. grain: how fine its texture is (per meter); mottle:
+# how patchy its color; bumps; shine; dust: a floury bloom on top; soft: how much light gets into it.
+const FOOD_KINDS := {
+	"cooked": { "grain": 60.0, "mottle": 0.16, "bumps": 0.5, "shine_amount": 0.1, "dust": 0.0, "soft": 0.25 },
+	"dough": { "grain": 46.0, "mottle": 0.07, "bumps": 0.35, "shine_amount": 0.04, "dust": 0.12, "soft": 0.45 },
+	"baked": { "grain": 70.0, "mottle": 0.3, "bumps": 0.9, "shine_amount": 0.16, "dust": 0.0, "soft": 0.2 },
+	"butter": { "grain": 30.0, "mottle": 0.05, "bumps": 0.1, "shine_amount": 0.75, "dust": 0.0, "soft": 0.6 },
+	"cheese": { "grain": 40.0, "mottle": 0.06, "bumps": 0.15, "shine_amount": 0.35, "dust": 0.0, "soft": 0.5 },
+	"meat": { "grain": 55.0, "mottle": 0.22, "bumps": 0.6, "shine_amount": 0.4, "dust": 0.0, "soft": 0.3 },
+	"veg": { "grain": 45.0, "mottle": 0.1, "bumps": 0.18, "shine_amount": 0.4, "dust": 0.0, "soft": 0.2 },
+	"pasta": { "grain": 50.0, "mottle": 0.06, "bumps": 0.15, "shine_amount": 0.55, "dust": 0.0, "soft": 0.5 },
+	"egg": { "grain": 34.0, "mottle": 0.08, "bumps": 0.22, "shine_amount": 0.35, "dust": 0.0, "soft": 0.45 },
+	"fruit": { "grain": 40.0, "mottle": 0.18, "bumps": 0.2, "shine_amount": 0.8, "dust": 0.0, "soft": 0.5 },
+}
 const SKIP := &"toon_skip"  # Meta on a material that keeps its own look (glossy syrup reads as liquid, not a toon blob).
 const MESHY_SHADER := preload("res://assets/shaders/meshy_surface.gdshader")
 const MESHY_MAX_BLUR := 1.0  # A Meshy texture's blurriest mip level (see meshy_surface.gdshader).
@@ -247,7 +263,7 @@ static func _toon_for(original: Material, from_mesh: bool, thin := false, bare :
 		toon.set_meta(THIN, thin)
 		if bare:
 			toon.set_shader_parameter("max_blur", MESHY_MAX_BLUR)
-		else:
+		elif not original.has_meta(FOOD):  # (Food has none: it'd be thicker than a bit of cheese.)
 			var outline := ShaderMaterial.new()
 			outline.shader = OUTLINE
 			toon.next_pass = outline
@@ -270,9 +286,18 @@ static func _sync(toon: ShaderMaterial) -> void:
 	if original == null:
 		return
 	var shader := TOON_DOUBLE if original.cull_mode == BaseMaterial3D.CULL_DISABLED else TOON
-	if toon.shader != shader:
+	if original.has_meta(FOOD):
+		shader = FOOD_SHADER
+	var kind := String(original.get_meta(FOOD, ""))
+	if toon.shader != shader or toon.get_meta(FOOD, "") != kind:
 		toon.shader = shader
 		_style_toon(toon)
+		toon.set_meta(FOOD, kind)
+		if not kind.is_empty():
+			toon.next_pass = null
+		var look: Dictionary = FOOD_KINDS.get(kind, {})
+		for parameter in look:
+			toon.set_shader_parameter(parameter, look[parameter])
 	_set_param(toon, "base_color", original.albedo_color)
 	_set_param(toon, "base_texture", original.albedo_texture)
 	_set_param(toon, "roughness", original.roughness)

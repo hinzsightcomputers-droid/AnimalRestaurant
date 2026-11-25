@@ -24,7 +24,7 @@ extends CookAction
 @export var item_color := Color(1.0, 0.92, 0.55)
 @export var melt_seconds := 0.0           # Above 0, it melts into a puddle over this long.
 @export var anywhere := false             # Fine anywhere on the target (bacon beside the eggs), not just on the food.
-@export_enum("block", "toast_half") var item_shape := "block"  # toast_half: a slice cut corner to corner, its point down the plate.
+@export_enum("block", "toast_half", "flower") var item_shape := "block"  # toast_half: a slice cut corner to corner, its point down the plate.
 @export var aim_at := false              # Score how near a spot on the target it lands (aim, off the middle), marked with a ring.
 @export var aim := Vector2.ZERO
 @export_group("Feel")
@@ -216,6 +216,7 @@ func _hop(piece: CookPiece) -> void:
 	var from_turn := piece.rotation.y
 	piece.surface = ""  # Off the heat: it's scored when it lands.
 	piece.busy = true
+	piece.droop = 0.014
 	session.stack_push(target, piece, at, piece.thickness)
 	piece.scores["place"] = 1.0
 	_scores.append(1.0)
@@ -232,6 +233,7 @@ func _hop(piece: CookPiece) -> void:
 	tween.tween_callback(func():
 		_landing -= 1
 		piece.busy = false
+		piece.droop = 0.0
 		piece.surface = target
 		if _riding == piece:
 			_riding = null
@@ -240,7 +242,10 @@ func _hop(piece: CookPiece) -> void:
 				_queued = null
 				_hop(next)
 			_queued = null
-		session.wobble(piece, 0.18)
+		session.wobble(piece, 0.3)
+		for under in session.pieces_on(target):  # What it lands on gives too.
+			if under != piece:
+				session.wobble(under, 0.16)
 		session.play_sound("plop", at)
 		session.burst(at + Vector3(0.0, 0.01, 0.0), Color(1.0, 0.95, 0.8), 8, 0.2))
 
@@ -300,19 +305,40 @@ func _aim_spot() -> Vector3:
 func _make_item() -> Node3D:
 	if item_shape == "toast_half":
 		return _make_toast_half()
+	if item_shape == "flower":
+		return _make_flower()
 	var item := Node3D.new()
 	var block := MeshInstance3D.new()
-	var mesh := BoxMesh.new()
-	mesh.size = item_size
+	block.mesh = rounded_block(item_size, minf(item_size.x, minf(item_size.y, item_size.z)) * 0.32)
 	var material := StandardMaterial3D.new()
 	material.albedo_color = item_color
-	material.roughness = 0.4
-	mesh.material = material
-	block.mesh = mesh
+	material.roughness = 0.28 if melt_seconds > 0.0 else 0.5
+	material.set_meta(ToonStyle.FOOD, "butter" if melt_seconds > 0.0 else "cooked")
+	block.material_override = material
 	block.position.y = item_size.y * 0.5
 	item.add_child(block)
 	session.add_child(item)
 	return item
+
+
+# A box with soft, rounded corners, its middle at the origin.
+static func rounded_block(size: Vector3, corner: float) -> ArrayMesh:
+	var ball := SphereMesh.new()
+	ball.radius = corner
+	ball.height = corner * 2.0
+	ball.radial_segments = 24
+	ball.rings = 11
+	var arrays := ball.get_mesh_arrays()
+	var points: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	var inner := (size * 0.5 - Vector3.ONE * corner).max(Vector3.ZERO)
+	for i in points.size():  # Each eighth of the ball out to its corner.
+		var p := points[i]
+		points[i] = p + Vector3(inner.x * (1.0 if p.x >= 0.0 else -1.0), inner.y * (1.0 if p.y >= 0.0 else -1.0), inner.z * (1.0 if p.z >= 0.0 else -1.0))
+	arrays[Mesh.ARRAY_VERTEX] = points
+	arrays[Mesh.ARRAY_TANGENT] = null
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return mesh
 
 
 # A slice of toast cut corner to corner, item_size.x along its cut edge: a
@@ -334,6 +360,7 @@ func _make_toast_half() -> Node3D:
 		var material := StandardMaterial3D.new()
 		material.albedo_color = layer[2]
 		material.roughness = 0.7
+		material.set_meta(ToonStyle.FOOD, "baked")
 		mesh.material = material
 		var slab := MeshInstance3D.new()
 		slab.mesh = mesh
@@ -345,22 +372,66 @@ func _make_toast_half() -> Node3D:
 	return item
 
 
-# Slumps and spreads a shiny puddle under itself.
+# A little flower lying open: two rings of cupped petals round a yellow middle.
+func _make_flower() -> Node3D:
+	var item := Node3D.new()
+	var reach := item_size.x * 0.5
+	for ring in 2:
+		for i in 6:
+			var petal := MeshInstance3D.new()
+			var ball := SphereMesh.new()
+			ball.radius = reach * 0.34
+			ball.height = reach * 0.68
+			ball.radial_segments = 20
+			ball.rings = 10
+			var paint := StandardMaterial3D.new()
+			paint.albedo_color = item_color.lightened(0.3 * ring + randf() * 0.1)
+			paint.roughness = 0.6
+			paint.set_meta(ToonStyle.FOOD, "egg")
+			ball.material = paint
+			petal.mesh = ball
+			var turn := TAU * (i + ring * 0.5) / 6.0
+			var far := reach * (0.62 - 0.26 * ring)
+			petal.position = Vector3(cos(turn) * far, item_size.y * (0.3 + 0.3 * ring), sin(turn) * far)
+			petal.rotation = Vector3(0.0, -turn, 0.32 + 0.2 * ring)
+			petal.scale = Vector3(1.15, 0.2, 0.85) * (1.0 - 0.2 * ring)
+			item.add_child(petal)
+	var middle := MeshInstance3D.new()
+	var heart := SphereMesh.new()
+	heart.radius = reach * 0.22
+	heart.height = reach * 0.3
+	var gold := StandardMaterial3D.new()
+	gold.albedo_color = Color(0.98, 0.78, 0.2)
+	gold.set_meta(ToonStyle.FOOD, "baked")
+	heart.material = gold
+	middle.mesh = heart
+	middle.position.y = item_size.y * 0.75
+	item.add_child(middle)
+	session.add_child(item)
+	return item
+
+
+# Softens and slumps, sliding a little, its melted butter running out from under
+# it over the food (a SauceSheet).
 func _melt(item: Node3D) -> void:
-	var puddle := MeshInstance3D.new()
-	var mesh := CylinderMesh.new()
-	mesh.top_radius = 1.0
-	mesh.bottom_radius = 1.0
-	mesh.height = 0.002
-	var material := StandardMaterial3D.new()
-	material.albedo_color = Color(item_color, 0.75)
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.roughness = 0.1
-	mesh.material = material
-	puddle.mesh = mesh
-	puddle.position.y = 0.001
-	puddle.scale = Vector3(item_size.x * 0.4, 1.0, item_size.x * 0.4)
-	item.add_child(puddle)
+	var sheet := session.make_sauce(target, "butter", item_color.darkened(0.12))
+	sheet.look_under(func(point: Vector2) -> float:  # It runs under the pat, not over it.
+		var place := session.surface(target)
+		if not place.contains(Vector3(point.x, 0.0, point.y), -0.004):
+			return INF
+		var top := place.position.y
+		for piece in session.pieces_on(target):
+			top = maxf(top, piece.height_at(point))
+		return top)
 	var tween := item.create_tween().set_parallel(true)
-	tween.tween_property(item, "scale", Vector3(1.2, 0.55, 1.2), melt_seconds).set_ease(Tween.EASE_OUT)
-	tween.tween_property(puddle, "scale", Vector3(item_size.x * 1.1, 1.0, item_size.x * 1.1), melt_seconds).set_ease(Tween.EASE_OUT)
+	tween.tween_property(item, "scale", Vector3(1.22, 0.5, 1.22), melt_seconds).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(item, "position", item.position + Vector3(randf_range(-0.006, 0.006), 0.0, 0.007), melt_seconds * 1.5).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(item, "rotation:y", item.rotation.y + randf_range(-0.25, 0.25), melt_seconds * 1.5).set_trans(Tween.TRANS_SINE)
+	var ran := [0.0]
+	tween.tween_method(func(t: float):
+		if not is_instance_valid(sheet):
+			return
+		var size := item_size.x * 0.55
+		var spot := Vector2(item.position.x, item.position.z) + Vector2.from_angle(randf() * TAU) * size * 0.9
+		sheet.pour(spot, 0.0000052 * (t - ran[0]), 0.011)
+		ran[0] = t, 0.0, 1.0, melt_seconds * 2.0)

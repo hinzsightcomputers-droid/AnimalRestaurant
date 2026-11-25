@@ -130,6 +130,7 @@ func _open_closeup(player: Player, bin: DishBin) -> void:
 	var zoom: CameraZoomSettings = closeup_zoom.duplicate()
 	zoom.yaw_degrees = rad_to_deg(global_rotation.y)  # From in front of the sink, however it turns.
 	player.request_camera_focus(global_transform * closeup_look_offset, zoom)
+	session.home_view = [global_transform * closeup_look_offset, zoom]
 	player.hide_from_own_view(true)  # The chef would stand in the way.
 	session.finished.connect(_on_washed)
 	var views := view_manager if view_manager != null else get_tree().root.find_children("*", "ViewManager", true, false).front() as ViewManager

@@ -318,6 +318,7 @@ func _make_hand() -> Node3D:
 	material.roughness = 0.5
 	if kind == "egg":
 		material.albedo_color = Color(0.96, 0.9, 0.8)
+		material.set_meta(ToonStyle.FOOD, "cooked")
 		_top_shell = _half_shell(material, false)
 		_bottom_shell = _half_shell(material, true)
 		hand.add_child(_top_shell)

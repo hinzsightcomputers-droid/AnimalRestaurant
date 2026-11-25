@@ -23,7 +23,9 @@ extends CookAction
 @export var splash_every := 0.2           # Seconds between splashes while stirring too fast.
 @export var melt := false                 # What's been dropped in (its stack) melts away as you stir.
 @export var tint_to := Color(0, 0, 0, 0)  # The liquid turns this color as you stir (none if see-through).
+@export var melt_level := 0.0             # What melts in brings the liquid up to this (of the pot's depth).
 @export var coat := false                 # What else is in there takes on tint_to as well (macaroni in its sauce).
+@export var thick_look := 0.0             # 1: a batter: the whisk's marks stay in it.
 @export var lumps := 0                    # Lumps of flour that stir out.
 @export_enum("whisk", "spatula", "spoon") var tool := "whisk"
 
@@ -44,7 +46,11 @@ var _arrow: Node3D
 var _wrong_way := 99.0                    # Seconds since they last stirred clockwise.
 var _melting: Array[Node3D] = []           # Shrinking away as it's stirred (melt, lumps).
 var _from_color := Color.WHITE
+var _from_level := 0.0
+var _clear := 0.0                         # How see-through its liquid was.
 var _scripted_angle := 0.0
+var _last_spot := Vector2.INF
+var _wake := 0.0                          # How far the whisk's gone since its last ring.
 var _coated := {}                         # coat: material -> the color it started.
 
 
@@ -65,6 +71,11 @@ func _begin() -> void:
 	if melt and pot.depth > 0.0 and (pot.liquid == null or not pot.liquid.visible) and tint_to.a > 0.0:
 		pot.fill_to(0.05, tint_to)  # What melts makes a little pool.
 	_from_color = pot.liquid_color()
+	_from_level = pot.level
+	if pot.liquid != null:
+		var was_clear = pot.liquid.look.get_shader_parameter("clear")
+		_clear = was_clear if was_clear is float else 0.0
+		pot.liquid.set_boil(0.0)
 	if melt:
 		for entry in session.stack_of(in_surface):
 			_melting.append(entry["node"])
@@ -81,12 +92,15 @@ func _begin() -> void:
 		mesh.height = mesh.radius * 1.4
 		var flour := StandardMaterial3D.new()
 		flour.albedo_color = Color(0.97, 0.96, 0.92)
+		flour.set_meta(ToonStyle.FOOD, "dough")
 		mesh.material = flour
 		lump.mesh = mesh
 		var spot := Vector2.from_angle(randf() * TAU) * randf_range(0.2, 0.75) * pot.radius()
 		lump.position = Vector3(spot.x, pot.liquid_top() - pot.position.y, spot.y)
 		pot.add_child(lump)
 		pot.contents.append(lump)
+		if pot.in_it() != null:
+			pot.in_it().float_thing(lump, mesh.radius * 0.35)
 		_melting.append(lump)
 	_swish = session.loop_sound("drizzle", -30.0)
 	_swish.position = pot.position
@@ -94,7 +108,7 @@ func _begin() -> void:
 	_steam = session.make_steam(pot.radius())
 	_steam.position = pot.position
 	session.add_child(_steam)
-	_steam.emitting = true
+	_steam.emitting = String(in_surface) in ["Pot", "Saucepan"]  # (A bowl of batter's cold.)
 	_arrow = _make_arrow(pot.radius() * 1.3)
 	_arrow.position = pot.position + Vector3(0.0, 0.03, 0.0)
 
@@ -160,9 +174,24 @@ func update(delta: float, input: CookInput) -> void:
 	_whisk.rotation = Vector3(rest.y * 0.3, 0.0, -rest.x * 0.3)
 	_whisk.rotate_y(_spin * delta)  # A little twist as it goes round.
 
+	# The soup goes round with it, dipping in the middle and slopping at the whisk.
+	var soup := pot.in_it()
+	if soup != null:
+		soup.spin = _spin * 0.8
+		soup.dragging = stirring
+		if stirring:
+			var pushed := Vector2(cos(_angle), sin(_angle))
+			soup.knock(pushed * minf(_speed, 3.0) * 0.16 * delta)
+			if _last_spot != Vector2.INF:
+				_wake += _last_spot.distance_to(pushed)
+			_last_spot = pushed
+			if _wake > 0.45:
+				_wake = 0.0
+				soup.splash(pushed * pot.radius() * reach, 0.0012 + minf(_speed, 3.0) * 0.0007)
+		soup.dress({ "thick": thick_look })
 	# What's in the pot swirls round with the soup.
 	for item in pot.contents:
-		if not is_instance_valid(item):
+		if not is_instance_valid(item) or soup != null and soup.carries(item):
 			continue
 		var origin := pot.position if item.get_parent() == session else Vector3.ZERO  # In the pot's own space, or the session's.
 		var offset := item.position - Vector3(origin.x, item.position.y, origin.z)
@@ -176,6 +205,9 @@ func update(delta: float, input: CookInput) -> void:
 			item.scale = Vector3.ONE * maxf(1.0 - share * 1.15, 0.001)
 	if tint_to.a > 0.0:
 		pot.set_liquid_color(_from_color.lerp(tint_to, share))
+		if pot.liquid != null and melt:  # It clouds, thickens and comes up as everything melts into it.
+			pot.liquid.dress({ "clear": clampf(_clear * (1.0 - share * 3.0), 0.0, 1.0), "foam": 0.0, "thick": maxf(thick_look, share * 0.5), "glossy": 0.85 })
+			pot.fill_to(lerpf(_from_level, maxf(_from_level, melt_level), share))
 	for material: StandardMaterial3D in _coated:
 		material.albedo_color = (_coated[material] as Color).lerp(tint_to, share * 0.8)
 
@@ -228,7 +260,7 @@ func _make_spatula() -> Node3D:
 func _make_arrow(arc_radius: float) -> Node3D:
 	var arrow := Node3D.new()
 	var paint := StandardMaterial3D.new()
-	paint.albedo_color = Color(1.0, 0.85, 0.3, 0.95)
+	paint.albedo_color = Color(1.0, 0.85, 0.3, 0.8)
 	paint.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	paint.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	paint.no_depth_test = true  # Over the pot's rim.
@@ -240,7 +272,7 @@ func _make_arrow(arc_radius: float) -> Node3D:
 		var angle := -float(i) / DASHES * SWEEP  # Down the angle: counter-clockwise on screen.
 		var dash := MeshInstance3D.new()
 		var mesh := BoxMesh.new()
-		mesh.size = Vector3(arc_radius * SWEEP / DASHES * 0.7, 0.004, 0.024)
+		mesh.size = Vector3(arc_radius * SWEEP / DASHES * 0.62, 0.003, 0.011)
 		mesh.material = paint
 		dash.mesh = mesh
 		dash.position = Vector3(cos(angle), 0.0, sin(angle)) * arc_radius
@@ -250,8 +282,8 @@ func _make_arrow(arc_radius: float) -> Node3D:
 	var head := MeshInstance3D.new()
 	var cone := CylinderMesh.new()
 	cone.top_radius = 0.0
-	cone.bottom_radius = 0.045
-	cone.height = 0.07
+	cone.bottom_radius = 0.022
+	cone.height = 0.042
 	cone.material = paint
 	head.mesh = cone
 	head.position = Vector3(cos(end_angle), 0.0, sin(end_angle)) * arc_radius

@@ -32,6 +32,7 @@ func _begin() -> void:
 	_bobber = session.context["bobber"]
 	_rod = session.context.get("rod")
 	_rest = session.context.get("cast_at", _bobber.position)
+	_dip = 0.06  # Just landed: under, and up again.
 	_fish = Fishing.pick(session.context.get("habitat", "pond"))
 	var wait: Dictionary = _settings.get("wait_seconds", { "min": 3.0, "max": 8.0 })
 	_wait = randf_range(float(wait["min"]), float(wait["max"]))
@@ -76,7 +77,7 @@ func update(delta: float, input: CookInput) -> void:
 			_dip = BITE_DIP
 			session.play_sound("plop", _rest, 2.0, 0.6)
 			session.play_sound("ding", _rest, -2.0, 1.5)  # The tell: a fish is on!
-			session.burst(_rest, Color(0.8, 0.9, 1.0), 16, 0.5)
+			session.water_rings(_rest, 0.5, 30, 0.8)
 			session.pop_text("!", _rest + Vector3(0.0, 0.15, 0.0), 1)
 		session.set_status("Watch the bobber...")
 		return

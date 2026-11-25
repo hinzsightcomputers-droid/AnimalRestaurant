@@ -19,6 +19,7 @@ extends CookAction
 @export var batter_color := Color(0.96, 0.88, 0.66)
 @export var done_color := CookPiece.GOLDEN  # What it cooks to when just right (yellow for eggs).
 @export var thickness := 0.022
+@export var leaves := false                # Not batter: salad leaves, piling up as they're poured.
 @export var bottle_height := 0.2          # How high the nozzle is above the surface.
 @export var show_guide := true            # A faint ring the size of a perfect pour.
 @export var stack := false                # Poured straight onto a plate: it starts the plate's stack, so toppings and drizzles go on it.
@@ -30,7 +31,7 @@ const GAP_BETWEEN := 0.004  # Pieces stop growing this far from each other (and 
 const EDGE_GAP := 0.02      # A round surface (no box): how far in from its edge.
 
 var _bottle: Node3D
-var _stream: MeshInstance3D
+var _stream: PourStream
 var _guide: MeshInstance3D
 var _outline: Node3D = null
 var _glug: AudioStreamPlayer3D
@@ -68,21 +69,12 @@ func uses_cursor() -> bool:
 
 func _begin() -> void:
 	_bottle = session.make_bottle(batter_color)
+	_bottle.scale = Vector3.ONE * 0.8
 	_guide = session.make_ring(target_radius)
 	if _zone().has_area():
 		_outline = session.make_box_outline(_zone(), session.surface(surface).position.y)
 	_glug = session.loop_sound("pour", -6.0)
-	_stream = MeshInstance3D.new()
-	var mesh := CylinderMesh.new()
-	mesh.top_radius = 0.006
-	mesh.bottom_radius = 0.008
-	mesh.height = 1.0
-	var material := StandardMaterial3D.new()
-	material.albedo_color = batter_color
-	mesh.material = material
-	_stream.mesh = mesh
-	_stream.visible = false
-	session.add_child(_stream)
+	_stream = PourStream.make(session, batter_color, 0.0085, 0.6)
 
 
 func update(delta: float, input: CookInput) -> void:
@@ -114,10 +106,14 @@ func update(delta: float, input: CookInput) -> void:
 	_bottle.position = _bottle.position.lerp(tip, 1.0 - exp(-20.0 * delta))
 	var tilt := deg_to_rad(-8.0 if pouring else -40.0)  # Nozzle straight down while pouring.
 	_bottle.rotation.z = lerp_angle(_bottle.rotation.z, tilt, 1.0 - exp(-14.0 * delta))
-	_stream.visible = pouring
+	_bottle.rotation.x = deg_to_rad(-34.0)  # Leaning away, so the batter shows.
+	var squeezed := lerpf(_bottle.scale.x, 0.66 if pouring else 0.8, 1.0 - exp(-12.0 * delta))
+	_bottle.scale = Vector3(squeezed, 0.8, 0.8 + (0.8 - squeezed) * 0.5)
+	var land := (_pouring.position if pouring else spot) + Vector3(0.0, thickness * 0.6 if pouring else 0.0, 0.0)
+	_stream.flow(_bottle.position, land, pouring, delta)
+	for piece in session.pieces:
+		piece.stream = 1.0 if piece == _pouring and _stream.landed else 0.0
 	if pouring:
-		_stream.position = _pouring.position + Vector3(0.0, bottle_height * 0.5, 0.0)
-		_stream.scale = Vector3(1.0, bottle_height, 1.0)
 		if not _glug.playing:
 			_glug.play()
 	elif _glug.playing:
@@ -131,9 +127,11 @@ func end() -> void:
 	for piece in session.pieces:  # The last pour finishes spreading by itself.
 		if piece.radius < piece.spread_to:
 			piece.create_tween().tween_method(piece.set_radius, piece.radius, piece.spread_to, 0.5).set_ease(Tween.EASE_OUT)
+	for piece in session.pieces:
+		piece.stream = 0.0
 	_glug.stop()
 	_bottle.queue_free()
-	_stream.queue_free()
+	_stream.finish(_stream.position - Vector3(0.0, bottle_height, 0.0))
 	_guide.queue_free()
 	if _outline != null:
 		_outline.queue_free()
@@ -161,6 +159,8 @@ func _try_start(spot: Vector3) -> void:
 		return
 	_pouring = session.add_piece(batter_color, thickness, spot, surface)
 	_pouring.done_color = done_color
+	if leaves:
+		_pouring.make_greens(target_radius)
 	_area = 0.0
 	session.wobble(_bottle, 0.12)
 

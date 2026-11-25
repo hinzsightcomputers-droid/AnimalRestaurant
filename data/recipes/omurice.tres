@@ -16,8 +16,9 @@ background = true
 [sub_resource type="Resource" id="Resource_1"]
 script = ExtResource("pour")
 title = "Pour the eggs"
+zone_size = Vector2(0.84, 0.36)
 hint = "Aim with [stick] and hold [button] to pour. Let go when it fills the ring."
-view_distance = 0.7
+view_distance = 0.58
 batter_color = Color(0.98, 0.84, 0.32, 1)
 done_color = Color(1, 0.8, 0.22, 1)
 
@@ -25,13 +26,13 @@ done_color = Color(1, 0.8, 0.22, 1)
 script = ExtResource("fold")
 title = "Fold it in half"
 hint = "When \"Fold!\" pops up, press [button] on it to slide the spatula under, then [flick_up] to fold it over."
-view_distance = 0.7
+view_distance = 0.58
 
 [sub_resource type="Resource" id="Resource_3"]
 script = ExtResource("flip")
 title = "Flip it"
 hint = "When \"Flip!\" pops up, press [button] on it to slide the spatula under, then [flick_up] to flip it."
-view_distance = 0.7
+view_distance = 0.58
 
 [sub_resource type="Resource" id="Resource_4"]
 script = ExtResource("place")
@@ -44,8 +45,12 @@ view_distance = 0.95
 [sub_resource type="Resource" id="Resource_5"]
 script = ExtResource("drizzle")
 title = "Draw with ketchup"
+kind = "ketchup"
+flow_rate = 6e-06
+line_radius = 0.009
 hint = "Hold [button] and draw one squiggly line of ketchup over it, then let go."
-view_distance = 0.45
+view_distance = 0.36
+view_pitch = 50.0
 syrup_color = Color(0.8, 0.1, 0.06, 1)
 target_coverage = 0.12
 one_stroke = true

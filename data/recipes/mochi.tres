@@ -51,6 +51,7 @@ view_distance = 0.5
 [sub_resource type="Resource" id="Resource_3"]
 script = ExtResource("stir")
 title = "Whisk until smooth"
+thick_look = 0.5
 cue = "Mix!"
 hint = "Roll [stick] round counter-clockwise, the way the arrow goes, to whisk out the lumps (with the mouse, hold [grip] and circle the bowl). Don't stop stirring!"
 in_surface = "Bowl"
@@ -70,6 +71,7 @@ cooked_color = Color(0.8, 0.9, 0.7, 1)
 [sub_resource type="Resource" id="Resource_5"]
 script = ExtResource("stir")
 title = "Fold the dough"
+thick_look = 1.0
 cue = "Fold!"
 hint = "Roll [stick] round counter-clockwise to fold the sticky dough over with the whisk (with the mouse, hold [grip] and circle the bowl)."
 in_surface = "Bowl"

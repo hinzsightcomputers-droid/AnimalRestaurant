@@ -29,6 +29,8 @@ var _volume := 0.0
 var _dough: MeshInstance3D
 var _box := BoxMesh.new()
 var _pin: Node3D
+var _squash := 0.0                         # How squashed the dough is, springing back.
+var _springing := 0.0
 var _last := Vector3.ZERO
 var _rolling := false
 var _center := Vector3.ZERO
@@ -67,6 +69,7 @@ func _begin() -> void:
 		_box = _dough.mesh as BoxMesh
 		_size = sheet["size"]
 		_volume = _size.x * _size.y * _box.size.y
+		_dough.scale = Vector3.ONE
 		var slide := _dough.create_tween()  # Back to the middle of the counter, with room all round it.
 		slide.tween_property(_dough, "position:x", _center.x, 0.3).set_trans(Tween.TRANS_QUAD)
 		slide.parallel().tween_property(_dough, "position:z", _center.z, 0.3).set_trans(Tween.TRANS_QUAD)
@@ -76,6 +79,7 @@ func _begin() -> void:
 		var material := StandardMaterial3D.new()
 		material.albedo_color = session.ingredients.color() if session.ingredients != null else dough_color
 		material.roughness = 0.85
+		material.set_meta(ToonStyle.FOOD, "dough")
 		_box.material = material
 		_dough = MeshInstance3D.new()
 		_dough.mesh = _box
@@ -102,6 +106,15 @@ func update(delta: float, input: CookInput) -> void:
 	var goal := Vector3(spot.x, _center.y + (_thickness() if pressing else _thickness() + 0.05), spot.z)
 	var moved := spot - _last
 	_last = spot
+	# Soft: it squashes under the pin and springs back.
+	var soft := _dough.get_node_or_null("Soft") as Node3D
+	if soft != null:
+		_springing += (((-0.16 if pressing else 0.0) - _squash) * 260.0 - _springing * 13.0) * minf(delta, 0.03)
+		_squash += _springing * minf(delta, 0.03)
+		soft.scale = Vector3(1.0 - _squash * 0.06, 1.0 + _squash, 1.0 - _squash * 0.06)
+		soft.position.y = _thickness() * 0.5 * _squash
+	if pressing and _rolling and moved.length() > 0.004 and randf() < 0.25:  # A puff of flour.
+		session.burst(Vector3(spot.x, _center.y + _thickness(), spot.z), Color(1.0, 0.98, 0.94, 0.5), 2, 0.12)
 	if pressing and _rolling and moved.length() > 0.0005:
 		# Grow the way it's rolled, keeping the dough's volume.
 		_size.x += absf(moved.x) * stretch
@@ -145,6 +158,69 @@ func _point_arrow(delta: float) -> void:
 	_arrow.scale = _arrow.scale.lerp(Vector3(pulse, 1.0, pulse), 1.0 - exp(-10.0 * delta))
 
 
+# A sheet of dough drawn soft: rounded edges and a hand-rolled outline, in place
+# of the box it's kept as (cutting and folding go by the box).
+static func round_off(dough: MeshInstance3D) -> void:
+	var box := dough.mesh as BoxMesh
+	var soft := dough.get_node_or_null("Soft") as MeshInstance3D
+	if soft == null:
+		soft = MeshInstance3D.new()
+		soft.name = "Soft"
+		soft.material_override = box.material
+		dough.add_child(soft)
+		dough.transparency = 1.0
+		dough.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	soft.mesh = _soft_sheet(box.size)
+
+
+static func _soft_sheet(size: Vector3) -> ArrayMesh:
+	const ROUND := 72
+	const SIDE := 7
+	var corner := minf(minf(size.x, size.z) * 0.32, 0.05)
+	var bulge := minf(size.y * 0.5, 0.02)
+	var points := PackedVector3Array()
+	var normals := PackedVector3Array()
+	var indices := PackedInt32Array()
+	var loops := SIDE + 3  # The bottom's middle, the side from bottom to top, a ring in, the top's middle.
+	for loop in loops:
+		for i in ROUND + 1:
+			var angle := TAU * i / ROUND
+			var way := Vector2(cos(angle), sin(angle))
+			# Out along the rounded rectangle (a superellipse), a little uneven.
+			var power := 2.0 + 10.0 * (1.0 - corner / (minf(size.x, size.z) * 0.5))
+			var reach := pow(pow(absf(way.x) / (size.x * 0.5), power) + pow(absf(way.y) / (size.z * 0.5), power), -1.0 / power)
+			reach *= 1.0 + 0.008 * sin(angle * 5.0 + 1.0) + 0.006 * sin(angle * 11.0 + 2.2)
+			var edge := way * reach
+			var point: Vector3
+			var normal: Vector3
+			if loop == 0 or loop == loops - 1:
+				point = Vector3(0.0, -size.y * 0.5 if loop == 0 else size.y * 0.5, 0.0)
+				normal = Vector3.DOWN if loop == 0 else Vector3.UP
+			elif loop == loops - 2:
+				point = Vector3(edge.x * 0.82, size.y * 0.5, edge.y * 0.82)
+				normal = Vector3.UP
+			else:
+				var up := PI * ((loop - 1.0) / (SIDE - 1.0) - 0.5)
+				var inner := edge - way * bulge
+				point = Vector3(inner.x + way.x * bulge * cos(up), sin(up) * size.y * 0.5, inner.y + way.y * bulge * cos(up))
+				normal = Vector3(way.x * cos(up), sin(up), way.y * cos(up)).normalized()
+			points.append(point)
+			normals.append(normal)
+	for loop in loops - 1:
+		for i in ROUND:
+			var a := loop * (ROUND + 1) + i
+			var b := a + ROUND + 1
+			indices.append_array([a, a + 1, b, a + 1, b + 1, b])
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = points
+	arrays[Mesh.ARRAY_NORMAL] = normals
+	arrays[Mesh.ARRAY_INDEX] = indices
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return mesh
+
+
 func _thickness() -> float:
 	return _volume / (_size.x * _size.y)
 
@@ -152,6 +228,7 @@ func _thickness() -> float:
 func _shape() -> void:
 	_box.size = Vector3(_size.x, _thickness(), _size.y)
 	_dough.position.y = _center.y + _thickness() * 0.5
+	round_off(_dough)
 	var streaks := _dough.get_node_or_null("Streaks") as Node3D  # Butter folded in (DoughFoldAction): stretched with the sheet.
 	if streaks != null:
 		var base: Vector2 = streaks.get_meta("size")

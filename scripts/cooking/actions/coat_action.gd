@@ -102,14 +102,22 @@ func _begin() -> void:
 		disc.material = material
 		_blob_mesh = disc
 	else:  # Little specks.
-		var speck := SphereMesh.new()
-		speck.radius = blob_radius * 0.35
-		speck.height = blob_radius * 0.3
-		speck.radial_segments = 6
-		speck.rings = 2
+		material.set_meta(ToonStyle.SKIP, true)
 		material.roughness = 0.9
-		speck.material = material
-		_blob_mesh = speck
+		if spots > 0:  # Crystals of salt.
+			var crystal := BoxMesh.new()
+			crystal.size = Vector3(1.0, 0.8, 0.9) * blob_radius * 0.3
+			material.roughness = 0.15
+			crystal.material = material
+			_blob_mesh = crystal
+		else:  # A soft dusting of powder.
+			var dust := PlaneMesh.new()
+			dust.size = Vector2.ONE * blob_radius * 2.6
+			material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			material.albedo_texture = session.dust_texture()
+			material.render_priority = 1
+			dust.material = material
+			_blob_mesh = dust
 	if not on_surface.is_empty():
 		_outline = _make_outline()
 	if spots > 0:
@@ -220,6 +228,14 @@ func _coat(point: Vector2) -> void:
 			_touched[target] = true
 		else:
 			session.add_child(blob)
+		if tool == "shaker":  # Falls from the shaker, and bounces where it lands.
+			var rests := blob.position
+			blob.position = rests + Vector3(randf_range(-0.012, 0.012), 0.09, randf_range(-0.012, 0.012))
+			var fall := blob.create_tween()
+			fall.tween_property(blob, "position", rests, randf_range(0.14, 0.22)).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+			if coat_color.a >= 1.0:
+				fall.tween_property(blob, "position", rests + Vector3(randf_range(-0.003, 0.003), 0.006, randf_range(-0.003, 0.003)), 0.06).set_ease(Tween.EASE_OUT)
+				fall.tween_property(blob, "position", rests, 0.06).set_ease(Tween.EASE_IN)
 		if target != null:
 			_blobs.append(at)
 		else:

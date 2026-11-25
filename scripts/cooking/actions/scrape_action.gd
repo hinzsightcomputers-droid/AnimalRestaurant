@@ -17,6 +17,7 @@ const SCRIPTED_ARRIVED := 0.02  # How near the rim the board gets before it's le
 @export var from_surface := "Board"
 @export var into := "Pot"
 @export var pieces := 0                     # Bits of food; 0 = from the ingredients (their chops + 1: the pieces they were cut into).
+@export var noodles := 0                    # This many tangles of noodles with them.
 @export var piece_radius := 0.017
 @export var piece_thickness := 0.009
 @export var piece_color := Color(0.95, 0.55, 0.15)  # When there are no ingredients to take it from.
@@ -66,7 +67,8 @@ func _begin() -> void:
 	var color := session.ingredients.color() if session.ingredients != null else piece_color
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
-	material.roughness = 0.6
+	material.roughness = 0.4
+	material.set_meta(ToonStyle.FOOD, "veg")
 	for i in count:
 		var piece := MeshInstance3D.new()
 		var mesh := CylinderMesh.new()
@@ -85,7 +87,35 @@ func _begin() -> void:
 		var extra := session.ingredients.chopped_with()
 		for kind: String in extra:
 			_add_extra(kind, int(extra[kind]))
+	_add_noodles()
 	_count = maxi(_on_board.size(), 1)
+
+
+# Tangles of noodles, heaped on the board.
+func _add_noodles() -> void:
+	var paint := StandardMaterial3D.new()
+	paint.albedo_color = Color(1.0, 0.86, 0.55)
+	paint.roughness = 0.25
+	paint.set_meta(ToonStyle.FOOD, "pasta")
+	for i in noodles:
+		var tangle := Node3D.new()
+		for strand in 3:
+			var path := []
+			var start := randf() * TAU
+			var turns := randf_range(1.0, 1.7) * (1.0 if randf() < 0.5 else -1.0)
+			var reach := randf_range(0.018, 0.034)
+			for k in 11:
+				var turn := start + turns * TAU * k / 10.0
+				var out := reach * (1.0 + 0.3 * sin(k * 1.9 + start))
+				path.append(Vector3(cos(turn) * out * 1.25, 0.003 + strand * 0.003 + 0.0015 * sin(k * 1.3 + start), sin(turn) * out))
+			var noodle := MeshInstance3D.new()
+			noodle.mesh = CookSession.rope_mesh(path, Vector2(0.0026, 0.003))
+			noodle.material_override = paint
+			tangle.add_child(noodle)
+		tangle.position = Vector3(randf_range(-0.36, 0.36) * _board.size.x, randf_range(0.002, 0.012), randf_range(-0.3, 0.3) * _board.size.y)
+		tangle.rotation.y = randf() * TAU
+		_board.add_child(tangle)
+		_on_board.append(tangle)
 
 
 # The other vegetables chopped with it (Veg): rings of onion, bits of celery...
@@ -233,13 +263,18 @@ func _drop(piece: Node3D, speed: float) -> void:
 	var spot := Vector2.from_angle(randf() * TAU) * randf_range(0.0, pot.radius() * 0.6)
 	var at := pot.position + Vector3(spot.x, piece_thickness * 0.5, spot.y)
 	if pot.depth > 0.0:  # On top of what's in it already.
-		at.y = pot.position.y + pot.depth * 0.5 + 0.02 + randf() * 0.01
+		at.y = maxf(pot.liquid_top(), pot.position.y + pot.depth * 0.5 + 0.02 + randf() * 0.01)
 	var splash := speed > splash_speed
 	var tween := piece.create_tween()
-	tween.tween_property(piece, "position", at, 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.tween_property(piece, "position", at, 0.26).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.parallel().tween_property(piece, "rotation", piece.rotation + Vector3(randf_range(-3.0, 3.0), randf_range(-2.0, 2.0), randf_range(-3.0, 3.0)), 0.26)  # Tumbling.
 	tween.tween_callback(func():
 		_falling -= 1
 		pot.contents.append(piece)
+		pot.splash(at, 0.012 if splash else 0.006)
+		if pot.in_it() != null:  # Under, and bobs back up.
+			piece.position.y -= 0.012
+			pot.in_it().float_thing(piece, piece_thickness * 0.25)
 		session.stack_push(into, piece, pot.position, 0.0)
 		_scores.append(splash_score if splash else 1.0)
 		session.play_sound("plop", at, -2.0 if splash else -6.0, 0.8 if splash else 1.2)

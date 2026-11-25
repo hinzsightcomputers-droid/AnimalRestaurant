@@ -57,6 +57,7 @@ func _start(player: Player) -> void:
 	session = CookSession.new()
 	session.bounds = Rect2(-1.2, -3.2, 2.4, 2.9)
 	session.work_height = water_y
+	session.sharp_to = 4.2
 	add_child(session)
 	var rod := _make_rod()
 	var bobber := _make_bobber()

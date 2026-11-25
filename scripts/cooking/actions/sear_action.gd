@@ -70,7 +70,9 @@ const MOUSE_TILT_REACH := 0.2           # The mouse this far from the pan's midd
 var _pan := Node3D.new()                 # Its middle at the pan's middle, on the floor of the pan.
 var _burner: Node3D
 var _steak := Node3D.new()
-var _faces: Array[StandardMaterial3D] = []
+var _faces: Array[Color] = []            # Each side's color, its alpha how done it is.
+var _look := ShaderMaterial.new()
+var _fat: CPUParticles3D                 # Sizzling round where it sits.
 var _doneness := [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 var _offset := Vector2.ZERO              # The cube's place in the pan (from its middle)...
 var _velocity := Vector2.ZERO            # ...and how fast it's sliding.
@@ -138,6 +140,7 @@ func _begin() -> void:
 
 
 func end() -> void:
+	_fat.emitting = false
 	_sizzle.stop()
 	_steam.emitting = false
 	_aim_arrow.queue_free()
@@ -262,6 +265,9 @@ func _cook(delta: float) -> void:
 		session.pop_text("Serve it!" if _all_cooked() else "Toss it!", _steak.position + Vector3(0.0, steak_size, 0.0), 1)
 		session.play_sound("tick", _steak.position, -2.0, 1.4)
 	_steam.emitting = amount > 0.2 or _stuck
+	_fat.position = Vector3(_steak.position.x, pan_floor + 0.002, _steak.position.z)
+	_fat.emitting = true
+	_fat.speed_scale = 0.6 + heat * 0.8
 	var smoking := amount > 1.4 or _stuck
 	if smoking and not _smoking:
 		session.react("dish_burning")
@@ -278,6 +284,7 @@ func _heat() -> float:
 # Up it goes toward `way` (snapped to the nearest of the four): one face, two,
 # or out of the pan; from near the rim it catches the edge and rolls once more.
 func _toss(way: Vector2, power: float) -> void:
+	_fat.emitting = false
 	_unstick()
 	if way.length() < 0.2:  # No direction: a little hop, same face down.
 		session.wobble(_steak, 0.15)
@@ -529,7 +536,9 @@ func _color_of(side: int) -> Color:
 
 
 func _paint(side: int) -> void:
-	_faces[side].albedo_color = _color_of(side)
+	_faces[side] = Color(_color_of(side), _doneness[side])
+	var sides := PackedColorArray(_faces)
+	_look.set_shader_parameter("sides", sides)
 
 
 # 0..1 for how well a side came out at this doneness.
@@ -692,33 +701,22 @@ func _build_pan() -> void:
 	_pan.add_child(body)
 
 
-# Six faces, each its own material so each side browns on its own, round a
-# slightly smaller pink middle that fills the edges.
+# A soft-edged cube of it, each side browning on its own (steak.gdshader).
 func _build_steak() -> void:
 	session.add_child(_steak)
-	var half := steak_size * 0.5
 	for i in 6:
-		var material := StandardMaterial3D.new()
-		material.albedo_color = raw_color
-		material.roughness = 0.7
-		_faces.append(material)
-		var face := MeshInstance3D.new()
-		var quad := QuadMesh.new()
-		quad.size = Vector2(steak_size, steak_size)
-		quad.material = material
-		face.mesh = quad
-		var normal: Vector3 = NORMALS[i]
-		face.position = normal * half
-		face.basis = _facing(normal)
-		_steak.add_child(face)
-	var middle := MeshInstance3D.new()
-	var box := BoxMesh.new()
-	box.size = Vector3.ONE * steak_size * 0.985
-	var pink := StandardMaterial3D.new()
-	pink.albedo_color = raw_color.darkened(0.15)
-	box.material = pink
-	middle.mesh = box
-	_steak.add_child(middle)
+		_faces.append(Color(raw_color, 0.0))
+	_look.shader = preload("res://assets/shaders/steak.gdshader")
+	_look.set_shader_parameter("sear_size", steak_size)
+	_look.set_shader_parameter("sides", PackedColorArray(_faces))
+	var meat := MeshInstance3D.new()
+	meat.mesh = PlaceAction.rounded_block(Vector3.ONE * steak_size, steak_size * 0.13)
+	meat.material_override = _look
+	_steak.add_child(meat)
+	_fat = session.make_sizzle()
+	_fat.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
+	_fat.emission_box_extents = Vector3(steak_size * 0.56, 0.001, steak_size * 0.56)
+	session.add_child(_fat)
 
 
 # A basis that turns a quad (facing +z) to face `normal`.

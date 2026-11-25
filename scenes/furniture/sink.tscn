@@ -12,7 +12,7 @@
 
 [sub_resource type="Resource" id="Zoom_closeup"]
 script = ExtResource("3_zoom")
-distance = 1.8
+distance = 1.55
 pitch_degrees = 70.0
 yaw_degrees = 0.0
 duration = 0.5

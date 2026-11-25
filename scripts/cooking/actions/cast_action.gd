@@ -107,7 +107,7 @@ func _cast(input: CookInput) -> void:
 
 func _landed(at: Vector3) -> void:
 	session.play_sound("plop", at, -4.0, 0.8)
-	session.burst(at, Color(0.8, 0.9, 1.0), 12, 0.4)
+	session.water_rings(at, 0.42, 22, 0.7)
 	if session.context.get("hot", false):
 		session.pop_text("In the ripples!", at, 1)
 	finish(1.0)

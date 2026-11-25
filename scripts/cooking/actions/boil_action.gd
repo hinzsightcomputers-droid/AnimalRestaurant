@@ -7,7 +7,7 @@ class_name BoilAction
 extends CookAction
 
 @export var in_surface := "Pot"
-@export var pasta := 36                     # Pieces of it.
+@export var pasta := 60                     # Pieces of it.
 @export var boil_seconds := 15.0            # Boiling this long is just right (longer on Easy).
 @export var perfect_from := 0.85            # Share of boil_seconds where the green starts...
 @export var perfect_to := 1.45              # ...and ends: wide, as there's cheese to grate meanwhile.
@@ -52,9 +52,8 @@ func cursor_height() -> float:
 func _begin() -> void:
 	var pot := session.surface(in_surface)
 	pot.fill_to(1.0, water_color)
-	var water := pot.liquid.mesh.surface_get_material(0) as StandardMaterial3D
-	water.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	water.roughness = 0.1
+	pot.liquid.dress({ "clear": 1.0, "glossy": 1.0, "foam": 0.0 })
+	pot.liquid.set_boil(0.75)
 	_bowl = _make_bowl()
 	_bowl.position = pot.position + Vector3(pot.radius() * 1.7, 0.2, 0.0)
 	_bubbles = _make_bubbles(pot)
@@ -106,7 +105,8 @@ func update(delta: float, input: CookInput) -> void:
 	_label.text = "Getting mushy!" if late else "Al dente!"
 	_label.modulate = Color(1.0, 0.6, 0.3) if late else Color(0.6, 1.0, 0.55)
 	_label.position = Vector3(pot.position.x, pot.liquid_top() + 0.1 + sin(_time * 8.0) * 0.008, pot.position.z)
-	_bob(pot)
+	pot.liquid.set_boil(1.0)
+	pot.liquid.dress({ "foam": clampf(doneness * 0.8, 0.0, 0.8) })  # The starch froths up.
 
 
 # Off the heat: scored by how long it boiled, and it's done.
@@ -114,6 +114,8 @@ func take_off() -> void:
 	if done:
 		return
 	var result := score_now()
+	if session.surface(in_surface).liquid != null:
+		session.surface(in_surface).liquid.set_boil(0.12)
 	var words := "Al dente!" if result >= 1.0 else "Mushy!"
 	session.pop_text(words, session.surface(in_surface).position, CookSession.mood_of(result))
 	finish(result)
@@ -160,8 +162,10 @@ func _tip(pot: CookSurface) -> void:
 		fall.tween_interval(0.25 + i * 0.012)
 		fall.tween_callback(func(): bit.visible = true)
 		fall.tween_property(bit, "position", Vector3(spot.x, pot.depth, spot.y), 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-		if i % 4 == 0:
-			fall.tween_callback(func():
+		fall.tween_callback(func():  # Under it goes, and up again.
+			pot.splash(pot.position + bit.position, 0.0035)
+			pot.liquid.float_thing(bit, randf_range(0.002, 0.006))
+			if i % 4 == 0:
 				session.play_sound("plop", pot.position, -8.0, 1.3)
 				session.burst(pot.position + bit.position, Color(water_color, 1.0), 4, 0.2))
 	tween.tween_interval(0.25 + pasta * 0.012)
@@ -185,22 +189,15 @@ func _start_boiling(pot: CookSurface) -> void:
 	to_background = true  # On to the next step, the pasta boiling away.
 
 
-# Riding up and down on the boil.
-func _bob(pot: CookSurface) -> void:
-	for bit in _bits:
-		if is_instance_valid(bit):
-			bit.position.y = pot.depth * minf(pot.level, 1.0) - 0.004 + sin(_time * 5.0 + float(bit.get_meta("rest"))) * 0.006
-
-
 # One elbow of macaroni: a fat half ring, as one mesh to share.
 static func macaroni_mesh(color: Color) -> ArrayMesh:
 	var ball := SphereMesh.new()
 	ball.radius = 0.0075
 	ball.height = 0.015
-	ball.radial_segments = 8
-	ball.rings = 4
+	ball.radial_segments = 10
+	ball.rings = 5
 	var tool := SurfaceTool.new()
-	const BALLS := 6
+	const BALLS := 9
 	for i in BALLS:
 		var angle := PI * 0.9 * i / (BALLS - 1)
 		tool.append_from(ball, 0, Transform3D(Basis.IDENTITY, Vector3(cos(angle), 0.0, sin(angle) - 0.5) * 0.014))
@@ -208,6 +205,7 @@ static func macaroni_mesh(color: Color) -> ArrayMesh:
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
 	material.roughness = 0.5
+	material.set_meta(ToonStyle.FOOD, "pasta")
 	mesh.surface_set_material(0, material)
 	return mesh
 

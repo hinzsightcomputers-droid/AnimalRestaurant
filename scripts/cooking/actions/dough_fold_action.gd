@@ -126,6 +126,7 @@ func _fold() -> void:
 	flap_mesh.size = Vector3(size.x, _box.size.y, _length / 3.0)
 	flap_mesh.material = _box.material
 	flap.mesh = flap_mesh
+	RollAction.round_off(flap)
 	var hinge := Node3D.new()
 	var edge := size.y * 0.5 - _length / 3.0  # Where it bends.
 	hinge.position = Vector3(_dough.position.x, _dough.position.y + _box.size.y * 0.5, _dough.position.z + edge)
@@ -158,6 +159,7 @@ func _set_size(size: Vector2, thickness: float) -> void:
 	_sheet["size"] = size
 	_box.size = Vector3(size.x, thickness, size.y)
 	_dough.position.y = _sheet["center"].y + thickness * 0.5
+	RollAction.round_off(_dough)
 
 
 # Pale stripes of butter through the dough (stretched with it when it's rolled).

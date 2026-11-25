@@ -202,8 +202,8 @@ func _shape_so_far() -> void:
 			var p := _point(_t * i / (count - 1))
 			points.append(Vector3(p.x - cookie.position.x, rope_radius - (cookie.mesh as CylinderMesh).height * 0.5, p.y - cookie.position.z))
 		_rope = CookSession.rope(points, Vector2(rope_radius * 0.8, rope_radius))
-		for ball: MeshInstance3D in _rope.get_children():
-			ball.material_override = (cookie.mesh as CylinderMesh).material
+		for part: MeshInstance3D in _rope.get_children():
+			part.material_override = (cookie.mesh as CylinderMesh).material
 		cookie.add_child(_rope)
 		_strip_look(cookie).scale.x = maxf(1.0 - _t, 0.05)  # The strip gets used up.
 	else:
@@ -246,14 +246,15 @@ func _final_shape(cookie: MeshInstance3D) -> void:
 	else:
 		var half := CookSession.half_of(cookie)
 		var points := []
-		for i in 9:  # A curve, thick in the middle, its ends bending toward you.
-			var a := lerpf(-1.0, 1.0, i / 8.0)
-			points.append(Vector3(a * half.x * 1.4, 0.0, a * a * half.y * 0.6))
+		for i in 13:  # A curve, thick in the middle, its ends bending toward you.
+			var a := lerpf(-1.0, 1.0, i / 12.0)
+			points.append(Vector3(a * half.x * 1.15, 0.0, a * a * half.y * 0.6))
 		if _roll != null:
 			_roll.queue_free()
 			_roll = null
-		var crescent := CookSession.rope(points, Vector2(0.008, 0.02))
-		session.dress(cookie, crescent, Vector2(half.x * 1.5, half.y * 0.6), 0.02)
+		var crescent := CookSession.rope(points, Vector2(0.007, 0.025), 9)
+		crescent.scale.y = 0.85
+		session.dress(cookie, crescent, Vector2(half.x * 1.25, half.y * 0.6), 0.022)
 		session.wobble(crescent, 0.2)
 
 

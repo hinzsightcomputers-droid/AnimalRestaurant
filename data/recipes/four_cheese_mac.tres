@@ -12,40 +12,45 @@
 [sub_resource type="Resource" id="Resource_boil"]
 script = ExtResource("boil")
 title = "Boil the pasta"
+view_distance = 0.52
+view_pitch = 58
 hint = "Move the bowl over the pot with [stick] and press [button] to tip the macaroni into the boiling water."
-view_distance = 0.75
 
 [sub_resource type="Resource" id="Resource_grate"]
 script = ExtResource("grate")
 title = "Grate the cheese"
+view_distance = 0.64
+view_pitch = 58
 cue = "Four cheeses!"
 hint = "While the pasta boils: hold [grip] and rub up and down with [stick] on the grater. Let go when the meter's in the green, before the rind!"
-view_distance = 0.85
 
 [sub_resource type="Resource" id="Resource_drain"]
 script = ExtResource("drain")
 title = "Drain it"
+view_distance = 0.56
+view_pitch = 54
 hint = "When the meter's in the green, press [button] to take the pot off. Let go, then hold [button] to pour the water out, and let go again at the line."
 weight = 0.5
-view_distance = 0.7
-view_pitch = 52.0
 
 [sub_resource type="Resource" id="Resource_scrape"]
 script = ExtResource("scrape")
 title = "Cheese in!"
+view_distance = 0.6
+view_pitch = 56
 hint = "Hold [grip] on the board and carry it to the pot. Then hold [grip] and push the knife to sweep all the cheese in. Gently, or it splashes!"
 weight = 0.5
-view_distance = 0.8
 
 [sub_resource type="Resource" id="Resource_fold"]
 script = ExtResource("stir")
 title = "Mix in the cheese"
+view_distance = 0.48
+view_pitch = 60
 hint = "Roll [stick] round counter-clockwise, the way the arrow goes, to mix it till it's melted (with the mouse, hold [grip] and circle the pot)."
 weight = 0.7
-view_distance = 0.7
 turns = 5.0
 melt = true
 coat = true
+melt_level = 0.62
 tint_to = Color(0.98, 0.76, 0.28, 1)
 tool = "spoon"
 

@@ -1,8 +1,8 @@
-# DrizzleAction: hold the button and move to drizzle a line of syrup over the
-# top of a stack, with only so much in the bottle, which stays over the plate.
-# The line is drawn where it lands, on whichever piece is highest there (so a
-# wider one underneath gets some too), and over anything put on it (butter);
-# near a piece's round edge it drips a little way down the side. The step ends
+# DrizzleAction: hold the button and move to drizzle syrup over the top of a
+# stack, with only so much in the bottle, which stays over the plate. It's a real
+# liquid (SauceSheet): it falls in a stream that coils as it lands, heaps and
+# spreads, runs round what's on the food (butter), over the edge and down the
+# side, and pools on the plate; thick sauces hold their shape. The step ends
 # when the bottle's empty. It scores how much of the food showing from above
 # got covered (full marks at target_coverage), minus what was spilled off it,
 # from least_score up: any syrup on the food scores well.
@@ -13,13 +13,15 @@ extends CookAction
 @export var syrup_seconds := 3.0              # How long the bottle lasts while held.
 @export var syrup_color := Color(0.38, 0.17, 0.04)  # Deep amber maple: any redder and it read as ketchup.
 @export var line_radius := 0.013              # How thick the line is.
-@export var spacing := 0.007                  # Gap between the blobs that make up the line.
+@export var kind := "syrup"                   # What it's like: SauceSheet.KINDS.
+@export var flow_rate := 0.00004             # How much comes out (m³ a second).
+@export var spacing := 0.007                  # How often along the line it's noted (for the score).
 @export_range(0.0, 1.0) var target_coverage := 0.45  # Share of the top to cover for full marks.
 @export var spill_penalty := 1.5              # How much each spilled share costs.
 @export_range(0.0, 1.0) var least_score := 0.85  # Any syrup on the food scores at least this: it's a treat, not a test.
-@export_range(0.0, 1.0) var drip_chance := 0.35      # Chance a blob near the edge drips.
-@export var drip_length := Vector2(0.015, 0.04)      # Shortest and longest drip.
-@export var bottle_height := 0.14
+@export var bottle_height := 0.1
+@export var bottle_scale := 0.62              # A small bottle, leaning away from the cook, so it doesn't hide the food.
+@export var bottle_lean := 48.0
 @export var one_stroke := false               # Done as soon as one line on the food is let go (a squiggle of ketchup).
 @export var least_blobs := 6                  # How much of that line has to be on the food to count.
 
@@ -30,12 +32,15 @@ var _left := 0.0
 var _last_point = null       # Where the line got to (Vector2), or null between drizzles.
 var _on_top: Array[Vector2] = []
 var _spilled := 0
-var _drip_angles: Array = []  # [piece, angle] for each drip, so they don't bunch up.
+var _sheet: SauceSheet
+var _stream: PourStream
+var _land := Vector3.INF     # Where the stream lands: it trails behind the bottle.
+var _coil := 0.0
+var _squeeze := 0.0
+var _poured := false
 var _bottle: Node3D
 var _flow: AudioStreamPlayer3D
-var _blob_mesh := CylinderMesh.new()  # Flat discs: overlapping, their tops make one smooth glossy ribbon (spheres made beads).
 var _foods: Array[CookPiece] = []  # The pieces in the stack, highest first.
-var _toppings: Array[Node3D] = []  # What else is on it (butter): the syrup goes over these.
 var _top_y := 0.0
 
 
@@ -50,24 +55,15 @@ func marks_spot() -> bool:
 func _begin() -> void:
 	_left = syrup_seconds
 	_bottle = session.make_bottle(syrup_color)
+	_bottle.scale = Vector3.ONE * bottle_scale
 	_flow = session.loop_sound("drizzle", -10.0)
 	for entry in session.stack_of(target):
 		if entry["node"] is CookPiece:
 			_foods.push_front(entry["node"])
-		else:
-			_toppings.append(entry["node"])
 	_top_y = _surface_of(_foods[0]) if not _foods.is_empty() else session.stack_top(target).y
-	var material := StandardMaterial3D.new()
-	material.albedo_color = syrup_color
-	material.roughness = 0.4          # A small glossy glint (shinier, on a lighter syrup, washed the line white).
-	material.metallic_specular = 0.45
-	material.set_meta(ToonStyle.SKIP, true)  # Stays glossy: toon bands and outlines made the lines look like brown worms.
-	_blob_mesh.top_radius = line_radius
-	_blob_mesh.bottom_radius = line_radius * 0.9
-	_blob_mesh.height = line_radius * 0.3
-	_blob_mesh.radial_segments = 14
-	_blob_mesh.rings = 1
-	_blob_mesh.material = material
+	_sheet = session.make_sauce(target, kind, syrup_color)
+	_stream = PourStream.make(session, syrup_color.lerp(SauceSheet.KINDS[kind]["light"], 0.35) if SauceSheet.KINDS[kind]["light"] is Color else syrup_color, line_radius * 0.34, SauceSheet.KINDS[kind]["gloss"], 1.4)
+	session.get_tree().create_timer(1.6, false).timeout.connect(_look_again)  # The butter's softer by then.
 
 
 func view_point() -> Vector3:
@@ -87,10 +83,20 @@ func update(delta: float, input: CookInput) -> void:
 	var spot := input.cursor
 	var pouring := input.held and _left > 0.0
 	_bottle.position = _bottle.position.lerp(spot + Vector3(0.0, bottle_height, 0.0), 1.0 - exp(-20.0 * delta))
-	_bottle.rotation.z = lerp_angle(_bottle.rotation.z, deg_to_rad(-8.0 if pouring else -40.0), 1.0 - exp(-14.0 * delta))
-	if pouring:
+	_bottle.rotation.x = lerp_angle(_bottle.rotation.x, deg_to_rad(-bottle_lean if pouring else -bottle_lean - 25.0), 1.0 - exp(-14.0 * delta))
+	_bottle.rotation.y = deg_to_rad(-24.0)
+	_squeeze = lerpf(_squeeze, 1.0 if pouring else 0.0, 1.0 - exp(-12.0 * delta))  # Squeezed flat as it pours.
+	_bottle.scale = Vector3(1.0 - 0.18 * _squeeze, 1.0, 1.0 + 0.08 * _squeeze) * bottle_scale
+	if _land == Vector3.INF or not _stream.visible:
+		_land = spot
+	var was := _land
+	_land = _land.lerp(spot, 1.0 - exp(-13.0 * delta))
+	_land.y = _sheet.top_at(Vector2(_land.x, _land.z))
+	_stream.flow(_bottle.position, _land, pouring, delta)
+	if pouring and _stream.landed:
 		_left = maxf(0.0, _left - delta)
-		var point := Vector2(spot.x, spot.z)
+		var point := Vector2(_land.x, _land.z)
+		_lay(Vector2(was.x, was.z), point, flow_rate * delta)
 		if _last_point == null:
 			_add_blob(point)
 			_last_point = point
@@ -102,14 +108,14 @@ func update(delta: float, input: CookInput) -> void:
 				_last_point = point
 		if not _flow.playing:
 			_flow.play()
-	else:
+	elif not pouring:
 		if one_stroke and _last_point != null and _on_top.size() >= least_blobs:
 			_left = 0.0  # One line's enough: letting go finishes it.
 		_last_point = null
 		if _flow.playing:
 			_flow.stop()
 	if not one_stroke:
-		session.set_status("Syrup left: %d%%" % ceili(_left / syrup_seconds * 100.0))
+		session.set_status("Left: %d%%" % ceili(_left / syrup_seconds * 100.0))
 	if _left <= 0.0:
 		var score := _score()
 		session.pop_text("Delicious!" if score >= 0.8 else ("Bit messy" if _spilled > _on_top.size() * 0.3 else "Needs more syrup"), Vector3(_foods[0].position.x, _top_y, _foods[0].position.z) if not _foods.is_empty() else spot, CookSession.mood_of(score))
@@ -119,6 +125,7 @@ func update(delta: float, input: CookInput) -> void:
 func end() -> void:
 	_flow.stop()
 	_bottle.queue_free()
+	_stream.finish(_land)
 
 
 # Back and forth down the food until the bottle's empty.
@@ -131,41 +138,28 @@ func scripted_hold(_delta: float, input: CookInput) -> bool:
 	return _left > 0.0
 
 
+# Some of it landing between two points, coiling on itself.
+func _lay(from: Vector2, to: Vector2, amount: float) -> void:
+	var parts := clampi(ceili(from.distance_to(to) / (line_radius * 0.35)), 1, 8)
+	for i in parts:
+		_coil += TAU * 0.16
+		var off := Vector2.from_angle(_coil) * line_radius * (0.28 if kind != "foam" else 0.5)
+		_sheet.pour(from.lerp(to, float(i + 1) / parts) + off, amount / parts, maxf(line_radius * 0.62, _sheet.cell * 1.3))
+	_poured = true
+
+
+# The butter's melted a bit more: what the sauce lies on is lower there.
+func _look_again() -> void:
+	if is_instance_valid(_sheet) and is_instance_valid(session):
+		_sheet.look_under(session.lie_on(target))
+
+
+# Note where a bit of it landed, for the score.
 func _add_blob(point: Vector2) -> void:
-	var blob := MeshInstance3D.new()
-	blob.mesh = _blob_mesh
-	var spread := randf_range(0.85, 1.15)
-	blob.scale = Vector3(spread, 1.0, spread)
-	var y := 0.0
-	var food := _food_at(point)
-	if food != null:
+	if _food_at(point) != null:
 		_on_top.append(point)
-		y = maxf(_surface_of(food), _topping_top(point)) + 0.001  # Over the butter, not under it.
-		var from_middle := point - food.middle()
-		var round_edge := not food.folded or from_middle.y < -food.radius * 0.3  # A folded one's straight edge is its fold: no drips.
-		if round_edge and from_middle.length() > food.radius * 0.8 and randf() < drip_chance:
-			_drip(food, from_middle.angle())
 	else:
 		_spilled += 1
-		var plate := session.surface(target)
-		y = (plate.position.y if plate.contains(Vector3(point.x, 0.0, point.y)) else session.work_height) + 0.001
-	blob.position = Vector3(point.x, y, point.y)
-	session.add_child(blob)
-
-
-# The top of whatever's been put on the food (a pat of butter, melting) over
-# a point, or -INF if there's nothing there.
-func _topping_top(point: Vector2) -> float:
-	var top := -INF
-	var to_session := session.global_transform.affine_inverse()
-	for topping in _toppings:
-		if not is_instance_valid(topping):
-			continue
-		for node in topping.find_children("*", "MeshInstance3D", true, false):
-			var box: AABB = (to_session * (node as MeshInstance3D).global_transform) * (node as MeshInstance3D).get_aabb()
-			if point.x >= box.position.x and point.x <= box.end.x and point.y >= box.position.z and point.y <= box.end.z:
-				top = maxf(top, box.end.y)
-	return top
 
 
 # The highest piece over a point, or null.
@@ -178,29 +172,6 @@ func _food_at(point: Vector2) -> CookPiece:
 
 func _surface_of(food: CookPiece) -> float:
 	return food.position.y + food.thickness
-
-
-# A thin run of syrup down the side of a piece, growing for a moment.
-func _drip(food: CookPiece, angle: float) -> void:
-	for other in _drip_angles:
-		if other[0] == food and absf(angle_difference(angle, other[1])) < 0.3:
-			return
-	_drip_angles.append([food, angle])
-	var rim := food.middle() + Vector2.from_angle(angle) * (food.radius * 1.04 + 0.002)
-	var drip := Node3D.new()  # Hangs from the rim: scaling it down makes it longer.
-	drip.position = Vector3(rim.x, _surface_of(food), rim.y)
-	var strand := MeshInstance3D.new()
-	var mesh := CapsuleMesh.new()
-	mesh.radius = line_radius * 0.55
-	mesh.height = 1.0
-	mesh.material = _blob_mesh.material
-	strand.mesh = mesh
-	strand.position.y = -0.5
-	drip.add_child(strand)
-	drip.scale = Vector3(1.0, 0.001, 1.0)
-	session.add_child(drip)
-	var length := randf_range(drip_length.x, drip_length.y)
-	drip.create_tween().tween_property(drip, "scale:y", length, 1.4).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 
 
 # Coverage of the food showing from above (sampled on a grid over all of it),
@@ -225,6 +196,9 @@ func _score() -> float:
 			if food == null or sample.distance_to(food.middle()) > food.radius * 0.92:
 				continue
 			samples += 1
+			if _sheet.depth_at(sample) > 0.0004:
+				covered += 1
+				continue
 			for blob in _on_top:
 				if blob.distance_to(sample) <= reach:
 					covered += 1

@@ -35,6 +35,7 @@ static func add_whole(parent: Node3D, kind: String, length: float, radius: float
 	var paint := StandardMaterial3D.new()
 	paint.albedo_color = color
 	paint.roughness = 0.55
+	paint.set_meta(ToonStyle.FOOD, "veg")
 	body.mesh = turned(length, func(x): return radius_at(kind, x / length + 0.5, radius, taper), paint)
 	parent.add_child(body)
 	if kind == "onion":
@@ -47,6 +48,7 @@ static func chopped_mesh(kind: String, radius: float) -> Mesh:
 	var paint := StandardMaterial3D.new()
 	paint.albedo_color = FLESH[kind]
 	paint.roughness = 0.5
+	paint.set_meta(ToonStyle.FOOD, "veg")
 	match kind:
 		"onion":  # A ring.
 			var ring := TorusMesh.new()
@@ -58,9 +60,9 @@ static func chopped_mesh(kind: String, radius: float) -> Mesh:
 			return ring
 		"celery":  # A little crescent, on its side.
 			return stalk(0.012, radius * 0.95, radius * 0.95, FLESH[kind], true)
-	var cube := BoxMesh.new()
-	cube.size = Vector3(1.5, 0.8, 1.35) * radius * randf_range(0.85, 1.05)
-	cube.material = paint
+	var size := Vector3(1.5, 0.8, 1.35) * radius * randf_range(0.85, 1.05)
+	var cube := PlaceAction.rounded_block(size, size.y * 0.22)
+	cube.surface_set_material(0, paint)
 	return cube
 
 
@@ -69,6 +71,7 @@ static func add_tip(parent: Node3D, x: float) -> void:
 	var paint := StandardMaterial3D.new()
 	paint.albedo_color = (SKIN["onion"] as Color).darkened(0.15)
 	paint.roughness = 0.9
+	paint.set_meta(ToonStyle.FOOD, "veg")
 	for i in 3:
 		var wisp := MeshInstance3D.new()
 		var mesh := CylinderMesh.new()
@@ -88,6 +91,7 @@ static func add_root(parent: Node3D, x: float) -> void:
 	var paint := StandardMaterial3D.new()
 	paint.albedo_color = ONION_ROOT
 	paint.roughness = 0.9
+	paint.set_meta(ToonStyle.FOOD, "veg")
 	for i in 6:
 		var hair := MeshInstance3D.new()
 		var mesh := CylinderMesh.new()
@@ -107,6 +111,7 @@ static func onion_paint(line: bool) -> StandardMaterial3D:
 	var paint := StandardMaterial3D.new()
 	paint.albedo_color = ONION_LAYER if line else (FLESH["onion"] as Color).lightened(0.3)
 	paint.roughness = 0.35
+	paint.set_meta(ToonStyle.FOOD, "veg")
 	return paint
 
 
@@ -154,6 +159,7 @@ static func stalk(length: float, left_radius: float, right_radius: float, color:
 		var paint := StandardMaterial3D.new()
 		paint.albedo_color = shade
 		paint.roughness = 0.5
+		paint.set_meta(ToonStyle.FOOD, "veg")
 		var tool := SurfaceTool.new()
 		tool.begin(Mesh.PRIMITIVE_TRIANGLES)
 		tool.set_material(paint)

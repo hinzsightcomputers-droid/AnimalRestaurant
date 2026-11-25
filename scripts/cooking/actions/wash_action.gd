@@ -15,9 +15,10 @@ enum Phase { PICK, SOAK, SCRUB, RACK }  # SOAK: the next dish is about to come u
 @export var rack_surface := "Rack"
 @export var dish_size := 0.26
 @export var carry_height := 0.16
-@export var water_level := -0.035          # The soapy water's top, below the counter top: the sink's half full.
-@export var water_size := Vector2(0.62, 0.3)
-@export var water_offset := Vector2(0.0, -0.07)  # From the sink surface's middle.
+@export var water_level := 0.065           # The soapy water's top, above the counter top: the sink's half full.
+@export var water_size := Vector2(0.68, 0.46)
+@export var water_offset := Vector2(0.0, -0.062)  # From the sink surface's middle.
+@export var scrub_view := Vector2(0.78, 58.0)  # How close the view comes while scrubbing, and how steep.
 @export var soak_tilt := 0.6               # Radians: dishes in the water lean on their sides, one against the next.
 @export var soak_spacing := 0.1           # Between dishes in the water (closer when there are lots, to fit).
 @export var spots_per_dish := 2
@@ -40,6 +41,16 @@ var _water: AudioStreamPlayer3D
 var _soaking: Array[Node3D] = []           # Tipped into the sink, still dirty, top last.
 var _carrying_bin := false
 var _bin_home := Vector3.ZERO
+var _water_look := ShaderMaterial.new()
+var _rings: Array[Vector4] = [Vector4.ZERO, Vector4.ZERO, Vector4.ZERO, Vector4.ZERO]
+var _next_ring := 0
+var _froth: Array[Node3D] = []
+var _bubbles: CPUParticles3D
+var _stirred := 0.0
+var _scrubbed := 0.0                       # How far the sponge went this frame.
+var _rubbed := 0.0                         # How far the sponge's gone since its last ring.
+var _time := 0.0
+var _near := false                         # The view's down at the sink.
 var _suds: Node3D                          # The water and its foam.
 
 
@@ -66,6 +77,8 @@ func uses_cursor() -> bool:
 
 func update(delta: float, input: CookInput) -> void:
 	var spot := input.cursor
+	_move_water(delta, _scrubbed)
+	_scrubbed = 0.0
 	_sponge.visible = _phase == Phase.SCRUB
 	match _phase:
 		Phase.PICK:
@@ -123,6 +136,14 @@ func _update_scrub(delta: float, input: CookInput, spot: Vector3) -> void:
 	var moved := Vector2(_sponge.position.x - _last.x, _sponge.position.z - _last.z).length() if input.held else 0.0
 	_last = _sponge.position
 	_sponge.rotation.y += moved * 5.0
+	_scrubbed = moved
+	_rubbed += moved
+	# It squashes as it's pressed, and froths.
+	_sponge.scale = _sponge.scale.lerp(Vector3(1.06, 0.72, 1.06) if input.held else Vector3.ONE, 1.0 - exp(-16.0 * delta))
+	if _rubbed > 0.07:
+		_rubbed = 0.0
+		_ring(_sponge.position, 0.0035)
+		_add_lather()
 	_water.volume_db = lerpf(-30.0, -14.0, clampf(moved / maxf(delta, 0.001) / 0.5, 0.0, 1.0))
 	if moved > 0.0 and randf() < 0.3:
 		session.burst(_sponge.position + Vector3(0.0, 0.02, 0.0), Color(1.0, 1.0, 1.0, 0.8), 3, 0.15)  # Suds.
@@ -145,6 +166,30 @@ func _update_scrub(delta: float, input: CookInput, spot: Vector3) -> void:
 		_water.volume_db = -40.0
 
 
+# A dab of lather left on the dish where the sponge went; it slides off and goes.
+func _add_lather() -> void:
+	if _dish == null:
+		return
+	var off := Vector2(_sponge.position.x - _dish.position.x, _sponge.position.z - _dish.position.z)
+	if off.length() > dish_size * 0.44:
+		return
+	for i in 4:
+		var bead := MeshInstance3D.new()
+		var ball := SphereMesh.new()
+		ball.radius = randf_range(0.004, 0.009)
+		ball.height = ball.radius * 1.4
+		ball.radial_segments = 12
+		ball.rings = 6
+		ball.material = session.soap_skin()
+		bead.mesh = ball
+		_dish.add_child(bead)
+		bead.position = Vector3(off.x + randf_range(-0.02, 0.02), 0.026, off.y + randf_range(-0.02, 0.02))
+		var slide := bead.create_tween()
+		slide.tween_property(bead, "position", bead.position + Vector3(randf_range(-0.01, 0.01), -0.004, 0.02), randf_range(0.8, 1.6))
+		slide.tween_property(bead, "scale", Vector3.ONE * 0.01, 0.15)
+		slide.tween_callback(bead.queue_free)
+
+
 func _follow(delta: float, spot: Vector3) -> void:
 	var goal := Vector3(spot.x, carry_height, spot.z)
 	_dish.position = _dish.position.lerp(goal, 1.0 - exp(-18.0 * delta))
@@ -159,6 +204,7 @@ func _into_sink() -> void:
 	tween.tween_property(_dish, "position", Vector3(sink.x, sink.y + _scrub_height(), sink.z), 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	tween.tween_property(_dish, "rotation", Vector3.ZERO, 0.18)  # Out of the water, held flat to scrub.
 	await tween.finished
+	_ring(_dish.position, 0.01)
 	session.burst(_dish.position + Vector3(0.0, 0.03, 0.0), Color(0.75, 0.9, 1.0, 0.8), 14, 0.4)
 	session.play_sound("plop", _dish.position, -4.0, 0.8)
 	var model := _clean_model(_dish)
@@ -169,6 +215,7 @@ func _into_sink() -> void:
 	_add_spots()
 	_sponge.position = at + Vector3(0.0, 0.1, dish_size)
 	_last = _sponge.position
+	_look_in()
 	_phase = Phase.SCRUB
 	_busy = false
 
@@ -201,8 +248,19 @@ func _onto_rack() -> void:
 	if on_racked.is_valid():
 		on_racked.call()
 	_left -= 1
+	if _soaking.is_empty() and _left > 0:  # Back for the next one in the bin.
+		_near = false
+		session.frame(Vector3(0.0, 0.0, 0.0), 1.55, 70.0, 0.4)
 	_phase = Phase.SOAK if not _soaking.is_empty() else Phase.PICK
 	_busy = false
+
+
+# The view comes down to the sink.
+func _look_in() -> void:
+	if _near:
+		return
+	_near = true
+	session.frame(session.surface(sink_surface).position + Vector3(0.0, 0.05, 0.0), scrub_view.x, scrub_view.y, 0.4)
 
 
 # Over the sink the bin tips, every dish slides into the water, and the empty
@@ -225,10 +283,13 @@ func _tip_into_sink() -> void:
 		slide.tween_property(dish, "rotation", Vector3(0.0, 0.0, soak_tilt), 0.22).set_delay(i * 0.06)
 		_soaking.push_front(dish)
 	await session.get_tree().create_timer(0.22 + dishes.size() * 0.06).timeout
+	for i in 4:
+		_ring(sink + Vector3(randf_range(-0.1, 0.1), 0.0, randf_range(-0.06, 0.06)), 0.012)
 	session.burst(sink + Vector3(0.0, 0.03, 0.0), Color(0.75, 0.9, 1.0, 0.8), 24, 0.5)
 	session.play_sound("plop", sink, -2.0, 0.7)
 	session.pop_text("Splash!", sink, 1)
 	_bin_back_home()
+	_look_in()
 	_phase = Phase.SOAK
 	_busy = false
 
@@ -255,38 +316,109 @@ func _scrub_height() -> float:
 	return water_level - 0.03 + dish_size * 0.5 * sin(soak_tilt) + 0.025
 
 
+# Something moves in the water: a ring runs out from it.
+func _ring(at: Vector3, hard: float) -> void:
+	var here := _suds.position
+	_rings[_next_ring] = Vector4(at.x - here.x, at.z - here.z, 0.0, hard)
+	_next_ring = (_next_ring + 1) % _rings.size()
+
+
+# The water and the froth on it, rocking on the rings.
+func _move_water(delta: float, moved: float) -> void:
+	_time += delta
+	_stirred = lerpf(_stirred, clampf(moved / maxf(delta, 0.001) / 0.5, 0.0, 1.0), 1.0 - exp(-3.0 * delta))
+	_water_look.set_shader_parameter("stirred", _stirred)
+	for i in _rings.size():
+		_rings[i].z += delta
+		_water_look.set_shader_parameter(["ring_a", "ring_b", "ring_c", "ring_d"][i], _rings[i])
+	for i in _froth.size():
+		var bubble := _froth[i]
+		var home: Vector3 = bubble.get_meta("home")
+		var push := Vector3.ZERO
+		for ring in _rings:
+			if ring.w > 0.0 and ring.z < 1.2:
+				var off := Vector2(home.x - ring.x, home.z - ring.y)
+				var wave := exp(-pow((off.length() - ring.z * 0.28) * 14.0, 2.0)) * ring.w * exp(-ring.z * 2.0)
+				push += Vector3(off.normalized().x * wave * 2.2, wave, off.normalized().y * wave * 2.2)
+		bubble.position = home + push + Vector3(sin(_time * 0.7 + i) * 0.002, sin(_time * 1.6 + i * 2.1) * 0.0012, cos(_time * 0.6 + i * 1.3) * 0.002)
+	_bubbles.speed_scale = 0.6 + _stirred * 1.2
+
+
+# Soap bubbles drifting up off the water: clear, with a bright rim.
+func _soap_bubbles() -> void:
+	_bubbles = CPUParticles3D.new()
+	_bubbles.amount = 12
+	_bubbles.lifetime = 3.2
+	_bubbles.randomness = 0.8
+	_bubbles.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
+	_bubbles.emission_box_extents = Vector3(water_size.x * 0.4, 0.0, water_size.y * 0.4)
+	_bubbles.direction = Vector3.UP
+	_bubbles.spread = 25.0
+	_bubbles.initial_velocity_min = 0.02
+	_bubbles.initial_velocity_max = 0.06
+	_bubbles.gravity = Vector3(0.0, 0.012, 0.0)
+	_bubbles.tangential_accel_min = -0.03
+	_bubbles.tangential_accel_max = 0.03
+	_bubbles.scale_amount_min = 0.3
+	_bubbles.scale_amount_max = 1.0
+	var pop := Curve.new()
+	pop.add_point(Vector2(0.0, 0.1))
+	pop.add_point(Vector2(0.2, 1.0))
+	pop.add_point(Vector2(0.95, 1.0))
+	pop.add_point(Vector2(1.0, 0.0))
+	_bubbles.scale_amount_curve = pop
+	var ball := SphereMesh.new()
+	ball.radius = 0.011
+	ball.height = 0.022
+	ball.radial_segments = 20
+	ball.rings = 10
+	ball.material = session.soap_skin()
+	_bubbles.mesh = ball
+	_bubbles.position.y = 0.01
+	_suds.add_child(_bubbles)
+
+
 # Half a sink of soapy water, with foam round the edges.
 func _build_suds() -> void:
 	_suds = Node3D.new()
 	var sink := session.surface(sink_surface).position
 	_suds.position = sink + Vector3(water_offset.x, water_level, water_offset.y)
 	var water := MeshInstance3D.new()
-	var sheet := BoxMesh.new()
-	sheet.size = Vector3(water_size.x, 0.004, water_size.y)
-	var material := StandardMaterial3D.new()
-	material.albedo_color = Color(0.72, 0.86, 0.96, 0.92)  # Cloudy with soap: you can't see what's under.
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED  # Stays soapy blue under the warm kitchen light.
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.roughness = 0.15
-	sheet.material = material
+	var sheet := PlaneMesh.new()
+	sheet.size = water_size
+	sheet.subdivide_width = 72
+	sheet.subdivide_depth = 54
 	water.mesh = sheet
+	_water_look.shader = preload("res://assets/shaders/sink_water.gdshader")
+	_water_look.set_shader_parameter("size", water_size)
+	water.material_override = _water_look
+	water.custom_aabb = AABB(Vector3(-water_size.x, -0.03, -water_size.y), Vector3(water_size.x * 2.0, 0.06, water_size.y * 2.0))
 	_suds.add_child(water)
 	var foam := StandardMaterial3D.new()
-	foam.albedo_color = Color(0.97, 0.98, 1.0)
-	foam.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	for i in 18:
+	foam.albedo_color = Color(0.94, 0.97, 1.0)
+	foam.roughness = 0.35
+	foam.emission_enabled = true
+	foam.emission = Color(0.8, 0.88, 1.0)
+	foam.emission_energy_multiplier = 0.15
+	foam.set_meta(ToonStyle.SKIP, true)
+	_soap_bubbles()
+	for i in 90:
 		var bubble := MeshInstance3D.new()
 		var ball := SphereMesh.new()
-		ball.radius = randf_range(0.012, 0.028)
-		ball.height = ball.radius * 0.9
+		ball.radius = randf_range(0.004, 0.015)
+		ball.height = ball.radius * 1.5
+		ball.radial_segments = 14
+		ball.rings = 7
 		ball.material = foam
 		bubble.mesh = ball
 		# Mostly round the edges, where suds gather.
 		var edge := Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0))
 		if absf(edge.x) < 0.75 and absf(edge.y) < 0.75:
 			edge = edge.normalized() * 0.85 if edge != Vector2.ZERO else Vector2(0.85, 0.0)
-		bubble.position = Vector3(edge.x * water_size.x * 0.46, 0.003, edge.y * water_size.y * 0.42)
+		bubble.position = Vector3(edge.x * water_size.x * 0.46, 0.001, edge.y * water_size.y * 0.42)
+		bubble.set_meta("home", bubble.position)
 		_suds.add_child(bubble)
+		_froth.append(bubble)
 	session.add_child(_suds)
 
 
@@ -310,7 +442,8 @@ func _add_spots() -> void:
 	_spots.clear()
 	var material := StandardMaterial3D.new()
 	material.albedo_color = grime_color
-	material.roughness = 0.9
+	material.roughness = 0.5
+	material.set_meta(ToonStyle.FOOD, "cooked")
 	var count := _spot_count()
 	for i in count:
 		var offset := Vector2.from_angle(TAU * i / count + randf_range(-0.4, 0.4)) * dish_size * randf_range(0.15, 0.3)

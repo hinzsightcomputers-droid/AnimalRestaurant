@@ -72,6 +72,7 @@ func _begin() -> void:
 	_top_y = dough.position.y + (dough.mesh as BoxMesh).size.y * 0.5 if dough != null else 0.0
 	_material = (dough.mesh.surface_get_material(0) as StandardMaterial3D).duplicate() if dough != null else StandardMaterial3D.new()
 	_material.albedo_color = _material.albedo_color.lightened(0.18)
+	_material.set_meta(ToonStyle.FOOD, "dough")
 	if shape == "round":
 		_cutter = session.make_ring(cookie_radius, Color(CLEAR, 0.95))
 		_cutter.scale.y = 1.5
@@ -245,12 +246,44 @@ func _make_cookie(at: Vector3) -> MeshInstance3D:
 	cookie.position = Vector3(at.x, _top() + cookie_thickness * 0.5, at.z)
 	session.add_child(cookie)
 	cookie.create_tween().tween_property(cookie, "position:y", cookie.position.y + LIFT, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	if shape != "round":
+	if shape == "round":
+		var look := MeshInstance3D.new()
+		look.mesh = rounded_disc(mesh.top_radius, cookie_thickness)
+		session.dress(cookie, look)
+	else:
 		var look := MeshInstance3D.new()
 		look.mesh = CookSession.prism(_outline(), cookie_thickness)
 		look.position.y = -cookie_thickness * 0.5
 		session.dress(cookie, look, _half())
 	return cookie
+
+
+# A disc with soft, rounded edges, its middle at the origin.
+static func rounded_disc(reach: float, height: float) -> ArrayMesh:
+	const ROUND := 40
+	const SIDE := 9
+	var bulge := minf(height * 0.5, reach * 0.4)
+	var profile: Array[Vector2] = [Vector2(0.0, -height * 0.5)]
+	for i in SIDE:
+		var up := PI * (i / (SIDE - 1.0) - 0.5)
+		profile.append(Vector2(reach - bulge + cos(up) * bulge, sin(up) * height * 0.5))
+	profile.append(Vector2(reach * 0.6, height * 0.53))
+	profile.append(Vector2(0.0, height * 0.55))
+	var tool := SurfaceTool.new()
+	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	tool.set_smooth_group(0)
+	for point in profile:
+		for i in ROUND + 1:
+			var angle := TAU * i / ROUND
+			tool.add_vertex(Vector3(cos(angle) * point.x, point.y, sin(angle) * point.x))
+	for ring in profile.size() - 1:
+		for i in ROUND:
+			var a := ring * (ROUND + 1) + i
+			var b := a + ROUND + 1
+			for index in [a, a + 1, b, a + 1, b + 1, b]:
+				tool.add_index(index)
+	tool.generate_normals()
+	return tool.commit()
 
 
 # The scraps shrink away (unless they're kept) and the cookies hop over onto

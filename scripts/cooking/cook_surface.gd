@@ -21,10 +21,10 @@ extends Node3D
 
 var contents: Array[Node3D] = []  # What's been dropped in (e.g. chopped carrots in a pot).
 var level := 0.0                  # A container: how full it is (1 = depth).
-var liquid: MeshInstance3D = null # Its liquid, once there's some (see fill_to).
+var liquid: PotLiquid = null      # Its liquid, once there's some (see fill_to).
 var _material := StandardMaterial3D.new()
 var _home := Vector3.ZERO
-var _soup: ShaderMaterial = null  # look "soup": its surface.
+var _soup: PotLiquid = null       # look "soup": its surface.
 
 
 func _ready() -> void:
@@ -57,7 +57,9 @@ func _ready() -> void:
 		mesh_instance.mesh = slab
 	mesh_instance.position.y = -thickness * 0.5
 	add_child(mesh_instance)
-	if look == "griddle" and not round:
+	if round and look == "plain" and String(name).begins_with("Plate"):
+		_dress_plate(mesh_instance)
+	elif look == "griddle" and not round:
 		_dress_griddle(mesh_instance)
 	elif look in ["pastry", "board"]:
 		mesh_instance.material_override = KitchenProps.pastry_wood() if look == "pastry" else KitchenProps.board_wood()
@@ -65,10 +67,12 @@ func _ready() -> void:
 	elif look == "tray" and not round:
 		_dress_tray(mesh_instance)
 	elif look == "soup":
-		var soup := KitchenProps.soup(color)
-		soup.set_shader_parameter("radius", radius())
-		mesh_instance.material_override = soup
-		_soup = soup
+		mesh_instance.visible = false
+		_soup = PotLiquid.make(radius(), color)
+		_soup.dress({ "oil": 1.0, "foam": 0.2 })
+		_soup.set_boil(0.4)
+		_soup.position.y = 0.012  # Clear of the pot's floor, however it rocks.
+		add_child(_soup)
 
 
 # The griddle's look: its top in the griddle shader (the heat glow), set into
@@ -95,6 +99,40 @@ func _dress_griddle(top: MeshInstance3D) -> void:
 	steel.roughness = 0.45
 	steel.metallic = 0.3
 	_add_rim(0.022, [0.03, 0.012, 0.03, 0.03], steel)
+
+
+# A glazed plate: a flat well, and a rim that curves up and out round it.
+func _dress_plate(disc: MeshInstance3D) -> void:
+	disc.visible = false
+	const ROUND := 72
+	var reach := radius()
+	var profile := [Vector2(0.0, 0.0), Vector2(reach * 0.55, 0.0), Vector2(reach * 0.9, 0.0), Vector2(reach * 0.96, 0.0012), Vector2(reach * 1.0, 0.005), Vector2(reach * 1.04, 0.0105), Vector2(reach * 1.12, 0.0145), Vector2(reach * 1.15, 0.0153), Vector2(reach * 1.152, 0.01535), Vector2(reach * 1.175, 0.0161), Vector2(reach * 1.177, 0.01615), Vector2(reach * 1.2, 0.017), Vector2(reach * 1.218, 0.0165), Vector2(reach * 1.222, 0.0145), Vector2(reach * 1.2, 0.012), Vector2(reach * 1.05, 0.002), Vector2(reach * 0.98, -thickness * 0.6), Vector2(reach * 0.7, -thickness)]
+	var tool := SurfaceTool.new()
+	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for ring in profile.size():
+		for i in ROUND + 1:
+			var turn := TAU * i / ROUND
+			tool.set_smooth_group(0)
+			tool.set_color(Color("#6E8F78") if ring == 8 or ring == 9 else color.darkened(0.07))  # A painted line round the rim.
+			tool.add_vertex(Vector3(cos(turn) * profile[ring].x, profile[ring].y, sin(turn) * profile[ring].x))
+	for ring in profile.size() - 1:
+		for i in ROUND:
+			var a := ring * (ROUND + 1) + i
+			var b := a + ROUND + 1
+			for index in [a, b, a + 1, a + 1, b, b + 1]:
+				tool.add_index(index)
+	tool.generate_normals()
+	var glaze := StandardMaterial3D.new()
+	glaze.vertex_color_use_as_albedo = true
+	glaze.vertex_color_is_srgb = true
+	glaze.roughness = 0.42
+	glaze.metallic_specular = 0.3
+	glaze.cull_mode = BaseMaterial3D.CULL_DISABLED
+	glaze.set_meta(ToonStyle.SKIP, true)
+	var dish := MeshInstance3D.new()
+	dish.mesh = tool.commit()
+	dish.material_override = glaze
+	add_child(dish)
 
 
 # A sheet pan: soft light steel with a low rolled rim all round.
@@ -137,7 +175,7 @@ func tint(new_color: Color) -> void:
 	color = new_color
 	_material.albedo_color = new_color
 	if _soup != null:
-		KitchenProps.set_soup_color(_soup, new_color)
+		_soup.set_color(new_color)
 
 
 func radius() -> float:
@@ -148,17 +186,7 @@ func radius() -> float:
 func fill_to(new_level: float, liquid_color = null) -> void:
 	level = maxf(new_level, 0.0)
 	if liquid == null:
-		liquid = MeshInstance3D.new()
-		var mesh := CylinderMesh.new()
-		mesh.top_radius = radius() * 0.94
-		mesh.bottom_radius = radius() * 0.94
-		mesh.height = 0.004
-		mesh.radial_segments = 32
-		var material := StandardMaterial3D.new()
-		material.albedo_color = color
-		material.roughness = 0.25
-		mesh.material = material
-		liquid.mesh = mesh
+		liquid = PotLiquid.make(radius() * 0.95, color)
 		liquid.set_meta("food", true)  # Served with the dish (CookSession.snapshot), unlike the surface itself.
 		add_child(liquid)
 	if liquid_color is Color:
@@ -168,17 +196,30 @@ func fill_to(new_level: float, liquid_color = null) -> void:
 
 
 func liquid_color() -> Color:
-	return (liquid.mesh.material as StandardMaterial3D).albedo_color if liquid != null else color
+	return liquid.color if liquid != null else color
+
+
+# The liquid in it now, or null (dry, or a plate).
+func in_it() -> PotLiquid:
+	if _soup != null:
+		return _soup
+	return liquid if liquid != null and liquid.visible else null
+
+
+# Something lands in it at a point (in the session), so hard.
+func splash(at: Vector3, hard := 0.004) -> void:
+	if in_it() != null:
+		in_it().splash(Vector2(at.x - position.x, at.z - position.z), hard)
 
 
 func set_liquid_color(new_color: Color) -> void:
 	if liquid != null:
-		(liquid.mesh.material as StandardMaterial3D).albedo_color = new_color
+		liquid.set_color(new_color)
 
 
 # The top of its liquid (or of the surface, without any), in the session.
 func liquid_top() -> float:
-	return position.y + (depth * minf(level, 1.0) if liquid != null and liquid.visible else 0.0)
+	return position.y + (depth * minf(level, 1.0) if liquid != null and liquid.visible else (_soup.position.y if _soup != null else 0.0))
 
 
 # The point moved onto this surface if it's off it, at least `inset` in from

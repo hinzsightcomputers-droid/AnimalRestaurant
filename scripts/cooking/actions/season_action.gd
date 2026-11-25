@@ -92,7 +92,8 @@ func _shake(pot: CookSurface) -> void:
 	tween.tween_property(_shaker, "rotation:z", 2.2, 0.1)
 	var below := Vector3(_shaker.position.x, pot.position.y, _shaker.position.z)
 	var over_pot := pot.contains(below, -0.02)
-	session.burst(_shaker.position - Vector3(0.0, 0.05, 0.0), flake_color, 10, 0.15)
+	for i in 12:
+		_drop_flake(pot, over_pot)
 	session.play_sound("tick", _shaker.position, -6.0, randf_range(1.6, 2.0))
 	if over_pot:
 		_amount += randf_range(pinch.x, pinch.y)
@@ -101,6 +102,44 @@ func _shake(pot: CookSurface) -> void:
 		_fill.position.x = (full - 1.0) * meter_length * 0.5
 	else:
 		session.pop_text("Missed the pot", below, -1)
+
+
+# One grain falls; in the pot it makes a tiny ring, floats a moment and goes in
+# (a herb stays).
+func _drop_flake(pot: CookSurface, over_pot: bool) -> void:
+	var flake := MeshInstance3D.new()
+	var mesh := BoxMesh.new()
+	var leafy := flake_color.g > flake_color.r * 1.2
+	mesh.size = Vector3(0.007, 0.0012, 0.004) if leafy else Vector3.ONE * randf_range(0.0022, 0.0036)
+	var material := StandardMaterial3D.new()
+	material.albedo_color = flake_color.lerp(Color.BLACK, randf() * 0.18)
+	material.set_meta(ToonStyle.SKIP, true)
+	mesh.material = material
+	flake.mesh = mesh
+	session.add_child(flake)
+	var from := _shaker.position + Vector3(randf_range(-0.008, 0.008), -0.05, randf_range(-0.008, 0.008))
+	var spot := from + Vector3(randf_range(-0.035, 0.035), 0.0, randf_range(-0.035, 0.035))
+	spot.y = pot.liquid_top() + 0.002 if over_pot and pot.contains(spot, -0.004) else 0.004
+	flake.position = from
+	flake.rotation = Vector3(randf(), randf(), randf()) * TAU
+	var seconds := randf_range(0.2, 0.32)
+	var fall := flake.create_tween().set_parallel(true)
+	fall.tween_property(flake, "position:y", spot.y, seconds).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	fall.tween_property(flake, "position:x", spot.x, seconds)
+	fall.tween_property(flake, "position:z", spot.z, seconds)
+	fall.tween_property(flake, "rotation", Vector3(0.0, flake.rotation.y + 2.0, 0.0), seconds)
+	fall.chain().tween_callback(func():
+		if over_pot:
+			pot.splash(spot, 0.0006)
+			if pot.in_it() != null:
+				flake.reparent(pot)
+				pot.in_it().float_thing(flake, -0.001))
+	if over_pot and leafy:
+		pot.contents.append(flake)
+		return
+	fall.chain().tween_interval(randf_range(0.5, 1.4))
+	fall.chain().tween_property(flake, "scale", Vector3.ONE * 0.01, 0.6)
+	fall.chain().tween_callback(flake.queue_free)
 
 
 # Full marks in the band, falling off either side of it.

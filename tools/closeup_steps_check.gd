@@ -103,6 +103,9 @@ func _left_over(id: String, session: CookSession) -> void:
 	Input.action_release("p0_move_right")
 	_check("%s '%s': nothing left over counts (%d presses, %d pieces)" % [id, step.title, presses, session.pieces.size() - before], presses == 0 and session.pieces.size() == before)
 	if session.current == step:
+		await get_tree().create_timer(0.7).timeout  # The view's arrived.
+		if not is_instance_valid(session) or session.current != step:
+			return
 		_check("%s '%s': cursor in the middle (moved %.3f)" % [id, step.title, session.input.cursor.distance_to(middle)], session.input.cursor.distance_to(middle) < 0.02)
 		var at := session.input.screen_point(session.input.cursor) if step.aims() else Vector2.INF
 		_check("%s '%s': in sight at %s" % [id, step.title, at], at == Vector2.INF or Rect2(0.03, 0.03, 0.94, 0.94).has_point(at))

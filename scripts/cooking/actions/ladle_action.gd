@@ -19,7 +19,20 @@ var _busy := false
 var _poured := 0
 var _scores: Array[float] = []
 var _ring: MeshInstance3D
+var _stream: PourStream
+var _pouring := 0.0                        # Seconds of it still to come off the ladle.
+var _pour_to: CookSurface = null
+var _level_to := 0.0
+var _since_ring := 0.0
+var _scooped_at := 0                       # Which ladleful's in it.
+var _slop := Vector2.ZERO                  # The soup in it, rocking.
+var _slop_speed := Vector2.ZERO
+var _last_at := Vector3.ZERO
+var _last_way := Vector3.ZERO
 
+
+const BITS := 5               # Pieces of vegetable a ladleful brings along.
+var _bits: Array[Node3D] = []
 
 # Between the pot and the bowl.
 func view_point() -> Vector3:
@@ -43,12 +56,15 @@ func _begin() -> void:
 	var bowl := session.surface(target)
 	_ladle = _make_ladle(pot.color)
 	_ladle.position = pot.position + Vector3(0.0, 0.12, 0.0)
+	_last_at = _ladle.position
+	_stream = PourStream.make(session, pot.color, 0.008, 0.8, 1.0)
 	_ring = session.make_ring(perfect_offset, Color(1.0, 1.0, 1.0, 0.9))
 	_ring.position = bowl.position + Vector3(0.0, bowl.depth, 0.0)
 
 
 func end() -> void:
 	_ladle.queue_free()
+	_stream.finish(_stream.position - Vector3(0.0, 0.08, 0.0))
 	_ring.queue_free()
 
 
@@ -56,6 +72,7 @@ func update(delta: float, input: CookInput) -> void:
 	var pot := session.surface(from_surface)
 	var bowl := session.surface(target)
 	_ring.visible = _full
+	_run(delta, pot)
 	if not _busy:
 		var goal := Vector3(input.cursor.x, pot.position.y + 0.11, input.cursor.z)
 		_ladle.position = _ladle.position.lerp(goal, 1.0 - exp(-18.0 * delta))
@@ -73,6 +90,41 @@ func update(delta: float, input: CookInput) -> void:
 	session.set_status("Ladle %d of %d: %s" % [mini(_poured + 1, ladles), ladles, "over the bowl" if _full else "scoop from the pot"])
 
 
+# What's pouring off the ladle's lip, the bowl filling as it lands, and what's
+# left in the ladle slopping as it's carried.
+func _run(delta: float, pot: CookSurface) -> void:
+	_pouring = maxf(_pouring - delta, 0.0)
+	var lip := _ladle.to_global(Vector3(-0.034, 0.012, 0.0))
+	lip = session.to_local(lip)
+	var land := Vector3(lip.x, (_pour_to.liquid_top() if _pour_to != null else lip.y - 0.05), lip.z)
+	_stream.flow(lip, land, _pouring > 0.08, delta)
+	if _pour_to != null:
+		if _stream.landed:
+			_pour_to.fill_to(move_toward(_pour_to.level, _level_to, delta * full_level / ladles / 0.3), pot.color)
+			_since_ring += delta
+			if _since_ring > 0.07:
+				_since_ring = 0.0
+				_pour_to.splash(land, 0.005)
+				_pour_to.liquid.knock(Vector2.from_angle(randf() * TAU) * 0.03)
+				_pour_to.liquid.dress({ "oil": 1.0 })
+		elif _pouring <= 0.0 and _pour_to.level < _level_to:
+			_pour_to.fill_to(_level_to, pot.color)
+	var way := (_ladle.position - _last_at) / maxf(delta, 0.001)
+	_last_at = _ladle.position
+	_slop_speed += (Vector2(way.x, way.z) * -0.35 - _slop * 160.0 - _slop_speed * 5.0) * delta
+	_slop_speed += -Vector2(way.x - _last_way.x, way.z - _last_way.z) * 0.9
+	_last_way = way
+	_slop = (_slop + _slop_speed * delta).limit_length(0.4)
+	_soup.rotation = Vector3(_slop.y, 0.0, -_slop.x)
+	_soup.visible = _full and _pouring <= 0.12 and not _emptied() or _soup.visible and _pouring > 0.12
+	var left := clampf(_pouring / 0.42, 0.05, 1.0) if _pouring > 0.0 else 1.0
+	_soup.scale = Vector3.ONE * left
+
+
+func _emptied() -> bool:
+	return _busy and _pour_to != null and _pouring <= 0.12 and _scooped_at < _poured
+
+
 # For a reel: scoop and pour till it's full.
 func scripted_hold(delta: float, input: CookInput) -> bool:
 	if _busy:
@@ -87,13 +139,58 @@ func _scoop(pot: CookSurface) -> void:
 	var tween := _ladle.create_tween()
 	tween.tween_property(_ladle, "position:y", pot.position.y - 0.005, 0.14).set_trans(Tween.TRANS_QUAD)
 	tween.tween_callback(func():
+		_scooped_at = _poured + 1
 		_soup.visible = true
+		pot.splash(_ladle.position, 0.007)
+		if pot.in_it() != null:
+			pot.in_it().knock(Vector2(randf_range(-0.04, 0.04), 0.05))
+		_take_bits(pot)
 		session.play_sound("plop", pot.position, -6.0, 0.9)
 		session.burst(pot.position, pot.color, 4, 0.15))
 	tween.tween_property(_ladle, "position:y", pot.position.y + 0.11, 0.16).set_trans(Tween.TRANS_QUAD)
 	tween.tween_callback(func():
 		_full = true
 		_busy = false)
+
+
+# Some of what's floating in the pot comes up in the ladle...
+func _take_bits(pot: CookSurface) -> void:
+	var here: Array = pot.contents.filter(func(bit): return is_instance_valid(bit) and bit is Node3D)
+	if here.is_empty():
+		return
+	for i in mini(BITS, maxi(here.size() / 2, 1)):
+		var bit: Node3D = here[(i * 7 + _poured * 3) % here.size()]
+		if bit in _bits:
+			continue
+		pot.contents.erase(bit)
+		if pot.in_it() != null:
+			pot.in_it().sink_thing(bit)
+		bit.reparent(_ladle)
+		bit.position = Vector3(randf_range(-0.016, 0.016), 0.018, randf_range(-0.016, 0.016))
+		_bits.append(bit)
+
+
+# ...and goes into the bowl with the soup, to float there.
+func _drop_bits(bowl: CookSurface) -> void:
+	for i in _bits.size():
+		var bit := _bits[i]
+		bit.reparent(session)
+		var spot := Vector2.from_angle(randf() * TAU) * bowl.radius() * sqrt(randf()) * 0.5
+		var at := Vector3(bowl.position.x + spot.x, maxf(bowl.position.y + bowl.depth * _level_after(), bowl.liquid_top()), bowl.position.z + spot.y)
+		var fall := bit.create_tween()
+		fall.tween_interval(0.06 * i)
+		fall.tween_property(bit, "position", at, 0.2).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		fall.parallel().tween_property(bit, "rotation", Vector3(randf_range(-0.3, 0.3), randf() * TAU, randf_range(-0.3, 0.3)), 0.2)
+		fall.tween_callback(func():
+			bowl.contents.append(bit)
+			bowl.splash(at, 0.004)
+			if bowl.in_it() != null:
+				bowl.in_it().float_thing(bit, 0.002))
+	_bits.clear()
+
+
+func _level_after() -> float:
+	return full_level * (_poured + 1) / ladles
 
 
 func _pour(bowl: CookSurface, at: Vector3) -> void:
@@ -105,14 +202,17 @@ func _pour(bowl: CookSurface, at: Vector3) -> void:
 	tween.tween_property(_ladle, "position", Vector3(at.x, bowl.position.y + bowl.depth + 0.07, at.z), 0.12)
 	tween.tween_property(_ladle, "rotation:z", deg_to_rad(70.0), 0.18)
 	tween.tween_callback(func():
-		_soup.visible = false
+		_pouring = 0.42
+		_pour_to = bowl
+		_drop_bits(bowl)
 		_poured += 1
 		_scores.append(result)
-		bowl.fill_to(full_level * _poured / ladles, pot.color)
+		_level_to = full_level * _poured / ladles
+		session.play_sound("pour", at, -10.0, 1.1)
 		session.play_sound("plop", at, -4.0, 1.1)
 		session.burst(bowl.position + Vector3(0.0, bowl.depth, 0.0), pot.color, 14 if result < 0.8 else 4, 0.4 if result < 0.8 else 0.15)
 		session.pop_text("Lovely!" if result >= 1.0 else ("Nice" if result >= 0.8 else "Spilled a bit: pour in the middle"), bowl.position, CookSession.mood_of(result)))
-	tween.tween_interval(0.1)
+	tween.tween_interval(0.5)
 	tween.tween_property(_ladle, "rotation:z", 0.0, 0.15)
 	tween.tween_callback(func():
 		_full = false

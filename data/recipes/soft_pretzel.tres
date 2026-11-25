@@ -137,6 +137,7 @@ weight = 0.2
 [sub_resource type="Resource" id="Resource_11"]
 script = ExtResource("stir")
 title = "Stir it in"
+thick_look = 0.6
 cue = "Stir!"
 in_surface = "Saucepan"
 turns = 3
@@ -161,6 +162,7 @@ weight = 0.2
 [sub_resource type="Resource" id="Resource_13"]
 script = ExtResource("stir")
 title = "Stir it in"
+thick_look = 0.6
 cue = "Stir!"
 in_surface = "Saucepan"
 turns = 3
@@ -185,6 +187,7 @@ weight = 0.2
 [sub_resource type="Resource" id="Resource_15"]
 script = ExtResource("stir")
 title = "Stir until smooth"
+thick_look = 0.8
 cue = "Stir!"
 in_surface = "Saucepan"
 turns = 3

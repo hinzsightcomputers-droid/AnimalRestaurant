@@ -23,6 +23,7 @@ const SCRIPTED_PACE := 2.5       # A reel doesn't wait around: this much faster 
 const SCRIPTED_DONE := 1.0       # How done a reel's chef lets a side get.
 
 var _seen := {}    # Piece -> its steam, once it's been on the heat.
+var _fat := {}     # Piece -> the fat sizzling round it.
 var _scores: Array[float] = []
 var _sizzle: AudioStreamPlayer3D
 var _markers := {}  # Piece -> its "Flip!" label.
@@ -50,6 +51,9 @@ func update(delta: float, input: CookInput) -> void:
 				var steam := session.make_steam(piece.spread_to)
 				piece.add_child(steam)
 				_seen[piece] = steam
+				var fat := session.make_sizzle()
+				piece.add_child(fat)
+				_fat[piece] = fat
 			cooking += 1
 			if not piece.busy:
 				var seconds := second_side_seconds if piece.flipped else first_side_seconds
@@ -66,6 +70,8 @@ func update(delta: float, input: CookInput) -> void:
 			piece.scores["heat"] = score
 			_scores.append(score)
 			_seen[piece].emitting = false
+		if piece.surface != surface and _fat.has(piece):
+			_fat[piece].emitting = false
 		if piece.surface != surface and _markers.has(piece):
 			_markers[piece].visible = false
 	if cooking > 0 and not _sizzle.playing:
@@ -85,6 +91,9 @@ func end() -> void:
 	_sizzle.stop()
 	for steam in _seen.values():
 		steam.emitting = false
+	for fat in _fat.values():
+		if is_instance_valid(fat):
+			fat.emitting = false
 	for marker in _markers.values():
 		marker.queue_free()
 	_markers.clear()
@@ -98,6 +107,8 @@ func _update_marker(piece: CookPiece) -> void:
 	var amount: float = piece.doneness[piece.down_side]
 	var show := not word.is_empty() and not piece.busy and amount >= perfect_from
 	var marker: Label3D = _markers.get(piece)
+	if marker != null and not show:
+		marker.remove_meta("rang")
 	if marker == null:
 		if not show:
 			return
@@ -106,16 +117,24 @@ func _update_marker(piece: CookPiece) -> void:
 		marker.no_depth_test = true
 		marker.font_size = 64
 		marker.outline_size = 18
+		marker.render_priority = 18
+		marker.outline_render_priority = 17
 		marker.pixel_size = session.text_size
 		marker.outline_modulate = Color(0.2, 0.12, 0.08)
 		session.add_child(marker)
 		_markers[piece] = marker
 		marker.visible = false
-	if show and not marker.visible:
+	if show and not marker.visible and not marker.has_meta("rang"):
+		marker.set_meta("rang", true)
 		session.play_sound("ding", piece.position, -10.0, 1.6)
 		session.wobble(marker, 0.3)
-	marker.visible = show
-	if not show:
+	# Side by side (bacon), only the one that's furthest on says so, or the words overlap.
+	var said := show
+	for other: CookPiece in _markers:
+		if show and other != piece and is_instance_valid(other) and _markers[other].visible and other.position.distance_to(piece.position) < 0.1 and other.doneness[other.down_side] > amount:
+			said = false
+	marker.visible = said
+	if not said:
 		return
 	var late := amount > perfect_to
 	marker.text = "Hurry! %s" % word if late else word
@@ -127,6 +146,16 @@ func _update_marker(piece: CookPiece) -> void:
 func _update_steam(piece: CookPiece, steam: CPUParticles3D) -> void:
 	var amount: float = piece.doneness[piece.down_side]
 	steam.emitting = amount > 0.25
+	var fat: CPUParticles3D = _fat[piece]
+	fat.emitting = not piece.busy and piece.radius > 0.03
+	if piece.kind == "bacon":  # All along it.
+		fat.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
+		fat.emission_box_extents = Vector3(piece.radius * 0.95, 0.001, piece.spread_to * 0.6)
+	elif piece.folded:
+		fat.emitting = false
+	else:
+		session.sizzle_reach(fat, piece.radius)
+	fat.speed_scale = 0.7 + minf(amount, 1.2) * 0.6
 	steam.emission_sphere_radius = maxf(piece.radius, 0.01) * 0.7
 	if amount > 1.3:
 		if not _smoking.has(piece):

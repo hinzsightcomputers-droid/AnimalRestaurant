@@ -52,6 +52,7 @@ var recipe: CookRecipe
 var player: Player
 var ingredients: Ingredients = null        # What the cook brought, if anything (e.g. what to chop).
 var context := {}                          # Anything else the steps need, set before start() (e.g. the dishes on a table).
+var sharp_to := 0.0                        # How far past its middle the view stays sharp (0: BLUR_FROM), e.g. all the way to a cast bobber.
 var home_view: Array = []                  # [point, CameraZoomSettings]: the station's usual close-up view, set before start().
 var input: CookInput
 var steps: Array[CookAction] = []          # This session's own copies of the recipe's steps.
@@ -225,7 +226,7 @@ func _blur_background(rig: CameraRig) -> void:
 # blur's start follows it: always just behind the station, never on the food.
 func _follow_blur() -> void:
 	if _blur != null and is_instance_valid(_blurred):
-		_blur.dof_blur_far_distance = _blurred.global_position.distance_to(global_position) + BLUR_FROM
+		_blur.dof_blur_far_distance = _blurred.global_position.distance_to(global_position) + (BLUR_FROM if sharp_to <= 0.0 else sharp_to)
 
 
 # Move the cook's camera to look at `at` (session coordinates) from in front,
@@ -417,6 +418,50 @@ func stack_push(surface_name: String, node: Node3D, at: Vector3, height: float) 
 	_stacks.get_or_add(surface_name, []).append({ "node": node, "at": at, "height": height })
 
 
+# How high whatever's on a surface is at a point (Vector2 of x and z -> session
+# height, INF off the surface): the food, its edges rounded, things on it (butter)
+# and the surface itself. For a SauceSheet; it's as things are now.
+func lie_on(surface_name: String) -> Callable:
+	var place := surface(surface_name)
+	var foods: Array[CookPiece] = []
+	var bumps := []  # [box] of everything else.
+	for entry in stack_of(surface_name):
+		var node: Node3D = entry["node"]
+		if not is_instance_valid(node):
+			continue
+		if node is CookPiece:
+			foods.push_front(node)
+			continue
+		var to_session := global_transform.affine_inverse()
+		var meshes := node.find_children("*", "MeshInstance3D", true, false)
+		if node is MeshInstance3D:
+			meshes.append(node)
+		for mesh: MeshInstance3D in meshes:
+			if mesh.get_parent() is SauceSheet:
+				continue
+			bumps.append((to_session * mesh.global_transform) * mesh.get_aabb())
+	return func(point: Vector2) -> float:
+		if not place.contains(Vector3(point.x, 0.0, point.y), -0.004):
+			return INF
+		var top := place.position.y
+		for food in foods:
+			if is_instance_valid(food):
+				top = maxf(top, food.height_at(point))
+		for box: AABB in bumps:
+			var from_middle := (point - Vector2(box.get_center().x, box.get_center().z)) / (Vector2(box.size.x, box.size.z) * 0.5)
+			var out := maxf(absf(from_middle.x), absf(from_middle.y))
+			if out < 1.0:
+				top = maxf(top, box.position.y + box.size.y * sqrt(1.0 - pow(out, 4.0)))
+		return top
+
+
+# A sauce over what's on a surface (SauceSheet.KINDS).
+func make_sauce(surface_name: String, kind: String, color: Color) -> SauceSheet:
+	var area := area_of(surface_name)
+	var side := maxf(area.size.x, area.size.y)
+	return SauceSheet.make(self, Rect2(area.get_center() - Vector2.ONE * side * 0.5, Vector2.ONE * side), surface(surface_name).position.y, kind, color, lie_on(surface_name))
+
+
 # The highest piece of food in a stack (not toppings), or null.
 func top_piece(surface_name: String) -> CookPiece:
 	var stack := stack_of(surface_name)
@@ -434,6 +479,8 @@ func pop_text(text: String, at: Vector3, mood := 0) -> void:
 	label.text = text
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	label.no_depth_test = true
+	label.render_priority = 20  # Over sauces and steam.
+	label.outline_render_priority = 19
 	label.font_size = 48
 	label.outline_size = 14
 	UiStyle.title(label)
@@ -465,6 +512,9 @@ func _marks() -> float:
 
 # A quick squash and stretch.
 func wobble(node: Node3D, amount := 0.2) -> void:
+	if node is CookPiece and (node as CookPiece).kind != "bacon" and not (node as CookPiece).folded:  # Soft all by itself.
+		(node as CookPiece).jolt(amount)
+		return
 	var tween := node.create_tween()
 	var base := node.scale
 	tween.tween_property(node, "scale", base * Vector3(1.0 + amount, 1.0 - amount, 1.0 + amount), 0.06)
@@ -560,7 +610,8 @@ func make_bottle(liquid: Color) -> Node3D:
 # running back toward the cook (+z) and up.
 func make_spatula() -> Node3D:
 	var spatula := Node3D.new()
-	var metal := KitchenProps.steel()
+	var metal := KitchenProps.steel().duplicate() as StandardMaterial3D
+	metal.albedo_color = Color(0.5, 0.49, 0.48)  # Dark enough not to glare under the griddle lamp.
 	var blade := MeshInstance3D.new()
 	var blade_mesh := BoxMesh.new()
 	blade_mesh.size = Vector3(0.12, 0.004, 0.11)
@@ -642,6 +693,33 @@ static func on_piece(cookie: MeshInstance3D, point: Vector2) -> bool:
 	return absf(offset.x) <= half.x and absf(offset.y) <= half.y
 
 
+# Rings running out over open water from a point, fading as they go, and drops
+# thrown up with them if it's hit hard.
+func water_rings(at: Vector3, reach: float, drops := 0, speed := 0.6) -> void:
+	for i in 3:
+		var ring := MeshInstance3D.new()
+		var mesh := TorusMesh.new()
+		mesh.inner_radius = 0.93
+		mesh.outer_radius = 1.0
+		mesh.rings = 48
+		mesh.ring_segments = 6
+		var paint := _flat_material(Color(0.93, 0.98, 1.0, 0.6))
+		paint.no_depth_test = false  # Not over a dock.
+		mesh.material = paint
+		ring.mesh = mesh
+		ring.position = at + Vector3(0.0, 0.03, 0.0)
+		ring.scale = Vector3(0.02, 0.02, 0.02)
+		add_child(ring)
+		var wide := reach * (1.0 - 0.25 * i)
+		var run := ring.create_tween().set_parallel(true)
+		run.tween_property(ring, "scale", Vector3(wide, 0.02, wide), 1.1).set_delay(i * 0.16).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		run.tween_property(paint, "albedo_color:a", 0.0, 1.1).set_delay(i * 0.16)
+		run.chain().tween_callback(ring.queue_free)
+	if drops > 0:
+		burst(at, Color(0.86, 0.94, 1.0, 0.85), drops, speed)
+		burst(at, Color(1.0, 1.0, 1.0, 0.9), drops / 2, speed * 1.4)
+
+
 # A flat shape `height` tall, standing on y = 0, from its outline (x, z),
 # which must be convex (seen either side: give it a two-sided material).
 static func prism(outline: PackedVector2Array, height: float) -> ArrayMesh:
@@ -668,24 +746,79 @@ static func prism(outline: PackedVector2Array, height: float) -> ArrayMesh:
 	return tool.commit()
 
 
-# A row of balls along points (session or local), `radius` each (or tapering
-# from radii[0] at the ends to radii[1] in the middle): a rope of dough.
-static func rope(points: Array, radii: Vector2) -> Node3D:
+# A rope of dough along points (session or local), smooth and round, radii.x
+# thick at its ends and radii.y in the middle; where it crosses over itself, the
+# later part lies on top. With bands, it's rolled up in so many layers (a croissant).
+static func rope(points: Array, radii: Vector2, bands := 0) -> Node3D:
 	var rope_node := Node3D.new()
-	var count := points.size()
-	for i in count:
-		var t := float(i) / maxf(count - 1, 1)
-		var radius := lerpf(radii.x, radii.y, sin(t * PI))
-		var ball := MeshInstance3D.new()
-		var mesh := SphereMesh.new()
-		mesh.radius = radius
-		mesh.height = radius * 2.0
-		mesh.radial_segments = 10
-		mesh.rings = 5
-		ball.mesh = mesh
-		ball.position = points[i]
-		rope_node.add_child(ball)
+	var look := MeshInstance3D.new()
+	look.mesh = rope_mesh(points, radii, bands)
+	rope_node.add_child(look)
 	return rope_node
+
+
+static func rope_mesh(points: Array, radii: Vector2, bands := 0) -> ArrayMesh:
+	const AROUND := 14
+	var path: Array[Vector3] = []
+	var count := points.size()
+	var between := 3 if bands == 0 else 10
+	for i in count - 1:
+		var before: Vector3 = points[maxi(i - 1, 0)]
+		var after: Vector3 = points[mini(i + 2, count - 1)]
+		for k in between:
+			path.append((points[i] as Vector3).cubic_interpolate(points[i + 1], before, after, float(k) / between))
+	path.append(points[count - 1])
+	var total := path.size()
+	var thick: Array[float] = []
+	for i in total:
+		var t := float(i) / maxf(total - 1, 1)
+		var radius := lerpf(radii.x, radii.y, sin(t * PI))
+		if bands > 0:  # Each layer steps up to the next, nearer the middle.
+			var from_middle := absf(t - 0.5) * 2.0
+			radius *= 0.86 + 0.24 * (1.0 - fposmod(from_middle * bands * 0.5, 1.0))
+		thick.append(radius)
+	if bands == 0:
+		var lifts: Array[float] = []
+		for i in total:
+			var lift := 0.0
+			for j in i:
+				var apart := Vector2(path[i].x - path[j].x, path[i].z - path[j].z).length()
+				if (i - j) * 1.0 > total * 0.12:
+					lift = maxf(lift, radii.y * 1.1 * (1.0 - smoothstep(radii.y * 0.8, radii.y * 2.4, apart)))
+			lifts.append(lift)
+		for i in total:
+			path[i].y += lifts[i]
+	var tool := SurfaceTool.new()
+	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	tool.set_smooth_group(0)
+	var rings: Array = []  # [middle, along, radius]: its length, and a rounded end at each end.
+	for i in total:
+		var along := (path[mini(i + 1, total - 1)] - path[maxi(i - 1, 0)])
+		along = along.normalized() if along.length() > 0.000001 else Vector3.RIGHT
+		if i == 0:
+			for k in 5:
+				var turn := PI * 0.5 * k / 5.0
+				rings.append([path[0] - along * thick[0] * cos(turn), along, maxf(thick[0] * sin(turn), 0.0002)])
+		rings.append([path[i], along, thick[i]])
+		if i == total - 1:
+			for k in 5:
+				var turn := PI * 0.5 * (k + 1) / 5.0
+				rings.append([path[i] + along * thick[i] * sin(turn), along, maxf(thick[i] * cos(turn), 0.0002)])
+	for ring in rings:
+		var side := (ring[1] as Vector3).cross(Vector3.UP)
+		side = side.normalized() if side.length() > 0.001 else Vector3.RIGHT
+		var up := side.cross(ring[1]).normalized()
+		for k in AROUND + 1:
+			var turn := TAU * k / AROUND
+			tool.add_vertex(ring[0] + (side * cos(turn) + up * sin(turn)) * float(ring[2]))
+	for i in rings.size() - 1:
+		for k in AROUND:
+			var c := i * (AROUND + 1) + k
+			var d := c + AROUND + 1
+			for index in [c, c + 1, d, c + 1, d + 1, d]:
+				tool.add_index(index)
+	tool.generate_normals()
+	return tool.commit()
 
 
 # --- Meters and tools ---------------------------------------------------------
@@ -1085,8 +1218,8 @@ func dot_mesh(dot_radius: float, color: Color) -> SphereMesh:
 # Steam rising off something; steps set emitting and color as it cooks.
 func make_steam(at_radius: float) -> CPUParticles3D:
 	var steam := CPUParticles3D.new()
-	steam.amount = 10
-	steam.lifetime = 1.3
+	steam.amount = 16
+	steam.lifetime = 1.7
 	steam.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
 	steam.emission_sphere_radius = at_radius * 0.7
 	steam.direction = Vector3.UP
@@ -1094,18 +1227,22 @@ func make_steam(at_radius: float) -> CPUParticles3D:
 	steam.initial_velocity_min = 0.05
 	steam.initial_velocity_max = 0.12
 	steam.gravity = Vector3(0.0, 0.08, 0.0)
-	steam.scale_amount_min = 1.0
-	steam.scale_amount_max = 1.8
+	steam.scale_amount_min = 1.3
+	steam.scale_amount_max = 2.8
+	steam.angle_min = -180.0
+	steam.angle_max = 180.0
+	steam.angular_velocity_min = -35.0
+	steam.angular_velocity_max = 35.0
 	var grow := Curve.new()  # Puffs swell as they rise...
-	grow.add_point(Vector2(0.0, 0.4))
+	grow.add_point(Vector2(0.0, 0.25))
 	grow.add_point(Vector2(1.0, 1.0))
 	steam.scale_amount_curve = grow
 	var fade := Gradient.new()  # ...and fade in, then out.
 	fade.set_color(0, Color(1.0, 1.0, 1.0, 0.0))
 	fade.set_color(1, Color(1.0, 1.0, 1.0, 0.0))
-	fade.add_point(0.25, Color(1.0, 1.0, 1.0, 0.55))
+	fade.add_point(0.3, Color(1.0, 1.0, 1.0, 0.2))
 	steam.color_ramp = fade
-	steam.mesh = _sprite_mesh(0.035, _puff_texture())
+	steam.mesh = _sprite_mesh(0.05, _wisp_texture())
 	steam.emitting = false
 	return steam
 
@@ -1151,6 +1288,7 @@ func _sprite_mesh(width: float, texture: Texture2D, glow := 0.0) -> QuadMesh:
 	var material := StandardMaterial3D.new()
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	material.billboard_keep_scale = true  # Without it they're all one size, and ones not born yet show.
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	material.vertex_color_use_as_albedo = true
 	material.albedo_texture = texture
@@ -1175,6 +1313,102 @@ static func _puff_texture() -> Texture2D:
 		texture.height = 64
 		_puff = texture
 	return _puff
+
+
+# A wisp of steam: soft, and not quite round.
+static var _wisp: Texture2D = null
+static func _wisp_texture() -> Texture2D:
+	if _wisp == null:
+		var size := 96
+		var noise := FastNoiseLite.new()
+		noise.frequency = 0.02
+		noise.fractal_octaves = 2
+		var image := Image.create(size, size, false, Image.FORMAT_RGBA8)
+		for y in size:
+			for x in size:
+				var p := (Vector2(x, y) + Vector2(0.5, 0.5)) / size * 2.0 - Vector2.ONE
+				var round := 1.0 - smoothstep(0.0, 1.0, p.length())
+				var cloud := clampf(0.8 + noise.get_noise_2d(x, y) * 0.35, 0.0, 1.0)
+				image.set_pixel(x, y, Color(1.0, 1.0, 1.0, round * round * cloud))
+		_wisp = ImageTexture.create_from_image(image)
+	return _wisp
+
+
+# A patch of powder: fine grains, thicker in the middle.
+static var _dust: Texture2D = null
+func dust_texture() -> Texture2D:
+	if _dust == null:
+		var size := 64
+		var grains := RandomNumberGenerator.new()
+		grains.seed = 7
+		var image := Image.create(size, size, true, Image.FORMAT_RGBA8)
+		for y in size:
+			for x in size:
+				var out := ((Vector2(x, y) + Vector2(0.5, 0.5)) / size * 2.0 - Vector2.ONE).length()
+				var thick := 1.0 - smoothstep(0.0, 1.0, out)
+				image.set_pixel(x, y, Color(1.0, 1.0, 1.0, thick * (0.45 if grains.randf() > thick * 0.6 else 1.0)))
+		image.generate_mipmaps()
+		_dust = ImageTexture.create_from_image(image)
+	return _dust
+
+
+# A soap bubble's skin: clear in the middle, bright round the edge.
+static var _soap: StandardMaterial3D = null
+func soap_skin() -> StandardMaterial3D:
+	if _soap == null:
+		_soap = StandardMaterial3D.new()
+		_soap.albedo_color = Color(0.92, 0.97, 1.0, 0.42)
+		_soap.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		_soap.roughness = 0.04
+		_soap.metallic_specular = 1.0
+		_soap.rim_enabled = true
+		_soap.rim = 1.0
+		_soap.rim_tint = 0.2
+		_soap.set_meta(ToonStyle.SKIP, true)
+	return _soap
+
+
+# Fat sizzling round something on a hot surface: tiny bubbles all along its edge,
+# and now and then a spit. Steps set emitting and reach (sizzle_reach).
+func make_sizzle(color := Color(1.0, 0.93, 0.72, 0.75)) -> CPUParticles3D:
+	var sizzle := CPUParticles3D.new()
+	sizzle.amount = 46
+	sizzle.lifetime = 0.42
+	sizzle.randomness = 0.6
+	sizzle.direction = Vector3.UP
+	sizzle.spread = 30.0
+	sizzle.initial_velocity_min = 0.0
+	sizzle.initial_velocity_max = 0.02
+	sizzle.gravity = Vector3.ZERO
+	sizzle.emission_shape = CPUParticles3D.EMISSION_SHAPE_RING
+	sizzle.emission_ring_axis = Vector3.UP
+	sizzle.emission_ring_height = 0.001
+	var pop := Curve.new()  # Swells, and pops.
+	pop.add_point(Vector2(0.0, 0.2))
+	pop.add_point(Vector2(0.75, 1.0))
+	pop.add_point(Vector2(0.8, 0.0))
+	sizzle.scale_amount_curve = pop
+	sizzle.scale_amount_min = 0.35
+	sizzle.scale_amount_max = 1.0
+	var bead := SphereMesh.new()
+	bead.radius = 0.0042
+	bead.height = 0.0084
+	bead.radial_segments = 10
+	bead.rings = 5
+	var skin := StandardMaterial3D.new()
+	skin.albedo_color = color
+	skin.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	skin.roughness = 0.08
+	skin.metallic_specular = 0.8
+	bead.material = skin
+	sizzle.mesh = bead
+	sizzle.emitting = false
+	return sizzle
+
+
+func sizzle_reach(sizzle: CPUParticles3D, reach: float) -> void:
+	sizzle.emission_ring_radius = reach * 1.03
+	sizzle.emission_ring_inner_radius = reach * 0.97
 
 
 static var _star: Texture2D = null

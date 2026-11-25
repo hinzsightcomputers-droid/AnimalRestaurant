@@ -135,12 +135,14 @@ func _make_acorn() -> Node3D:
 	var nut_material := StandardMaterial3D.new()
 	nut_material.albedo_color = nut_color
 	nut_material.roughness = 0.4
+	nut_material.set_meta(ToonStyle.FOOD, "fruit")
 	nut_mesh.material = nut_material
 	nut.mesh = nut_mesh
 	acorn.add_child(nut)
 	var cap_material := StandardMaterial3D.new()
 	cap_material.albedo_color = cap_color
 	cap_material.roughness = 0.95
+	cap_material.set_meta(ToonStyle.FOOD, "baked")
 	var cap := MeshInstance3D.new()
 	var cap_mesh := SphereMesh.new()
 	cap_mesh.radius = nut_radius * 1.15
@@ -172,6 +174,7 @@ func _make_dollop() -> Node3D:
 	var material := StandardMaterial3D.new()
 	material.albedo_color = nut_color
 	material.roughness = 0.5
+	material.set_meta(ToonStyle.FOOD, "meat")
 	mesh.material = material
 	dollop.mesh = mesh
 	session.add_child(dollop)

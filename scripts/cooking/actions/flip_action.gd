@@ -120,12 +120,14 @@ func _grab(piece: CookPiece) -> void:
 		return
 	_held = piece
 	piece.position.y += lift
+	piece.droop = 0.011
 	session.wobble(piece, 0.08)
 	session.play_sound("tick", piece.position)
 
 
 func _let_go() -> void:
 	_held.position.y -= lift
+	_held.droop = 0.0
 	_held = null
 
 
@@ -153,6 +155,9 @@ func _flip(piece: CookPiece, direction: Vector2) -> void:
 	var axis := Vector3(direction.y, 0.0, -direction.x).normalized()  # Turns over toward the flick.
 	var base := piece.position
 	var turned := piece.quaternion  # Bacon lies lengthways: it lands the way it lay.
+	piece.droop = 0.02
+	if not piece.flipped and piece.kind.is_empty() and cooked < 0.9:  # A runny top throws drops.
+		session.burst(base + Vector3(0.0, 0.05, 0.0), piece.raw_color, 5, 0.3)
 	var tween := piece.create_tween()
 	tween.tween_method(func(t: float):
 		piece.position = base + Vector3(0.0, sin(t * PI) * flip_height, 0.0)
@@ -160,11 +165,12 @@ func _flip(piece: CookPiece, direction: Vector2) -> void:
 	tween.tween_callback(func():
 		piece.position = base
 		piece.quaternion = turned
+		piece.droop = 0.0
 		piece.down_side = piece.up_side()
 		piece.flipped = true
 		piece.busy = false
 		piece.refresh()
-		session.wobble(piece, 0.15)
+		session.wobble(piece, 0.3)
 		session.play_sound("plop", base)
 		session.burst(base + Vector3(0.0, 0.02, 0.0), piece.raw_color.darkened(0.2), 8, 0.25)
 		session.pop_text(heat.verdict(cooked) if heat != null else "Flipped!", base, CookSession.mood_of(score)))

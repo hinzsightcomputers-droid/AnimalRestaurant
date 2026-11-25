@@ -28,12 +28,15 @@ extends CookAction
 
 var _targets: Array = []                   # Cookies, or [the container].
 var _index := 0
+var _time := 0.0
+var _since_ring := 0.0
 var _fill := 0.0                           # How far the current one has got toward the line (1 = at it).
 var _pouring := false
 var _settling := 0.0                       # Moving on to the next one.
+var _chunks := 0
 var _scores: Array[float] = []
 var _jug: Node3D
-var _stream: MeshInstance3D
+var _stream: PourStream
 var _mark: Node3D
 var _filling: MeshInstance3D               # Pieces: the current one's filling.
 var _glug: AudioStreamPlayer3D
@@ -72,17 +75,7 @@ func _begin() -> void:
 		return
 	_jug = session.make_jug(liquid_color)
 	_glug = session.loop_sound("pour", -8.0)
-	_stream = MeshInstance3D.new()
-	var mesh := CylinderMesh.new()
-	mesh.top_radius = 0.004
-	mesh.bottom_radius = 0.006
-	mesh.height = 1.0
-	var material := StandardMaterial3D.new()
-	material.albedo_color = liquid_color
-	mesh.material = material
-	_stream.mesh = mesh
-	_stream.visible = false
-	session.add_child(_stream)
+	_stream = PourStream.make(session, Color(liquid_color, 1.0), 0.0058, 0.8, 0.8)
 	if into.is_empty() and not spread:
 		for cookie: MeshInstance3D in _targets:
 			_add_rim(cookie)
@@ -93,7 +86,7 @@ func _begin() -> void:
 func end() -> void:
 	if _jug != null:
 		_jug.queue_free()
-		_stream.queue_free()
+		_stream.finish(_stream.position - Vector3(0.0, pour_height, 0.0))
 		_glug.queue_free()
 	if _mark != null:
 		_mark.queue_free()
@@ -106,6 +99,10 @@ func update(delta: float, input: CookInput) -> void:
 	var spout := _spout_of(target)
 	_jug.position = _jug.position.lerp(spout, 1.0 - exp(-12.0 * delta))
 	_jug.rotation.z = lerp_angle(_jug.rotation.z, deg_to_rad(55.0) if _pouring else 0.0, 1.0 - exp(-12.0 * delta))
+	var below := _surface_y(target)
+	var land := Vector3(_jug.position.x + sin(_time * 5.0) * 0.0015, below, _jug.position.z + cos(_time * 4.3) * 0.0015)
+	_time += delta
+	_stream.flow(_jug.position, land, _pouring, delta)
 	if _settling > 0.0:
 		_settling -= delta
 		if _settling <= 0.0:
@@ -113,18 +110,21 @@ func update(delta: float, input: CookInput) -> void:
 		return
 	if not _pouring and input.just_pressed:
 		_pouring = true
-	if _pouring:
+	if _pouring and _stream.landed:
 		_fill += delta / fill_seconds * GameState.difficulty_value("closeup_pace")
 		_show_fill(target)
+		_since_ring += delta
+		if _since_ring > 0.13 and not into.is_empty():  # It drums in, ringing out and slopping.
+			_since_ring = 0.0
+			(target as CookSurface).splash(land, randf_range(0.0018, 0.0032))
+			if target is CookSurface and (target as CookSurface).liquid != null:
+				(target as CookSurface).liquid.knock(Vector2.from_angle(randf() * TAU) * 0.012)
 		if not _glug.playing:
 			_glug.play()
 		if not input.held or _fill >= spill_at:
 			_stop(target)
-	_stream.visible = _pouring
-	if _pouring:
-		var below := _surface_y(target)
-		_stream.position = Vector3(_jug.position.x, (below + _jug.position.y) * 0.5, _jug.position.z)
-		_stream.scale = Vector3(1.0, maxf(_jug.position.y - below, 0.01), 1.0)
+	elif _pouring and not input.held:  # Let go before any came out.
+		_pouring = false
 	var words := "hold to pour" if not _pouring else "let go at the line!"
 	session.set_status("%s %d of %d: %s" % [liquid_name, _index + 1, _targets.size(), words] if _targets.size() > 1 else "%s: %s" % [liquid_name, words])
 
@@ -154,7 +154,8 @@ func _start_on(index: int) -> void:
 			(mesh as CylinderMesh).height = 0.002
 		var material := StandardMaterial3D.new()
 		material.albedo_color = liquid_color
-		material.roughness = 0.35
+		material.roughness = 0.25
+		material.set_meta(ToonStyle.FOOD, "fruit" if spread else "egg")
 		mesh.surface_set_material(0, material)
 		_filling.mesh = mesh
 		_filling.set_meta("own_material", true)
@@ -173,6 +174,7 @@ func _show_fill(target: Node3D) -> void:
 	if spread:  # Out from the middle; at the line it's line of the way to the edge.
 		var out := sqrt(_fill) * line
 		_filling.scale = Vector3(out, 1.0, out)
+		_drop_chunks(target, out)
 	else:  # Up the case.
 		var height := maxf(rim_height * line * _fill, 0.002)
 		(_filling.mesh as CylinderMesh).height = height
@@ -182,7 +184,6 @@ func _show_fill(target: Node3D) -> void:
 func _stop(target: Node3D) -> void:
 	_pouring = false
 	_glug.stop()
-	_stream.visible = false
 	var spilled := _fill >= spill_at
 	var error := absf(_fill - 1.0)
 	var score := 0.2 if spilled else (1.0 if error <= perfect_within else clampf(1.0 - (error - perfect_within) / 0.45, 0.1, 1.0))
@@ -200,6 +201,31 @@ func _stop(target: Node3D) -> void:
 	else:
 		_mark.visible = false
 		finish(average(_scores))
+
+
+# Lumps of it (apple) tumbling onto the layer as it spreads.
+func _drop_chunks(target: Node3D, out: float) -> void:
+	var half := CookSession.half_of(target)
+	var wanted := mini(int(_fill * 34.0), 46)
+	while _chunks < wanted:
+		_chunks += 1
+		var chunk := MeshInstance3D.new()
+		var size := randf_range(0.010, 0.017)
+		chunk.mesh = PlaceAction.rounded_block(Vector3(size, size * 0.75, size * randf_range(0.7, 1.0)), size * 0.26)
+		var flesh := StandardMaterial3D.new()
+		flesh.albedo_color = liquid_color.lightened(randf_range(0.05, 0.28))
+		flesh.roughness = 0.25
+		flesh.set_meta(ToonStyle.FOOD, "fruit")
+		chunk.material_override = flesh
+		chunk.set_meta("own_material", true)
+		chunk.rotation = Vector3(randf_range(-0.5, 0.5), randf() * TAU, randf_range(-0.5, 0.5))
+		var spot := Vector3(randf_range(-0.92, 0.92) * half.x * out, CookSession.top_of(target) + 0.009, randf_range(-0.92, 0.92) * half.y * out)
+		target.add_child(chunk)
+		chunk.position = Vector3(0.0, CookSession.top_of(target) + pour_height, 0.0)
+		var tumble := chunk.create_tween()
+		tumble.tween_property(chunk, "position", spot + Vector3(0.0, 0.012, 0.0), 0.2).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		tumble.tween_property(chunk, "position", spot, 0.16).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+		tumble.parallel().tween_property(chunk, "rotation", chunk.rotation + Vector3(randf_range(-0.8, 0.8), 0.6, 0.0), 0.2)
 
 
 # Where the jug's spout goes: above the middle of what it fills.

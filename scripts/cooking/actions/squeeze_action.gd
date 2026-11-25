@@ -36,7 +36,7 @@ var _ticked: Array[bool] = []
 var _dot_nodes: Array[MeshInstance3D] = []
 var _dashes: Array[MeshInstance3D] = []  # The guide line between dots i and i + 1.
 var _let_go := 0.0  # Seconds since the button was let go.
-var _blob_mesh: CylinderMesh
+var _sheet: SauceSheet
 var _bottle: Node3D
 var _last = null   # Where the last blob went (Vector2), or null between squeezes.
 var _blobs := 0
@@ -90,15 +90,7 @@ func _begin() -> void:
 		dash.position = (a + b) * 0.5
 		dash.look_at(dash.global_transform * Vector3.ZERO + (session.global_transform.basis * (b - a)), Vector3.UP)
 		_dashes.append(dash)
-	_blob_mesh = CylinderMesh.new()
-	_blob_mesh.top_radius = blob_radius
-	_blob_mesh.bottom_radius = blob_radius
-	_blob_mesh.height = 0.003
-	_blob_mesh.radial_segments = 10
-	var sauce := StandardMaterial3D.new()
-	sauce.albedo_color = sauce_color
-	sauce.roughness = 0.15
-	_blob_mesh.material = sauce
+	_sheet = session.make_sauce(target, "ketchup", sauce_color)
 	_bottle = session.make_bottle(sauce_color)
 	_bottle.position = _guide[0] + Vector3(0.0, bottle_height, 0.0)
 	_bottle.scale = Vector3.ONE * bottle_scale
@@ -163,10 +155,7 @@ func _turn_bottle() -> void:
 
 
 func _squeeze(point: Vector2) -> void:
-	var blob := MeshInstance3D.new()
-	blob.mesh = _blob_mesh
-	blob.position = Vector3(point.x, _top() + 0.0015, point.y)
-	session.add_child(blob)
+	_sheet.pour(point, blob_radius * blob_radius * spacing * 1.9, maxf(blob_radius * 1.25, _sheet.cell * 1.6))
 	_blobs += 1
 	var nearest := INF
 	for i in _guide.size():

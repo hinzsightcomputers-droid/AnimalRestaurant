@@ -116,11 +116,8 @@ func _ding() -> void:
 	if cooked_color.a > 0.0:
 		pot.set_liquid_color(cooked_color)
 	if glossy and pot.liquid != null:
-		var material := pot.liquid.mesh.surface_get_material(0) as StandardMaterial3D
-		material.roughness = 0.05
-		material.metallic_specular = 1.0
-		material.albedo_color.a = 0.82
-		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		pot.liquid.dress({ "clear": 0.35, "glossy": 1.0, "thick": 0.0 })
+		pot.liquid.knock(Vector2(0.05, 0.03))
 
 
 func _take_out(pot: CookSurface) -> void:

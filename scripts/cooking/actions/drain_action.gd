@@ -52,7 +52,7 @@ func _begin() -> void:
 	_sound = session.loop_sound("pour", -8.0)
 	_sound.position = pot.position
 	_stream = CPUParticles3D.new()
-	_stream.amount = 40
+	_stream.amount = 90
 	_stream.lifetime = 0.4
 	_stream.direction = Vector3(-0.6, 0.1, 0.0)
 	_stream.spread = 6.0
@@ -96,6 +96,8 @@ func update(delta: float, input: CookInput) -> void:
 		_sound.play()
 	if _pouring:
 		_poured_for += delta
+		if pot.liquid != null:
+			pot.liquid.knock(Vector2(-0.12, randf_range(-0.04, 0.04)) * delta * 6.0)
 		pot.fill_to(pot.level - delta / pour_seconds * GameState.difficulty_value("closeup_pace"))
 		_sink_pasta(pot)
 		if not input.held and _poured_for < TAP_SECONDS:
@@ -143,7 +145,11 @@ func _sink_pasta(pot: CookSurface) -> void:
 	for bit in _boil().bits():
 		if is_instance_valid(bit):
 			var heap := 0.006 + 0.009 * (i % 3)
-			bit.position.y = maxf(pot.depth * maxf(pot.level, 0.0) - 0.004, heap)
+			var top := pot.depth * maxf(pot.level, 0.0) - 0.004
+			if top <= heap:  # Left high and dry.
+				if pot.liquid != null:
+					pot.liquid.sink_thing(bit)
+				bit.position.y = lerpf(bit.position.y, heap, 0.15)
 		i += 1
 
 

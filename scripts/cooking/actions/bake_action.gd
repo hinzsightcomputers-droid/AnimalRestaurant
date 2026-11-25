@@ -23,6 +23,7 @@ extends CookAction
 @export var inside := Vector3(0.0, -0.08, -0.1)  # Where the tray bakes, from the door's middle: just behind the glass, so it shows.
 @export var meter_offset := Vector3(0.0, -0.33, 0.03)  # Where the meter stands, from the oven door's middle (under the window).
 @export var out_view := Vector2(0.62, 58.0)  # Camera distance and pitch on the tray once it's out, on top of the oven.
+@export var rise := 0.3                    # How much taller they get.
 @export var leave_in := false              # Keeps baking alongside the next steps, until a TakeOutAction.
 @export var ready_seconds := 2.0           # leave_in: how long short of golden it is when you're back.
 
@@ -32,6 +33,8 @@ var _done := 0.0
 var _phase := 0                            # 0 sliding in, 1 baking, 2 coming out.
 var _tray: CookSurface
 var _home := Vector3.ZERO
+var _rise := {}                            # Cookie -> its scale, height and top before it rose.
+var _puffed := 0.0
 var _raw := {}                             # Cookie material -> its raw color.
 var _glow := OmniLight3D.new()
 var _meter := Node3D.new()
@@ -61,6 +64,7 @@ func _begin() -> void:
 		cookie.reparent(_tray)  # They go in with it.
 		var material := (cookie.mesh as CylinderMesh).material as StandardMaterial3D
 		_raw[material] = material.albedo_color
+		_rise[cookie] = [cookie.scale, cookie.position.y, CookSession.top_of(cookie)]
 	_build_meter()
 	_glow.light_color = Color(1.0, 0.55, 0.2)
 	_glow.light_energy = 0.0
@@ -108,6 +112,9 @@ func update(delta: float, input: CookInput) -> void:
 	_fill.position.x = (_done - 1.0) * meter_length * 0.5
 	for material: StandardMaterial3D in _raw:  # Browning, through the oven window.
 		material.albedo_color = _color_for(_raw[material])
+		if _done > band.x * 0.45 and material.get_meta(ToonStyle.FOOD, "") == "dough":
+			material.set_meta(ToonStyle.FOOD, "baked")
+	_puff(smoothstep(0.08, band.x, _done) + sin(_done * 40.0) * 0.02)
 	if waiting:
 		return  # Not taken out till a TakeOutAction comes for it.
 	if _done > band.y and not _burning:
@@ -140,6 +147,10 @@ func _take_out() -> void:
 	session.play_sound("clack", _home, -6.0, 1.1)
 	for cookie in session.context.get("cookies", []):
 		cookie.reparent(session)  # Off the tray, so they're part of how the dish looks.
+		var settle: Tween = cookie.create_tween()  # A little hop as the tray's set down.
+		var sits: Vector3 = cookie.scale
+		settle.tween_property(cookie, "scale", sits * Vector3(0.97, 1.1, 0.97), 0.08)
+		settle.tween_property(cookie, "scale", sits, 0.5).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 	var steam := session.make_steam(0.15)
 	steam.position = _home
 	session.add_child(steam)
@@ -148,6 +159,18 @@ func _take_out() -> void:
 	var words := "Golden!" if score >= 0.9 else ("A bit pale" if _done < band.x else ("Bit dark" if score >= 0.4 else "Burnt!"))
 	session.pop_text(words, _home, CookSession.mood_of(score))
 	finish(score)
+
+
+# How far they've risen (0 to 1): taller and a touch wider, sitting on the tray.
+func _puff(amount: float) -> void:
+	_puffed = amount
+	for cookie in _rise:
+		if not is_instance_valid(cookie):
+			continue
+		var was: Array = _rise[cookie]
+		var up := 1.0 + rise * amount
+		cookie.scale = (was[0] as Vector3) * Vector3(1.0 + rise * 0.14 * amount, up, 1.0 + rise * 0.14 * amount)
+		cookie.position.y = float(was[1]) + float((cookie.mesh as CylinderMesh).height) * 0.5 * (up - 1.0)
 
 
 # Full marks in the golden band; pale ones lose a little, burnt ones a lot.

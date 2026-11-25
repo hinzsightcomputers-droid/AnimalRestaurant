@@ -75,6 +75,7 @@ static func add_greens(parent: Node3D, at_x: float, radius: float) -> void:
 	var leaf := StandardMaterial3D.new()
 	leaf.albedo_color = Color("#8DBE3E")
 	leaf.roughness = 0.8
+	leaf.set_meta(ToonStyle.FOOD, "veg")
 	var stem := StandardMaterial3D.new()
 	stem.albedo_color = Color("#6E9A33")
 	stem.roughness = 0.8
@@ -299,12 +300,15 @@ func _build() -> void:
 	var flesh := StandardMaterial3D.new()
 	flesh.albedo_color = _piece["color"]
 	flesh.roughness = 0.5
+	flesh.set_meta(ToonStyle.FOOD, "veg")
 	var ring := StandardMaterial3D.new()  # A cut face: lighter, with a paler core.
 	ring.albedo_color = (_piece["color"] as Color).lightened(0.14)
 	ring.roughness = 0.4
+	ring.set_meta(ToonStyle.FOOD, "veg")
 	var core := StandardMaterial3D.new()
 	core.albedo_color = (_piece["color"] as Color).lightened(0.32)
 	core.roughness = 0.4
+	core.set_meta(ToonStyle.FOOD, "veg")
 	var middle_x: float = (_piece["left"] + _piece["right"]) * 0.5
 	var edges: Array = [_piece["left"]]
 	edges.append_array(_piece["cuts"])
@@ -330,18 +334,33 @@ func _build() -> void:
 			slice.rotation.z = -PI * 0.5  # Its top (the thin end) points right.
 		# Pieces shuffle apart a touch from the middle once cut.
 		var spread := (i - (count - 1) * 0.5) * slice_gap if count > 1 else 0.0
-		slice.position = Vector3((a + b) * 0.5 - middle_x + spread, 0.0, 0.0)
-		node.add_child(slice)
+		# Each slice and its ends as one thing, so it can tip.
+		var bit := Node3D.new()
+		bit.position = Vector3((a + b) * 0.5 - middle_x + spread, 0.0, 0.0)
+		node.add_child(bit)
+		bit.add_child(slice)
+		var half := (b - a) * 0.5
 		if i > 0 and vegetable != "celery":  # Its left end is a cut.
-			_add_face(node, a - middle_x + spread, _radius_at(a), -1.0, ring, core)
+			_add_face(bit, -half, _radius_at(a), -1.0, ring, core)
 		if i < count - 1 and vegetable != "celery":
-			_add_face(node, b - middle_x + spread, _radius_at(b), 1.0, ring, core)
+			_add_face(bit, half, _radius_at(b), 1.0, ring, core)
 		if _is_onion() and i == 0:
-			Veg.add_tip(node, a - middle_x + spread)
+			Veg.add_tip(bit, -half)
 		if _is_onion() and i == count - 1:
-			Veg.add_root(node, b - middle_x + spread)
+			Veg.add_root(bit, half)
 		if i == 0 and _piece.get("greens", false):
-			add_greens(node, a - middle_x + spread, _radius_at(a))
+			add_greens(bit, -half, _radius_at(a))
+		if i < count - 1:  # Cut off: leaning over a little on the one before; the one just cut tips over.
+			var lean := 0.1 + 0.05 * sin(i * 2.7)
+			bit.position.y = -_radius_at((a + b) * 0.5) * (1.0 - cos(lean)) * 0.5
+			bit.rotation = Vector3(0.1 * sin(i * 4.1), 0.06 * sin(i * 1.9), lean)
+			if i == count - 2:
+				var rests := bit.position
+				bit.rotation.z = -0.05
+				bit.position = rests + Vector3(-0.002, 0.007, 0.0)
+				var tip := bit.create_tween().set_parallel(true)
+				tip.tween_property(bit, "rotation:z", lean, 0.3).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+				tip.tween_property(bit, "position", rests, 0.22).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 	var marks := []
 	for mark: float in _piece["marks"]:
 		marks.append(_make_mark(node, mark - middle_x, _radius_at(mark)))

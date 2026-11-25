@@ -89,6 +89,7 @@ func _begin() -> void:
 		skin.albedo_color = color.darkened(skin_darken + shade)
 		skin.roughness = 0.9
 		skin.cull_mode = BaseMaterial3D.CULL_DISABLED
+		skin.set_meta(ToonStyle.FOOD, "cooked")
 		_skins.append(skin)
 	_carrot = Node3D.new()
 	session.add_child(_carrot)
@@ -144,6 +145,7 @@ func _add_core() -> void:
 	var flesh := StandardMaterial3D.new()
 	flesh.albedo_color = _flesh_color
 	flesh.roughness = 0.45  # Fresh and a touch glossy where it's peeled.
+	flesh.set_meta(ToonStyle.FOOD, "veg")
 	core_mesh.material = flesh
 	core.mesh = core_mesh
 	core.rotation.z = -PI * 0.5  # Its thin end to the right.
