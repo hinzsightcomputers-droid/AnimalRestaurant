@@ -35,11 +35,12 @@ func uses_cursor() -> bool:
 	return false
 
 
-# The board and, beside it, the pot that's boiling away.
+# The board and, beside it, the pot that's boiling away; a little low, so the
+# chef's tip in the corner stays off the meter.
 func view_point() -> Vector3:
 	var board := session.surface(on_surface).position
 	var pot := session.surface("Pot")
-	return board if pot == null else board.lerp(Vector3(pot.position.x, board.y, pot.position.z), 0.45)
+	return board if pot == null else board.lerp(Vector3(pot.position.x, board.y, pot.position.z), 0.45) + Vector3(0.0, 0.0, 0.065)
 
 
 func cursor_height() -> float:
