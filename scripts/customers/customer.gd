@@ -55,7 +55,7 @@ var display_name := ""        # "Mabel" for a regular who's told you their name,
 var regular_id := ""          # Empty unless this is a regular (data/characters/).
 var townsfolk_id := ""        # A named walk-in (data/townsfolk/), else empty.
 var is_critic := false        # Here for the next star (see Rating).
-var quiet := false            # An extra in a reel: no speech bubble over their head.
+var quiet := false            # An extra in a reel: no talking icon over their head.
 var last_chef := ""           # The account of the chef who last dealt with them (for {chef} in townsfolk lines).
 var greeting_line := ""       # What a regular says at the host stand (empty = generic).
 var greeting_emotion := &""   # How they feel saying it.
@@ -284,7 +284,7 @@ func finish_eating() -> void:
 
 
 
-# Say a one-off line in the speech bubble.
+# Say a one-off line (it is no longer shown over their head: nothing with words is).
 func say(line: String) -> void:
 	if line.is_empty():
 		return
