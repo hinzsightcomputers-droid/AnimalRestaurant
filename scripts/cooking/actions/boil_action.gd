@@ -189,18 +189,33 @@ func _start_boiling(pot: CookSurface) -> void:
 	to_background = true  # On to the next step, the pasta boiling away.
 
 
-# One elbow of macaroni: a fat half ring, as one mesh to share.
+# One elbow of macaroni: a bent tube, hollow at its ends, as one mesh to share.
 static func macaroni_mesh(color: Color) -> ArrayMesh:
-	var ball := SphereMesh.new()
-	ball.radius = 0.0075
-	ball.height = 0.015
-	ball.radial_segments = 10
-	ball.rings = 5
+	const ALONG := 12
+	const AROUND := 12
+	const BEND := 0.014
+	const TUBE := 0.0075
+	const HOLE := 0.0042
+	# [turn round the bend, tube radius]: the wall, then back in over each rounded lip and down the hole.
+	var rings := [[0.25, HOLE], [0.03, HOLE], [-0.02, TUBE * 0.8]]
+	for i in ALONG + 1:
+		rings.append([PI * 0.9 * i / ALONG, TUBE])
+	rings.append_array([[PI * 0.9 + 0.02, TUBE * 0.8], [PI * 0.9 - 0.03, HOLE], [PI * 0.9 - 0.25, HOLE]])
 	var tool := SurfaceTool.new()
-	const BALLS := 9
-	for i in BALLS:
-		var angle := PI * 0.9 * i / (BALLS - 1)
-		tool.append_from(ball, 0, Transform3D(Basis.IDENTITY, Vector3(cos(angle), 0.0, sin(angle) - 0.5) * 0.014))
+	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for ring: Array in rings:
+		var out := Vector3(cos(ring[0]), 0.0, sin(ring[0]))
+		for k in AROUND + 1:
+			var turn := TAU * k / AROUND
+			tool.set_smooth_group(0)
+			tool.add_vertex(out * (BEND + cos(turn) * ring[1]) + Vector3(0.0, sin(turn) * ring[1], -BEND * 0.5))
+	for ring in rings.size() - 1:
+		for k in AROUND:
+			var at := ring * (AROUND + 1) + k
+			var next := at + AROUND + 1
+			for index in [at, next, at + 1, at + 1, next, next + 1]:
+				tool.add_index(index)
+	tool.generate_normals()
 	var mesh := tool.commit()
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color

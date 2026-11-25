@@ -5,10 +5,11 @@
 [ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="3_fit"]
 [ext_resource type="PackedScene" path="res://design/restaurant/soup_pot.glb" id="4_pot"]
 [ext_resource type="PackedScene" path="res://design/restaurant/cutting_board.glb" id="5_board"]
+[ext_resource type="PackedScene" path="res://design/restaurant/bowl.glb" id="6_bowl"]
 
 [node name="MacCloseup" type="Node3D"]
 script = ExtResource("1_session")
-bounds = Rect2(-0.5, -0.25, 1, 0.5)
+bounds = Rect2(-0.6, -0.25, 1.1, 0.5)
 
 [node name="PotModel" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, 0, 0.02)
@@ -39,3 +40,22 @@ script = ExtResource("3_fit")
 model = ExtResource("5_board")
 size = Vector3(0.3, 0.03, 0.2)
 stretch = true
+
+[node name="Bowl" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.46, 0.02, 0.1)
+script = ExtResource("2_surface")
+size = Vector2(0.17, 0.17)
+round = true
+hidden = true
+depth = 0.07
+floor_at = 0.0235
+floor_radius = 0.07
+rim_radius = 0.1
+slides_in = true
+slide_from = -0.8
+
+[node name="Model" type="Node3D" parent="Bowl"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.02, 0)
+script = ExtResource("3_fit")
+model = ExtResource("6_bowl")
+size = Vector3(0.22, 0, 0)

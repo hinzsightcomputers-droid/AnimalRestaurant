@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://scripts/cooking/actions/scrape_action.gd" id="scrape"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/stir_action.gd" id="stir"]
 [ext_resource type="PackedScene" path="res://scenes/cooking/mac_closeup.tscn" id="scene"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/spoon_out_action.gd" id="spoon_out"]
 
 [sub_resource type="Resource" id="Resource_boil"]
 script = ExtResource("boil")
@@ -54,10 +55,21 @@ melt_level = 0.62
 tint_to = Color(0.98, 0.76, 0.28, 1)
 tool = "spoon"
 
+[sub_resource type="Resource" id="Resource_spoon_out"]
+script = ExtResource("spoon_out")
+title = "Spoon it out"
+view_distance = 0.58
+view_pitch = 56
+hint = "Press [button] over the pot to scoop up a spoonful, then move to the bowl with [stick] and press [button] over its middle to drop it in. Three spoonfuls fill it."
+weight = 0.5
+serving = "Spoonful"
+full_level = 0.56
+carry_height = 0.15
+
 [resource]
 script = ExtResource("1_recipe")
 display_name = "Four-Cheese Mac"
 pieces = 1
 serve_on = ""
 scene = ExtResource("scene")
-steps = Array[ExtResource("2_action")]([SubResource("Resource_boil"), SubResource("Resource_grate"), SubResource("Resource_drain"), SubResource("Resource_scrape"), SubResource("Resource_fold")])
+steps = Array[ExtResource("2_action")]([SubResource("Resource_boil"), SubResource("Resource_grate"), SubResource("Resource_drain"), SubResource("Resource_scrape"), SubResource("Resource_fold"), SubResource("Resource_spoon_out")])

@@ -4,7 +4,7 @@ extends Node
 # script with pictures of every step; at the mac's draining, stray presses
 # (mashing, or still holding from the grating) must not take the pasta off. Run
 # (not headless) with APPDATA pointing at a copy of a save with an account and
-# SHOTS=<folder> (ONLY=chop: just the vegetables):
+# SHOTS=<folder> (ONLY=chop: just the vegetables; ONLY=four_cheese_mac: just the mac):
 #   godot --resolution 1600x900 res://tools/soup_mac_check.tscn
 
 var main: Node
@@ -28,17 +28,20 @@ func _ready() -> void:
 	for dish in GameData.dishes:
 		dishes[dish["id"]] = dish
 	var soup: Dictionary = dishes["vegetable_soup"]
-	player.global_position = board.global_position + board.global_transform.basis.z * 0.9
-	await get_tree().create_timer(0.8).timeout
-	board._open_closeup(player, Ingredients.new(Order.new(null, soup)))
-	board.session.input.scripted = true
-	await _play("chop", board.session)
-	if OS.get_environment("ONLY") == "chop":
-		get_tree().quit()
-		return
+	if OS.get_environment("ONLY") != "four_cheese_mac":
+		player.global_position = board.global_position + board.global_transform.basis.z * 0.9
+		await get_tree().create_timer(0.8).timeout
+		board._open_closeup(player, Ingredients.new(Order.new(null, soup)))
+		board.session.input.scripted = true
+		await _play("chop", board.session)
+		if OS.get_environment("ONLY") == "chop":
+			get_tree().quit()
+			return
 	player.set_held_item(null)
 	player.global_position = stove.global_position + stove.global_transform.basis.z * 0.9
 	for job in [["soup", soup], ["four_cheese_mac", {}]]:
+		if OS.get_environment("ONLY") not in ["", job[0]]:
+			continue
 		await get_tree().create_timer(2.5).timeout
 		stove.reel_cook(player, load("res://data/recipes/%s.tres" % job[0]), job[1])
 		await _play(job[0], stove.session)
@@ -66,7 +69,7 @@ func _play(prefix: String, session: CookSession) -> void:
 				await _stray(session, last)
 				next = clock
 		if clock >= next:
-			next = clock + (1.6 if prefix != "chop" else 0.5)
+			next = clock + (1.6 if prefix != "chop" else 0.5) * (0.12 if last is LadleAction else 1.0)
 			await _shot("%s_%02d_%s.png" % [prefix, shot, last.title.to_snake_case().replace("!", "")])
 			shot += 1
 	if is_instance_valid(session):
