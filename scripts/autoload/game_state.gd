@@ -40,6 +40,7 @@ var upgrades: Array[String] = []
 var services_today: Array[Dictionary] = []
 # What each chef did today, for the summary: account id -> { chopped, cooked, served, cleaned }.
 var chef_actions_today: Dictionary = {}
+var facts_seen: Dictionary = {}  # Chef's tips: how many of a recipe's facts have come up, and which steps' tips (see CookFacts).
 # Regular id -> that regular's current record (see GameData.regulars). Only the
 # memory fields (GameData.memory_fields) are saved; the profile (name, tastes...)
 # always comes from their character file, so editing it still takes effect.
@@ -422,6 +423,7 @@ func to_save_data() -> Dictionary:
 		"day_plan": day_plan,
 		"services_today": services_today,
 		"chef_actions_today": chef_actions_today,
+		"facts_seen": facts_seen,
 		"upgrades": upgrades,
 		"stage": stage,
 		"stage_building": stage_building,
@@ -477,6 +479,7 @@ func apply_save_data(data: Dictionary) -> void:
 		day_plan = { "date": saved_plan.get("date", ""), "phases": saved_plan["phases"] }
 	services_today.assign(data.get("services_today", []))
 	chef_actions_today = data.get("chef_actions_today", {})
+	facts_seen = data.get("facts_seen", {}) if data.get("facts_seen", {}) is Dictionary else {}
 	# Ignore upgrades that were removed from data/upgrades.json.
 	upgrades.assign(data.get("upgrades", []).filter(func(id): return GameData.upgrades.any(func(u): return u["id"] == id)))
 	upgrades_changed.emit()

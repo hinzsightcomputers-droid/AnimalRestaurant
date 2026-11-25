@@ -23,14 +23,13 @@ const HOW_SECONDS := 6.0                   # The controls show this long at a st
 const STATUS_SIZE := 0.86
 const CARD_TEXT := Color("#502312")
 const CARD_STATUS := Color("#C2542A")
-const FACTS_PATH := "res://data/cooking_facts.json"
 const FACT_WIDTH := 330.0                  # The tip card's text width (smaller in split screen).
 const FACT_SPLIT_WIDTH := 230.0
 const FACT_MARGIN := 24.0                  # From the corner of the cook's view.
 const SMALL_VIEW_PLAYERS := 3               # This many players or more: a quarter-screen view (ViewManager's four-way split)...
 const SMALL_VIEW_MARKS := 1.7              # ...where the cursor, rings, outlines and meters are drawn this much bolder...
 const SMALL_CARD_WIDTH := 560.0            # ...and the instructions are kept small.
-const FACT_SECONDS := 20.0                 # A long step without a tip of its own moves on to the next fact.
+const FACT_SECONDS := 20.0                 # On a long step, the card moves on to the next fact.
 
 @export_group("Controls")
 @export var cursor_speed := 0.7            # Meters a second the keys move the cursor.
@@ -80,11 +79,8 @@ var _how_time := 0.0                       # How long this step's controls have 
 var _home_lifted := false                  # The station's own view has been moved down under the card.
 var _fact_card := PanelContainer.new()     # "Chef's tip" and the tip, in the bottom-right corner.
 var _fact_label := Label.new()
-var _facts: Array = []                     # This recipe's dish facts, in turn...
-var _fact_next := 0
-var _fact_time := 0.0                      # ...and how long the one showing has been up.
+var _fact_time := 0.0                      # How long the fact showing has been up.
 var _fact_is_tip := false                  # The card shows the current step's own tip.
-static var _all_facts := {}                # data/cooking_facts.json's recipes, loaded once.
 
 
 func start(cook_recipe: CookRecipe, cook: Player, view_manager: ViewManager, brought: Ingredients = null) -> void:
@@ -145,8 +141,9 @@ func _process(delta: float) -> void:
 	_how_time += delta
 	_show_hint()
 	_fact_time += delta
-	if not _fact_is_tip and _fact_time >= FACT_SECONDS and _facts.size() > 1:
-		_show_fact(_next_fact())
+	if _fact_card.visible and _fact_time >= FACT_SECONDS:
+		_fact_is_tip = false
+		_show_fact(CookFacts.next(_recipe_id()))
 
 
 func _next_step() -> void:
@@ -1105,29 +1102,21 @@ func _build_fact_card() -> void:
 	_fact_label.add_theme_color_override("font_color", CARD_TEXT)
 	column.add_child(_fact_label)
 	_fact_card.visible = false
-	var recipe_id := recipe.resource_path.get_file().get_basename()
-	var entry: Dictionary = _facts_data().get(recipe_id, {})
-	_facts = entry.get("facts", [])
 
 
-# A step's own tip if it has one, else the dish's next fact.
+func _recipe_id() -> String:
+	return recipe.resource_path.get_file().get_basename()
+
+
+# A step's own tip (see CookFacts.tip), else the fact that's up or the next one.
 func _fact_for(action: CookAction) -> void:
-	var recipe_id := recipe.resource_path.get_file().get_basename()
-	var tips: Dictionary = _facts_data().get(recipe_id, {}).get("steps", {})
-	if tips.has(action.title):
+	var tip := CookFacts.tip(_recipe_id(), action.title)
+	if not tip.is_empty():
 		_fact_is_tip = true
-		_show_fact(tips[action.title])
+		_show_fact(tip)
 	elif _fact_is_tip or not _fact_card.visible:
 		_fact_is_tip = false
-		_show_fact(_next_fact())
-
-
-func _next_fact() -> String:
-	if _facts.is_empty():
-		return ""
-	var fact: String = _facts[_fact_next % _facts.size()]
-	_fact_next += 1
-	return fact
+		_show_fact(CookFacts.next(_recipe_id()))
 
 
 func _show_fact(text: String) -> void:
@@ -1141,14 +1130,6 @@ func _show_fact(text: String) -> void:
 	if fresh:
 		_fact_card.modulate.a = 0.0
 		_fact_card.create_tween().tween_property(_fact_card, "modulate:a", 1.0, 0.35)
-
-
-static func _facts_data() -> Dictionary:
-	if _all_facts.is_empty() and FileAccess.file_exists(FACTS_PATH):
-		var parsed = JSON.parse_string(FileAccess.get_file_as_string(FACTS_PATH))
-		if parsed is Dictionary:
-			_all_facts = parsed.get("recipes", {})
-	return _all_facts
 
 
 # A player's card: dark words on cream. A reel's: just the outlined words, as before.
