@@ -94,7 +94,7 @@ func _on_courier_interacted(player_index: int, courier: Courier) -> void:
 	})
 	if not goodbye:
 		GameEvents.announce("Handed %s's %s to the courier. +$%d" % [caller.get("name", "?"), plate.dish_name(), amount])
-		_send_out(courier, "Thanks! +$%d" % amount)
+		_send_out(courier)
 		var app := get_tree().get_first_node_in_group(MooberOrders.GROUP) as MooberOrders
 		if app != null and caller.get("kind", "") == "townsfolk":  # A Moober order: the app says it's done.
 			app.picked_up(player, caller.get("name", "?"), plate.dish_name(), amount)
@@ -109,7 +109,7 @@ func _on_courier_interacted(player_index: int, courier: Courier) -> void:
 	])
 	Redemption.say_goodbye(record)
 	GameEvents.announce("%s is gone. They won't be ordering anymore." % record["name"])
-	_send_out(courier, "...")
+	_send_out(courier)
 
 
 # A Gone regular's reply to your letter. Once it's read, they come in at closing.
@@ -123,7 +123,7 @@ func _read_letter(player: Player, courier: Courier) -> void:
 	])
 	Redemption.reply_arrived(record)
 	GameEvents.announce("%s will come by at closing time." % record["name"])
-	_send_out(courier, "Bye!")
+	_send_out(courier)
 
 
 # Answers due on letters: a courier brings each sincere one's reply (one at a
@@ -152,11 +152,11 @@ func _show_lines(player: Player, regular_id: String, lines: Array) -> void:
 
 
 # The courier heads back out; everyone behind steps up.
-func _send_out(courier: Courier, bubble: String) -> void:
+func _send_out(courier: Courier) -> void:
 	_couriers.erase(courier)
 	var here := courier.global_position
 	var path: Array[Vector3] = [Vector3(here.x, 0.0, door_point.global_position.z), door_point.global_position, spawn_point.global_position]
-	courier.leave(path, bubble)
+	courier.leave(path)
 	for i in _couriers.size():
 		_couriers[i].walk_to(_path_to(_couriers[i], _spot(i)))
 

@@ -3,13 +3,17 @@
 # cooking takes, and leaves once a player hands over the finished dish. Or it
 # brings a letter (a Gone regular's reply) and leaves once someone reads it.
 # DeliveryManager decides where it goes and what handing over does; this only
-# walks, shows a bubble, and says who can hand it what.
+# walks, shows what it's here for (a delivery bag or a letter, as an icon over
+# its head: never words), and says who can hand it what.
 class_name Courier
 extends Node3D
 
 signal arrived_outside(courier: Courier)  # Walked back out the door after the pickup.
 
-const BUBBLE_ROOM := 1.8  # Meters: a player carrying something this close hides the bubble.
+const BUBBLE_ROOM := 1.8  # Meters: a player carrying something this close hides the icon.
+const ICON_PIXEL := 0.0012  # Its icon's size on screen, like a customer's (CustomerDisplay).
+const BOB := 0.1
+const BOB_SPEED := 2.5
 
 var order: Order               # null for a letter.
 var letter_from: Dictionary = {}  # The regular whose letter this courier brings.
@@ -17,7 +21,7 @@ var walk_speed := 2.2
 var leaving := false
 
 var interactable := Interactable.new()
-var _bubble := Label3D.new()
+var _bubble := Sprite3D.new()  # What it's here for, over its head.
 var _path: Array[Vector3] = []
 var _bag: MeshInstance3D
 
@@ -36,7 +40,7 @@ func setup_letter(from_record: Dictionary, settings: Dictionary) -> void:
 func _ready() -> void:
 	interactable.prompt = "Hand over"
 	interactable.radius = 1.3
-	interactable.prompt_height = 2.2  # Over its bubble.
+	interactable.prompt_height = 2.2  # Over its icon.
 	interactable.priority = 1  # Over anything it's standing near.
 	interactable.prompt_for_player = _prompt_for
 	add_child(interactable)
@@ -70,26 +74,22 @@ func is_walking() -> bool:
 	return not _path.is_empty()
 
 
-# Done here: say `bubble` (e.g. "Thanks! +$12") and head out along `points`.
-func leave(points: Array[Vector3], bubble: String) -> void:
+# Done here: head out along `points`.
+func leave(points: Array[Vector3]) -> void:
 	leaving = true
 	_bag.visible = order != null
-	_bubble.text = bubble
 	walk_to(points)
 
 
 func _show_waiting() -> void:
-	if order == null:
-		_bubble.text = "Letter for you!
-from %s" % letter_from.get("name", "?")
-		return
-	_bubble.text = "Pickup:\n%s for %s" % [order.dish.get("name", "?"), order.caller.get("name", "?")]
+	_bubble.texture = WaitIcon.icon("letter" if order == null else "delivery")
 
 
-# The bubble steps aside while someone has a prompt on us ("Hand over" says it),
+# The icon steps aside while someone has a prompt on us ("Hand over" says it),
 # or stands close by carrying something, so it isn't under their labels.
 func _process(_delta: float) -> void:
-	_bubble.visible = not get_tree().get_nodes_in_group(Player.GROUP).any(_crowds_bubble)
+	_bubble.visible = not leaving and not get_tree().get_nodes_in_group(Player.GROUP).any(_crowds_bubble)
+	_bubble.offset.y = WaitIcon.PIXELS * 0.5 + sin(Time.get_ticks_msec() / 1000.0 * BOB_SPEED) * BOB * WaitIcon.PIXELS
 
 
 func _crowds_bubble(player: Player) -> bool:
@@ -161,11 +161,7 @@ func _build(color: Color) -> void:
 	_bag.visible = false
 	add_child(_bag)
 
-	_bubble.position.y = 1.65
-	_bubble.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	_bubble.no_depth_test = true
-	_bubble.modulate = Color(0.25, 0.18, 0.12)
-	_bubble.outline_modulate = Color(1, 0.98, 0.92)
-	_bubble.font_size = 32
-	_bubble.outline_size = 14
+	_bubble.position.y = 1.35
+	WaitIcon.setup(_bubble)
+	_bubble.pixel_size = ICON_PIXEL
 	add_child(_bubble)

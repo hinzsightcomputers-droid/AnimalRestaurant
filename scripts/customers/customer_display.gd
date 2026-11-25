@@ -1,13 +1,14 @@
 # CustomerDisplay: makes a Customer visible. Colors the placeholder body by species,
-# shows a speech bubble based on the customer's state, and shows the menu, their
-# drink and their meal on the table. A regular with a "model" in their character file
+# shows an icon over their head for what they're waiting for (WaitIcon; the
+# receipt for the bill: never words), and shows the menu, their drink and their
+# meal on the table. A regular with a "model" in their character file
 # looks like that model instead (scaled to its height), and so does anyone
 # whose species has "models" (one picked at random, at a height in its range),
 # walking, sitting and talking with its animations (named in model_animations
 # in data/regulars.json). Their head turns to look at a chef nearby (HeadTurn).
 # A model without animations bobs along as it walks. A regular's feelings
 # (Customer.emote) pop up over their head with a sound and a bounce. How
-# their meal came out shows while they eat: their bubble, sparkles rising off a
+# their meal came out shows while they eat: sparkles rising off a
 # perfect plate or smoke off a burnt one, and a happy or sad moment halfway
 # through. Display only.
 class_name CustomerDisplay
@@ -15,24 +16,16 @@ extends Node3D
 
 const SIT_DROP_SPEED := 0.5  # How quickly a model settles into the chair (its "sit_drop").
 const ICON_PIXEL := 0.0012  # The receipt and the WaitIcon: fixed size on screen like the text, so the stack over a head looks the same however close the camera is.
-const ICON_GAP := 6.0       # Icon pixels between the text and an icon over it.
 const BILL_SIGN_BOB := 0.12      # How far (of its height) it bobs up and down, and how fast.
 const BILL_SIGN_BOB_SPEED := 3.0
-# The name tag and bubble stay the same size on screen however far the camera is
-# (fixed_size), stacked over their head: the name, then the bubble above it,
-# never on top of each other.
-const LABEL_ABOVE_HEAD := 0.15  # Metres over the top of their head (placeholders: the scene's height), sitting or standing.
+const LABEL_ABOVE_HEAD := 0.15  # Icons start this many metres over the top of their head (placeholders: the scene's height), sitting or standing.
 const SEATED_SINK := 0.2        # A placeholder without animations sinks this far into its chair.
-const BUBBLE_OVER_NAME := 44.0  # Label pixels the bubble sits up from the name tag's bottom.
-const TEXT_LAYER := 17  # Render layer of the bubble and name tag: a camera in a minigame leaves it out (CameraRig).
+const TEXT_LAYER := 17  # Render layer of the table badge over their head: a camera in a minigame leaves it out (CameraRig).
 
 @onready var customer: Customer = get_parent()
-@onready var bubble: Label3D = $Bubble
-@onready var name_tag: Label3D = $NameTag
 @onready var meal: Node3D = $Meal
 @onready var food: MeshInstance3D = $Meal/Food
 
-const SPEECH_SECONDS := 6.0  # How long a one-off line stays up before the bubble goes back.
 const PLATE_TOP := 0.046     # The meal's plate model: its top above its bottom, and its size.
 const PLATE_RADIUS := 0.22
 
@@ -40,8 +33,6 @@ const AURA_HEIGHT := 0.12      # Sparkles or smoke start just over the food.
 const MID_MEAL := 0.5           # How far through the meal (of eat_duration) they react to it again.
 
 var _food_material := StandardMaterial3D.new()
-var _speech_timer := Timer.new()
-var _speech_state: Customer.State  # What they were doing when they said it.
 var _look: Node3D = null           # A close-up dish as it came out, on their plate.
 var _model: Node3D = null          # A regular's own model, instead of the placeholder shapes.
 var _animations: AnimationPlayer = null
@@ -61,21 +52,17 @@ var _drink: DrinkModel = null          # The drink they were brought, beside the
 var _aura: CPUParticles3D = null       # Sparkles or smoke over their plate while they eat.
 var _bill_sign := Sprite3D.new()       # A receipt over their head while they want the bill.
 var _bill_sign_rest := 0.0             # Its offset when not bobbing.
-var _wait_icon := WaitIcon.new()       # A food or drink symbol over the order bubble while they wait for it.
+var _wait_icon := WaitIcon.new()       # What they're waiting for, over their head.
 var _serve_marker := ServeMarker.new() # Their table's badge, and the arrow while a chef carries their order.
 var model_path := ""      # The model they ended up with ("" for the placeholder).
 var _height := 1.2                     # How tall they stand.
 var _skeleton: Skeleton3D = null       # A rigged model's, to find the top of its head as it sits and stands.
 var _head_bone := -1
 var _head_above_bone := 0.0            # The top of the head over the head bone.
-var _measured := ""                    # The bubble text last measured, and how tall it came out (label pixels).
-var _measured_height := 0.0
 
 
 func _ready() -> void:
 	_apply_species_color()
-	for label in [bubble, name_tag]:
-		label.layers = 1 << (TEXT_LAYER - 1)
 	_emotions.position.y = 1.5
 	_load_model()
 	_build_bill_sign()
@@ -87,24 +74,15 @@ func _ready() -> void:
 	add_child(_wait_icon)
 	food.material_override = _food_material
 	customer.state_changed.connect(_on_state_changed)
-	customer.spoke.connect(_on_spoke)
-	customer.talking_changed.connect(_on_talking_changed)
-	customer.line_place_changed.connect(_on_line_place_changed)
 	customer.emoted.connect(func(_customer, emotion): _emotions.play_emotion(emotion))
-	_speech_timer.one_shot = true
-	_speech_timer.timeout.connect(_on_speech_timer_timeout)
-	add_child(_speech_timer)
 	_on_state_changed(customer)
 	_play_pop_in()
 
 
 func _on_state_changed(_customer: Customer) -> void:
-	var dish_name: String = customer.dish.get("name", "something")
 	# Their plate stays in front of them, empty, while they wait for the bill;
 	# once they've paid the table has the dirty one (DiningTable.make_dirty).
 	meal.visible = customer.state in [Customer.State.EATING, Customer.State.WANTS_BILL]
-	bubble.visible = true
-	bubble.scale = Vector3.ONE
 	if _look != null and not meal.visible:
 		_look.queue_free()
 		_look = null
@@ -114,27 +92,8 @@ func _on_state_changed(_customer: Customer) -> void:
 
 	_update_table_things()
 	match customer.state:
-		Customer.State.ARRIVING, Customer.State.GONE, Customer.State.FOLLOWING, Customer.State.WALKING_TO_SEAT:
-			bubble.visible = false
-		Customer.State.WAITING_BY_DOOR:
-			bubble.text = "..."
-		Customer.State.WAITING_TO_BE_SEATED:
-			bubble.text = "Table, please!"  # A regular's greeting is said in the dialogue box when you seat them.
-			bubble.visible = customer.line_place == 0  # One asking at a time: a line of bubbles runs together.
-		Customer.State.WAITING_DRINK_ORDER:
-			bubble.text = "Ready for a drink!"
-		Customer.State.WAITING_FOR_DRINK:
-			bubble.text = "The usual, please!" if customer.drink_secret else "%s, please!" % customer.drink.get("name", "A drink")
-		Customer.State.WAITING_FOOD_ORDER:
-			bubble.text = "Ready to order!"
-		Customer.State.WAITING_FOR_FOOD:
-			# A regular already said everything in the dialogue box; the order board has their dish.
-			bubble.visible = not customer.is_regular()
-			bubble.text = "%s, please!" % dish_name
 		Customer.State.EATING:
 			var tier := CookingMinigame.quality_label(customer.served_quality).to_lower()
-			var own := Townsfolk.eating_line(customer.townsfolk_id, tier) if customer.is_townsfolk() else ""
-			bubble.text = own if not own.is_empty() else String(GameData.service.get("townsfolk", {}).get("eating", {}).get(tier, "Nom nom..."))
 			if _aura == null:
 				_start_aura(tier)
 				_react_mid_meal(tier)
@@ -151,14 +110,8 @@ func _on_state_changed(_customer: Customer) -> void:
 			if _aura != null:
 				_aura.queue_free()
 				_aura = null
-			bubble.visible = false  # The receipt over their head says it (after their "Check, please!", see _on_spoke).
-		Customer.State.LEAVING:
-			bubble.visible = false  # Their goodbye was in the dialogue box; what they paid is announced.
 
-	if _no_bubble():
-		bubble.visible = false
-	_bill_sign.visible = customer.state == Customer.State.WANTS_BILL and not bubble.visible
-	_update_name_tag()
+	_bill_sign.visible = customer.state == Customer.State.WANTS_BILL  # The receipt over their head.
 
 
 # Sparkles rising off a perfect plate, grey smoke off a burnt one; nothing
@@ -241,43 +194,8 @@ func _update_table_things() -> void:
 		_drink = null
 
 
-# A one-off line (served, eating chat) shows for a while, then the bubble goes
-# back to whatever fits their state.
-func _on_spoke(_customer: Customer) -> void:
-	_speech_state = customer.state
-	bubble.visible = not _no_bubble()
-	bubble.scale = Vector3.ONE
-	# In a conversation the dialogue box has the words; the bubble just shows they're talking.
-	bubble.text = "..." if customer.talking else _quoted(customer.speech, "")
-	_bill_sign.visible = customer.state == Customer.State.WANTS_BILL and not bubble.visible
-	_speech_timer.start(SPEECH_SECONDS)
-
-
-# An extra in a reel never has one, and in a reel the box is all a conversation needs.
-func _no_bubble() -> bool:
-	return customer.quiet or (customer.talking and ReelSandbox.active())
-
-
-# When a conversation ends, the bubble goes straight back to normal (the dialogue
-# box had the words, so nothing lingers over their head).
-func _on_talking_changed(_customer: Customer) -> void:
-	if not customer.talking:
-		_speech_timer.stop()
-		_on_state_changed(customer)
-
-
-func _on_line_place_changed(_customer: Customer) -> void:
-	if customer.state == Customer.State.WAITING_TO_BE_SEATED and _speech_timer.is_stopped() and not customer.talking:
-		_on_state_changed(customer)
-
-
-func _on_speech_timer_timeout() -> void:
-	if customer.state == _speech_state:  # A state change already replaced the line otherwise.
-		_on_state_changed(customer)
-
-
 # A little paper receipt (printed lines, a torn zigzag bottom), floating where
-# the bubble would be and bobbing so it catches the eye.
+# their waiting icon would be and bobbing so it catches the eye.
 func _build_bill_sign() -> void:
 	var w := 48
 	var h := 64
@@ -307,23 +225,6 @@ func _build_bill_sign() -> void:
 	_bill_sign.render_priority = 3
 	_bill_sign.visible = false
 	add_child(_bill_sign)
-
-
-# Regulars wear a name tag showing how well they know you, e.g. "Stitches - Nervous";
-# named townsfolk just their name.
-func _update_name_tag() -> void:
-	name_tag.visible = (customer.is_regular() or customer.is_townsfolk()) and customer.state != Customer.State.GONE and not ReelSandbox.active()
-	if customer.is_townsfolk():
-		name_tag.text = customer.display_name
-	elif customer.is_regular():
-		var record: Dictionary = GameState.regulars[customer.regular_id]
-		name_tag.text = "%s - %s" % [customer.display_name, RegularMemory.stage_name(record)]
-	bubble.offset.y = BUBBLE_OVER_NAME if name_tag.visible else 0.0
-
-
-# A regular's own line in quotes, or the generic text if they have none.
-func _quoted(line: String, fallback: String) -> String:
-	return "\"%s\"" % line if not line.is_empty() else fallback
 
 
 func _apply_species_color() -> void:
@@ -490,26 +391,20 @@ func _process(delta: float) -> void:
 
 
 # Everything over their head, stacked up from the top of it: the feelings, then
-# the name tag, the bubble over that, and the receipt or WaitIcon over whichever
-# text is showing. The text and icons are a fixed size on screen, so they're
-# stacked in pixels and stay together however close the camera is.
+# the receipt or WaitIcon, with their table's badge beside it. The icons are a
+# fixed size on screen, so they're stacked in pixels and stay together however
+# close the camera is.
 func _place_overhead() -> void:
 	var top := _head_top()
 	_emotions.position.y = top + 0.1
-	name_tag.position.y = top + LABEL_ABOVE_HEAD
-	bubble.position.y = name_tag.position.y
-	_bill_sign.position.y = bubble.position.y
-	_wait_icon.position.y = bubble.position.y
-	var text_top := 0.0  # Label pixels up from the name tag's bottom.
-	if bubble.visible:
-		text_top = bubble.offset.y + _bubble_height()
-	elif name_tag.visible:
-		text_top = name_tag.font_size * 1.2
-	var over_text := text_top * bubble.pixel_size / ICON_PIXEL + ICON_GAP
+	var over := top + LABEL_ABOVE_HEAD
+	_bill_sign.position.y = over
+	_wait_icon.position.y = over
+	var over_text := 0.0
 	_bill_sign_rest = over_text + _bill_sign.texture.get_height() * 0.5
 	_wait_icon.rest_offset = over_text + WaitIcon.PIXELS * 0.5
 	_serve_marker.head_top = top
-	_serve_marker.badge.position.y = bubble.position.y
+	_serve_marker.badge.position.y = over
 	_serve_marker.beside = _wait_icon.visible or _bill_sign.visible
 	_serve_marker.rest_offset = over_text * ICON_PIXEL / ServeMarker.BADGE_PIXEL + TableSpot.PIXELS * (0.65 if _serve_marker.beside else 0.5)
 
@@ -526,17 +421,6 @@ func _head_top() -> float:
 
 func _skeleton_to_display() -> Transform3D:
 	return global_transform.affine_inverse() * _skeleton.global_transform
-
-
-# How tall the bubble's text is (label pixels), wrapped the way the label wraps it.
-func _bubble_height() -> float:
-	if bubble.text != _measured:
-		_measured = bubble.text
-		var font: Font = bubble.font if bubble.font != null else ThemeDB.fallback_font
-		var size := font.get_multiline_string_size(bubble.text, HORIZONTAL_ALIGNMENT_CENTER, bubble.width, bubble.font_size, -1,
-				TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE)
-		_measured_height = size.y
-	return _measured_height
 
 
 # Play one of the model's animations, by what it's for (walk, idle, sit, talk, sit_talk), looping.
