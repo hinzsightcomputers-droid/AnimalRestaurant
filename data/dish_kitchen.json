@@ -46,7 +46,7 @@
 			"uses": { "fish": 1 },
 			"ingredient": { "name": "Fish", "color": "#7fb6d9", "model": "res://design/restaurant/fish_whole.glb",
 				"chop": { "name": "Fish Fillets", "verb": "Fillet", "recipe": "filleting", "chops": 5, "color": "#ee9466", "model": "res://design/restaurant/salmon_pieces.glb" } } },
-		"walters_storm_soup": { "model": "res://design/restaurant/walters_storm_soup.glb", "dirty_model": "res://design/restaurant/bowl_dirty.glb", "recipe": "soup", "cook_speed": 0.9,
+		"walters_storm_soup": { "model": "res://design/restaurant/walters_storm_soup.glb", "dirty_model": "res://design/restaurant/bowl_dirty.glb", "recipe": "walters_storm_soup", "cook_speed": 0.9,
 			"ingredient": { "name": "Soup Vegetables", "color": "#c9a24a", "model": "res://design/restaurant/crate_potatoes.glb",
 				"chop": { "name": "Chopped Vegetables", "chops": 8, "model": "res://design/restaurant/potato_chopped.glb" } } },
 		"squared_steak": { "model": "res://design/restaurant/squared_steak.glb", "recipe": "squared_steak", "cook_speed": 1.0,

@@ -1,0 +1,73 @@
+[gd_resource type="Resource" script_class="CookRecipe" format=3]
+
+[ext_resource type="Script" path="res://scripts/cooking/cook_recipe.gd" id="1_recipe"]
+[ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/fill_action.gd" id="fill"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/season_action.gd" id="season"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/stir_action.gd" id="stir"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/ladle_action.gd" id="ladle"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/storm_clouds_action.gd" id="clouds"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/lightning_action.gd" id="lightning"]
+[ext_resource type="PackedScene" path="res://scenes/cooking/veg_soup_closeup.tscn" id="scene"]
+
+[sub_resource type="Resource" id="Resource_broth"]
+script = ExtResource("fill")
+title = "Storm broth"
+hint = "Hold [button] to pour the dark storm broth and let go at the line."
+weight = 0.4
+view_distance = 0.55
+into = "Pot"
+liquid_name = "Storm broth"
+liquid_color = Color(0.14, 0.2, 0.34, 0.95)
+line = 0.75
+pour_height = 0.16
+
+[sub_resource type="Resource" id="Resource_salt"]
+script = ExtResource("season")
+title = "The salt (more than that!)"
+view_distance = 0.56
+view_pitch = 58
+hint = "Walter always salted it. Shake [button] over the pot, a lot, until the meter is high in the green."
+weight = 0.6
+band = Vector2(0.75, 0.92)
+
+[sub_resource type="Resource" id="Resource_stir"]
+script = ExtResource("stir")
+title = "Stir up the storm"
+view_distance = 0.48
+view_pitch = 60
+hint = "Roll [stick] round slowly and steadily, the way the arrow goes, to whip the broth into a whirlpool. Slower!"
+weight = 0.7
+turns = 4.0
+slow_speed = 0.2
+fast_speed = 1.2
+tool = "spoon"
+
+[sub_resource type="Resource" id="Resource_ladle"]
+script = ExtResource("ladle")
+title = "Ladle it out"
+view_distance = 0.58
+view_pitch = 56
+hint = "Press [button] over the pot to scoop, then move to the bowl with [stick] and press [button] over its middle to pour. Three ladles fill it."
+weight = 0.5
+
+[sub_resource type="Resource" id="Resource_clouds"]
+script = ExtResource("clouds")
+title = "Cloud dumplings"
+cue = "Here comes the storm!"
+hint = "The broth's spinning. Move the cloud dumpling with [stick] and press [button] to drop it in the white ring, where the storm catches it."
+weight = 0.7
+
+[sub_resource type="Resource" id="Resource_lightning"]
+script = ExtResource("lightning")
+title = "Lightning!"
+hint = "Press [button] on the ring and hold it, following the dots with [stick], to draw a lightning bolt in golden chili oil."
+weight = 0.7
+
+[resource]
+script = ExtResource("1_recipe")
+display_name = "Walter's Storm Soup"
+pieces = 1
+serve_on = ""
+scene = ExtResource("scene")
+steps = Array[ExtResource("2_action")]([SubResource("Resource_broth"), SubResource("Resource_salt"), SubResource("Resource_stir"), SubResource("Resource_ladle"), SubResource("Resource_clouds"), SubResource("Resource_lightning")])

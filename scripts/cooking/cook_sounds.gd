@@ -18,7 +18,7 @@ static func get_sound(sound: String) -> AudioStreamWAV:
 
 
 static func _make(sound: String) -> AudioStreamWAV:
-	var seconds := {"sizzle": 1.5, "pour": 1.0, "drizzle": 1.0, "plop": 0.18, "whoosh": 0.3, "tick": 0.05, "ding": 0.7, "chop": 0.12, "clack": 0.08, "knock": 0.6}.get(sound, 0.2) as float
+	var seconds := {"sizzle": 1.5, "pour": 1.0, "drizzle": 1.0, "plop": 0.18, "whoosh": 0.3, "tick": 0.05, "ding": 0.7, "chop": 0.12, "clack": 0.08, "knock": 0.6, "thunder": 2.2}.get(sound, 0.2) as float
 	var total := int(RATE * seconds)
 	var data := PackedByteArray()
 	data.resize(total * 2)
@@ -60,6 +60,11 @@ static func _make(sound: String) -> AudioStreamWAV:
 				var body := sin(TAU * 95.0 * since) + 0.5 * sin(TAU * 230.0 * since) + 0.25 * sin(TAU * 410.0 * since)  # Hollow wood.
 				var click := noise * exp(-since * 400.0) * 0.6  # Knuckle on the door.
 				value = (body * 0.55 * exp(-since * 38.0) + low * 0.5 * exp(-since * 60.0) + click) if t < 0.51 else 0.0
+			"thunder":  # A sharp crack, then a long low rumble rolling away.
+				low += (noise - low) * 0.035
+				crackle += (noise - crackle) * 0.5
+				var rumble := low * 3.2 * (1.0 + 0.5 * sin(TAU * 3.0 * t) * sin(TAU * 1.3 * t)) * minf(t * 20.0, 1.0) * exp(-t * 1.4)
+				value = crackle * exp(-t * 18.0) * 0.9 + rumble
 			"ding":
 				value = (sin(TAU * 1046.0 * t) + 0.4 * sin(TAU * 2093.0 * t)) * exp(-t * 5.0) * 0.35
 		data.encode_s16(i * 2, int(clampf(value, -1.0, 1.0) * 32767.0))
