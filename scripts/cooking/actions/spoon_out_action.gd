@@ -8,7 +8,7 @@ extends LadleAction
 const SPOON_REACH := 0.046          # How far from its middle the spoon's heap goes.
 const HEAP_HEIGHT := 0.026
 const FALL_SECONDS := 0.2
-const LEFT_IN_POT := 0.28           # How full the pot ends up: a layer of sauce, deep enough to rock without baring the floor.
+const LEFT_IN_POT := 0.24           # How full the pot ends up: a layer of sauce, deep enough to rock without baring the floor.
 
 var _pot_level := 0.0
 var _all := 0                       # Pieces there were to serve.
@@ -70,15 +70,15 @@ func _away(bit: Node3D, pot: CookSurface, at: Vector2) -> float:
 func _drop_bits(bowl: CookSurface) -> void:
 	var level := _level_after()
 	var reach := lerpf(bowl.floor_radius, bowl.rim_radius, sqrt(level)) * 0.78
-	var last := _poured >= ladles - 1
 	var count := _bits.size()
 	for i in count:
 		var bit := _bits[i]
 		bit.reparent(session)
 		var out := sqrt((i + 0.5) / count)
 		var spot := Vector2.from_angle(i * 2.4 + _poured * 0.8) * out * reach
-		var dome := (1.0 - out * out) * (0.024 if last else 0.008)
-		var at := Vector3(bowl.position.x + spot.x, bowl.top_when(level) + dome + randf_range(0.001, 0.007), bowl.position.z + spot.y)
+		# Each spoonful heaps on the last, over a thin layer of sauce: cheesy, not soupy.
+		var dome := (1.0 - out * out) * (0.012 + 0.012 * _poured)
+		var at := Vector3(bowl.position.x + spot.x, bowl.top_when(level) + 0.003 + _poured * 0.005 + dome + randf_range(0.0, 0.009), bowl.position.z + spot.y)
 		var fall := bit.create_tween()
 		fall.tween_interval(0.012 * (count - i))
 		fall.tween_property(bit, "position", at, FALL_SECONDS).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)

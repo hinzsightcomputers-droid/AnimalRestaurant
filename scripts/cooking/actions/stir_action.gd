@@ -25,6 +25,7 @@ extends CookAction
 @export var tint_to := Color(0, 0, 0, 0)  # The liquid turns this color as you stir (none if see-through).
 @export var melt_level := 0.0             # What melts in brings the liquid up to this (of the pot's depth).
 @export var coat := false                 # What else is in there takes on tint_to as well (macaroni in its sauce).
+@export var heap := 0.0                   # coat: what's coated settles into a heap this tall over the sauce (not floating in it).
 @export var thick_look := 0.0             # 1: a batter: the whisk's marks stay in it.
 @export var lumps := 0                    # Lumps of flour that stir out.
 @export_enum("whisk", "spatula", "spoon") var tool := "whisk"
@@ -52,6 +53,7 @@ var _scripted_angle := 0.0
 var _last_spot := Vector2.INF
 var _wake := 0.0                          # How far the whisk's gone since its last ring.
 var _coated := {}                         # coat: material -> the color it started.
+var _heaping := {}                        # heap: piece -> [the height it started, the height it settles to] (pot's space).
 
 
 func _begin() -> void:
@@ -85,6 +87,8 @@ func _begin() -> void:
 				var material := (item as MeshInstance3D).mesh.surface_get_material(0) as StandardMaterial3D
 				if material != null:
 					_coated[material] = material.albedo_color
+				if heap > 0.0:
+					_settle(pot, item)
 	for i in lumps:
 		var lump := MeshInstance3D.new()
 		var mesh := SphereMesh.new()
@@ -115,6 +119,16 @@ func _begin() -> void:
 
 func view_point() -> Vector3:
 	return _middle(session.surface(in_surface))
+
+
+# heap: it stops floating and settles onto the others, highest in the middle,
+# with just a layer of sauce under them all: cheesy, not soupy.
+func _settle(pot: CookSurface, item: Node3D) -> void:
+	if pot.in_it() != null:
+		pot.in_it().sink_thing(item)
+	var out := clampf(Vector2(item.position.x, item.position.z).length() / (pot.radius() * 0.8), 0.0, 1.0)
+	var top := pot.top_when(maxf(pot.level, melt_level)) - pot.position.y
+	_heaping[item] = [item.position.y, top + 0.002 + (1.0 - out * out) * heap + randf() * heap * 0.45]
 
 
 func uses_cursor() -> bool:
@@ -210,6 +224,9 @@ func update(delta: float, input: CookInput) -> void:
 			pot.fill_to(lerpf(_from_level, maxf(_from_level, melt_level), share))
 	for material: StandardMaterial3D in _coated:
 		material.albedo_color = (_coated[material] as Color).lerp(tint_to, share * 0.8)
+	for item: Node3D in _heaping:
+		if is_instance_valid(item):
+			item.position.y = lerpf(_heaping[item][0], _heaping[item][1], smoothstep(0.0, 0.7, share))
 
 	_swish.volume_db = lerpf(-30.0, -6.0, clampf(_speed / fast_speed, 0.0, 1.0))
 	_splash_timer -= delta

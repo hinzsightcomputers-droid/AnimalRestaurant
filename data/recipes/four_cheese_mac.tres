@@ -16,6 +16,7 @@ title = "Boil the pasta"
 view_distance = 0.52
 view_pitch = 58
 hint = "Move the bowl over the pot with [stick] and press [button] to tip the macaroni into the boiling water."
+pasta = 120
 
 [sub_resource type="Resource" id="Resource_grate"]
 script = ExtResource("grate")
@@ -51,7 +52,8 @@ weight = 0.7
 turns = 5.0
 melt = true
 coat = true
-melt_level = 0.62
+melt_level = 0.26
+heap = 0.034
 tint_to = Color(0.98, 0.76, 0.28, 1)
 tool = "spoon"
 
@@ -63,7 +65,7 @@ view_pitch = 56
 hint = "Press [button] over the pot to scoop up a spoonful, then move to the bowl with [stick] and press [button] over its middle to drop it in. Three spoonfuls fill it."
 weight = 0.5
 serving = "Spoonful"
-full_level = 0.56
+full_level = 0.3
 carry_height = 0.15
 
 [resource]
