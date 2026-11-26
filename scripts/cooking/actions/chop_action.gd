@@ -198,6 +198,9 @@ func update(delta: float, input: CookInput) -> void:
 				var board := session.surface(on_surface).position
 				var node: Node3D = _piece["node"]
 				node.create_tween().tween_property(node, "position", Vector3(board.x + rest.x, node.position.y, board.z + rest.y), SLIDE_SECONDS).set_trans(Tween.TRANS_QUAD)
+			var chopped: Array = session.context.get("chopped", [])
+			chopped.append(_piece["node"])  # For a ScrapeAction to sweep up after.
+			session.context["chopped"] = chopped
 			finish(average(_rhythm))
 		return
 	if _arriving:

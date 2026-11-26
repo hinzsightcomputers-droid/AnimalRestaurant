@@ -2,52 +2,74 @@
 
 [ext_resource type="Script" path="res://scripts/cooking/cook_recipe.gd" id="1_recipe"]
 [ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/boil_action.gd" id="boil"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/chop_action.gd" id="chop"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/drain_action.gd" id="drain"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/wok_toss_action.gd" id="wok"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/scrape_action.gd" id="scrape"]
-[ext_resource type="Script" path="res://scripts/cooking/actions/stir_action.gd" id="stir"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/season_action.gd" id="season"]
-[ext_resource type="PackedScene" path="res://scenes/cooking/soup_closeup.tscn" id="scene"]
+[ext_resource type="PackedScene" path="res://scenes/cooking/mac_closeup.tscn" id="scene"]
 
-[sub_resource type="Resource" id="Resource_0"]
+[sub_resource type="Resource" id="Resource_boil"]
+script = ExtResource("boil")
+title = "Boil the noodles"
+hint = "Move the bowl over the pot with [stick] and press [button] to tip the noodles in. They boil while you get on with the next step."
+view_distance = 0.52
+view_pitch = 58
+pasta = 30
+noodles = true
+pasta_color = Color(0.98, 0.88, 0.6, 1)
+
+[sub_resource type="Resource" id="Resource_chop"]
+script = ExtResource("chop")
+title = "Chop the green onion"
+hint = "Press [button] to chop: on the beat, or as fast as you like if you keep it steady. The knife moves along by itself."
+weight = 0.4
+cuts = 8
+plain = true
+piece_color = Color(0.42, 0.74, 0.3, 1)
+piece_length = 0.24
+piece_radius = 0.011
+taper = 0.15
+
+[sub_resource type="Resource" id="Resource_drain"]
+script = ExtResource("drain")
+title = "Drain them"
+view_distance = 0.56
+view_pitch = 54
+weight = 0.5
+
+[sub_resource type="Resource" id="Resource_wok"]
+script = ExtResource("wok")
+title = "Toss in the wok"
+cue = "Chili sauce!"
+hint = "Into the hot wok with the chili sauce. Press [button] as the ring meets the noodles to toss them: right on the beat for the biggest flames!"
+weight = 0.8
+
+[sub_resource type="Resource" id="Resource_onion"]
 script = ExtResource("scrape")
-title = "Noodles in"
+title = "Green onion on top"
 view_distance = 0.6
 view_pitch = 56
-hint = "Hold [grip] on the board and carry it to the pot. Then hold [grip] and push the knife to sweep everything in. Gently, or it splashes!"
-weight = 0.5
-piece_radius = 0.02
+hint = "Hold [grip] on the board and carry it to the wok. Then hold [grip] and push the knife to sweep the green onion on top."
+weight = 0.3
+pieces = 9
+piece_radius = 0.011
 piece_thickness = 0.008
-noodles = 14
+piece_color = Color(0.42, 0.74, 0.3, 1)
+plain = true
 
-[sub_resource type="Resource" id="Resource_1"]
-script = ExtResource("stir")
-title = "Toss them"
-view_distance = 0.48
-view_pitch = 60
-hint = "Roll [stick] round counter-clockwise, the way the arrow goes, to stir it (with the mouse, hold [grip] and circle the pot). Don't stop stirring!"
-turns = 5
-
-[sub_resource type="Resource" id="Resource_2"]
+[sub_resource type="Resource" id="Resource_sesame"]
 script = ExtResource("season")
-title = "Chili oil"
+title = "Sesame seeds"
 view_distance = 0.56
 view_pitch = 58
-hint = "Move it over the pot with [stick] and press [button] to shake. Stop when the meter is in the green."
-seasoning = "Chili"
-flake_color = Color(0.85, 0.15, 0.05, 1)
-cap_color = Color(0.7, 0.12, 0.08, 1)
-band = Vector2(0.6, 0.8)
-
-[sub_resource type="Resource" id="Resource_3"]
-script = ExtResource("season")
-title = "Garnish: green onion"
-view_distance = 0.56
-view_pitch = 58
-hint = "Now the green onion. Shake [button] over the pot until the meter is in the green, then stop."
-seasoning = "Green onion"
-flake_color = Color(0.4, 0.75, 0.3, 1)
-cap_color = Color(0.3, 0.55, 0.3, 1)
-band = Vector2(0.35, 0.55)
-weight = 0.5
+hint = "Shake the sesame seeds over the wok with [button] until the meter is in the green, then stop."
+weight = 0.3
+seasoning = "Sesame"
+flake_color = Color(0.96, 0.9, 0.72, 1)
+cap_color = Color(0.85, 0.75, 0.55, 1)
+band = Vector2(0.4, 0.6)
 
 [resource]
 script = ExtResource("1_recipe")
@@ -55,4 +77,4 @@ display_name = "Fire Noodles"
 pieces = 1
 serve_on = ""
 scene = ExtResource("scene")
-steps = Array[ExtResource("2_action")]([SubResource("Resource_0"), SubResource("Resource_1"), SubResource("Resource_2"), SubResource("Resource_3")])
+steps = Array[ExtResource("2_action")]([SubResource("Resource_boil"), SubResource("Resource_chop"), SubResource("Resource_drain"), SubResource("Resource_wok"), SubResource("Resource_onion"), SubResource("Resource_sesame")])

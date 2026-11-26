@@ -21,6 +21,7 @@ const SCRIPTED_ARRIVED := 0.02  # How near the rim the board gets before it's le
 @export var piece_radius := 0.017
 @export var piece_thickness := 0.009
 @export var piece_color := Color(0.95, 0.55, 0.15)  # When there are no ingredients to take it from.
+@export var plain := false                  # Always piece_color (what was chopped just before: a banana, green onion), not the ingredients'.
 @export_group("Feel")
 @export var rim_height := 0.15              # The top of the pot's rim, above the session...
 @export var rim_radius := 0.15              # ...and how far out it is from the pot's middle.
@@ -64,7 +65,11 @@ func _begin() -> void:
 	var count := pieces
 	if count <= 0:
 		count = session.ingredients.chops_needed() + 1 if session.ingredients != null else 9
-	var color := session.ingredients.color() if session.ingredients != null else piece_color
+	var color := session.ingredients.color() if session.ingredients != null and not plain else piece_color
+	for node in session.context.get("chopped", []):  # What was chopped on the board: these pieces take over from it.
+		if is_instance_valid(node):
+			node.queue_free()
+	session.context.erase("chopped")
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
 	material.roughness = 0.4

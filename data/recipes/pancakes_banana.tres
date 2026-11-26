@@ -105,6 +105,7 @@ pieces = 8
 piece_radius = 0.015
 piece_thickness = 0.007
 piece_color = Color(0.97, 0.93, 0.72, 1)
+plain = true
 rim_height = 0.12
 rim_radius = 0.115
 

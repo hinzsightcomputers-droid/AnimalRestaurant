@@ -8,6 +8,7 @@ extends CookAction
 
 @export var in_surface := "Pot"
 @export var pasta := 60                     # Pieces of it.
+@export var noodles := false                # Wavy noodles (Fire Noodles) instead of macaroni.
 @export var boil_seconds := 15.0            # Boiling this long is just right (longer on Easy).
 @export var perfect_from := 0.85            # Share of boil_seconds where the green starts...
 @export var perfect_to := 1.45              # ...and ends: wide, as there's cheese to grate meanwhile.
@@ -146,7 +147,7 @@ func _tip(pot: CookSurface) -> void:
 	var tween := _bowl.create_tween()
 	tween.tween_property(_bowl, "position", over, 0.12)
 	tween.tween_property(_bowl, "rotation:z", deg_to_rad(115.0), 0.25).set_trans(Tween.TRANS_QUAD)
-	var mesh := macaroni_mesh(pasta_color)
+	var mesh := _pasta_mesh()
 	for i in pasta:
 		var bit := MeshInstance3D.new()
 		bit.mesh = mesh
@@ -187,6 +188,26 @@ func _start_boiling(pot: CookSurface) -> void:
 	_label.visible = false
 	session.add_child(_label)
 	to_background = true  # On to the next step, the pasta boiling away.
+
+
+func _pasta_mesh() -> ArrayMesh:
+	return noodle_mesh(pasta_color) if noodles else macaroni_mesh(pasta_color)
+
+
+# A loose curl of noodle, one mesh to share.
+static func noodle_mesh(color: Color) -> ArrayMesh:
+	var path := []
+	for k in 13:
+		var turn := 2.6 * TAU * k / 12.0
+		var out := 0.022 * (1.0 + 0.35 * sin(k * 1.7))
+		path.append(Vector3(cos(turn) * out * 1.3, 0.002 * sin(k * 2.1), sin(turn) * out))
+	var mesh := CookSession.rope_mesh(path, Vector2(0.0022, 0.0026))
+	var material := StandardMaterial3D.new()
+	material.albedo_color = color
+	material.roughness = 0.3
+	material.set_meta(ToonStyle.FOOD, "pasta")
+	mesh.surface_set_material(0, material)
+	return mesh
 
 
 # One elbow of macaroni: a bent tube, hollow at its ends, as one mesh to share.
@@ -239,7 +260,7 @@ func _make_bowl() -> Node3D:
 	cup_mesh.material = cream
 	cup.mesh = cup_mesh
 	bowl.add_child(cup)
-	var mesh := macaroni_mesh(pasta_color)
+	var mesh := _pasta_mesh()
 	for i in 12:
 		var bit := MeshInstance3D.new()
 		bit.mesh = mesh
