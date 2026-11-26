@@ -150,6 +150,10 @@ func next_step(player: Player, claimed: Dictionary) -> Dictionary:
 		for i in waiting.size():  # One chef per customer in line.
 			front.append(_job(counter, "seat", "seat_%d" % i))
 	jobs.append(front)
+	# An app order waiting: nothing to walk to, just the phone button to press.
+	var app_waiting := GameState.phone_unlocked and not GameState.app_orders.is_empty() and not TicketWheel.is_full(get_tree())
+	jobs.append([{ "target": null, "button": "phone", "key": "app_order", "claim": "app_order",
+			"hint": _hint("app_order", { "button": InputSetup.phone_hint(index) }) }] if app_waiting else [])
 	var pass_counter := _first(PassCounter) as PassCounter
 	jobs.append([_job(pass_counter.interactable if pass_counter != null and pass_counter.has_items() else null, "pick_up", "pass")])
 	var freezer := _first(Freezer) as Freezer
@@ -172,7 +176,7 @@ func next_step(player: Player, claimed: Dictionary) -> Dictionary:
 	jobs.append([_job(menu_board.interactable if menu_board != null and menu_board.is_waiting() and menu_board.session == null else null, "write_menu", "menu")])
 	jobs.append([_job(counter if day_manager.bell_ready() else null, "ring_bell", "bell")])
 	for level in jobs:
-		var open := level.filter(func(job): return job["target"] != null and not claimed.has(job["claim"]))
+		var open := level.filter(func(job): return (job["target"] != null or job.has("button")) and not claimed.has(job["claim"]))
 		if not open.is_empty():
 			open.sort_custom(func(a, b): return _distance(player, a["target"]) < _distance(player, b["target"]))
 			if lesson_wait.is_empty():

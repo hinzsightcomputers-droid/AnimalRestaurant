@@ -370,6 +370,14 @@ func play_step(p := 0) -> void:
 			last_hint = hint
 		if k in ["ring_bell", "open_up"] and p == 0:
 			await shot(k)
+	if me.on_phone:  # An app order up on the phone: accept it.
+		await tick(1.0)
+		await press(p)
+		return
+	if step.has("button") and not me.movement_locked:  # E.g. the phone button for an app order.
+		await press(p, step["button"])
+		await tick(0.5)
+		return
 	var target: Interactable = step.get("target")
 	if target == null or not is_instance_valid(target) or me.movement_locked:
 		return
