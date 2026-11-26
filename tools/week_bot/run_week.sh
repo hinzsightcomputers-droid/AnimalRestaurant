@@ -23,7 +23,7 @@ elif [ "$FIRST" -gt 1 ]; then
 		exit 1
 	fi
 fi
-[ $# -eq 0 ] && set -- --seconds=1800 --after=180
+[ $# -eq 0 ] && set -- --seconds=2400 --after=180  # Room for the night shift (a day is ~27 min before it).
 echo "=== week bot: days $FIRST to $LAST, started $(date +%H:%M)"
 for d in $(seq "$FIRST" "$LAST"); do
 	bash "$HERE/run_day.sh" "$d" "$@"
