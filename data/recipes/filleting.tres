@@ -3,15 +3,29 @@
 [ext_resource type="Script" path="res://scripts/cooking/cook_recipe.gd" id="1_recipe"]
 [ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/fillet_action.gd" id="3_fillet"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/chop_action.gd" id="4_chop"]
 
 [sub_resource type="Resource" id="Resource_fillet"]
 script = ExtResource("3_fillet")
 title = "Fillet the fish"
 hint = "Hold [grip] on the green ring and draw the knife along the dotted line with [stick]. Stay on the line!"
+fillets_go = true
+
+[sub_resource type="Resource" id="Resource_chop"]
+script = ExtResource("4_chop")
+title = "Chop the fillet"
+hint = "Press [button] to chop the fillet into chunks: on the beat, or as fast as you like if you keep it steady. The knife moves along by itself."
+weight = 0.5
+plain = true
+piece_color = Color(0.94, 0.56, 0.4, 1)
+piece_length = 0.26
+piece_radius = 0.028
+taper = 0.35
+offset_z = 0.05
 
 [resource]
 script = ExtResource("1_recipe")
 display_name = "Filleting"
 pieces = 1
 serve_on = "Board"
-steps = Array[ExtResource("2_action")]([SubResource("Resource_fillet")])
+steps = Array[ExtResource("2_action")]([SubResource("Resource_fillet"), SubResource("Resource_chop")])

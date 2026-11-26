@@ -23,6 +23,7 @@ const BONES := "res://design/restaurant/fish_bones.glb"
 @export var slip_offset := 0.06            # Further than this and the knife slips out.
 @export var grab_reach := 0.05             # How near the cut's end you have to grab to (re)start.
 @export var knife_height := 0.05
+@export var fillets_go := false            # The fillets leave the board after (a ChopAction comes next with its own).
 
 var _fish: Node3D
 var _side := 0
@@ -37,6 +38,7 @@ var _knife: Node3D
 var _start_ring: MeshInstance3D
 var _dot_material := StandardMaterial3D.new()
 var _cut_material := StandardMaterial3D.new()
+var _fillets: Array[Node3D] = []
 
 
 func uses_cursor() -> bool:
@@ -61,6 +63,10 @@ func _begin() -> void:
 func end() -> void:
 	_knife.queue_free()
 	_start_ring.queue_free()
+	if fillets_go:  # Gathered up for chopping.
+		for fillet in _fillets:
+			if is_instance_valid(fillet):
+				fillet.queue_free()
 
 
 func update(delta: float, input: CookInput) -> void:
@@ -167,6 +173,7 @@ func _open_up() -> void:
 	for side in [-1.0, 1.0]:
 		var fillet := ModelFit.place(FILLETS, session, board + Vector3(side * 0.12, 0.0, 0.06), Vector3(0.13, 0.0, 0.0))
 		fillet.rotation.y = side * 0.25
+		_fillets.append(fillet)
 		session.wobble(fillet, 0.2)
 	session.play_sound("plop", board, -2.0, 1.2)
 	await session.get_tree().create_timer(0.5).timeout

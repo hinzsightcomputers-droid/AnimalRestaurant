@@ -45,6 +45,11 @@ func _ready() -> void:
 		if recipe.is_empty() and OS.get_environment("ONLY") not in ["", job[0]]:
 			continue
 		await get_tree().create_timer(2.5).timeout
+		if OS.get_environment("AT") == "board":  # A chopping board recipe (filleting).
+			player.global_position = board.global_position + board.global_transform.basis.z * 0.9
+			board.reel_cook(player, load("res://data/recipes/%s.tres" % job[0]), job[1])
+			await _play(job[0], board.session)
+			continue
 		stove.reel_cook(player, load("res://data/recipes/%s.tres" % job[0]), job[1])
 		await _play(job[0], stove.session)
 	get_tree().quit()
