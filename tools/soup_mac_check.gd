@@ -28,7 +28,8 @@ func _ready() -> void:
 	for dish in GameData.dishes:
 		dishes[dish["id"]] = dish
 	var soup: Dictionary = dishes["vegetable_soup"]
-	if OS.get_environment("ONLY") != "four_cheese_mac":
+	var recipe := OS.get_environment("RECIPE")  # Just this recipe, cooked at the stove (no chopping first).
+	if OS.get_environment("ONLY") != "four_cheese_mac" and recipe.is_empty():
 		player.global_position = board.global_position + board.global_transform.basis.z * 0.9
 		await get_tree().create_timer(0.8).timeout
 		board._open_closeup(player, Ingredients.new(Order.new(null, soup)))
@@ -39,8 +40,9 @@ func _ready() -> void:
 			return
 	player.set_held_item(null)
 	player.global_position = stove.global_position + stove.global_transform.basis.z * 0.9
-	for job in [["soup", soup], ["four_cheese_mac", {}]]:
-		if OS.get_environment("ONLY") not in ["", job[0]]:
+	var jobs := [["soup", soup], ["four_cheese_mac", {}]] if recipe.is_empty() else [[recipe, {}]]
+	for job in jobs:
+		if recipe.is_empty() and OS.get_environment("ONLY") not in ["", job[0]]:
 			continue
 		await get_tree().create_timer(2.5).timeout
 		stove.reel_cook(player, load("res://data/recipes/%s.tres" % job[0]), job[1])
@@ -69,8 +71,8 @@ func _play(prefix: String, session: CookSession) -> void:
 				await _stray(session, last)
 				next = clock
 		if clock >= next:
-			next = clock + (1.6 if prefix != "chop" else 0.5) * (0.12 if last is LadleAction else 1.0)
-			await _shot("%s_%02d_%s.png" % [prefix, shot, last.title.to_snake_case().replace("!", "")])
+			next = clock + (1.6 if prefix != "chop" else 0.5) * (0.12 if last is LadleAction or last is WrapAction else 1.0)
+			await _shot("%s_%02d_%s.png" % [prefix, shot, last.title.to_snake_case().replace("!", "").replace(":", "")])
 			shot += 1
 	if is_instance_valid(session):
 		print("CHECK %s done in %.1f s: %s" % [prefix, (Time.get_ticks_msec() - began) / 1000.0, session.steps.map(func(s): return "%s %.2f" % [s.title, s.quality])])

@@ -52,7 +52,7 @@ func _begin() -> void:
 		_targets = session.pieces_on(surface)
 		_spatula = session.make_spatula()
 		for piece: CookPiece in _targets:
-			_start[piece] = [piece.radius, piece.thickness]
+			_start[piece] = [piece.radius, piece.thickness, piece.scale.y]
 	else:
 		_targets = [session.surface(surface)]
 		_hiss = session.loop_sound("sizzle", -24.0)
@@ -86,7 +86,7 @@ func update(delta: float, input: CookInput) -> void:
 			_amount = minf(_amount + rise, 1.0)
 			piece.set_radius(_start[piece][0] * (1.0 + widen * _amount))
 			piece.thickness = _start[piece][1] * (1.0 - flatten * _amount)
-			piece.scale.y = 1.0 - flatten * _amount
+			piece.scale.y = lerpf(_start[piece][2], 1.0 - flatten, _amount)  # From a ball (WrapAction) or flat.
 			if not input.held:
 				_stop(target)
 		var goal := piece.position + Vector3(0.0, piece.thickness + (0.002 if _pressing else 0.05), 0.0)
