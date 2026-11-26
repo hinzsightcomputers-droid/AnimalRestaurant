@@ -1,0 +1,8 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/cooking/cook_session.gd" id="1_session"]
+
+[node name="MenuBoardCloseup" type="Node3D"]
+script = ExtResource("1_session")
+bounds = Rect2(-0.32, -0.22, 0.64, 0.44)
+work_height = 0.02

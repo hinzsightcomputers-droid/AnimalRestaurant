@@ -40,6 +40,7 @@ var decor_room := DecorRoom.new()  # What's been placed (see Decor).
 var floor_care := FloorCare.new()
 var meal_break := MealBreak.new()
 var _announced_bell := false
+var _menu_waiting := false  # The meal's waiting for its menu on the chalkboard before anyone comes in.
 var _announced_orders := false
 var _lighting: Tween
 var _night_ending := false
@@ -123,7 +124,7 @@ func _process(delta: float) -> void:
 # The meal's customers have all been and gone, so the bell can be rung, once
 # every app order's been viewed and every delivery handed over.
 func bell_ready() -> bool:
-	return DayCycle.is_open() and customer_manager.phase_finished() and not orders_outstanding()
+	return not _menu_waiting and DayCycle.is_open() and customer_manager.phase_finished() and not orders_outstanding()
 
 
 # App orders waiting to be viewed, or deliveries waiting for their dish.
@@ -199,6 +200,8 @@ func skip_to(target: DayCycle.Phase, meal := 0) -> void:
 		return
 	if target == DayCycle.phase and target != DayCycle.Phase.MEAL:
 		return
+	if target == DayCycle.Phase.MEAL:
+		GameState.menu_written_meal = meal  # Skipping straight there: it's written.
 	var going_back := target == DayCycle.Phase.MEAL and not DayCycle.is_open() \
 		or DayCycle.is_after_hours() \
 		or DayCycle.is_night() and target == DayCycle.Phase.CLOSING
@@ -277,6 +280,20 @@ func _start_phase(phase: int, light_seconds := -1.0) -> void:
 	_announced_orders = false
 	var info := GameState.phase_info(phase)
 	_light(info.get("lighting", {}), light_seconds)
+	var board := MenuBoard.find(get_tree())
+	if board != null and GameState.menu_written_meal != phase:  # Nobody in till the menu's up.
+		_menu_waiting = true
+		board.ask(phase)
+		board.written.connect(func(_meal): _open_meal(phase, light_seconds), CONNECT_ONE_SHOT)
+		GameEvents.announce(String(GameData.day_settings.get("menu_board_text", "Write the {meal} menu on the chalkboard by the door to open!")).format({ "meal": String(info.get("name", "")).to_lower() }))
+		return
+	_open_meal(phase, light_seconds)
+
+
+# The menu's up: the meal's customers start coming.
+func _open_meal(phase: int, light_seconds := -1.0) -> void:
+	_menu_waiting = false
+	var info := GameState.phase_info(phase)
 	var plan := GameState.todays_plan()
 	customer_manager.start_phase(plan[phase] if phase < plan.size() else [], GameState.phase_done)
 	var on := GameData.meal_menu()

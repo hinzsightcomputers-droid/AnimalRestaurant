@@ -80,6 +80,7 @@
 			"wipe": "Wipe the table",
 			"chat": "{name} is eating: go and have a chat",
 			"ring_bell": "Everyone's served: ring the bell at the host stand",
+			"write_menu": "Write the menu on the chalkboard by the door to open",
 			"wait_sitting": "{name} is finding their seat",
 			"wait_drink": "{name}'s drink is on its way",
 			"wait_food": "{name}'s {dish} is on its way",

@@ -79,6 +79,7 @@ var town_news: Array[String] = []  # Townsfolk who moved in or away this morning
 # many have rung so far. Saved, so a night picked up again doesn't start over.
 var night_calls_total := 0
 var night_calls_used := 0
+var menu_written_meal := -1  # Which of today's meals has its menu up on the chalkboard (MenuBoard).
 # Each chef's birthday, by account id: "MM-DD", or "" if they'd rather not say
 # (then they aren't asked again). Asked on their first day; see EventCalendar. Saved.
 var birthdays: Dictionary = {}
@@ -182,6 +183,7 @@ func begin_day() -> void:
 	stage_building = 0
 	DayCycle.start_day()
 	phase_done.clear()
+	menu_written_meal = -1
 	night_calls_total = 0
 	night_calls_used = 0
 	if delivery_asked and not phone_unlocked:
@@ -434,6 +436,7 @@ func to_save_data() -> Dictionary:
 		"night_calls_total": night_calls_total,
 		"guided": guided,
 		"night_calls_used": night_calls_used,
+		"menu_written_meal": menu_written_meal,
 		"birthdays": birthdays,
 		"hemisphere": hemisphere,
 		"pantry": pantry,
@@ -474,6 +477,7 @@ func apply_save_data(data: Dictionary) -> void:
 	else:  # Saves from before one-day-a-day had shifts instead: that day starts over.
 		date = ""
 	phase_done.assign(data.get("phase_done", []).map(func(i): return int(i)))
+	menu_written_meal = int(data.get("menu_written_meal", DayCycle.meal if not phase_done.is_empty() else -1))
 	var saved_plan = data.get("day_plan", {})
 	if saved_plan is Dictionary and saved_plan.get("phases") is Array:
 		day_plan = { "date": saved_plan.get("date", ""), "phases": saved_plan["phases"] }

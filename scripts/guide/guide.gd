@@ -168,6 +168,8 @@ func next_step(player: Player, claimed: Dictionary) -> Dictionary:
 	for customer in _customers(Customer.State.EATING).filter(func(c): return c.can_chat()):
 		chats.append(_job(customer.interactable, "chat", customer, { "name": customer.display_name }))
 	jobs.append(chats)
+	var menu_board := MenuBoard.find(get_tree())
+	jobs.append([_job(menu_board.interactable if menu_board != null and menu_board.is_waiting() and menu_board.session == null else null, "write_menu", "menu")])
 	jobs.append([_job(counter if day_manager.bell_ready() else null, "ring_bell", "bell")])
 	for level in jobs:
 		var open := level.filter(func(job): return job["target"] != null and not claimed.has(job["claim"]))
