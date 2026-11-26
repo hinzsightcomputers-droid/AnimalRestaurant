@@ -8,11 +8,11 @@ extends "res://tools/soup_mac_check.gd"
 const VIEWS := [
 	["wood_01_front.png", Vector3(5.0, 6.0, 26.0), Vector3(5.0, 1.5, 8.0)],
 	["wood_02_lane_left.png", Vector3(-6.0, 4.0, 13.0), Vector3(-16.0, 1.5, 17.0)],
-	["wood_03_lane_right.png", Vector3(14.0, 4.0, 12.5), Vector3(20.0, 1.5, 17.0)],
-	["wood_04_above.png", Vector3(0.0, 34.0, 26.0), Vector3(0.0, 0.0, 4.0)],
-	["wood_05_houses.png", Vector3(15.0, 5.0, 16.0), Vector3(14.0, 1.5, 5.6)],
+	["wood_04_above.png", Vector3(0.0, 40.0, 22.0), Vector3(0.0, 0.0, -2.0)],
+	["wood_05_mabel.png", Vector3(-14.0, 4.5, -1.0), Vector3(-16.0, 1.5, -9.5)],
 	["wood_06_garden.png", Vector3(0.0, 8.0, -1.0), Vector3(-5.0, 0.5, -13.0)],
-	["wood_07_cheddar.png", Vector3(-12.5, 4.0, 14.5), Vector3(-12.5, 1.5, 5.6)],
+	["wood_07_cheddar.png", Vector3(-14.5, 3.5, 11.5), Vector3(-16.5, 1.4, 3.5)],
+	["wood_08_stitches.png", Vector3(15.5, 4.5, -1.5), Vector3(18.0, 1.5, -11.0)],
 ]
 
 

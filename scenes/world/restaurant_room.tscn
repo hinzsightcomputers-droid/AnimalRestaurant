@@ -422,6 +422,65 @@ size = Vector2(140, 4)
 tile = 2.5
 tint = Color(0.74, 0.68, 0.62, 1)
 
+[node name="PathMabel" type="MeshInstance3D" parent="Outside"]
+transform = Transform3D(0.9744, 0, 0.2250, 0, 1, 0, -0.225, 0, 0.9744, -13.05, -0.025, -7.8)
+script = ExtResource("wg_wood_ground")
+texture = ExtResource("wt_dirt")
+size = Vector2(7.2, 1.2)
+tile = 2.5
+tint = Color(0.74, 0.68, 0.62, 1)
+
+[node name="PathStitchesSide" type="MeshInstance3D" parent="Outside"]
+transform = Transform3D(1.0000, 0, 0.0000, 0, 1, 0, 0, 0, 1.0000, 9.6, -0.025, -1.6)
+script = ExtResource("wg_wood_ground")
+texture = ExtResource("wt_dirt")
+size = Vector2(1.2, 12.4)
+tile = 2.5
+tint = Color(0.74, 0.68, 0.62, 1)
+
+[node name="PathStitches" type="MeshInstance3D" parent="Outside"]
+transform = Transform3D(1.0000, 0, 0.0000, 0, 1, 0, 0, 0, 1.0000, 13.9, -0.025, -7.6)
+script = ExtResource("wg_wood_ground")
+texture = ExtResource("wt_dirt")
+size = Vector2(8.6, 1.2)
+tile = 2.5
+tint = Color(0.74, 0.68, 0.62, 1)
+
+[node name="PathCheddar" type="MeshInstance3D" parent="Outside"]
+transform = Transform3D(1.0000, 0, 0.0000, 0, 1, 0, 0, 0, 1.0000, -16.5, -0.025, 7.05)
+script = ExtResource("wg_wood_ground")
+texture = ExtResource("wt_dirt")
+size = Vector2(1.2, 2.4)
+tile = 2.5
+tint = Color(0.74, 0.68, 0.62, 1)
+
+[node name="CabinTree1" type="Node3D" parent="Outside"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.4, -0.05, -15.6)
+script = ExtResource("wp_wood_piece")
+piece = "wood_tree_oak"
+height = 5.8
+turn_degrees = 40.0
+
+[node name="CabinTree2" type="Node3D" parent="Outside"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.6, -0.05, -15)
+script = ExtResource("wp_wood_piece")
+piece = "wood_tree_pine"
+height = 6.8
+
+[node name="CabinTree3" type="Node3D" parent="Outside"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21, -0.05, -7.6)
+script = ExtResource("wp_wood_piece")
+piece = "wood_tree_pine"
+height = 6.2
+turn_degrees = 80.0
+
+[node name="CabinTree4" type="Node3D" parent="Outside"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, -0.05, -19)
+script = ExtResource("wp_wood_piece")
+piece = "wood_tree_oak"
+height = 6
+turn_degrees = 190.0
+
 [node name="Forest" type="Node3D" parent="Outside"]
 script = ExtResource("wf_wood_forest")
 area = Rect2(-48, -40, 96, 84)

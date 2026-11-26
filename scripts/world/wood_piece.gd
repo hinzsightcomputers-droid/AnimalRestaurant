@@ -15,7 +15,8 @@ const IDS := ["wood_tree_oak", "wood_tree_pine", "wood_tree_birch", "wood_tree_f
 	"wood_bush_round", "wood_bush_berry", "wood_bush_flower", "wood_rock_big", "wood_rock_flat",
 	"wood_rock_pile", "wood_fern", "wood_flower_patch", "wood_cottage_thatch", "wood_cottage_mushroom",
 	"wood_cottage_stump", "wood_cottage_stone", "wood_cottage_mill", "wood_cottage_shop",
-	"wood_lantern_post", "wood_well", "wood_mailbox", "wood_cart"]
+	"wood_lantern_post", "wood_well", "wood_mailbox", "wood_cart",
+	"wood_house_mabel", "wood_house_stitches", "wood_house_cheddar"]
 
 # The style sheet's palette (woodland_exterior_prompts.md).
 const DARK_WOOD := Color("502312")
@@ -43,7 +44,8 @@ const WHITE := Color("FFF6E8")
 	"wood_bush_round", "wood_bush_berry", "wood_bush_flower", "wood_rock_big", "wood_rock_flat",
 	"wood_rock_pile", "wood_fern", "wood_flower_patch", "wood_cottage_thatch", "wood_cottage_mushroom",
 	"wood_cottage_stump", "wood_cottage_stone", "wood_cottage_mill", "wood_cottage_shop",
-	"wood_lantern_post", "wood_well", "wood_mailbox", "wood_cart") var piece := "wood_tree_oak":
+	"wood_lantern_post", "wood_well", "wood_mailbox", "wood_cart",
+	"wood_house_mabel", "wood_house_stitches", "wood_house_cheddar") var piece := "wood_tree_oak":
 	set(value):
 		piece = value
 		_rebuild()
@@ -289,6 +291,66 @@ func _build(at: Node3D, id: String) -> void:
 					wheel.rotation_degrees.x = 90.0
 					at.add_child(wheel)
 			_lantern(at, Vector3(1.2, 1.2, 0))
+		# The regulars' houses (House puts its own door, windows and porch on
+		# the front, at z = depth / 2, so these keep that face flat and bare).
+		"wood_house_mabel":  # A mossy old stone cottage by the pond.
+			_box(at, Vector3(0, 1.25, 0), Vector3(4.4, 2.5, 4.0), Color("9A9184"))
+			for i in 26:  # Rounded stones poking out of the sides and back.
+				var side := i % 3
+				var along := fmod(i * 0.618, 1.0)
+				var up := 0.3 + fmod(i * 0.37, 1.0) * 1.9
+				var spot := Vector3(-2.2, up, -1.8 + along * 3.6) if side == 0 else (Vector3(2.2, up, -1.8 + along * 3.6) if side == 1 else Vector3(-2.0 + along * 4.0, up, -2.0))
+				_ball(at, spot, 0.22 + fmod(i * 0.29, 0.12), Color("8A8174") if i % 2 == 0 else Color("A39A8C"), 0.7)
+			var roof := _prism(at, Vector3(0, 3.2, -0.05), Vector3(5.0, 1.5, 4.3), MOSS)
+			roof.scale.y = 1.1
+			for i in 8:  # Lumps of moss on the roof.
+				_ball(at, Vector3(-1.8 + i * 0.5, 2.75 + fmod(i * 0.4, 0.5), -1.2 + fmod(i * 0.7, 1.4)), 0.28, Color("7C8A5A"), 0.6)
+			_box(at, Vector3(-1.3, 3.7, -0.9), Vector3(0.55, 1.4, 0.55), Color("7A7268"))  # Chimney.
+			for x in [-1.75, 1.75]:  # Potted plants by the door.
+				_cyl(at, Vector3(x, 0.2, 2.35), 0.2, 0.15, 0.4, RUST)
+				_ball(at, Vector3(x, 0.55, 2.35), 0.25, DEEP_LEAF)
+		"wood_house_stitches":  # A patchwork log cabin among the big trees.
+			for row in 8:  # Logs, front and back along x, sides along z.
+				var up := 0.16 + row * 0.3
+				for z in [-1.85, 1.85]:
+					var log := _cyl(at, Vector3(0, up, z), 0.16, 0.16, 4.6, WARM_WOOD if row % 2 == 0 else WOOD)
+					log.rotation_degrees.z = 90.0
+				for x in [-2.05, 2.05]:
+					var log := _cyl(at, Vector3(x, up + 0.15, 0), 0.16, 0.16, 4.2, WOOD if row % 2 == 0 else WARM_WOOD)
+					log.rotation_degrees.x = 90.0
+			_box(at, Vector3(0, 1.25, 0), Vector3(4.0, 2.5, 3.6), LIGHT_WOOD)  # Inside the logs.
+			_prism(at, Vector3(0, 3.15, 0), Vector3(5.0, 1.5, 4.5), DARK_WOOD)
+			for patch in [[Vector3(-1.2, 3.0, 0.9), Color("E6B0A0")], [Vector3(0.9, 3.3, -0.6), Color("A3C9A0")], [Vector3(1.4, 2.8, 1.3), Color("D9CF8F")], [Vector3(-0.6, 3.4, -1.0), Color("C7A6D9")]]:
+				var square := _box(at, patch[0], Vector3(0.7, 0.05, 0.6), patch[1])
+				square.rotation_degrees.x = 34.0 if patch[0].z > 0 else -34.0
+			_box(at, Vector3(1.4, 3.9, -0.9), Vector3(0.5, 1.2, 0.5), STONE)  # Chimney.
+			_box(at, Vector3(-2.6, 0.75, 1.2), Vector3(0.08, 0.08, 1.6), DARK_WOOD)  # A rail with a quilt airing on it.
+			for i in 4:
+				_box(at, Vector3(-2.62, 0.45, 0.6 + i * 0.4), Vector3(0.04, 0.6, 0.4), [Color("E6B0A0"), Color("A3C9A0"), Color("8FB3D9"), Color("D9CF8F")][i])
+		"wood_house_cheddar":  # A painted showbiz caravan with a stage porch and marquee bulbs.
+			_box(at, Vector3(0, 1.35, 0), Vector3(4.4, 2.4, 2.6), Color("F2C94C"))
+			_box(at, Vector3(0, 0.35, 0), Vector3(4.5, 0.3, 2.7), RUST)  # The painted skirt.
+			var top := _cyl(at, Vector3(0, 2.55, 0), 1.35, 1.35, 4.5, RUST)  # A rounded roof.
+			top.rotation_degrees.z = 90.0
+			top.scale = Vector3(1.0, 1.0, 0.45)
+			for x in [-1.8, 1.8]:  # Out past the windows.
+				for z in [-1.32, 1.32]:
+					var wheel := MeshInstance3D.new()
+					var torus := TorusMesh.new()
+					torus.inner_radius = 0.3
+					torus.outer_radius = 0.45
+					torus.material = _paint(DARK_WOOD)
+					wheel.mesh = torus
+					wheel.position = Vector3(x, 0.45, z)
+					wheel.rotation_degrees.x = 90.0
+					at.add_child(wheel)
+			for i in 14:  # Marquee bulbs round where the door goes.
+				var angle := PI * i / 13.0
+				_ball(at, Vector3(cos(angle) * 0.75, 1.0 + sin(angle) * 1.3, 1.33), 0.06, LANTERN if i % 2 == 0 else WHITE).material_override = _paint(LANTERN if i % 2 == 0 else WHITE, true)
+			var star := _cyl(at, Vector3(0, 3.55, 0.2), 0.42, 0.42, 0.08, LANTERN)  # The star sign on top.
+			star.rotation_degrees.x = 90.0
+			(star.mesh as CylinderMesh).radial_segments = 5
+			_box(at, Vector3(0, 3.2, 0.2), Vector3(0.08, 0.5, 0.08), DARK_WOOD)
 		_:
 			_box(at, Vector3(0, 0.5, 0), Vector3.ONE, Color.MAGENTA)
 

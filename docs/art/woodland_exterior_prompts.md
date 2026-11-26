@@ -92,11 +92,44 @@ direction, objects or text.
 - `dirt_path`: as written.
 - `mossy_cobbles`: replace the brackets with "rounded grey-brown cobblestones with soft green moss in the gaps".
 
+## 4. The regulars' houses (added 2026-11-26)
+
+Same chat style sheet as above. Each house's front faces us, flat and plain
+where the door and two windows go: the game puts its own door (it swings
+open on visits), lit windows, porch, porch light and nameplate on the front.
+So draw the front wall with **no door, no windows and no sign**, just the wall
+itself, and everything else round it.
+
+- `wood_house_mabel`: "Now just one item: an old cottage built of big rounded mossy stones, a thick sagging roof completely covered in soft green moss, a crooked stone chimney, and clay pots of plants along the sides. The front wall is plain flat stone with no door and no windows. Like a wise old tortoise has lived there a hundred years. About 4.4 m wide, 4 m deep and 4.6 m tall."
+- `wood_house_stitches`: "Now just one item: a cozy log cabin of chunky round logs, a steep dark wood roof mended with a few colourful fabric patches, a stone chimney, and a patchwork quilt hung over a rail at one side. The front wall is plain flat logs with no door and no windows. About 4.4 m wide, 4 m deep and 4.4 m tall."
+- `wood_house_cheddar`: "Now just one item: a painted wooden showbiz caravan on four chunky wheels, sunny yellow with a rust-red rounded roof and skirt, a gold star sign on the roof and a row of round marquee bulbs along the roof edge. The long front side faces us and is plain flat painted wood with no door and no windows. About 4.4 m long, 2.6 m deep and 3.8 m tall."
+
+## 5. The restaurant's outside (added 2026-11-26)
+
+Pieces to dress the restaurant's own walls (its walls themselves get a
+tileable texture, below). Kept low or on the wall so they never block the
+camera, which looks in over the front.
+
+- `wood_rest_sign`: "Now just one item: a chunky carved wooden shop sign board with a rounded top edge, warm wood with a darker painted border, hanging from two short chains on a wooden bracket, with no writing on it. About 2.2 m wide and 0.8 m tall."
+- `wood_rest_awning`: "Now just one item: a short scalloped fabric awning with chunky rust-red and cream stripes on a wooden frame, as if over a shop door. About 2.4 m wide, 1.2 m deep and 0.9 m tall."
+- `wood_rest_lantern`: "Now just one item: a small wall lantern on a curly iron bracket, a warm glowing yellow glass box with a dark roof. About 0.6 m tall."
+- `wood_rest_flower_box`: "Now just one item: a long wooden window flower box overflowing with chunky red, cream and peach flowers and trailing leaves. About 1.2 m wide and 0.45 m tall."
+- `wood_rest_chimney`: "Now just one item: a tall chimney stack of rounded warm stones with a little cap on top. About 1 m wide and 3 m tall."
+- `wood_rest_porch`: "Now just one item: a small open wooden porch roof on two thick posts, a little peaked shingle roof, like over a cottage's front door, with nothing under it. About 2.4 m wide, 1.6 m deep and 2.8 m tall."
+
+Tileable texture (ChatGPT, section 3's prompt): `timber_plaster`, with the
+brackets as "cream plaster wall with chunky dark timber beams in a simple
+cottage frame pattern", to replace the brick outside walls.
+
 ## Status (2026-11-21)
 All 22 pictures and both textures are in design/woodland/. Meshy ran out of
 credits after wood_tree_oak and wood_tree_pine; the rest wait for the credit
 reset (around 2026-12-05): `node tools/meshy/make_decor.js --woodland` makes
 only the missing ones. Then swap the whole outdoors in one go.
+
+**2026-11-26:** the outdoors is built with placeholders (WoodPiece): each model
+shows by itself once its .glb is in design/woodland/. Sections 4 and 5 still
+need their pictures made (`make_decor.js` skips anything without one).
 
 ## Tips
 - The style sheet (2026-11-21) was approved: keep that look. It drew ground

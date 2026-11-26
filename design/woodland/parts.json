@@ -176,6 +176,78 @@
 				1.5
 			],
 			"height": 1.8
+		},
+		{
+			"id": "wood_house_mabel",
+			"size": [
+				4.4,
+				4
+			],
+			"height": 4.6
+		},
+		{
+			"id": "wood_house_stitches",
+			"size": [
+				4.4,
+				4
+			],
+			"height": 4.4
+		},
+		{
+			"id": "wood_house_cheddar",
+			"size": [
+				4.4,
+				2.6
+			],
+			"height": 3.8
+		},
+		{
+			"id": "wood_rest_sign",
+			"size": [
+				2.2,
+				0.2
+			],
+			"height": 0.8
+		},
+		{
+			"id": "wood_rest_awning",
+			"size": [
+				2.4,
+				1.2
+			],
+			"height": 0.9
+		},
+		{
+			"id": "wood_rest_lantern",
+			"size": [
+				0.3,
+				0.35
+			],
+			"height": 0.6
+		},
+		{
+			"id": "wood_rest_flower_box",
+			"size": [
+				1.2,
+				0.35
+			],
+			"height": 0.45
+		},
+		{
+			"id": "wood_rest_chimney",
+			"size": [
+				1,
+				1
+			],
+			"height": 3
+		},
+		{
+			"id": "wood_rest_porch",
+			"size": [
+				2.4,
+				1.6
+			],
+			"height": 2.8
 		}
 	]
 }

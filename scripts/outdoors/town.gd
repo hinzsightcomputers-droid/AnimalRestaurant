@@ -25,7 +25,7 @@ func _ready() -> void:
 	var size: Array = settings().get("size", [4.4, 4.0])
 	var half := Vector2(float(size[0]), float(size[1])) / 2.0 + Vector2.ONE * CLEARANCE
 	for child in outside.get_children():
-		if not child is Node3D or String(child.name) in KEEP:
+		if not child is Node3D or String(child.name) in KEEP or String(child.name).begins_with("Path"):  # Paths lead to them.
 			continue
 		for house in houses:
 			var offset := Vector2(child.global_position.x - house.global_position.x, child.global_position.z - house.global_position.z)

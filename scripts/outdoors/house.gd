@@ -74,7 +74,7 @@ func _ready() -> void:
 	regular_id = String(data.get("regular", ""))
 	position = _at(data.get("at", [0.0, 0.0]))
 	var settings := Town.settings()
-	_size = _vector2(settings.get("size", [4.4, 4.0]))
+	_size = _vector2(data.get("size", settings.get("size", [4.4, 4.0])))  # Cheddar's caravan is shallower.
 	_room_size = _vector2(settings.get("room", {}).get("size", [6.0, 5.0]))
 	_zoom.distance = 3.4
 	_zoom.pitch_degrees = 26.0
@@ -645,6 +645,19 @@ func _build_outside() -> void:
 	body.name = "Walls"
 	add_child(body)
 	_collider(body, Vector3(0.0, 1.5, 0.0), Vector3(_size.x, 3.0, _size.y))
+	# Their own house (a woodland piece: wood_house_<regular>, its Meshy model
+	# once it's made), or else a plain painted one in their colors. Either way
+	# the door, windows, porch and nameplate below go on its front.
+	var own := String(look.get("model", ""))
+	if not own.is_empty():
+		WoodPiece.make(own, self, Vector3.ZERO)
+	else:
+		_build_shell(look, walls, height, roof_height)
+	_door_and_front(look, walls, trim, front)
+
+
+func _build_shell(look: Dictionary, walls: Color, height: float, roof_height: float) -> void:
+	var front := _size.y / 2.0
 	_box(self, Vector3(0.0, height / 2.0, 0.0), Vector3(_size.x, height, _size.y), walls)
 	_box(self, Vector3(0.0, 0.12, 0.0), Vector3(_size.x + 0.08, 0.24, _size.y + 0.08), walls.darkened(0.3))  # Footing.
 	var roof := MeshInstance3D.new()
@@ -655,7 +668,30 @@ func _build_outside() -> void:
 	roof.position = Vector3(0.0, height + roof_height / 2.0, 0.0)
 	add_child(roof)
 	_box(self, Vector3(_size.x * 0.22, height + roof_height * 0.55, -_size.y * 0.15), Vector3(0.4, roof_height * 1.1, 0.4), Color(0.55, 0.32, 0.25))  # Chimney.
+	# Cheddar's: lights along the roof's edges and a star on top.
+	if look.get("string_lights", false):
+		var colors := [Color(1.0, 0.3, 0.3), Color(1.0, 0.85, 0.3), Color(0.4, 0.9, 0.4), Color(0.4, 0.6, 1.0)]
+		var half := (_size.x + 0.5) / 2.0
+		var count := 9
+		for side in [-1.0, 1.0]:
+			for i in count:
+				var t := float(i) / count
+				var bulb := _sphere(self, Vector3(side * half * (1.0 - t), height + roof_height * t - 0.06, front + 0.27), 0.05, colors[(i + (0 if side < 0 else 2)) % colors.size()])
+				var glow: StandardMaterial3D = bulb.mesh.material
+				glow.emission_enabled = true
+				glow.emission = glow.albedo_color
+				glow.emission_energy_multiplier = 2.0
+	if look.has("star"):
+		var star := MeshInstance3D.new()
+		star.mesh = _star_mesh(0.32, _color(look.get("star"), Color.GOLD))
+		star.position = Vector3(0.0, height + roof_height + 0.25, front + 0.27)
+		add_child(star)
 
+
+# The front every house has: the door on its hinge, windows that light up,
+# Stitches' patches, the porch with its light and the nameplate, the garden
+# things, and where the chefs knock and talk.
+func _door_and_front(look: Dictionary, walls: Color, trim: Color, front: float) -> void:
 	# The doorway (warm inside), the door on its hinge, a knob.
 	_box(self, Vector3(0.0, DOOR_SIZE.y / 2.0, front + 0.005), Vector3(DOOR_SIZE.x, DOOR_SIZE.y, 0.01), Color(0.35, 0.24, 0.14))
 	_box(self, Vector3(0.0, DOOR_SIZE.y + 0.06, front + 0.02), Vector3(DOOR_SIZE.x + 0.2, 0.12, 0.04), trim)
@@ -693,25 +729,6 @@ func _build_outside() -> void:
 		var color := _color(patch.get("color"), Color(0.9, 0.7, 0.6))
 		_box(self, Vector3(float(at[0]), float(at[1]), front + 0.012), Vector3(float(size[0]) + 0.05, float(size[1]) + 0.05, 0.01), color.darkened(0.35))
 		_box(self, Vector3(float(at[0]), float(at[1]), front + 0.02), Vector3(float(size[0]), float(size[1]), 0.012), color)
-
-	# Cheddar's: lights along the roof's edges and a star on top.
-	if look.get("string_lights", false):
-		var colors := [Color(1.0, 0.3, 0.3), Color(1.0, 0.85, 0.3), Color(0.4, 0.9, 0.4), Color(0.4, 0.6, 1.0)]
-		var half := (_size.x + 0.5) / 2.0
-		var count := 9
-		for side in [-1.0, 1.0]:
-			for i in count:
-				var t := float(i) / count
-				var bulb := _sphere(self, Vector3(side * half * (1.0 - t), height + roof_height * t - 0.06, front + 0.27), 0.05, colors[(i + (0 if side < 0 else 2)) % colors.size()])
-				var glow: StandardMaterial3D = bulb.mesh.material
-				glow.emission_enabled = true
-				glow.emission = glow.albedo_color
-				glow.emission_energy_multiplier = 2.0
-	if look.has("star"):
-		var star := MeshInstance3D.new()
-		star.mesh = _star_mesh(0.32, _color(look.get("star"), Color.GOLD))
-		star.position = Vector3(0.0, height + roof_height + 0.25, front + 0.27)
-		add_child(star)
 
 	# Porch: a step, a light by the door, their name over it.
 	_box(self, Vector3(0.0, 0.05, front + 0.55), Vector3(1.8, 0.1, 1.1), Color(0.6, 0.47, 0.35))
