@@ -135,6 +135,7 @@ func _rebuild() -> void:
 	var shape := Node3D.new()  # Built at the usual size, then scaled to fit.
 	holder.add_child(shape)
 	_build(shape, piece)
+	MeshMerge.merge(shape)  # One mesh per piece (a surface per color): hundreds of these are about.
 	shape.scale = Vector3.ONE * (tall / usual.z)
 
 

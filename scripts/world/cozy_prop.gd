@@ -198,37 +198,8 @@ func _rebuild() -> void:
 				_box(at, Vector3(x, 0.0065, 0), Vector3(long / stripes * 0.45, 0.008, 0.66), [RED, PEACH, SAGE, RED][i % 4])
 			for z in [-0.36, 0.36]:
 				_box(at, Vector3(0, 0.0065, z), Vector3(long, 0.008, 0.04), RED)
-	_merge(at)
+	MeshMerge.merge(at, false)  # One mesh, a surface per color; small things cast no shadow.
 
-
-# All the little shapes as one mesh, a surface per color, so a prop is a
-# handful of draw calls instead of one per shape (a string of lights is
-# hundreds of shapes).
-func _merge(at: Node3D) -> void:
-	var tools := {}  # Material -> SurfaceTool
-	for node in at.find_children("*", "MeshInstance3D", true, false):
-		var shape: MeshInstance3D = node
-		var paint: Material = shape.material_override if shape.material_override != null else (shape.mesh as PrimitiveMesh).material
-		var place := shape.transform
-		var up := shape.get_parent()
-		while up != at:
-			place = (up as Node3D).transform * place
-			up = up.get_parent()
-		if not tools.has(paint):
-			tools[paint] = SurfaceTool.new()
-			tools[paint].begin(Mesh.PRIMITIVE_TRIANGLES)
-		tools[paint].append_from(shape.mesh, 0, place)
-	var merged := ArrayMesh.new()
-	for paint in tools:
-		tools[paint].commit(merged)
-		merged.surface_set_material(merged.get_surface_count() - 1, paint)
-	for child in at.get_children():
-		at.remove_child(child)
-		child.free()
-	var whole := MeshInstance3D.new()
-	whole.mesh = merged
-	whole.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF  # Small things: shadows aren't worth the cost.
-	at.add_child(whole)
 
 
 # A point on the drooping string: `swags` dips across `long` meters, 12 cm deep.
