@@ -29,9 +29,32 @@ func _ready() -> void:
 	collision.position.y = counter_size.y * 0.5
 	_counter.add_child(collision)
 	_counter.name = "Counter"
+	_dress_counter()
 	GameState.upgrades_changed.connect(_refresh)
 	GameState.unlocks_changed.connect(_refresh)
 	_refresh()
+
+
+# A couple of homely things on the stand-in counter (CozyProp), different on
+# each one, so a kitchen still waiting for its stations isn't bare counter
+# tops. They go with the counter when the station comes in.
+const DRESSING := {
+	"second_oven": [["bread", -0.4], ["herb_pots", 0.45]],
+	"third_stove": [["jars", -0.3], ["crock", 0.4]],
+	"third_board": [["fruit_bowl", -0.25], ["plates", 0.3]],
+	"fourth_stove": [["cake_dome", -0.3], ["teapot", 0.35]],
+	"fourth_board": [["herb_pots", 0.0]],
+	"mochi": [["jars", 0.0]],
+}
+
+func _dress_counter() -> void:
+	var key := upgrade_id if not upgrade_id.is_empty() else dish_id
+	for entry in DRESSING.get(key, []):
+		var prop := CozyProp.new()
+		prop.kind = entry[0]
+		prop.position = Vector3(float(entry[1]) * counter_size.x / 1.4, counter_size.y, -counter_size.z * 0.18)  # Toward the back.
+		prop.rotation_degrees.y = float(entry[1]) * 40.0  # Not all square on.
+		_counter.add_child(prop)
 
 
 # Station or counter, whichever's owned.
