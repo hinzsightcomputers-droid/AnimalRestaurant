@@ -66,6 +66,48 @@ static func hud_label(label: Label, key: String = "text") -> void:
 	label.add_theme_color_override("font_outline_color", role("hud", "outline"))
 
 
+# A little slate board in a wood frame for the HUD, like the menu chalkboard.
+static func chalk_board(margin_x: float = 14.0, margin_y: float = 4.0) -> StyleBoxFlat:
+	var spec: Dictionary = data().get("chalk", {})
+	var box := StyleBoxFlat.new()
+	box.bg_color = color(spec.get("slate", "#2E3B35"))
+	box.border_color = color(spec.get("frame", "wood"))
+	box.set_border_width_all(int(spec.get("frame_width", 5)))
+	box.set_corner_radius_all(int(spec.get("corner_radius", 10)))
+	box.shadow_color = Color(0.0, 0.0, 0.0, 0.3)
+	box.shadow_size = 4
+	box.shadow_offset = Vector2(0.0, 3.0)
+	box.content_margin_left = margin_x
+	box.content_margin_right = margin_x
+	box.content_margin_top = margin_y
+	box.content_margin_bottom = margin_y
+	return box
+
+
+# Chalk writing (chalk.text, .money, .streak or .warning) in the title font, a
+# faint smudge of dust under it; on its own little board unless `board` is false.
+static func chalk_label(label: Label, key: String = "text", board := true) -> void:
+	var spec: Dictionary = data().get("chalk", {})
+	var chalk := color(spec.get(key, "#F3EFE2"))
+	label.add_theme_color_override("font_color", chalk)
+	label.add_theme_color_override("font_outline_color", color(spec.get("slate", "#2E3B35")))
+	label.add_theme_constant_override("outline_size", 6 if board else 10)
+	label.add_theme_color_override("font_shadow_color", Color(chalk, float(spec.get("dust", 0.25))))
+	label.add_theme_constant_override("shadow_offset_x", 1)
+	label.add_theme_constant_override("shadow_offset_y", 2)
+	title(label)
+	if board:
+		label.add_theme_stylebox_override("normal", chalk_board())
+
+
+# Chalk writing floating in the room (a Label3D: "[E] Cook"): chalk on a slate outline.
+static func chalk_3d(label: Label3D, key: String = "text") -> void:
+	var spec: Dictionary = data().get("chalk", {})
+	title(label)
+	label.modulate = color(spec.get(key, "#F3EFE2"))
+	label.outline_modulate = color(spec.get("slate", "#2E3B35"))
+
+
 # Sets the default theme's buttons and font, so every button that doesn't bring
 # its own look is a tan wood-edged one that sits well on a cream panel.
 static func apply_to(theme: Theme) -> void:

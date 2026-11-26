@@ -21,6 +21,7 @@ func _ready() -> void:
 	top_level = true  # Don't move or rotate with the player.
 	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	visible = false
+	UiStyle.chalk_3d(self)
 	interactor.focus_changed.connect(_on_focus_changed)
 
 

@@ -33,10 +33,10 @@ visible = false
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -420.0
-offset_top = 52.0
+offset_left = -60.0
+offset_top = 72.0
 offset_right = -20.0
-offset_bottom = 84.0
+offset_bottom = 104.0
 grow_horizontal = 0
 theme_override_colors/font_color = Color(0.55, 0.95, 0.45, 1)
 theme_override_colors/font_outline_color = Color(0.25, 0.18, 0.12, 1)
@@ -45,19 +45,23 @@ theme_override_font_sizes/font_size = 22
 text = "Streak x2"
 horizontal_alignment = 2
 
-[node name="Clock" type="VBoxContainer" parent="."]
+[node name="Clock" type="PanelContainer" parent="."]
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -220.0
+offset_left = -100.0
 offset_top = 12.0
-offset_right = 220.0
+offset_right = 100.0
 offset_bottom = 100.0
 grow_horizontal = 2
 mouse_filter = 2
+
+[node name="Lines" type="VBoxContainer" parent="Clock"]
+layout_mode = 2
+mouse_filter = 2
 theme_override_constants/separation = -6
 
-[node name="TimeLabel" type="Label" parent="Clock"]
+[node name="TimeLabel" type="Label" parent="Clock/Lines"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.98, 0.92, 1)
 theme_override_colors/font_outline_color = Color(0.25, 0.18, 0.12, 1)
@@ -66,7 +70,7 @@ theme_override_font_sizes/font_size = 46
 text = "8:42 PM"
 horizontal_alignment = 1
 
-[node name="DateLabel" type="Label" parent="Clock"]
+[node name="DateLabel" type="Label" parent="Clock/Lines"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.88, 0.45, 1)
 theme_override_colors/font_outline_color = Color(0.25, 0.18, 0.12, 1)
@@ -81,9 +85,9 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -400.0
+offset_left = -20.0
 offset_top = -80.0
-offset_right = 400.0
+offset_right = 20.0
 offset_bottom = -30.0
 grow_horizontal = 2
 grow_vertical = 0

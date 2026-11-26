@@ -29,8 +29,8 @@ const ORDERS_AT := Vector2(20.0, 16.0)  # From the screen's top left, or the cor
 @onready var message_label: Label = $MessageLabel
 @onready var join_label: Label = $JoinLabel
 @onready var clock: Control = $Clock
-@onready var time_label: Label = $Clock/TimeLabel
-@onready var date_label: Label = $Clock/DateLabel
+@onready var time_label: Label = $Clock/Lines/TimeLabel
+@onready var date_label: Label = $Clock/Lines/DateLabel
 
 var _messages: Array[Dictionary] = []  # Recent messages, oldest first: { text, time_left }
 var _still_seconds := 0.0   # How long nobody has moved.
@@ -102,7 +102,8 @@ func _refresh_day_and_money() -> void:
 		if day_manager.bell_ready():
 			where = "%s  Ring the bell!" % DayCycle.phase_name()
 		elif status["open"]:
-			where = "%s  %s %d:%02d" % [DayCycle.phase_name(), status["phase"], int(status["seconds"]) / 60, int(status["seconds"]) % 60]
+			var part := "" if String(status["phase"]) == DayCycle.phase_name() else String(status["phase"]) + " "  # Not "Lunch  Lunch 5:25".
+			where = "%s  %s%d:%02d" % [DayCycle.phase_name(), part, int(status["seconds"]) / 60, int(status["seconds"]) % 60]
 		else:
 			where = "%s  %d to go" % [DayCycle.phase_name(), left]
 	money_label.text = "Day %d  %s   $%d" % [GameState.day_number, where, GameState.money]
@@ -178,8 +179,9 @@ func _refresh_join_hint() -> void:
 
 func _keep_clear_of_close_ups() -> void:
 	var close_ups := _view_manager.close_up_rects() if _view_manager != null else ([] as Array[Rect2])
-	for control: Control in [tickets, money_label, message_label, clock]:
+	for control: Control in [tickets, money_label, clock]:
 		control.visible = not close_ups.any(func(r: Rect2): return r.intersects(control.get_global_rect()))
+	message_label.visible = message_label.text != "" and not close_ups.any(func(r: Rect2): return r.intersects(message_label.get_global_rect()))
 	streak_label.visible = streak_label.visible and not close_ups.any(func(r: Rect2): return r.intersects(streak_label.get_global_rect()))
 	join_label.visible = join_label.visible and not close_ups.any(func(r: Rect2): return r.intersects(join_label.get_global_rect()))
 
@@ -195,7 +197,8 @@ func _place_messages() -> void:
 		var rect := _box_rect(box as Control)
 		if rect.size.x > 0.0 and rect.position.x < span.end.x and rect.end.x > span.position.x:
 			bottom = minf(bottom, rect.position.y - MESSAGE_SPACING)
-	message_label.global_position.y = bottom - message_label.size.y
+	message_label.reset_size()  # Its board fits what it says now, not the longest it's said.
+	message_label.global_position = Vector2(get_viewport().get_visible_rect().size.x / 2.0 - message_label.size.x / 2.0, bottom - message_label.size.y)
 
 
 # The visible panel of a dialogue box (the box itself may span its whole view).
@@ -303,14 +306,17 @@ func _refresh_messages() -> void:
 	for message in _messages:
 		lines.append(message["text"])
 	message_label.text = "\n".join(lines)
+	message_label.visible = not lines.is_empty()  # No empty slate.
 
 
-# The palette from data/ui_style.json: cream text on a dark wood outline, the
-# money and the date in lantern yellow, a streak in leaf green.
+# Chalk on little slate boards in wood frames, like the menu chalkboard by the
+# door (data/ui_style.json "chalk"): the day and money, the streak, the clock and
+# the messages each on a board; the join hint is chalk on its own.
 func _apply_style() -> void:
-	for label in [message_label, join_label, time_label]:
-		UiStyle.hud_label(label)
-	for label in [money_label, date_label]:
-		UiStyle.hud_label(label, "money")
-	UiStyle.hud_label(streak_label, "streak")
-	UiStyle.title(time_label)
+	UiStyle.chalk_label(money_label, "money")
+	UiStyle.chalk_label(streak_label, "streak")
+	UiStyle.chalk_label(message_label)
+	UiStyle.chalk_label(join_label, "text", false)
+	UiStyle.chalk_label(time_label, "text", false)
+	UiStyle.chalk_label(date_label, "money", false)
+	clock.add_theme_stylebox_override("panel", UiStyle.chalk_board(22.0, 6.0))

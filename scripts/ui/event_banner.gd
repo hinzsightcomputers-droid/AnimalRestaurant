@@ -31,18 +31,13 @@ func _show(text: String) -> void:
 	panel.anchor_right = 0.5
 	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	panel.offset_top = 120  # Below the clock.
-	var style := UiStyle.panel()
-	style.content_margin_left = 32
-	style.content_margin_right = 32
-	style.content_margin_top = 12
-	style.content_margin_bottom = 12
+	var style := UiStyle.chalk_board(32.0, 12.0)  # A slate like the HUD's.
 	panel.add_theme_stylebox_override("panel", style)
 	var label := Label.new()
 	label.text = text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.add_theme_font_size_override("font_size", 32)
-	UiStyle.title(label)
-	label.add_theme_color_override("font_color", Color("#71412C"))
+	UiStyle.chalk_label(label, "money", false)
 	panel.add_child(label)
 	add_child(panel)
 
