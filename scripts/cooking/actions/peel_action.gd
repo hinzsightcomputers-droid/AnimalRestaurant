@@ -191,6 +191,12 @@ func scripted_hold(delta: float, input: CookInput) -> bool:
 	return true
 
 
+# For the week bot's log when a step is slow.
+func debug_state() -> String:
+	var left := (_strips[_side] as Array).filter(func(s): return s != null).size() if _side < sides else 0
+	return "side %d rolling %s stroke %s left %.3f right %.3f z %.3f strips left %d area %s" % [_side, _rolling, _scripted_stroke, _left, _right, _z, left, cursor_area()]
+
+
 func update(delta: float, input: CookInput) -> void:
 	session.set_status("Sides %s: %d of %d" % ["skinned" if _is_onion() else "peeled", _side, sides])
 	var over := absf(input.cursor.z - _z) <= radius + peel_margin \

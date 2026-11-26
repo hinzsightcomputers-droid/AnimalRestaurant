@@ -453,7 +453,10 @@ func cook_step(session: CookSession, p := 0) -> void:
 		s["slow"] = false
 	elif t - s["began"] > 20.0 and not s["slow"]:  # A step that won't finish: what it's doing, to see why.
 		s["slow"] = true
-		note("%s   SLOW STEP '%s' (%s): held %s  cursor %s  status '%s'" % [who, title, session.current.get_script().resource_path.get_file() if session.current else "-", session.input.held, session.input.cursor, session._status])
+		note("%s   SLOW STEP '%s' (%s): held %s  cursor %s  status '%s'" % [who, title, session.current.get_script().resource_path.get_file() if session.current else "-", session.input.held, session.input.cursor, session._status + ("  | " + session.current.debug_state() if session.current != null and session.current.has_method("debug_state") else "")])
+	elif t - s["began"] > 45.0 and session.current != null and not session.current.done:  # Still stuck: skip it, so one glitch doesn't eat the day.
+		note("%s   FROZEN STEP '%s' skipped after 45s (scored 0.5)%s" % [who, title, "  | " + session.current.debug_state() if session.current.has_method("debug_state") else ""])
+		session.current.finish(0.5)
 
 
 # Clipping tickets: press interact as an empty clip comes to the front.
