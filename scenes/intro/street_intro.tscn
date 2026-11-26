@@ -1,19 +1,14 @@
 [gd_scene format=3]
 
+[ext_resource type="Script" path="res://scripts/world/wood_piece.gd" id="wp_wood_piece"]
+[ext_resource type="Script" path="res://scripts/world/wood_ground.gd" id="wg_wood_ground"]
+[ext_resource type="Texture2D" path="res://design/woodland/textures/dirt_path.png" id="wt_dirt"]
+[ext_resource type="Texture2D" path="res://design/woodland/textures/mossy_cobbles.png" id="wt_cobbles"]
 [ext_resource type="Script" path="res://scripts/intro/street_intro.gd" id="1_intro"]
 [ext_resource type="Script" path="res://scripts/player/chef_model.gd" id="c1_chef"]
 [ext_resource type="Texture2D" path="res://assets/dinner_time_logo.png" id="2_logo"]
 [ext_resource type="Script" path="res://scripts/world/model_grid.gd" id="m0_model_gridgd"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/City Builder Bits/Assets/gltf/base.gltf" id="m1_basegltf"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/City Builder Bits/Assets/gltf/road_straight.gltf" id="m2_road_straightglt"]
 [ext_resource type="Script" path="res://scripts/world/model_fit.gd" id="m3_model_fitgd"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/City Builder Bits/Assets/gltf/streetlight_old_single.gltf" id="m4_streetlight_old_"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/City Builder Bits/Assets/gltf/building_A.gltf" id="m5_building_Agltf"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/City Builder Bits/Assets/gltf/building_C.gltf" id="m6_building_Cgltf"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/City Builder Bits/Assets/gltf/building_E.gltf" id="m7_building_Egltf"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Bits_Bundle1_1.1/City Builder Bits/Assets/gltf/building_G.gltf" id="m8_building_Ggltf"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Forest_Nature_Pack_1.0_FREE/Assets/gltf/Tree_1_A_Color1.gltf" id="m9_Tree_1_A_Color1g"]
-[ext_resource type="PackedScene" path="res://design/assets/KayKit_Forest_Nature_Pack_1.0_FREE/Assets/gltf/Tree_2_C_Color1.gltf" id="m10_Tree_2_C_Color1g"]
 
 [sub_resource type="ProceduralSkyMaterial" id="Sky_material"]
 
@@ -147,39 +142,39 @@ material_override = SubResource("Mat_moon")
 
 [node name="Street" type="Node3D" parent="."]
 
-[node name="Sidewalk" type="Node3D" parent="Street"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.06, 1.4)
-script = ExtResource("m0_model_gridgd")
-model = ExtResource("m1_basegltf")
-cells = Vector2i(22, 1)
-cell_size = Vector3(2.8, 0.06, 2.8)
+[node name="Sidewalk" type="MeshInstance3D" parent="Street"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.03, 1.4)
+script = ExtResource("wg_wood_ground")
+texture = ExtResource("wt_cobbles")
+size = Vector2(61.599999999999994, 2.8)
+tile = 1.3
 
-[node name="Road" type="Node3D" parent="Street"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.08, 5.3)
-script = ExtResource("m0_model_gridgd")
-model = ExtResource("m2_road_straightglt")
-cells = Vector2i(12, 1)
-cell_size = Vector3(5, 0.06, 5)
-turn_degrees = 90.0
+[node name="Road" type="MeshInstance3D" parent="Street"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.06, 5.3)
+script = ExtResource("wg_wood_ground")
+texture = ExtResource("wt_dirt")
+size = Vector2(60, 5)
+tile = 2.5
+tint = Color(0.74, 0.68, 0.62, 1)
 
-[node name="FarSidewalk" type="Node3D" parent="Street"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.06, 9.3)
-script = ExtResource("m0_model_gridgd")
-model = ExtResource("m1_basegltf")
-cells = Vector2i(20, 1)
-cell_size = Vector3(3, 0.06, 3)
+[node name="FarSidewalk" type="MeshInstance3D" parent="Street"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.03, 9.3)
+script = ExtResource("wg_wood_ground")
+texture = ExtResource("wt_cobbles")
+size = Vector2(60, 3)
+tile = 1.3
 
 [node name="LampLeft" type="Node3D" parent="Street"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.2, 0, 2.55)
-script = ExtResource("m3_model_fitgd")
-model = ExtResource("m4_streetlight_old_")
-size = Vector3(0, 3.4, 0)
+script = ExtResource("wp_wood_piece")
+piece = "wood_lantern_post"
+height = 2.6
 
 [node name="LampRight" type="Node3D" parent="Street"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.2, 0, 2.55)
-script = ExtResource("m3_model_fitgd")
-model = ExtResource("m4_streetlight_old_")
-size = Vector3(0, 3.4, 0)
+script = ExtResource("wp_wood_piece")
+piece = "wood_lantern_post"
+height = 2.6
 
 [node name="LampBulbLeft" type="MeshInstance3D" parent="Street"]
 transform = Transform3D(0.24, 0, 0, 0, 0.24, 0, 0, 0, 0.24, -7.2, 2.95, 2.55)
@@ -209,39 +204,35 @@ omni_range = 7.0
 
 [node name="LeftBuilding" type="Node3D" parent="Neighbors"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, 0, -3)
-script = ExtResource("m3_model_fitgd")
-model = ExtResource("m5_building_Agltf")
-size = Vector3(6, 0, 6)
+script = ExtResource("wp_wood_piece")
+piece = "wood_cottage_thatch"
 
 [node name="RightBuilding" type="Node3D" parent="Neighbors"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, -3)
-script = ExtResource("m3_model_fitgd")
-model = ExtResource("m6_building_Cgltf")
-size = Vector3(6, 0, 6)
+script = ExtResource("wp_wood_piece")
+piece = "wood_cottage_stump"
 
 [node name="FarLeftBuilding" type="Node3D" parent="Neighbors"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15.5, 0, -3)
-script = ExtResource("m3_model_fitgd")
-model = ExtResource("m7_building_Egltf")
-size = Vector3(6, 0, 6)
+script = ExtResource("wp_wood_piece")
+piece = "wood_cottage_mushroom"
 
 [node name="FarRightBuilding" type="Node3D" parent="Neighbors"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.5, 0, -3)
-script = ExtResource("m3_model_fitgd")
-model = ExtResource("m8_building_Ggltf")
-size = Vector3(6, 0, 6)
+script = ExtResource("wp_wood_piece")
+piece = "wood_cottage_stone"
 
 [node name="Tree1" type="Node3D" parent="Neighbors"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, -6)
-script = ExtResource("m3_model_fitgd")
-model = ExtResource("m9_Tree_1_A_Color1g")
-size = Vector3(0, 6, 0)
+script = ExtResource("wp_wood_piece")
+piece = "wood_tree_oak"
+height = 6
 
 [node name="Tree2" type="Node3D" parent="Neighbors"]
 transform = Transform3D(-0.5, 0, -0.866, 0, 1, 0, 0.866, 0, -0.5, 5, 0, -7)
-script = ExtResource("m3_model_fitgd")
-model = ExtResource("m10_Tree_2_C_Color1g")
-size = Vector3(0, 6.5, 0)
+script = ExtResource("wp_wood_piece")
+piece = "wood_tree_birch"
+height = 6.5
 
 [node name="Windows" type="Node3D" parent="Neighbors"]
 

@@ -34,7 +34,7 @@ func _ready() -> void:
 	_car = Node3D.new()
 	_car.name = "CheddarsCar"
 	add_child(_car)
-	var fit := ModelFit.place(String(settings.get("model", "")), _car, _at(settings.get("parked_at", [-7.5, 11.9])), Vector3(0.0, 0.0, float(settings.get("length", 3.2))))
+	var fit := WoodPiece.place(String(settings.get("model", "")), _car, _at(settings.get("parked_at", [-7.5, 11.9])), Vector3(0.0, 0.0, float(settings.get("length", 3.2))))
 	if fit != null:
 		fit.rotation.y = PI / 2.0
 	_cheddar = RegularFigure.make(settings.get("regular", "cheddar"))

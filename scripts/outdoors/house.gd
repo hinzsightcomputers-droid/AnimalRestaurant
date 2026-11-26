@@ -736,7 +736,8 @@ func _build_outside() -> void:
 	add_child(_nameplate)
 
 	for decor: Dictionary in data.get("decor", []):
-		var fit := ModelFit.place(_model_path(String(decor.get("model", ""))), self, _at(decor.get("at", [0.0, 0.0])), Vector3(float(decor.get("size", 1.0)), 0.0, 0.0))
+		var model := String(decor.get("model", ""))
+		var fit := WoodPiece.place(model if model.begins_with("wood_") else _model_path(model), self, _at(decor.get("at", [0.0, 0.0])), Vector3(float(decor.get("size", 1.0)), 0.0, 0.0))
 		if fit != null:
 			fit.rotation_degrees.y = float(decor.get("turn", 0.0))
 

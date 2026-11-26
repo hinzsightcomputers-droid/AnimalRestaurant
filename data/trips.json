@@ -4,7 +4,7 @@
 		"regular": "cheddar",
 		"unlock": "cheddar_car",
 		"min_stage": 2,
-		"model": "res://design/assets/KayKit_Bits_Bundle1_1.1/City Builder Bits/Assets/gltf/car_stationwagon.gltf",
+		"model": "wood_cart",
 		"length": 3.2,
 		"parked_at": [-7.5, 11.9],
 		"cheddar_at": [-5.4, 10.25],

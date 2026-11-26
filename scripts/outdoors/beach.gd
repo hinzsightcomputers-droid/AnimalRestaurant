@@ -14,20 +14,19 @@ const PIER_HALF_WIDTH := 1.0
 const PIER_END := -17.0
 const WATER_Y := -0.12
 const REACH := 45.0                       # Players this close to the origin are at the beach.
-const NATURE := "res://design/assets/KayKit_Forest_Nature_Pack_1.0_FREE/Assets/gltf/"
 const PLANTS := [
-	["Rock_1_C_Color1.gltf", Vector3(-12.6, 0.0, -7.8), 1.1],
-	["Rock_2_B_Color1.gltf", Vector3(-11.8, 0.0, -6.6), 0.6],
-	["Rock_3_C_Color1.gltf", Vector3(12.2, 0.0, -7.2), 0.9],
-	["Bush_2_A_Color1.gltf", Vector3(-10.5, 0.0, 3.4), 0.9],
-	["Bush_4_B_Color1.gltf", Vector3(-6.0, 0.0, 3.6), 0.7],
-	["Bush_1_C_Color1.gltf", Vector3(1.5, 0.0, 3.7), 0.8],
-	["Bush_2_C_Color1.gltf", Vector3(11.5, 0.0, 3.4), 0.9],
-	["Grass_2_A_Color1.gltf", Vector3(-8.2, 0.0, 2.9), 0.5],
-	["Grass_2_B_Color1.gltf", Vector3(-2.6, 0.0, 3.1), 0.5],
-	["Grass_2_C_Color1.gltf", Vector3(9.0, 0.0, 2.8), 0.5],
-	["Tree_3_B_Color1.gltf", Vector3(-13.0, 0.0, 6.5), 4.5],
-	["Tree_4_B_Color1.gltf", Vector3(13.4, 0.0, 6.8), 4.2],
+	["wood_rock_big", Vector3(-12.6, 0.0, -7.8), 1.1],
+	["wood_rock_flat", Vector3(-11.8, 0.0, -6.6), 0.6],
+	["wood_rock_pile", Vector3(12.2, 0.0, -7.2), 0.9],
+	["wood_bush_berry", Vector3(-10.5, 0.0, 3.4), 0.9],
+	["wood_bush_round", Vector3(-6.0, 0.0, 3.6), 0.7],
+	["wood_fern", Vector3(1.5, 0.0, 3.7), 0.8],
+	["wood_bush_berry", Vector3(11.5, 0.0, 3.4), 0.9],
+	["wood_fern", Vector3(-8.2, 0.0, 2.9), 0.5],
+	["wood_flower_patch", Vector3(-2.6, 0.0, 3.1), 0.5],
+	["wood_flower_patch", Vector3(9.0, 0.0, 2.8), 0.5],
+	["wood_tree_birch", Vector3(-13.0, 0.0, 6.5), 4.5],
+	["wood_tree_fruit", Vector3(13.4, 0.0, 6.8), 4.2],
 ]
 
 var car_trip: CarTrip
@@ -52,7 +51,7 @@ func _ready() -> void:
 	_build_campfire(_at(settings.get("campfire_at", [-4.5, -1.5])))
 	_build_umbrella(Vector3(-1.5, 0.0, -2.5))
 	for plant in PLANTS:
-		ModelFit.place(NATURE + plant[0], self, plant[1], Vector3(0.0, plant[2], 0.0))
+		WoodPiece.make(plant[0], self, plant[1], plant[2])
 	var spots := Forage.spots()
 	for i in spots.size():
 		if spots[i].get("area", "garden") == "beach":
@@ -144,7 +143,7 @@ func _build_pier() -> void:
 func _build_car(settings: Dictionary) -> void:
 	var car_settings: Dictionary = GameData.trips.get("car", {})
 	var at := _at(settings.get("car_at", [7.0, 1.6]))
-	var fit := ModelFit.place(String(car_settings.get("model", "")), self, at, Vector3(0.0, 0.0, float(car_settings.get("length", 3.2))))
+	var fit := WoodPiece.place(String(car_settings.get("model", "")), self, at, Vector3(0.0, 0.0, float(car_settings.get("length", 3.2))))
 	if fit != null:
 		fit.rotation.y = PI / 2.0
 	car_interactable.radius = 1.6

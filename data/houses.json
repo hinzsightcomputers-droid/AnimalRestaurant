@@ -57,8 +57,8 @@
 			"inside_at": [200.0, 0.0],
 			"look": { "walls": "#b9a6d6", "roof": "#6b4f7a", "trim": "#f4efe6", "door": "#5c7a4a", "window_boxes": "#e07a8f" },
 			"decor": [
-				{ "model": "city/bush_A", "at": [-1.8, 2.4], "size": 0.9 },
-				{ "model": "city/bush_B", "at": [1.8, 2.4], "size": 0.9 }
+				{ "model": "wood_bush_flower", "at": [-1.8, 2.4], "size": 0.9 },
+				{ "model": "wood_bush_round", "at": [1.8, 2.4], "size": 0.9 }
 			],
 			"room": {
 				"floor": "#a8794f", "walls": "#e9dcc4", "light": "#ffd9a0",
@@ -95,7 +95,7 @@
 				]
 			},
 			"decor": [
-				{ "model": "city/bush_C", "at": [1.9, 2.4], "size": 0.8 },
+				{ "model": "wood_bush_berry", "at": [1.9, 2.4], "size": 0.8 },
 				{ "model": "halloween/pumpkin_orange_small", "at": [-1.2, 2.4], "size": 0.35 }
 			],
 			"room": {
@@ -125,8 +125,8 @@
 			"inside_at": [280.0, 0.0],
 			"look": { "walls": "#f2c94c", "roof": "#d9534f", "trim": "#ffffff", "door": "#3d7fd1", "string_lights": true, "star": "#ffd23f" },
 			"decor": [
-				{ "model": "city/bush", "at": [-1.9, 2.4], "size": 0.8 },
-				{ "model": "city/firehydrant", "at": [2.0, 2.4], "size": 0.45 }
+				{ "model": "wood_bush_round", "at": [-1.9, 2.4], "size": 0.8 },
+				{ "model": "wood_mailbox", "at": [2.0, 2.4], "size": 0.35 }
 			],
 			"room": {
 				"floor": "#7c5a3c", "walls": "#f6e7c8", "light": "#ffe6a8",

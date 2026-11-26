@@ -14,19 +14,18 @@ const SPOT_ANGLES := [0.0, 45.0, -45.0]  # Degrees round from the side facing th
 const BACK_DOOR_OUTSIDE := Vector3(-3.3, 0.0, -5.9)
 const LANTERN_SPOT := Vector3(-5.1, 0.0, -7.7)
 const LANTERN_HOURS := ["evening", "late_night", "early_morning"]
-const NATURE := "res://design/assets/KayKit_Forest_Nature_Pack_1.0_FREE/Assets/gltf/"
 const PLANTS := [
-	["Tree_3_A_Color1.gltf", Vector3(-11.8, 0.0, -13.0), 4.2],
-	["Tree_4_A_Color1.gltf", Vector3(-3.6, 0.0, -15.8), 3.8],
-	["Tree_1_B_Color1.gltf", Vector3(-12.5, 0.0, -17.5), 4.5],
-	["Bush_1_A_Color1.gltf", Vector3(-10.9, 0.0, -10.6), 0.9],
-	["Bush_2_B_Color1.gltf", Vector3(-4.1, 0.0, -13.9), 0.8],
-	["Bush_4_C_Color1.gltf", Vector3(-1.2, 0.0, -7.6), 0.7],
-	["Rock_1_C_Color1.gltf", Vector3(-9.6, 0.0, -13.4), 0.5],
-	["Tree_1_C_Color1.gltf", Vector3(6.8, 0.0, -17.4), 4.4],   # The oaks, off to the east.
-	["Tree_2_A_Color1.gltf", Vector3(13.2, 0.0, -13.6), 4.0],
-	["Bush_2_A_Color1.gltf", Vector3(5.2, 0.0, -12.6), 0.8],
-	["Bush_1_C_Color1.gltf", Vector3(2.6, 0.0, -16.4), 0.7],
+	["wood_tree_birch", Vector3(-11.8, 0.0, -13.0), 4.2],
+	["wood_tree_fruit", Vector3(-3.6, 0.0, -15.8), 3.8],
+	["wood_tree_oak", Vector3(-12.5, 0.0, -17.5), 4.5],
+	["wood_bush_round", Vector3(-10.9, 0.0, -10.6), 0.9],
+	["wood_bush_berry", Vector3(-4.1, 0.0, -13.9), 0.8],
+	["wood_bush_flower", Vector3(-1.2, 0.0, -7.6), 0.7],
+	["wood_rock_big", Vector3(-9.6, 0.0, -13.4), 0.5],
+	["wood_tree_fruit", Vector3(6.8, 0.0, -17.4), 4.4],   # The oaks, off to the east.
+	["wood_tree_pine", Vector3(13.2, 0.0, -13.6), 4.0],
+	["wood_bush_berry", Vector3(5.2, 0.0, -12.6), 0.8],
+	["wood_fern", Vector3(2.6, 0.0, -16.4), 0.7],
 ]
 
 var _lantern_light: OmniLight3D
@@ -45,7 +44,7 @@ func _ready() -> void:
 	_build_lantern()
 	_build_forage_spots()
 	for plant in PLANTS:
-		ModelFit.place(NATURE + plant[0], self, plant[1], Vector3(0.0, plant[2], 0.0))
+		WoodPiece.make(plant[0], self, plant[1], plant[2])
 
 
 func _process(delta: float) -> void:

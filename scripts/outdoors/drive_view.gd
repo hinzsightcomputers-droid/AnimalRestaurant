@@ -135,26 +135,25 @@ func _build_world(settings: Dictionary) -> void:
 	_box(world, Vector3(0.0, -0.06, -40.0), Vector3(200.0, 0.1, 70.0), Color(0.25, 0.48, 0.66))  # The sea, far behind.
 	_box(world, Vector3(0.0, -0.05, -3.5), Vector3(200.0, 0.1, 9.0), Color(0.42, 0.6, 0.3))     # Grass by the road.
 	_box(world, Vector3(0.0, -0.04, -7.8), Vector3(200.0, 0.1, 1.2), Color(0.88, 0.8, 0.58))   # A strip of sand.
-	_box(world, Vector3(0.0, -0.03, 0.0), Vector3(200.0, 0.1, 3.4), Color(0.3, 0.3, 0.32))     # The road.
+	_box(world, Vector3(0.0, -0.03, 0.0), Vector3(200.0, 0.1, 3.4), Color(0.69, 0.53, 0.36))  # The dirt road through the woods.
 	_box(world, Vector3(0.0, -0.05, 8.0), Vector3(200.0, 0.1, 13.0), Color(0.42, 0.6, 0.3))    # Grass this side of it, for a tall view.
-	for i in 18:  # Lane marks.
-		_moving.append(_box(world, Vector3(-WRAP + i * 4.0, 0.03, 0.0), Vector3(1.6, 0.02, 0.12), Color(0.95, 0.9, 0.7)))
-	var nature := "res://design/assets/KayKit_Forest_Nature_Pack_1.0_FREE/Assets/gltf/"
+	for i in 18:  # Pebbles and tufts in the dirt, so it looks like it moves.
+		_moving.append(_box(world, Vector3(-WRAP + i * 4.0, 0.03, 0.0), Vector3(0.5, 0.02, 0.35), Color(0.58, 0.44, 0.3)))
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 11
-	var kinds := ["Tree_1_A_Color1.gltf", "Tree_2_B_Color1.gltf", "Bush_1_A_Color1.gltf", "Tree_3_A_Color1.gltf", "Bush_2_B_Color1.gltf"]
+	var kinds := ["wood_tree_oak", "wood_tree_pine", "wood_bush_round", "wood_tree_birch", "wood_bush_berry"]
 	for i in 14:
 		var kind: String = kinds[i % kinds.size()]
-		var tall := 3.5 if kind.begins_with("Tree") else 0.9
+		var tall := 3.5 if kind.begins_with("wood_tree") else 0.9
 		var at := Vector3(-WRAP + i * (WRAP * 2.0 / 14.0) + rng.randf_range(-1.0, 1.0), 0.0, rng.randf_range(-6.5, -3.0))
-		var fit := ModelFit.place(nature + kind, world, at, Vector3(0.0, tall, 0.0))
+		var fit := WoodPiece.make(kind, world, at, tall)
 		if fit != null:
 			_moving.append(fit)
 
 	_car = Node3D.new()
 	world.add_child(_car)
 	var car_settings: Dictionary = GameData.trips.get("car", {})
-	var body := ModelFit.place(String(car_settings.get("model", "")), _car, Vector3.ZERO, Vector3(0.0, 0.0, float(car_settings.get("length", 3.2))))
+	var body := WoodPiece.place(String(car_settings.get("model", "")), _car, Vector3.ZERO, Vector3(0.0, 0.0, float(car_settings.get("length", 3.2))))
 	if body != null:
 		body.rotation.y = PI / 2.0  # Nose toward +x, the way it's going.
 
