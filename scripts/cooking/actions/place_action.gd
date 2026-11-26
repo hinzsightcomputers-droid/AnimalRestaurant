@@ -24,7 +24,7 @@ extends CookAction
 @export var item_color := Color(1.0, 0.92, 0.55)
 @export var melt_seconds := 0.0           # Above 0, it melts into a puddle over this long.
 @export var anywhere := false             # Fine anywhere on the target (bacon beside the eggs), not just on the food.
-@export_enum("block", "toast_half", "flower") var item_shape := "block"  # toast_half: a slice cut corner to corner, its point down the plate.
+@export_enum("block", "toast_half", "flower", "strawberries", "blueberries") var item_shape := "block"  # toast_half: a slice cut corner to corner, its point down the plate. strawberries, blueberries: a little heap of them.
 @export var aim_at := false              # Score how near a spot on the target it lands (aim, off the middle), marked with a ring.
 @export var aim := Vector2.ZERO
 @export_group("Feel")
@@ -307,6 +307,8 @@ func _make_item() -> Node3D:
 		return _make_toast_half()
 	if item_shape == "flower":
 		return _make_flower()
+	if item_shape in ["strawberries", "blueberries"]:
+		return _make_berries(item_shape == "strawberries")
 	var item := Node3D.new()
 	var block := MeshInstance3D.new()
 	block.mesh = rounded_block(item_size, minf(item_size.x, minf(item_size.y, item_size.z)) * 0.32)
@@ -407,6 +409,53 @@ func _make_flower() -> Node3D:
 	middle.mesh = heart
 	middle.position.y = item_size.y * 0.75
 	item.add_child(middle)
+	session.add_child(item)
+	return item
+
+
+# A little heap of fruit, item_size.x across: strawberry halves fanned round, or
+# a handful of blueberries.
+func _make_berries(strawberry: bool) -> Node3D:
+	var item := Node3D.new()
+	var reach := item_size.x * 0.5
+	var count := 4 if strawberry else 9
+	for i in count:
+		var berry := MeshInstance3D.new()
+		var ball := SphereMesh.new()
+		var paint := StandardMaterial3D.new()
+		paint.set_meta(ToonStyle.FOOD, "fruit")
+		var turn := TAU * i / count + randf() * 0.3
+		if strawberry:  # A half, cut side up: red round a paler middle, its tip out.
+			ball.radius = reach * 0.42
+			ball.height = reach * 0.84
+			ball.is_hemisphere = true
+			paint.albedo_color = Color(0.88, 0.16, 0.2)
+			paint.roughness = 0.35
+			berry.position = Vector3(cos(turn) * reach * 0.42, 0.0, sin(turn) * reach * 0.42)
+			berry.scale = Vector3(1.0, 0.55, 1.3)
+			berry.rotation.y = -turn + PI * 0.5
+			var cut := MeshInstance3D.new()
+			var face := CylinderMesh.new()
+			face.top_radius = reach * 0.36
+			face.bottom_radius = reach * 0.36
+			face.height = 0.001
+			var pale := StandardMaterial3D.new()
+			pale.albedo_color = Color(1.0, 0.6, 0.6)
+			pale.set_meta(ToonStyle.FOOD, "fruit")
+			face.material = pale
+			cut.mesh = face
+			cut.position.y = reach * 0.42 + 0.0005
+			berry.add_child(cut)
+		else:  # Round and dusky blue, heaped up in the middle.
+			ball.radius = reach * 0.2
+			ball.height = reach * 0.4
+			paint.albedo_color = Color(0.24, 0.27, 0.55).lightened(randf() * 0.1)
+			paint.roughness = 0.5
+			var out := reach * 0.62 * sqrt((i + 0.5) / count)
+			berry.position = Vector3(cos(turn * 2.4) * out, reach * 0.2 + (reach * 0.25 if i == 0 else 0.0), sin(turn * 2.4) * out)
+		ball.material = paint
+		berry.mesh = ball
+		item.add_child(berry)
 	session.add_child(item)
 	return item
 

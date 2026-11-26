@@ -3,6 +3,12 @@
 	"dishes": {
 		"honey_pancakes": { "model": "res://design/restaurant/honey_pancakes.glb", "recipe": "pancakes", "cook_speed": 1.2,
 			"ingredient": { "name": "Pancake Batter", "color": "#e8c46a", "model": "res://design/restaurant/crate_dough.glb" } },
+		"choc_chip_pancakes": { "model": "res://design/restaurant/honey_pancakes.glb", "recipe": "pancakes_choc_chip", "cook_speed": 1.2,
+			"ingredient": { "name": "Pancake Batter", "color": "#e8c46a", "model": "res://design/restaurant/crate_dough.glb" } },
+		"banana_pancakes": { "model": "res://design/restaurant/honey_pancakes.glb", "recipe": "pancakes_banana", "cook_speed": 1.2,
+			"ingredient": { "name": "Pancake Batter", "color": "#e8c46a", "model": "res://design/restaurant/crate_dough.glb" } },
+		"berry_pancakes": { "model": "res://design/restaurant/honey_pancakes.glb", "recipe": "pancakes_berry", "cook_speed": 1.2,
+			"ingredient": { "name": "Pancake Batter", "color": "#e8c46a", "model": "res://design/restaurant/crate_dough.glb" } },
 		"vegetable_soup": { "model": "res://design/restaurant/vegetable_soup.glb", "dirty_model": "res://design/restaurant/bowl_dirty.glb", "recipe": "soup",
 			"ingredient": { "name": "Soup Vegetables", "color": "#f08a2c", "model": "res://design/restaurant/crate_carrots.glb",
 				"chop": { "name": "Chopped Vegetables", "recipe": "soup_vegetables", "chops": 6, "with": { "onion": 5, "potato": 5, "celery": 6 }, "leafy_top": true, "model": "res://design/restaurant/carrot_chopped.glb" } } },

@@ -1,0 +1,120 @@
+[gd_resource type="Resource" script_class="CookRecipe" format=3]
+
+[ext_resource type="Script" path="res://scripts/cooking/cook_recipe.gd" id="1_wehfw"]
+[ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_ls588"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/heat_action.gd" id="3_47a2j"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/pour_action.gd" id="4_qrhs7"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/flip_action.gd" id="5_gyj60"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/place_action.gd" id="6_a77i3"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/drizzle_action.gd" id="7_ju8yr"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/fill_action.gd" id="8_fill"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/stir_action.gd" id="9_stir"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/chop_action.gd" id="11_chop"]
+[ext_resource type="PackedScene" path="res://scenes/cooking/pancake_closeup.tscn" id="13_scene"]
+
+[sub_resource type="Resource" id="Resource_n6xqa"]
+script = ExtResource("3_47a2j")
+background = true
+
+[sub_resource type="Resource" id="Resource_milk"]
+script = ExtResource("8_fill")
+title = "Milk in"
+hint = "Hold [button] to pour the milk and let go at the white line."
+weight = 0.5
+view_distance = 0.55
+into = "MixBowl"
+line = 0.55
+
+[sub_resource type="Resource" id="Resource_whisk"]
+script = ExtResource("9_stir")
+title = "Whisk the batter"
+thick_look = 1.0
+hint = "Roll [stick] round counter-clockwise, the way the arrow goes, to whisk out the lumps (with the mouse, hold [grip] and circle the bowl)."
+weight = 0.5
+view_distance = 0.55
+in_surface = "MixBowl"
+turns = 4.0
+tint_to = Color(0.96, 0.88, 0.66, 1)
+lumps = 8
+
+[sub_resource type="Resource" id="Resource_pd7ri"]
+script = ExtResource("4_qrhs7")
+title = "Pour the batter"
+zone_size = Vector2(0.84, 0.36)
+view_distance = 0.58
+hint = "Aim with [stick] and hold [button] to pour. Let go when it fills the ring."
+
+[sub_resource type="Resource" id="Resource_fortm"]
+script = ExtResource("5_gyj60")
+title = "Flip them"
+view_distance = 0.58
+hint = "When \"Flip!\" pops up over a pancake, press [button] on it to slide the spatula under, then [flick_up] to flip it."
+
+[sub_resource type="Resource" id="Resource_uysvd"]
+script = ExtResource("6_a77i3")
+title = "Plate them"
+hint = "When \"Plate it!\" pops up, press [button] on a pancake: the spatula slides under it and puts it on the plate."
+weight = 0.0
+carry = true
+view_distance = 0.95
+
+[sub_resource type="Resource" id="Resource_ky8i2"]
+script = ExtResource("6_a77i3")
+from_surface = ""
+melt_seconds = 2.0
+title = "Butter"
+view_distance = 0.36
+view_pitch = 48.0
+hint = "Move the butter with [stick] and press [button] to drop it on top."
+weight = 0.5
+
+[sub_resource type="Resource" id="Resource_y5gt6"]
+script = ExtResource("7_ju8yr")
+title = "Syrup"
+view_distance = 0.36
+view_pitch = 48.0
+hint = "Hold [button] and move to drizzle syrup over the top."
+
+[sub_resource type="Resource" id="Resource_cut"]
+script = ExtResource("11_chop")
+title = "Slice the strawberries"
+cue = "Slice!"
+hint = "Press [button] to slice the strawberries: on the beat, or as fast as you like if you keep it steady."
+weight = 0.4
+view_distance = 0.45
+view_pitch = 62.0
+cuts = 5
+piece_length = 0.12
+piece_radius = 0.022
+taper = 0.55
+piece_color = Color(0.88, 0.16, 0.2, 1)
+plain = true
+
+[sub_resource type="Resource" id="Resource_straw"]
+script = ExtResource("6_a77i3")
+from_surface = ""
+title = "Strawberries on top"
+view_distance = 0.36
+view_pitch = 48.0
+hint = "Move the strawberries with [stick] and press [button] to put them on top."
+weight = 0.4
+item_shape = "strawberries"
+item_size = Vector3(0.12, 0.03, 0.12)
+
+[sub_resource type="Resource" id="Resource_blue"]
+script = ExtResource("6_a77i3")
+from_surface = ""
+title = "Blueberries"
+view_distance = 0.36
+view_pitch = 48.0
+hint = "Move the blueberries with [stick] and press [button] to heap them on the strawberries."
+weight = 0.4
+item_shape = "blueberries"
+item_size = Vector3(0.09, 0.03, 0.09)
+
+[resource]
+script = ExtResource("1_wehfw")
+display_name = "Berry Pancakes"
+pieces = 2
+scene = ExtResource("13_scene")
+steps = Array[ExtResource("2_ls588")]([SubResource("Resource_n6xqa"), SubResource("Resource_milk"), SubResource("Resource_whisk"), SubResource("Resource_pd7ri"), SubResource("Resource_fortm"), SubResource("Resource_uysvd"), SubResource("Resource_ky8i2"), SubResource("Resource_y5gt6"), SubResource("Resource_cut"), SubResource("Resource_straw"), SubResource("Resource_blue")])

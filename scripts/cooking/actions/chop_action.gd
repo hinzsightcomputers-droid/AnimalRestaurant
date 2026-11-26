@@ -23,6 +23,7 @@ extends CookAction
 @export var offset_z := 0.0                # ...and how far in front of it.
 @export var taper := 0.45                  # How much thinner the right end is (0 = straight, like a cucumber).
 @export var piece_color := Color(0.95, 0.55, 0.15)  # When there are no ingredients to take the color from.
+@export var plain := false                 # Not the ingredients: always piece_color, no leafy top (a banana, strawberries).
 @export_group("Feel")
 @export var beat_seconds := 0.45           # The rhythm to chop to.
 @export var beat_tolerance := 0.18         # Seconds off the beat that scores nothing.
@@ -136,6 +137,9 @@ func _begin() -> void:
 			"greens": session.ingredients == null or session.ingredients.leafy_top() }
 		if vegetable != "carrot":
 			carrot["color"] = Veg.FLESH[vegetable]
+			carrot["greens"] = false
+		elif plain:
+			carrot["color"] = piece_color
 			carrot["greens"] = false
 	var came_from := Vector3.ZERO
 	var came_turned := 0.0

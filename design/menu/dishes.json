@@ -15,6 +15,45 @@
       "unlock_cost": 0
     },
     {
+      "id": "choc_chip_pancakes",
+      "name": "Chocolate Chip Pancakes",
+      "origin": "Diner",
+      "description": "Honey pancakes with chocolate chips melted into every bite.",
+      "ingredients": ["flour", "eggs", "milk", "honey", "butter", "chocolate chips"],
+      "steps": ["mix batter", "pour", "add chips", "flip", "stack", "drizzle honey"],
+      "base_price": 13,
+      "cook_time": 22,
+      "tags": ["sweet", "breakfast", "comfort"],
+      "unlock": "upgrade",
+      "unlock_cost": 40
+    },
+    {
+      "id": "banana_pancakes",
+      "name": "Banana Pancakes",
+      "origin": "Diner",
+      "description": "Honey pancakes with slices of banana cooked right into them.",
+      "ingredients": ["flour", "eggs", "milk", "honey", "butter", "banana"],
+      "steps": ["mix batter", "pour", "add banana", "flip", "stack", "drizzle honey"],
+      "base_price": 13,
+      "cook_time": 22,
+      "tags": ["sweet", "breakfast", "comfort"],
+      "unlock": "upgrade",
+      "unlock_cost": 50
+    },
+    {
+      "id": "berry_pancakes",
+      "name": "Berry Pancakes",
+      "origin": "Diner",
+      "description": "Honey pancakes heaped with fresh strawberries and blueberries.",
+      "ingredients": ["flour", "eggs", "milk", "honey", "butter", "strawberries", "blueberries"],
+      "steps": ["mix batter", "pour", "flip", "stack", "drizzle honey", "add berries"],
+      "base_price": 14,
+      "cook_time": 22,
+      "tags": ["sweet", "breakfast", "comfort"],
+      "unlock": "upgrade",
+      "unlock_cost": 60
+    },
+    {
       "id": "vegetable_soup",
       "name": "Hearty Vegetable Soup",
       "origin": "Diner",

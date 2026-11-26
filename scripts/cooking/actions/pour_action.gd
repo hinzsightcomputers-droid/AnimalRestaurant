@@ -29,6 +29,7 @@ extends CookAction
 @export var stack := false                # Poured straight onto a plate: it starts the plate's stack, so toppings and drizzles go on it.
 @export var zone_size := Vector2.ZERO      # The outlined box the batter goes in (zero: the surface, zone_margin in from each side). None on a round surface.
 @export var zone_margin := 0.05
+@export_enum("none", "chips", "banana") var speckles := "none"  # What was mixed into the batter, showing through each pancake as it cooks.
 
 const SCRIPTED_GAP := 0.26  # A reel pours its pieces this far apart, in a row.
 const GAP_BETWEEN := 0.004  # Pieces stop growing this far from each other (and from the box's line), so they touch without overlapping.
@@ -148,6 +149,8 @@ func end() -> void:
 			piece.create_tween().tween_method(piece.set_radius, piece.radius, piece.spread_to, 0.5).set_ease(Tween.EASE_OUT)
 	for piece in session.pieces:
 		piece.stream = 0.0
+		if speckles != "none" and piece.surface == surface and not piece.has_meta("speckled"):
+			_speckle(piece)
 	_glug.stop()
 	_bottle.queue_free()
 	_stream.finish(_stream.position - Vector3(0.0, bottle_height, 0.0))
@@ -264,3 +267,31 @@ func _stop_pouring() -> void:
 	session.pop_text(words, piece.position, CookSession.mood_of(score))
 	session.wobble(piece, 0.1)
 	session.play_sound("plop", piece.position, -6.0, 0.8)
+
+
+# Bits of what was mixed into the batter, set into it all over: chocolate
+# chips show as dark spots, banana as pale slices just under the top. They're
+# the pancake's own, so they go to the plate with it.
+func _speckle(piece: CookPiece) -> void:
+	piece.set_meta("speckled", true)
+	var banana := speckles == "banana"
+	var count := 7 if banana else 16
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color(0.93, 0.86, 0.56) if banana else Color(0.22, 0.12, 0.07)
+	material.roughness = 0.6 if banana else 0.35
+	material.set_meta(ToonStyle.FOOD, "fruit" if banana else "baked")
+	var bit_mesh := CylinderMesh.new()
+	bit_mesh.top_radius = 0.0125 if banana else 0.0042
+	bit_mesh.bottom_radius = bit_mesh.top_radius
+	bit_mesh.height = 0.004
+	bit_mesh.radial_segments = 16
+	bit_mesh.material = material
+	for i in count:
+		var bit := MeshInstance3D.new()
+		bit.mesh = bit_mesh
+		var at := Vector2.from_angle(i * 2.4 + randf() * 0.5) * piece.spread_to * 0.8 * sqrt((i + 0.5) / count)
+		# Set into the batter: the top of it peeks out once the pancake has risen.
+		bit.position = Vector3(at.x, piece.thickness * (0.82 if banana else 0.9), at.y)
+		bit.rotation = Vector3(randf_range(-0.15, 0.15), randf() * TAU, randf_range(-0.15, 0.15))
+		bit.scale = Vector3.ONE * randf_range(0.8, 1.15)
+		piece.add_child(bit)
