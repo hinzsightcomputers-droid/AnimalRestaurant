@@ -24,7 +24,7 @@ extends CookAction
 @export var item_color := Color(1.0, 0.92, 0.55)
 @export var melt_seconds := 0.0           # Above 0, it melts into a puddle over this long.
 @export var anywhere := false             # Fine anywhere on the target (bacon beside the eggs), not just on the food.
-@export_enum("block", "toast_half", "flower", "strawberries", "blueberries") var item_shape := "block"  # toast_half: a slice cut corner to corner, its point down the plate. strawberries, blueberries: a little heap of them.
+@export_enum("block", "toast_half", "flower", "strawberries", "blueberries", "rice_mound") var item_shape := "block"  # toast_half: a slice cut corner to corner, its point down the plate. strawberries, blueberries: a little heap of them. rice_mound: a dome of rice in item_color (omurice).
 @export var aim_at := false              # Score how near a spot on the target it lands (aim, off the middle), marked with a ring.
 @export var aim := Vector2.ZERO
 @export_group("Feel")
@@ -307,6 +307,8 @@ func _make_item() -> Node3D:
 		return _make_toast_half()
 	if item_shape == "flower":
 		return _make_flower()
+	if item_shape == "rice_mound":
+		return _make_rice_mound()
 	if item_shape in ["strawberries", "blueberries"]:
 		return _make_berries(item_shape == "strawberries")
 	var item := Node3D.new()
@@ -409,6 +411,46 @@ func _make_flower() -> Node3D:
 	middle.mesh = heart
 	middle.position.y = item_size.y * 0.75
 	item.add_child(middle)
+	session.add_child(item)
+	return item
+
+
+# A mound of rice, item_size.x long, item_size.z wide and item_size.y tall, in
+# item_color (the ketchup rice), grains showing all over it.
+func _make_rice_mound() -> Node3D:
+	var item := Node3D.new()
+	var dome := MeshInstance3D.new()
+	var mesh := SphereMesh.new()
+	mesh.radius = item_size.x * 0.5
+	mesh.height = item_size.x
+	mesh.is_hemisphere = true
+	var rice := StandardMaterial3D.new()
+	rice.albedo_color = item_color
+	rice.roughness = 0.6
+	rice.set_meta(ToonStyle.FOOD, "baked")
+	mesh.material = rice
+	dome.mesh = mesh
+	dome.scale = Vector3(1.0, item_size.y / (item_size.x * 0.5), item_size.z / item_size.x)
+	item.add_child(dome)
+	var grain := SphereMesh.new()
+	grain.radius = 0.003
+	grain.height = 0.006
+	grain.radial_segments = 6
+	grain.rings = 3
+	var light := StandardMaterial3D.new()
+	light.albedo_color = item_color.lightened(0.15)
+	light.set_meta(ToonStyle.FOOD, "baked")
+	grain.material = light
+	for i in 60:  # Grains over its surface.
+		var turn := i * 2.4
+		var y := 1.0 - sqrt((i + 0.5) / 60.0)  # Evenly over the dome, top to bottom.
+		var r := sqrt(1.0 - y * y)
+		var bit := MeshInstance3D.new()
+		bit.mesh = grain
+		bit.position = Vector3(cos(turn) * r * item_size.x * 0.5, y * item_size.y, sin(turn) * r * item_size.z * 0.5) * 0.98
+		bit.rotation = Vector3(randf() * TAU, randf() * TAU, 0.0)
+		bit.scale = Vector3(1.0, 1.0, 2.2)
+		item.add_child(bit)
 	session.add_child(item)
 	return item
 

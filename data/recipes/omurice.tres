@@ -8,10 +8,69 @@
 [ext_resource type="Script" path="res://scripts/cooking/actions/flip_action.gd" id="flip"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/place_action.gd" id="place"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/drizzle_action.gd" id="drizzle"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/rice_in_action.gd" id="rice_in"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/fill_action.gd" id="fill"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/cook_rice_action.gd" id="cook_rice"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/stir_action.gd" id="stir"]
+[ext_resource type="PackedScene" path="res://scenes/cooking/omurice_closeup.tscn" id="scene"]
 
 [sub_resource type="Resource" id="Resource_0"]
 script = ExtResource("heat")
 background = true
+
+[sub_resource type="Resource" id="Resource_rice"]
+script = ExtResource("rice_in")
+title = "Rice in the pot"
+hint = "Move the cup over the pot with [stick] and press [button] to tip the rice in."
+
+[sub_resource type="Resource" id="Resource_water"]
+script = ExtResource("fill")
+title = "Water to the line"
+hint = "Hold [button] to pour the water and let go at the line: too much and the rice goes mushy."
+weight = 0.4
+view_distance = 0.45
+into = "RicePot"
+liquid_name = "Water"
+liquid_color = Color(0.7, 0.86, 0.95, 0.7)
+line = 0.6
+pour_height = 0.12
+
+[sub_resource type="Resource" id="Resource_cook"]
+script = ExtResource("cook_rice")
+title = "Cook the rice"
+cue = "Simmer..."
+hint = "The water soaks in as it simmers. Press [button] to turn the heat off when the meter's in the green: fluffy, not crunchy or mushy."
+weight = 0.7
+view_distance = 0.45
+rise_seconds = 3.0
+band = Vector2(0.62, 0.8)
+meter_offset = Vector3(0, 0.02, 0.13)
+meter_length = 0.22
+
+[sub_resource type="Resource" id="Resource_ketchup_rice"]
+script = ExtResource("stir")
+title = "Ketchup rice"
+hint = "Roll [stick] round counter-clockwise, the way the arrow goes, to stir the ketchup through the rice."
+weight = 0.4
+view_distance = 0.45
+in_surface = "RicePot"
+turns = 3.0
+coat = true
+tint_to = Color(0.86, 0.36, 0.22, 1)
+tool = "spoon"
+
+[sub_resource type="Resource" id="Resource_mound"]
+script = ExtResource("place")
+from_surface = ""
+title = "Rice onto the plate"
+view_distance = 0.4
+view_pitch = 52.0
+hint = "Move the rice over the plate with [stick] and press [button] to turn it out in a neat mound in the middle."
+weight = 0.4
+item_shape = "rice_mound"
+item_size = Vector3(0.21, 0.034, 0.12)
+aim_at = true
+item_color = Color(0.86, 0.38, 0.24, 1)
 
 [sub_resource type="Resource" id="Resource_1"]
 script = ExtResource("pour")
@@ -59,4 +118,5 @@ one_stroke = true
 script = ExtResource("1_recipe")
 display_name = "Omurice"
 pieces = 1
-steps = Array[ExtResource("2_action")]([SubResource("Resource_0"), SubResource("Resource_1"), SubResource("Resource_2"), SubResource("Resource_3"), SubResource("Resource_4"), SubResource("Resource_5")])
+scene = ExtResource("scene")
+steps = Array[ExtResource("2_action")]([SubResource("Resource_0"), SubResource("Resource_rice"), SubResource("Resource_water"), SubResource("Resource_cook"), SubResource("Resource_ketchup_rice"), SubResource("Resource_mound"), SubResource("Resource_1"), SubResource("Resource_2"), SubResource("Resource_3"), SubResource("Resource_4"), SubResource("Resource_5")])
