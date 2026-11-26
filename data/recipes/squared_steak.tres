@@ -4,6 +4,23 @@
 [ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/sear_action.gd" id="sear"]
 [ext_resource type="PackedScene" path="res://scenes/cooking/pan_closeup.tscn" id="scene"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/steak_prep_action.gd" id="prep"]
+
+[sub_resource type="Resource" id="Resource_dry"]
+script = ExtResource("prep")
+title = "Pat it dry"
+cue = "Pat!"
+hint = "Hold [button] and rub the paper towel over the steak with [stick] to soak up every drop: a dry steak sears, a wet one just steams."
+weight = 0.3
+job = "pat_dry"
+
+[sub_resource type="Resource" id="Resource_season"]
+script = ExtResource("prep")
+title = "Season it"
+cue = "Shake!"
+hint = "Move the shaker with [stick] and press [button] to shake: salt all over the top, then pepper. Keep it on the steak."
+weight = 0.5
+job = "season"
 
 [sub_resource type="Resource" id="Resource_sear"]
 script = ExtResource("sear")
@@ -19,4 +36,4 @@ display_name = "Squared Steak"
 pieces = 1
 serve_on = "Plate"
 scene = ExtResource("scene")
-steps = Array[ExtResource("2_action")]([SubResource("Resource_sear")])
+steps = Array[ExtResource("2_action")]([SubResource("Resource_dry"), SubResource("Resource_season"), SubResource("Resource_sear")])

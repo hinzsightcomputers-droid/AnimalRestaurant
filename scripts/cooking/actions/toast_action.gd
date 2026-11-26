@@ -123,7 +123,7 @@ func _into_toaster() -> void:
 	tween.tween_property(_slice, "position", _slot_top(), 0.15).set_ease(Tween.EASE_IN)
 	tween.tween_callback(func(): session.play_sound("tick", toaster_at, -6.0, 0.9))
 	session.set_status("Pull the lever down!")
-	session.pop_text("Pull it down!", _lever.global_position + Vector3(0.0, 0.03, 0.0), 0)
+	session.pop_text("Pull it down!", toaster_at + _lever.position + Vector3(0.0, 0.03, 0.0), 0)
 
 
 # Where the slice stands up out of the slot, before it's pushed down.
