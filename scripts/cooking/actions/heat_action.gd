@@ -12,6 +12,7 @@ extends CookAction
 @export var first_side_seconds := 10.0   # Seconds for the first side to be just right.
 @export var second_side_seconds := 6.0   # The second side is quicker (the piece is already hot).
 @export_range(0.0, 0.5) var timer_variation := 0.15  # Each piece is up to this much faster or slower.
+@export var again_slow := 5.0           # A side that was cooked already and is flipped back down (FlipAction again) browns this many times slower.
 @export var plating_pace := 1.0          # How fast things that are already done cook while you're plating (below 1: time to plate everything just right). Anything still cooking keeps full speed.
 @export_group("Scoring")
 @export var raw_at := 0.45       # Doneness that scores 0 for being raw...
@@ -59,6 +60,8 @@ func update(delta: float, input: CookInput) -> void:
 				var seconds := second_side_seconds if piece.flipped else first_side_seconds
 				if piece.side_seconds > 0.0:  # Its own timing (a sunny-side-up egg, cooked on one side only).
 					seconds = piece.side_seconds
+				if piece.has_meta("flipped_again"):
+					seconds *= again_slow
 				var pace := plating_pace if plating and piece.doneness[piece.down_side] >= perfect_from else 1.0  # Done ones hold while you plate; the rest catch up.
 				piece.doneness[piece.down_side] += delta * pace * piece.cook_speed / seconds * GameState.difficulty_value("closeup_pace")  # Slower on Easy: more time to flip.
 				piece.refresh()

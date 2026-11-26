@@ -3,39 +3,103 @@
 [ext_resource type="Script" path="res://scripts/cooking/cook_recipe.gd" id="1_recipe"]
 [ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/heat_action.gd" id="heat"]
-[ext_resource type="Script" path="res://scripts/cooking/actions/pour_action.gd" id="pour"]
-[ext_resource type="Script" path="res://scripts/cooking/actions/flip_action.gd" id="flip"]
-[ext_resource type="Script" path="res://scripts/cooking/actions/place_action.gd" id="place"]
-[ext_resource type="Script" path="res://scripts/cooking/actions/drizzle_action.gd" id="drizzle"]
-[ext_resource type="Script" path="res://scripts/cooking/actions/press_action.gd" id="press"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/fill_action.gd" id="fill"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/stir_action.gd" id="stir"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/knead_action.gd" id="knead"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/season_action.gd" id="season"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/wrap_action.gd" id="wrap"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/flip_action.gd" id="flip"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/press_action.gd" id="press"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/place_action.gd" id="place"]
+[ext_resource type="PackedScene" path="res://scenes/cooking/hotteok_closeup.tscn" id="scene"]
 
-[sub_resource type="Resource" id="Resource_0"]
+[sub_resource type="Resource" id="Resource_heat"]
 script = ExtResource("heat")
 background = true
 
-[sub_resource type="Resource" id="Resource_1"]
-script = ExtResource("pour")
-title = "Dough in the pan"
-zone_size = Vector2(0.84, 0.36)
-view_distance = 0.58
-hint = "Aim with [stick] and hold [button] to spread the dough. Let go when it fills the ring."
-batter_color = Color(0.86, 0.68, 0.42, 1)
+[sub_resource type="Resource" id="Resource_milk"]
+script = ExtResource("fill")
+title = "Warm milk in"
+hint = "Hold [button] to pour the warm milk and let go at the white line."
+weight = 0.4
+view_distance = 0.55
+into = "MixBowl"
+liquid_name = "Warm milk"
+liquid_color = Color(0.98, 0.95, 0.88, 1)
+line = 0.45
+
+[sub_resource type="Resource" id="Resource_mix"]
+script = ExtResource("stir")
+title = "Mix the dough"
+thick_look = 1.0
+hint = "Roll [stick] round counter-clockwise, the way the arrow goes, to mix in the flour (with the mouse, hold [grip] and circle the bowl)."
+weight = 0.4
+view_distance = 0.55
+in_surface = "MixBowl"
+turns = 3.0
+tint_to = Color(0.93, 0.82, 0.62, 1)
+lumps = 8
+tool = "spoon"
+
+[sub_resource type="Resource" id="Resource_knead"]
+script = ExtResource("knead")
+title = "Knead the dough"
+cue = "Knead!"
+hint = "Press [button] just as the ring closes in on the dough to push it out and fold it over. Keep the rhythm!"
+weight = 0.7
+
+[sub_resource type="Resource" id="Resource_sugar"]
+script = ExtResource("fill")
+title = "Brown sugar"
+hint = "Hold [button] to pour the brown sugar into the little bowl and let go at the line."
+weight = 0.3
+view_distance = 0.45
+into = "FillingBowl"
+liquid_name = "Brown sugar"
+liquid_color = Color(0.5, 0.29, 0.12, 1)
+line = 0.5
+pour_height = 0.12
+
+[sub_resource type="Resource" id="Resource_cinnamon"]
+script = ExtResource("season")
+title = "Cinnamon"
+hint = "Move the shaker over the little bowl with [stick] and press [button] to shake in cinnamon. Stop in the green!"
+weight = 0.3
+view_distance = 0.45
+in_surface = "FillingBowl"
+seasoning = "Cinnamon"
+flake_color = Color(0.55, 0.3, 0.14, 1)
+cap_color = Color(0.7, 0.45, 0.25, 1)
+meter_offset = Vector3(0, 0.02, 0.12)
+meter_length = 0.2
+
+[sub_resource type="Resource" id="Resource_nuts"]
+script = ExtResource("season")
+title = "Chopped nuts"
+hint = "Move over the little bowl with [stick] and press [button] to shake in the chopped nuts. Stop in the green!"
+weight = 0.3
+view_distance = 0.45
+in_surface = "FillingBowl"
+seasoning = "Chopped nuts"
+flake_color = Color(0.82, 0.66, 0.42, 1)
+cap_color = Color(0.6, 0.45, 0.3, 1)
+meter_offset = Vector3(0, 0.02, 0.12)
+meter_length = 0.2
 
 [sub_resource type="Resource" id="Resource_wrap"]
 script = ExtResource("wrap")
 title = "Fill and pinch shut"
 cue = "Fill!"
-hint = "Move the spoon with [stick] and press [button] over the middle of each one: brown sugar, cinnamon and nuts go in, and the dough pinches shut round them."
+hint = "Move the spoon with [stick] and press [button] over the middle of each round: the filling goes in, and the dough pinches shut round it."
 filling = "Filled"
 
-[sub_resource type="Resource" id="Resource_2"]
+[sub_resource type="Resource" id="Resource_flip"]
 script = ExtResource("flip")
-title = "Pan fry: flip them"
+title = "Flip them"
 view_distance = 0.58
 hint = "When \"Flip!\" pops up over one, press [button] on it to slide the spatula under, then [flick_up] to flip it."
 
-[sub_resource type="Resource" id="Resource_5"]
+[sub_resource type="Resource" id="Resource_press"]
 script = ExtResource("press")
 title = "Press them flat"
 cue = "Press!"
@@ -46,7 +110,14 @@ low_word = "Too thick"
 high_word = "Too thin!"
 widen = 0.9
 
-[sub_resource type="Resource" id="Resource_3"]
+[sub_resource type="Resource" id="Resource_flip2"]
+script = ExtResource("flip")
+title = "Flip them again"
+view_distance = 0.58
+hint = "When \"Flip!\" pops up, flip each one back over to brown the other side: press [button] on it, then [flick_up]."
+again = true
+
+[sub_resource type="Resource" id="Resource_plate"]
 script = ExtResource("place")
 title = "Plate them"
 hint = "When \"Plate it!\" pops up, press [button] on one: the spatula slides under it and puts it on the plate."
@@ -54,17 +125,9 @@ weight = 0.0
 carry = true
 view_distance = 0.95
 
-[sub_resource type="Resource" id="Resource_4"]
-script = ExtResource("drizzle")
-title = "A drizzle of syrup"
-view_distance = 0.36
-view_pitch = 50.0
-hint = "Hold [button] and move to drizzle it over the top."
-syrup_color = Color(0.42, 0.2, 0.06, 1)
-weight = 0.5
-
 [resource]
 script = ExtResource("1_recipe")
 display_name = "Hotteok"
 pieces = 2
-steps = Array[ExtResource("2_action")]([SubResource("Resource_0"), SubResource("Resource_1"), SubResource("Resource_wrap"), SubResource("Resource_2"), SubResource("Resource_5"), SubResource("Resource_3"), SubResource("Resource_4")])
+scene = ExtResource("scene")
+steps = Array[ExtResource("2_action")]([SubResource("Resource_heat"), SubResource("Resource_milk"), SubResource("Resource_mix"), SubResource("Resource_knead"), SubResource("Resource_sugar"), SubResource("Resource_cinnamon"), SubResource("Resource_nuts"), SubResource("Resource_wrap"), SubResource("Resource_flip"), SubResource("Resource_press"), SubResource("Resource_flip2"), SubResource("Resource_plate")])

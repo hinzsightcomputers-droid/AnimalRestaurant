@@ -16,6 +16,10 @@ extends CookAction
 @export var ball_height := 1.6              # ...and how much taller.
 @export var perfect_offset := 0.25          # How far off the middle still gets full marks (of its radius)...
 @export var worst_offset := 0.8             # ...and gets least.
+@export var round_radius := 0.075           # Dough waiting in its bowl (KneadAction): each round this wide...
+@export var round_thickness := 0.022
+@export var round_gap := 0.2                # ...this far apart.
+@export var dough_color := Color(0.93, 0.82, 0.62)
 
 const CLOSE_SECONDS := 0.35
 
@@ -53,6 +57,9 @@ func ready_word(piece: CookPiece) -> String:
 
 func _begin() -> void:
 	_pieces = session.pieces_on(surface)
+	var dough: Node3D = session.context.get("dough")
+	if _pieces.is_empty() and is_instance_valid(dough):
+		_from_bowl(dough)
 	if _pieces.is_empty():
 		finish(1.0)
 		return
@@ -81,6 +88,21 @@ func update(delta: float, input: CookInput) -> void:
 	session.set_status("%s: %d of %d" % [filling, _filled.size(), _pieces.size()])
 	if input.just_pressed:
 		_spoon_in(spot)
+
+
+# The kneaded dough, divided: a round of it on the griddle for each piece.
+func _from_bowl(dough: Node3D) -> void:
+	session.context.erase("dough")
+	dough.queue_free()
+	var count := maxi(session.recipe.pieces, 1)
+	for i in count:
+		var spot := KneadAction.round_spot(session, surface, i, count, round_gap)
+		var piece := session.add_piece(dough_color, round_thickness, spot, surface)
+		piece.spread_to = round_radius
+		piece.create_tween().tween_method(piece.set_radius, round_radius * 0.6, round_radius, 0.25).set_ease(Tween.EASE_OUT)
+		piece.set_radius(round_radius * 0.6)
+		_pieces.append(piece)
+	session.play_sound("plop", session.surface(surface).position, -6.0)
 
 
 func _spoon_in(spot: Vector3) -> void:

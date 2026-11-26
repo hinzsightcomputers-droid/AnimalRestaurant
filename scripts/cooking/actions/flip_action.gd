@@ -16,6 +16,7 @@ extends CookAction
 @export var grab_margin := 0.02       # How far outside a piece you can still get hold of it.
 @export_range(0.0, 1.0) var up_needed := 0.6  # How straight up the flick must be (1 = exactly).
 @export var only_kind := ""           # Flip only pieces of this kind ("bacon": the sunny-side-up eggs beside it stay put).
+@export var again := false            # Flip the ones already flipped once back over (hotteok: browned on both sides after pressing).
 
 const SCRIPTED_FLICK_DELAY := 0.25  # A reel's spatula sits under the piece this long.
 
@@ -98,7 +99,8 @@ func scripted_hold(delta: float, input: CookInput) -> bool:
 
 # Whether a piece still needs this step (a FoldAction overrides these three).
 func _needs(piece: CookPiece) -> bool:
-	return not piece.flipped and (only_kind.is_empty() or piece.kind == only_kind)
+	var turn := (piece.flipped and not piece.has_meta("flipped_again")) if again else not piece.flipped
+	return turn and (only_kind.is_empty() or piece.kind == only_kind)
 
 
 func _flick_words() -> String:
@@ -167,6 +169,8 @@ func _flip(piece: CookPiece, direction: Vector2) -> void:
 		piece.quaternion = turned
 		piece.droop = 0.0
 		piece.down_side = piece.up_side()
+		if again:
+			piece.set_meta("flipped_again", true)
 		piece.flipped = true
 		piece.busy = false
 		piece.refresh()
