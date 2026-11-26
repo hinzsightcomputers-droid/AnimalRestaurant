@@ -1,0 +1,79 @@
+[gd_resource type="Resource" script_class="CookRecipe" format=3]
+
+[ext_resource type="Script" path="res://scripts/cooking/cook_recipe.gd" id="1_recipe"]
+[ext_resource type="Script" path="res://scripts/cooking/cook_action.gd" id="2_action"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/scrape_action.gd" id="3_scrape"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/saute_action.gd" id="saute"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/fill_action.gd" id="fill"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/boil_over_action.gd" id="boil_over"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/season_action.gd" id="season"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/ladle_action.gd" id="ladle"]
+[ext_resource type="PackedScene" path="res://scenes/cooking/veg_soup_closeup.tscn" id="5_scene"]
+
+[sub_resource type="Resource" id="Resource_scrape"]
+script = ExtResource("3_scrape")
+title = "Into the pot"
+view_distance = 0.6
+view_pitch = 56
+hint = "Hold [grip] on the board and carry it to the pot. Then hold [grip] and push the knife to sweep everything in. Gently, or it splashes!"
+weight = 0.4
+
+[sub_resource type="Resource" id="Resource_saute"]
+script = ExtResource("saute")
+title = "Soften in butter"
+cue = "Sizzle!"
+hint = "The butter melts and the vegetables sizzle. Press [button] when the meter's in the green: soft and golden, not burnt."
+weight = 0.6
+view_distance = 0.5
+view_pitch = 60
+rise_seconds = 3.0
+band = Vector2(0.55, 0.75)
+meter_offset = Vector3(0, 0.08, 0.2)
+meter_length = 0.3
+
+[sub_resource type="Resource" id="Resource_stock"]
+script = ExtResource("fill")
+title = "Stock to the line"
+hint = "Hold [button] to pour the stock and let go at the line."
+weight = 0.4
+view_distance = 0.55
+into = "Pot"
+liquid_name = "Stock"
+liquid_color = Color(0.93, 0.66, 0.36, 0.92)
+line = 0.75
+pour_height = 0.16
+
+[sub_resource type="Resource" id="Resource_boil"]
+script = ExtResource("boil_over")
+title = "Bring it to the boil"
+hint = "It's coming up to the boil. Press [button] at a rolling boil, in the green, to turn it down and put the lid on, before it boils over!"
+weight = 0.6
+view_distance = 0.5
+view_pitch = 60
+band = Vector2(0.6, 0.78)
+meter_offset = Vector3(0, 0.08, 0.2)
+meter_length = 0.3
+
+[sub_resource type="Resource" id="Resource_season"]
+script = ExtResource("season")
+title = "Season to taste"
+view_distance = 0.56
+view_pitch = 58
+hint = "Move the shaker over the pot with [stick] and press [button] to shake. Stop when the meter is in the green."
+weight = 0.5
+
+[sub_resource type="Resource" id="Resource_ladle"]
+script = ExtResource("ladle")
+title = "Ladle it out"
+view_distance = 0.58
+view_pitch = 56
+hint = "Press [button] over the pot to scoop, then move to the bowl with [stick] and press [button] over its middle to pour. Three ladles fill it."
+weight = 0.5
+
+[resource]
+script = ExtResource("1_recipe")
+display_name = "Hearty Vegetable Soup"
+pieces = 1
+serve_on = ""
+scene = ExtResource("5_scene")
+steps = Array[ExtResource("2_action")]([SubResource("Resource_scrape"), SubResource("Resource_saute"), SubResource("Resource_stock"), SubResource("Resource_boil"), SubResource("Resource_season"), SubResource("Resource_ladle")])

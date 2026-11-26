@@ -29,6 +29,7 @@ extends CookAction
 @export var thick_look := 0.0             # 1: a batter: the whisk's marks stay in it.
 @export var lumps := 0                    # Lumps of flour that stir out.
 @export_enum("whisk", "spatula", "spoon") var tool := "whisk"
+@export var crumbles := false              # What's in there (chunks of fish) breaks up a bit with every splash: stir gently.
 
 const SCRIPTED_TURNS := 1.3  # Turns a second for a reel's chef.
 
@@ -233,6 +234,8 @@ func update(delta: float, input: CookInput) -> void:
 	if stirring and _speed > fast_speed and _splash_timer <= 0.0:
 		_splash_timer = splash_every
 		session.burst(_whisk.position + Vector3(0.0, 0.03, 0.0), pot.color, 8, 0.5)
+		if crumbles:
+			_crumble(pot)
 		session.play_sound("plop", _whisk.position, -8.0, 1.4)
 	_wrong_way += delta
 	_arrow.rotation.y += delta * 0.8  # Turning the way to stir.
@@ -251,7 +254,7 @@ func update(delta: float, input: CookInput) -> void:
 
 # Round and round the way the arrow goes, at an easy pace.
 func scripted_hold(delta: float, input: CookInput) -> bool:
-	_scripted_angle -= TAU * SCRIPTED_TURNS * delta
+	_scripted_angle -= TAU * minf(SCRIPTED_TURNS, (slow_speed + fast_speed) * 0.5) * delta  # A good pace, however gentle it has to be.
 	input.stick = Vector2.from_angle(_scripted_angle)
 	return false
 
@@ -315,3 +318,25 @@ func _make_whisk() -> Node3D:
 	var whisk := KitchenProps.whisk()
 	session.add_child(whisk)
 	return whisk
+
+
+# A chunk (the nearest whole one to the whisk) breaks: it shrinks, and a flake
+# of it floats off.
+func _crumble(pot: CookSurface) -> void:
+	var best: Node3D = null
+	var best_gap := INF
+	for piece in pot.contents:
+		if piece is Node3D and is_instance_valid(piece) and not piece.has_meta("crumbled"):
+			var gap := (piece as Node3D).global_position.distance_to(_whisk.global_position)
+			if gap < best_gap:
+				best_gap = gap
+				best = piece
+	if best == null:
+		return
+	best.set_meta("crumbled", true)
+	best.create_tween().tween_property(best, "scale", best.scale * 0.6, 0.15)
+	var flake := best.duplicate() as Node3D
+	pot.add_child(flake)
+	flake.scale = best.scale * 0.4
+	flake.position = best.position + Vector3(randf_range(-0.03, 0.03), 0.0, randf_range(-0.03, 0.03))
+	session.pop_text("Falling apart!", pot.position, -1)
