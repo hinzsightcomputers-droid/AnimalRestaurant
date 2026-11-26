@@ -8,6 +8,8 @@
 [ext_resource type="Script" path="res://scripts/cooking/actions/flip_action.gd" id="flip"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/place_action.gd" id="place"]
 [ext_resource type="Script" path="res://scripts/cooking/actions/squeeze_action.gd" id="squeeze"]
+[ext_resource type="Script" path="res://scripts/cooking/actions/toast_action.gd" id="toast"]
+[ext_resource type="PackedScene" path="res://scenes/cooking/breakfast_closeup.tscn" id="scene"]
 
 [sub_resource type="Resource" id="Resource_heat"]
 script = ExtResource("heat")
@@ -17,6 +19,14 @@ second_side_seconds = 6.0
 plating_pace = 0.35
 perfect_to = 1.3
 burnt_at = 1.9
+
+[sub_resource type="Resource" id="Resource_toaster"]
+script = ExtResource("toast")
+title = "Butter the toast"
+cue = "Spread!"
+hint = "Hold [button] and move the knife over the bread with [stick] to spread the butter. Then hold [button] and pull down to push the toaster's lever all the way."
+weight = 0.4
+toaster_at = Vector3(0.14, 0, 0.5)
 
 [sub_resource type="Resource" id="Resource_butter"]
 script = ExtResource("coat")
@@ -99,4 +109,5 @@ view_pitch = 78.0
 script = ExtResource("1_recipe")
 display_name = "Big Breakfast"
 pieces = 4
-steps = Array[ExtResource("2_action")]([SubResource("Resource_heat"), SubResource("Resource_butter"), SubResource("Resource_eggs"), SubResource("Resource_bacon"), SubResource("Resource_flip"), SubResource("Resource_plate"), SubResource("Resource_toast"), SubResource("Resource_smile")])
+scene = ExtResource("scene")
+steps = Array[ExtResource("2_action")]([SubResource("Resource_heat"), SubResource("Resource_toaster"), SubResource("Resource_butter"), SubResource("Resource_eggs"), SubResource("Resource_bacon"), SubResource("Resource_flip"), SubResource("Resource_plate"), SubResource("Resource_toast"), SubResource("Resource_smile")])

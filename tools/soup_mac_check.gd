@@ -71,7 +71,7 @@ func _play(prefix: String, session: CookSession) -> void:
 				await _stray(session, last)
 				next = clock
 		if clock >= next:
-			next = clock + (1.6 if prefix != "chop" else 0.5) * (0.12 if last is LadleAction or last is WrapAction else 1.0)
+			next = clock + (1.6 if prefix != "chop" else 0.5) * (0.12 if last is LadleAction or last is WrapAction or last is ToastAction else 1.0)
 			await _shot("%s_%02d_%s.png" % [prefix, shot, last.title.to_snake_case().replace("!", "").replace(":", "")])
 			shot += 1
 	if is_instance_valid(session):
