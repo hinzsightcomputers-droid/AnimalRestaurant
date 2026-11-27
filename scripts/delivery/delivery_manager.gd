@@ -15,6 +15,14 @@ extends Node3D
 @export var view_manager: ViewManager  # To show notes and letters in the right player's view.
 
 var _couriers: Array[Courier] = []  # Waiting (or walking in), first in line first.
+var car: DeliveryCar = null  # The restaurant's own delivery cart out front (night deliveries a chef drives).
+
+
+func _ready() -> void:
+	car = DeliveryCar.new()
+	car.manager = self
+	car.name = "DeliveryCar"
+	add_child.call_deferred(car)
 
 
 func _process(_delta: float) -> void:
@@ -49,7 +57,7 @@ func courier_for(order: Order) -> Courier:
 
 
 func has_deliveries() -> bool:
-	return not _couriers.is_empty()
+	return not _couriers.is_empty() or (car != null and car.busy())
 
 
 func _on_courier_interacted(player_index: int, courier: Courier) -> void:
@@ -70,28 +78,10 @@ func _on_courier_interacted(player_index: int, courier: Courier) -> void:
 		return
 
 	player.set_held_item(null)
-	order_board.remove_order(plate.order)
-	GameState.record_chef_action(player_index, "served")
 	var caller := plate.order.caller
 	var record: Dictionary = GameState.regulars.get(caller.get("regular_id", ""), {})
-	var goodbye := not record.is_empty() and Redemption.goodbye_due(record)
-	# Paid on how it was cooked only: the wait never counts against a delivery.
-	var satisfaction := Satisfaction.calculate(plate.quality, 0.0)
-	var reaction := Satisfaction.reaction_for(satisfaction)
-	var amount := 0 if goodbye else Satisfaction.payment_for(plate.order.dish, reaction)
-	GameState.add_money(amount)
-	GameState.record_service({
-		"species": caller.get("species", ""),
-		"regular": caller.get("regular_id", ""),
-		"delivery": true,
-		"dish": plate.order.dish.get("id", ""),
-		"price": roundi(Satisfaction.price_of(plate.order.dish)),
-		"quality": plate.quality,
-		"wait_seconds": 0.0,
-		"satisfaction": satisfaction,
-		"reaction": reaction.get("id", ""),
-		"payment": amount,
-	})
+	var goodbye := is_goodbye(plate.order)
+	var amount := pay(player_index, plate, 0.0, goodbye)
 	if not goodbye:
 		GameEvents.announce("Handed %s's %s to the courier. +$%d" % [caller.get("name", "?"), plate.dish_name(), amount])
 		_send_out(courier)
@@ -110,6 +100,48 @@ func _on_courier_interacted(player_index: int, courier: Courier) -> void:
 	Redemption.say_goodbye(record)
 	GameEvents.announce("%s is gone. They won't be ordering anymore." % record["name"])
 	_send_out(courier)
+
+
+# A delivery handed over (to the courier, or at the door by a chef who drove
+# it: DeliveryDrive): off the board, paid on how it was cooked only (the wait
+# never counts against a delivery), plus `tip_share` of the price on top.
+# Returns what it paid.
+func pay(player_index: int, plate: CookedDish, tip_share := 0.0, goodbye := false) -> int:
+	order_board.remove_order(plate.order)
+	GameState.record_chef_action(player_index, "served")
+	var caller := plate.order.caller
+	var satisfaction := Satisfaction.calculate(plate.quality, 0.0)
+	var reaction := Satisfaction.reaction_for(satisfaction)
+	var amount := 0 if goodbye else Satisfaction.payment_for(plate.order.dish, reaction)
+	if not goodbye and tip_share > 0.0:
+		amount += maxi(1, roundi(Satisfaction.price_of(plate.order.dish) * tip_share))
+	GameState.add_money(amount)
+	GameState.record_service({
+		"species": caller.get("species", ""),
+		"regular": caller.get("regular_id", ""),
+		"delivery": true,
+		"dish": plate.order.dish.get("id", ""),
+		"price": roundi(Satisfaction.price_of(plate.order.dish)),
+		"quality": plate.quality,
+		"wait_seconds": 0.0,
+		"satisfaction": satisfaction,
+		"reaction": reaction.get("id", ""),
+		"payment": amount,
+	})
+	return amount
+
+
+# A regular's last order (their goodbye note comes with the courier).
+func is_goodbye(order: Order) -> bool:
+	var record: Dictionary = GameState.regulars.get(order.caller.get("regular_id", ""), {})
+	return not record.is_empty() and Redemption.goodbye_due(record)
+
+
+# A chef put this order in the delivery cart: its courier goes home unpaid.
+func send_home(order: Order) -> void:
+	var courier := courier_for(order)
+	if courier != null:
+		_send_out(courier)
 
 
 # A Gone regular's reply to your letter. Once it's read, they come in at closing.

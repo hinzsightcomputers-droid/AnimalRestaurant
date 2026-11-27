@@ -15,9 +15,14 @@ var _talk_turn := 0.0  # How far round its talk clip needs turning, to face who 
 
 
 static func make(regular_id: String) -> RegularFigure:
+	return make_from(GameData.characters.get(regular_id, {}).get("model", {}), regular_id)
+
+
+# Anyone from their model settings ({ path, height, animations?, talk_turn? }):
+# a townsfolk's own, or one of their species' (DeliveryDrive's doorsteps).
+static func make_from(settings: Dictionary, label: String) -> RegularFigure:
 	var figure := RegularFigure.new()
-	figure.name = "Figure_" + regular_id
-	var settings: Dictionary = GameData.characters.get(regular_id, {}).get("model", {})
+	figure.name = "Figure_" + label
 	var path: String = settings.get("path", "")
 	if path.is_empty() or not ResourceLoader.exists(path):
 		return figure

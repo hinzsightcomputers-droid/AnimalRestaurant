@@ -39,7 +39,7 @@ func _ready() -> void:
 	_build_world(settings)
 	if full_screen:
 		_layer = CanvasLayer.new()
-		_layer.layer = 3
+		_layer.layer = 6  # Over the HUD and the Moober banner (5).
 		add_child(_layer)
 		_displays.append(_make_display(_layer, travelers.front()))
 	else:

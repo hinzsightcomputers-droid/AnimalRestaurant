@@ -17,6 +17,14 @@
 		"ring_sound": "",
 		"night": { "calls": { "min": 5, "max": 7 }, "first_ring_delay": { "min": 4, "max": 8 }, "seconds_between_calls": { "min": 15, "max": 25 }, "night_only_weight": 3 },
 		"regular_day_call_factor": 0.25,
-		"courier": { "name": "Delivery Duck", "color": "#f2d24b", "walk_speed": 2.2, "spacing": 0.9 }
+		"courier": { "name": "Delivery Duck", "color": "#f2d24b", "walk_speed": 2.2, "spacing": 0.9 },
+		"_drive": "The night deliveries a chef drives in the restaurant's cart (DeliveryCar, DeliveryDrive). turns: corners per order [min, max]. tip_share: of the dish's price, on top of the pay. door_lines are PLACEHOLDERS until the user writes them; a regular or townsfolk's own \"delivery_door\" lines come first. {dish} and {restaurant} fill in.",
+		"drive": {
+			"parked_at": [10.6, 8.1], "parked_turn": 90,
+			"speed": 8.0, "corner_speed": 4.5, "prompt_at": 26.0,
+			"turns": [1, 2], "tip_share": 0.15,
+			"missed_text": "Missed it! Round the block we go.",
+			"door_lines": ["Oh, it's here! Thank you!", "My {dish}! You brought it yourself?", "Mmm, it smells wonderful. Thank you!", "Right to my door! Thank you so much."]
+		}
 	}
 }
