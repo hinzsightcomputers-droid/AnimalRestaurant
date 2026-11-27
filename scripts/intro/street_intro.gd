@@ -84,6 +84,7 @@ const LOOK_ORDER := ["morning", "day", "evening", "night"]
 
 const NAME_PIXEL_SIZE := 0.0045
 const NAME_FITS_LETTERS := 17  # Longer names shrink to fit the board.
+const SIGN_WIDTH := 3.6           # The carved sign over the door.
 
 var _look_name := ""
 var _look: Dictionary = {}
@@ -95,10 +96,12 @@ var _next_walker := 0.0
 var _walker_models: Array[PackedScene] = []
 var _setup: RestaurantSetup = null  # Open while the restaurant is being named.
 var _picker: SlotPicker = null      # Open while choosing another restaurant (save slot).
+var _sign: Node3D                   # The carved sign (CottageDressing.sign_board).
 
 
 func _ready() -> void:
 	camera.position = CAMERA_START
+	_build_cottage()
 	($Chef/Model/Body as ChefModel).apply_appearance(Accounts.appearance_of(0))  # Player 1's chef, once they have one.
 	_apply_look(look_for_hour(GameClock.now_local()["hour"]))
 	_load_walker_models()
@@ -180,9 +183,91 @@ func _name_restaurant() -> void:
 
 func _paint_sign(restaurant_name: String, color: Color) -> void:
 	name_label.text = restaurant_name
-	name_label.modulate = color.lightened(0.35)
-	name_label.outline_modulate = color.darkened(0.75)
-	name_label.pixel_size = NAME_PIXEL_SIZE * minf(1.0, float(NAME_FITS_LETTERS) / maxi(1, restaurant_name.length()))
+	CottageDressing.paint_sign(_sign, restaurant_name, color, SIGN_WIDTH)
+
+
+# The storefront as the woodland cottage (like the concept art, and the
+# restaurant's outside in the game): the old flat front's walls in cream
+# plaster between dark timbers over a stone footing, a shingle roof with a
+# smoking chimney, the carved sign with the restaurant's name, striped
+# awnings, flower boxes, lanterns by the door, flower barrels, an A-frame
+# chalkboard, ivy, and a cherry tree in blossom. The door, glass and lights
+# are the scene's own, so the opening still works as before.
+func _build_cottage() -> void:
+	var front := $Restaurant as Node3D
+	for old in ["Cornice", "NameBoard", "AwningLeft", "AwningLeftEdge", "AwningRight", "AwningRightEdge", "AwningDoor", "AwningDoorEdge",
+			"PlanterLeft", "PlanterRight", "BushLeft1", "BushLeft2", "BushLeft3", "BushRight1", "BushRight2", "BushRight3"]:
+		front.get_node(old).visible = false
+	name_label.visible = false  # The carved sign carries the name now.
+	var plaster := StandardMaterial3D.new()
+	plaster.albedo_color = Color("F2DFC0")
+	plaster.roughness = 0.95
+	for wall in ["PierLeft", "PierMiddleLeft", "PierMiddleRight", "PierRight", "BelowWindowLeft", "BelowWindowRight", "AboveWindowLeft", "AboveWindowRight", "AboveDoor"]:
+		(front.get_node(wall) as MeshInstance3D).material_override = plaster
+	var stone := StandardMaterial3D.new()
+	stone.albedo_color = Color("9A8F80")
+	stone.roughness = 1.0
+	for trim in ["BaseTrimLeft", "BaseTrimRight"]:
+		(front.get_node(trim) as MeshInstance3D).material_override = stone
+	var cottage := Node3D.new()
+	cottage.name = "Cottage"
+	front.add_child(cottage)
+	var timbers := Node3D.new()
+	cottage.add_child(timbers)
+	var timber := Color("5A3D2B")
+	for x in [-6.0, -4.6, -1.8, -0.72, 0.72, 1.8, 4.6, 6.0]:  # Posts: the corners, either side of each window and the door.
+		CottageDressing._box(timbers, Vector3(x, 2.25, 0.17), Vector3(0.18, 3.9, 0.06), timber)
+	for y in [0.42, 0.9, 2.7]:  # Sill, window-bottom and window-top beams, either side of the door.
+		for side in [-1.0, 1.0]:
+			CottageDressing._box(timbers, Vector3(side * 3.36, y, 0.17), Vector3(5.28, 0.15, 0.06), timber)
+	CottageDressing._box(timbers, Vector3(0.0, 4.02, 0.17), Vector3(12.2, 0.2, 0.07), timber)  # The top beam.
+	for side in [-1.0, 1.0]:  # A brace in each end bay.
+		var brace := CottageDressing._box(timbers, Vector3(side * 5.3, 3.36, 0.17), Vector3(0.14, 1.62, 0.05), timber)
+		brace.rotation.z = side * 0.72
+		for x in [-3.2, 3.2]:  # And a pair over each window.
+			var cross := CottageDressing._box(timbers, Vector3(x + side * 0.7, 3.36, 0.17), Vector3(0.12, 1.5, 0.05), timber)
+			cross.rotation.z = -side * 0.95
+	MeshMerge.merge(timbers)
+	CottageDressing.roof(cottage, Vector3(0.0, 4.15, -2.8), Vector2(12.4, 6.0), 2.3)
+	CottageDressing.chimney(cottage, Vector3(3.6, 5.0, -3.4), 1.5)
+	_sign = CottageDressing.sign_board(cottage, Vector3(0.0, 3.42, 0.34), name_label.text, SIGN_WIDTH)
+	_sign.rotation.x = -0.08
+	for x in [-3.2, 3.2]:
+		CottageDressing.awning(cottage, Vector3(x, 2.95, 0.2), 3.0, 0.85, 0.5)
+		CottageDressing.flower_box(cottage, Vector3(x, 0.78, 0.2), 2.8)
+	CottageDressing.awning(cottage, Vector3(0.0, 2.72, 0.2), 1.7, 0.6, 0.32)
+	for x in [-1.05, 1.05]:
+		CottageDressing.lantern(cottage, Vector3(x, 2.15, 0.2))
+	for x in [-5.3, 5.35]:
+		CottageDressing.flower_barrel(cottage, Vector3(x, 0.0, 0.75))
+	CottageDressing.chalkboard(cottage, Vector3(1.75, 0.0, 1.25), -0.35)
+	for spot in [[-5.95, 3.4, 3], [5.95, 3.0, 5], [-0.85, 2.4, 9]]:
+		CottageDressing.ivy(cottage, Vector3(spot[0], 0.0, 0.2), spot[1], spot[2])
+	_cherry_tree(cottage, Vector3(-7.4, 0.0, 1.4))
+
+
+# A little cherry tree in blossom: a crooked trunk under clouds of pink.
+func _cherry_tree(parent: Node3D, at: Vector3) -> void:
+	var tree := Node3D.new()
+	tree.name = "CherryTree"
+	tree.position = at
+	parent.add_child(tree)
+	var bark := Color("6B4632")
+	var trunk := CottageDressing._cyl(tree, Vector3(0.0, 1.1, 0.0), 0.14, 0.22, 2.2, bark)
+	trunk.rotation.z = 0.08
+	for branch in [[Vector3(0.45, 2.3, 0.0), -0.8], [Vector3(-0.4, 2.2, 0.1), 0.9]]:
+		var arm := CottageDressing._cyl(tree, branch[0], 0.06, 0.1, 1.0, bark)
+		arm.rotation.z = branch[1]
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	var pinks := [Color("F4B6C8"), Color("F7C9D6"), Color("EE9FB7"), Color("FBDDE5")]
+	for i in 16:
+		var angle := i * TAU / 16.0
+		var spot := Vector3(cos(angle) * rng.randf_range(0.4, 1.3), 2.9 + rng.randf_range(-0.4, 0.6), sin(angle) * rng.randf_range(0.3, 0.9))
+		CottageDressing._ball(tree, spot, rng.randf_range(0.45, 0.7), pinks[i % pinks.size()], 0.8)
+	for i in 10:  # Fallen petals round its foot.
+		CottageDressing._box(tree, Vector3(rng.randf_range(-1.4, 1.4), 0.02, rng.randf_range(-0.8, 1.2)), Vector3(0.09, 0.01, 0.06), pinks[i % pinks.size()])
+	MeshMerge.merge(tree)
 
 
 # Tab, or (Y) on a gamepad: the other restaurants (save slots).
