@@ -13,6 +13,9 @@ const VIEWS := [
 	["wood_06_garden.png", Vector3(0.0, 8.0, -1.0), Vector3(-5.0, 0.5, -13.0)],
 	["wood_07_cheddar.png", Vector3(-14.5, 3.5, 11.5), Vector3(-16.5, 1.4, 3.5)],
 	["wood_08_stitches.png", Vector3(15.5, 4.5, -1.5), Vector3(18.0, 1.5, -11.0)],
+	["wood_09_cottage.png", Vector3(4.0, 2.4, 20.0), Vector3(2.0, 2.6, 4.0)],
+	["wood_10_cottage_side.png", Vector3(16.0, 5.0, 16.0), Vector3(1.0, 2.0, -1.0)],
+	["wood_11_cart.png", Vector3(14.5, 2.2, 12.5), Vector3(10.6, 0.8, 8.1)],
 ]
 
 
@@ -33,9 +36,13 @@ func _ready() -> void:
 	var camera := rig.camera
 	camera.fov = 55.0
 	camera.top_level = true
+	camera.set_cull_mask_value(RestaurantGrounds.TALL_FRONT_LAYER, true)  # As a chef outside sees it.
+	camera.set_cull_mask_value(RestaurantGrounds.LOW_FRONT_LAYER, false)
+	camera.set_cull_mask_value(RestaurantGrounds.SIDE_WALL_LAYER, true)
 	for chef in _find(main, func(n): return n is Player):
 		chef.global_position = Vector3(2.0, 0.0, 0.0)  # Out of the way, inside.
 	for view in VIEWS:
+		rig.set_process(false)  # (It turns itself back on when a view changes.)
 		camera.look_at_from_position(view[1], view[2])
 		await get_tree().create_timer(0.4).timeout
 		await _shot(view[0])

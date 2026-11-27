@@ -2,8 +2,11 @@
 // from the room textures by where they are in the world, so the texture runs on
 // unbroken from one piece to the next and over a stage's new strip. The floor
 // is at y 0 everywhere.
-// Walls: wainscot up to lower_height, a trim rail, plaster above, brick on the
-// face looking outdoors (outside_dir, per panel), the top in wainscot wood.
+// Walls: wainscot up to lower_height, a trim rail, plaster above, the top in
+// wainscot wood. The face looking outdoors (outside_dir, per panel) is a
+// woodland cottage's: a stone footing, cream plaster, and dark timber beams
+// (posts every timber_spacing, a sill beam, a top beam, and a brace in every
+// third bay), all painted here so no extra pieces are drawn.
 // Floors: the floor texture on every face.
 // Counters: a cream stone slab on top (its edge showing down the sides), and
 // cupboard doors below it, fitted to the counter's own box (box_height), over a
@@ -25,7 +28,13 @@ uniform float lower_tile = 1.0;    // Meters across one copy of the wainscot (it
 uniform float lower_height = 1.0;  // Top of the wainscot.
 uniform float trim_height = 0.12;  // The rail over it.
 uniform float trim_aspect = 6.4;   // trim_texture's width over its height.
-uniform float outside_tile = 1.2;
+uniform float outside_tile = 1.2;  // The footing's stone (outside_texture).
+uniform float footing = 0.7;       // Top of the stone footing, outdoors.
+uniform float wall_top = 3.0;      // The walls' height, for the top beam.
+uniform float timber_spacing = 1.8;
+uniform float timber_width = 0.15;
+uniform vec3 plaster_tint : source_color = vec3(1.08, 1.02, 0.9);
+uniform vec3 timber_tint : source_color = vec3(0.5, 0.36, 0.28);
 uniform float door_aspect = 1.0;   // Cupboard texture's width over its height (a pair of doors, square).
 uniform float saturation = 1.0;    // Under 1 calms the colour (the room's warm light already adds plenty).
 uniform float brightness = 1.0;
@@ -60,6 +69,28 @@ vec3 stone(vec2 p) {
 	return stone_color * (1.0 - fine + cloud);
 }
 
+// The outdoor face: stone footing, then plaster framed by timber.
+vec3 cottage(float along, float y) {
+	if (y < footing) {
+		return texture(outside_texture, vec2(along, -y) / outside_tile).rgb * vec3(0.92, 0.86, 0.8);
+	}
+	vec3 timber = texture(lower_texture, vec2(along / lower_tile, y)).rgb * timber_tint;
+	float half_beam = timber_width * 0.5;
+	if (y < footing + timber_width || y > wall_top - timber_width) {
+		return timber;  // Sill beam and top beam.
+	}
+	float bay = along / timber_spacing;
+	float across = fract(bay) * timber_spacing;  // Meters into this bay.
+	if (across < half_beam || across > timber_spacing - half_beam) {
+		return timber;  // A post.
+	}
+	float up = (y - footing - timber_width) / (wall_top - footing - 2.0 * timber_width);
+	if (mod(floor(bay), 3.0) == 1.0 && abs(across / timber_spacing - up) * timber_spacing < half_beam * 0.8) {
+		return timber;  // A brace.
+	}
+	return texture(upper_texture, vec2(along, -y) / upper_tile).rgb * plaster_tint;
+}
+
 void fragment() {
 	vec3 n = world_normal;
 	bool flat_face = abs(n.y) > 0.5;
@@ -82,7 +113,7 @@ void fragment() {
 	} else if (flat_face) {
 		color = texture(lower_texture, world_pos.xz / lower_tile).rgb;
 	} else if (dot(n, outside_dir) > 0.5) {
-		color = texture(outside_texture, vec2(along, -y) / outside_tile).rgb;
+		color = cottage(along, y);
 	} else if (y < lower_height) {
 		color = texture(lower_texture, vec2(along / lower_tile, (lower_height - y) / lower_height)).rgb;
 	} else if (y < lower_height + trim_height) {

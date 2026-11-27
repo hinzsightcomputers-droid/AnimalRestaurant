@@ -46,6 +46,7 @@ func _ready() -> void:
 	_build_back_door()
 	_build_sign()
 	_build_tall_front_wall()
+	_build_cottage()
 	_refresh(true)
 
 
@@ -210,6 +211,44 @@ func _build_tall_front_wall() -> void:
 		var side := get_parent().get_node_or_null(path)
 		if side != null:
 			_put_on_layer(side, SIDE_WALL_LAYER)
+
+
+# The restaurant's outside as a woodland cottage (CottageDressing): a roof
+# over the dining room and the kitchen with a smoking chimney, the carved sign
+# over the door, striped awnings, lanterns, flower boxes under the windows,
+# barrels of flowers, a chalkboard and ivy. Only outdoor views see it (the
+# tall front wall's layer), so it never gets between the camera and the room.
+func _build_cottage() -> void:
+	var cottage := Node3D.new()
+	cottage.name = "Cottage"
+	add_child(cottage)
+	var grow := Stages.grown_left()
+	var left_end := -7.3 - grow
+	var face := FRONT_DOOR.z + 0.16
+	var door_left := FRONT_DOOR.x - FRONT_DOOR_WIDTH / 2.0
+	var windows := 4 + roundi(grow / 3.0)  # As _build_tall_front_wall.
+	var step := (door_left - left_end) / windows
+	for i in windows:
+		var middle := left_end + (i + 0.5) * step
+		CottageDressing.flower_box(cottage, Vector3(middle, RoomPanel.SILL - 0.14, face), 1.3)
+		CottageDressing.awning(cottage, Vector3(middle, RoomPanel.HEAD + 0.38, face), 1.7, 0.55, 0.32)
+	CottageDressing.awning(cottage, Vector3(FRONT_DOOR.x, 2.88, face), 2.1, 0.85, 0.4)
+	var board := CottageDressing.sign_board(cottage, Vector3(FRONT_DOOR.x, 3.48, face + 0.42),
+		GameState.restaurant_name if not GameState.restaurant_name.is_empty() else "Dinner Time", 2.6, Color(GameState.restaurant_color))
+	board.rotation.x = -0.12
+	for side in [-1.0, 1.0]:
+		CottageDressing.lantern(cottage, Vector3(FRONT_DOOR.x + side * (FRONT_DOOR_WIDTH / 2.0 + 0.35), 2.05, face))
+	CottageDressing.flower_barrel(cottage, Vector3(FRONT_DOOR.x + 1.55, 0.0, face + 0.5))
+	CottageDressing.flower_barrel(cottage, Vector3(left_end + 0.7, 0.0, face + 0.5))
+	CottageDressing.chalkboard(cottage, Vector3(FRONT_DOOR.x + 2.1, 0.0, face + 1.1), -0.5)
+	CottageDressing.ivy(cottage, Vector3(left_end + 0.05, 0.0, face), 2.7, 3)
+	CottageDressing.ivy(cottage, Vector3(7.2, 0.0, face), 2.5, 7)
+	CottageDressing.ivy(cottage, Vector3(door_left - 0.35, 0.0, face), 2.0, 11)
+	var top := 3.0
+	CottageDressing.roof(cottage, Vector3((left_end + 7.3) / 2.0, top, 0.0), Vector2(7.3 - left_end, 10.6), 2.0)
+	CottageDressing.roof(cottage, Vector3(4.0, top, -8.4), Vector2(6.6, 6.4), 1.5, true)
+	CottageDressing.chimney(cottage, Vector3(left_end + 3.0, top + 0.6, -2.6), 1.7)
+	_put_on_layer(cottage, TALL_FRONT_LAYER)
 
 
 func _front_panel(parent: Node3D, at: Vector3, box: Vector3, windows := 0) -> void:
