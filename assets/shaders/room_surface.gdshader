@@ -7,6 +7,9 @@
 // woodland cottage's: a stone footing, cream plaster, and dark timber beams
 // (posts every timber_spacing, a sill beam, a top beam, and a brace in every
 // third bay), all painted here so no extra pieces are drawn.
+// Inside, the plaster has the cottage's timber frame too (like the concept
+// art): a beam along the top, and on the side walls a post between each pair
+// of windows (every inside_post_spacing along z, from the trim rail up).
 // Floors: the floor texture on every face.
 // Counters: a cream stone slab on top (its edge showing down the sides), and
 // cupboard doors below it, fitted to the counter's own box (box_height), over a
@@ -35,6 +38,9 @@ uniform float timber_spacing = 1.8;
 uniform float timber_width = 0.15;
 uniform vec3 plaster_tint : source_color = vec3(1.08, 1.02, 0.9);
 uniform vec3 timber_tint : source_color = vec3(0.5, 0.36, 0.28);
+uniform float inside_beam = 0.0;          // The top beam's depth inside (0: none).
+uniform float inside_post_spacing = 0.0;  // Side walls' posts (0: none). Windows are every 2.5 m from z 1.25.
+uniform float inside_post_width = 0.16;
 uniform float door_aspect = 1.0;   // Cupboard texture's width over its height (a pair of doors, square).
 uniform float saturation = 1.0;    // Under 1 calms the colour (the room's warm light already adds plenty).
 uniform float brightness = 1.0;
@@ -120,6 +126,13 @@ void fragment() {
 		color = texture(trim_texture, vec2(along / (trim_height * trim_aspect), (lower_height + trim_height - y) / trim_height)).rgb;
 	} else {
 		color = texture(upper_texture, vec2(along, -y) / upper_tile).rgb;
+		vec3 timber = texture(lower_texture, vec2(along / lower_tile, y)).rgb * timber_tint * 1.15;
+		float post_at = inside_post_spacing > 0.0 && abs(n.x) > abs(n.z) ? abs(fract(world_pos.z / inside_post_spacing + 0.5) - 0.5) * inside_post_spacing : 1e6;
+		if (y > wall_top - inside_beam || post_at < inside_post_width * 0.5) {
+			color = timber;
+		} else if (y > wall_top - inside_beam - 0.025 || post_at < inside_post_width * 0.5 + 0.02) {
+			color *= 0.78;  // A soft shadow line beside the wood.
+		}
 	}
 	float grey = dot(color, vec3(0.299, 0.587, 0.114));
 	ALBEDO = mix(vec3(grey), color, saturation) * brightness;

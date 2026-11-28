@@ -75,6 +75,8 @@ static func material_for(which: Kind) -> ShaderMaterial:
 			material.set_shader_parameter("outside_texture", load(TEXTURES % "brick_outside"))
 			material.set_shader_parameter("upper_tile", 2.5)
 			material.set_shader_parameter("saturation", 0.75)
+			material.set_shader_parameter("inside_beam", 0.22)
+			material.set_shader_parameter("inside_post_spacing", 2.5)
 		Kind.FLOOR:
 			material.set_shader_parameter("upper_texture", load(TEXTURES % "floor_dining"))
 			material.set_shader_parameter("upper_tile", 1.6)

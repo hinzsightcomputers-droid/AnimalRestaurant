@@ -35,12 +35,33 @@ var _bin: DishBin = null              # The bin being filled, while clearing.
 # Set by CustomerManager: (player_index, table) -> "Seat Mabel" if that player
 # is leading someone who can sit here, else "".
 var seating_prompt: Callable
+# A little lantern and a vase of flowers in the middle (CozyProp), put away
+# while something else needs the top: a close-up, the chairs up for the night,
+# the staff meal. Reason -> true while it's away.
+var centerpiece: CozyProp
+var _centerpiece_away := {}
 
 
 func _ready() -> void:
 	super._ready()
 	interactable.prompt_for_player = _prompt_for
 	_update_interactable()
+	centerpiece = CozyProp.new()
+	centerpiece.name = "Centerpiece"
+	centerpiece.kind = "centerpiece"
+	centerpiece.position = Vector3(0.0, TOP_HEIGHT - 0.01, 0.0)
+	centerpiece.scale = Vector3.ONE * 1.4
+	centerpiece.visible = _centerpiece_away.is_empty()  # The chairs may be up already.
+	add_child(centerpiece)
+
+
+func put_centerpiece_away(reason: String, away: bool) -> void:
+	if away:
+		_centerpiece_away[reason] = true
+	else:
+		_centerpiece_away.erase(reason)
+	if centerpiece != null:
+		centerpiece.visible = _centerpiece_away.is_empty()
 
 
 func is_clean() -> bool:
@@ -124,6 +145,7 @@ func _open_closeup(player: Player, recipe: CookRecipe, bin: DishBin) -> void:
 	_bin = bin
 	session = closeup_scene.instantiate()
 	session.position = Vector3(0.0, TOP_HEIGHT, 0.0)
+	put_centerpiece_away("closeup", true)
 	add_child(session)
 	session.global_rotation = Vector3(0.0, deg_to_rad(CameraRig.VIEW_YAW), 0.0)  # Lined up with the camera, however the table turns.
 	if bin != null:
@@ -178,6 +200,7 @@ func _on_done(_quality: float) -> void:
 	await get_tree().create_timer(RESULT_SHOW_TIME).timeout
 	session.queue_free()
 	session = null
+	put_centerpiece_away("closeup", false)
 	if _bin != null:
 		_worker.set_held_item(_bin)  # Back in their hands, fuller.
 	_worker.movement_locked = false

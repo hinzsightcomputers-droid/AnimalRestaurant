@@ -33,6 +33,7 @@ func put_up(up: bool, seconds := 0.6) -> void:
 	if table == null:
 		return
 	_up = up
+	table.put_centerpiece_away("chairs", up)
 	var target := Transform3D.IDENTITY
 	if up:
 		var top := table.global_position + Vector3(0.0, DiningTable.TOP_HEIGHT, 0.0)

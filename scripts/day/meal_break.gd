@@ -17,6 +17,7 @@ var _eaten := {}              # Player indexes who've had theirs.
 var _plates: Array[Node3D] = []
 var _interactable := Interactable.new()
 var _laid := false
+var _table: DiningTable  # Where it's laid.
 
 
 static func settings() -> Dictionary:
@@ -47,6 +48,9 @@ func finish() -> void:
 	on = false
 	_laid = false
 	_interactable.enabled = false
+	if _table != null and is_instance_valid(_table):
+		_table.put_centerpiece_away("staff_meal", false)
+	_table = null
 	for plate in _plates:
 		plate.queue_free()
 	_plates.clear()
@@ -71,6 +75,8 @@ func _clean_table() -> DiningTable:
 
 func _lay(table: DiningTable) -> void:
 	_laid = true
+	_table = table
+	table.put_centerpiece_away("staff_meal", true)
 	global_position = table.global_position
 	_interactable.enabled = true
 	var chefs := InputSetup.active_players()

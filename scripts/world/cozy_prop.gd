@@ -8,15 +8,20 @@
 #
 # Counter things stand on this node (put it on the counter top). Wall things
 # hang with their back on this node and face +z. `length` stretches the long
-# ones (plate_rail, fairy_lights, runner) along x.
+# ones (plate_rail, fairy_lights, runner, ivy, bunting, jar_shelf) along x.
+# Like the concept art: ivy trailing along the wall tops, red and cream
+# bunting, wall lanterns, and a lantern and a little vase of flowers on each
+# dining table (centerpiece, which DiningTable adds itself).
 class_name CozyProp
 extends Node3D
 
 const KINDS := ["jars", "crock", "fruit_bowl", "bread", "herb_pots", "plates", "teapot", "cake_dome",
-	"spice_rack", "utensil_rail", "herb_bundles", "plate_rail", "fairy_lights", "runner"]
+	"spice_rack", "utensil_rail", "herb_bundles", "plate_rail", "fairy_lights", "runner",
+	"ivy", "bunting", "sconce", "centerpiece", "jar_shelf"]
 
 @export_enum("jars", "crock", "fruit_bowl", "bread", "herb_pots", "plates", "teapot", "cake_dome",
-	"spice_rack", "utensil_rail", "herb_bundles", "plate_rail", "fairy_lights", "runner") var kind := "jars":
+	"spice_rack", "utensil_rail", "herb_bundles", "plate_rail", "fairy_lights", "runner",
+	"ivy", "bunting", "sconce", "centerpiece", "jar_shelf") var kind := "jars":
 	set(value):
 		kind = value
 		_rebuild()
@@ -39,6 +44,10 @@ const COPPER := Color("C47A45")
 const IRON := Color("4A4440")
 const GOLD := Color("F2C14E")
 const BLUE := Color("7FA7C9")
+const PINK := Color("F2A7B8")
+const IVY_LIGHT := Color("8DB84A")
+const IVY_YELLOW := Color("B5C94E")
+const LANTERN_GLOW := Color("FFD98A")
 
 static var _paints := {}
 
@@ -198,15 +207,129 @@ func _rebuild() -> void:
 				_box(at, Vector3(x, 0.0065, 0), Vector3(long / stripes * 0.45, 0.008, 0.66), [RED, PEACH, SAGE, RED][i % 4])
 			for z in [-0.36, 0.36]:
 				_box(at, Vector3(0, 0.0065, z), Vector3(long, 0.008, 0.04), RED)
+		"ivy":  # Ivy trailing along the top of a wall, with strands hanging down.
+			var long := maxf(length, 0.6)
+			var rng := RandomNumberGenerator.new()
+			rng.seed = int(long * 100.0) + int(absf(position.x) * 7.0 + absf(position.z) * 13.0)
+			var greens := [LEAF, IVY_LIGHT, Color("6FA84A"), IVY_YELLOW]
+			var x := -long / 2.0
+			var run_start := x
+			var run_end := x + rng.randf_range(0.8, 1.8)
+			var runs: Array[Vector2] = []  # Where the vine grows (from, to): clumps with the beam showing between.
+			while x < long / 2.0:  # The vine along the top: leaves overlapping in a band.
+				if x > run_end:
+					runs.append(Vector2(run_start, run_end))
+					x += rng.randf_range(0.3, 0.9)  # A gap.
+					run_start = x
+					run_end = x + rng.randf_range(0.8, 1.8)
+					continue
+				var dip := 0.04 * sin(x * 2.3) - rng.randf_range(0.0, 0.08)
+				_leaf(at, Vector3(x, dip, 0.05), rng.randf_range(0.08, 0.12), greens[rng.randi() % greens.size()], rng)
+				x += rng.randf_range(0.05, 0.09)
+			var strand_x := -long / 2.0 + rng.randf_range(0.2, 0.5)
+			runs.append(Vector2(run_start, long / 2.0))
+			while strand_x < long / 2.0 - 0.15:  # Strands hanging down, from where the vine is.
+				var on_vine := false
+				for run in runs:
+					on_vine = on_vine or (strand_x > run.x + 0.1 and strand_x < run.y - 0.1)
+				if not on_vine:
+					strand_x += 0.2
+					continue
+				var drop := rng.randf_range(0.35, 1.0)
+				var y := -0.05
+				var sway := 0.0
+				while y > -drop:
+					sway = clampf(sway + rng.randf_range(-0.04, 0.04), -0.1, 0.1)
+					_leaf(at, Vector3(strand_x + sway, y, 0.04), rng.randf_range(0.06, 0.085), greens[rng.randi() % greens.size()], rng)
+					y -= rng.randf_range(0.07, 0.11)
+				strand_x += rng.randf_range(0.45, 1.1)
+		"bunting":  # A string of red and cream pennants, drooping between pins.
+			var long := maxf(length, 0.6)
+			var swags := maxi(1, roundi(long / 1.8))
+			var cord_points := 16 * swags
+			for i in cord_points:
+				var a := _swag(float(i) / cord_points, long, swags, 0.15)
+				var b := _swag(float(i + 1) / cord_points, long, swags, 0.15)
+				var bit := _cyl(at, (a + b) / 2.0, 0.005, 0.005, a.distance_to(b), Color("C8B48A"))
+				bit.rotation.z = -atan2(b.x - a.x, b.y - a.y)
+			var flags := int(long / 0.3)
+			for i in flags:
+				var spot := _swag((i + 0.5) / flags, long, swags, 0.15)
+				var flag := PrismMesh.new()
+				flag.size = Vector3(0.22, 0.26, 0.008)
+				var pennant := _mesh(at, flag, spot - Vector3(0, 0.13, -0.005), [RED, CREAM, Color("B8383A"), CREAM][i % 4])
+				pennant.rotation.z = PI  # Point down.
+		"sconce":  # A wall lantern on a little iron bracket, glowing warm.
+			at.scale = Vector3.ONE * 1.3
+			_box(at, Vector3(0, 0.02, 0.015), Vector3(0.07, 0.18, 0.03), IRON)  # The plate on the wall.
+			var arm := _cyl(at, Vector3(0, 0.07, 0.11), 0.012, 0.012, 0.2, IRON)
+			arm.rotation.x = PI / 2.0
+			_lantern(at, Vector3(0, -0.12, 0.2), 1.0)
+		"centerpiece":  # A little lantern and a glass vase of flowers, for a table.
+			_lantern(at, Vector3(-0.1, 0, 0.05), 0.7)
+			_cyl(at, Vector3(0.11, 0.06, -0.05), 0.035, 0.045, 0.12, GLASS).material_override = _glass()
+			_cyl(at, Vector3(0.11, 0.035, -0.05), 0.04, 0.043, 0.06, Color("BFDCE0"))  # Water.
+			var base := Vector3(0.11, 0.1, -0.05)
+			var heads := [[Vector3(0.0, 0.0, 0.0), CREAM], [Vector3(-0.035, -0.025, 0.02), PINK], [Vector3(0.035, -0.02, -0.015), CREAM]]
+			for h in heads:
+				var top: Vector3 = Vector3(0.11, 0.24, -0.05) + h[0]
+				var stem := _cyl(at, (top + base) / 2.0, 0.005, 0.005, top.distance_to(base), LEAF)
+				stem.rotation.z = -atan2(top.x - base.x, top.y - base.y)
+				for petal in 5:
+					var angle := petal * TAU / 5.0
+					_ball(at, top + Vector3(cos(angle) * 0.025, 0, sin(angle) * 0.025), 0.018, h[1], 0.45)
+				_ball(at, top + Vector3(0, 0.006, 0), 0.013, GOLD, 0.7)
+			_ball(at, Vector3(0.08, 0.15, -0.04), 0.025, LEAF, 0.5)
+		"jar_shelf":  # An open shelf of glass jars and stacked bowls, on two brackets.
+			var long := maxf(length, 0.6)
+			_box(at, Vector3(0, 0, 0.12), Vector3(long, 0.04, 0.24), LIGHT_WOOD)
+			for x in [-long / 2.0 + 0.12, long / 2.0 - 0.12]:
+				_box(at, Vector3(x, -0.1, 0.03), Vector3(0.04, 0.18, 0.06), DARK_WOOD)
+			var count := int(long / 0.2)
+			var fills := [Color("B5523B"), Color("F0D27A"), CREAM, Color("8A4A2A"), Color("E8B04A"), SAGE]
+			for i in count:
+				var x := -long / 2.0 + 0.13 + i * (long - 0.26) / maxf(count - 1, 1)
+				if i % 4 == 3:  # A stack of bowls.
+					for b in 3:
+						_cyl(at, Vector3(x, 0.04 + b * 0.045, 0.12), 0.08, 0.05, 0.045, CREAM if b % 2 == 0 else Color("E8C8A8"))
+					continue
+				var tall := 0.14 + 0.05 * ((i * 7) % 3)
+				_cyl(at, Vector3(x, 0.02 + tall * 0.35, 0.12), 0.05, 0.05, tall * 0.7, fills[i % fills.size()])
+				_cyl(at, Vector3(x, 0.02 + tall / 2.0, 0.12), 0.055, 0.055, tall, GLASS).material_override = _glass()
+				_cyl(at, Vector3(x, 0.035 + tall, 0.12), 0.06, 0.06, 0.03, LIGHT_WOOD)
 	MeshMerge.merge(at, false)  # One mesh, a surface per color; small things cast no shadow.
 
 
 
-# A point on the drooping string: `swags` dips across `long` meters, 12 cm deep.
-func _swag(t: float, long: float, swags: int) -> Vector3:
+# A point on the drooping string: `swags` dips across `long` meters, `deep` deep.
+func _swag(t: float, long: float, swags: int, deep := 0.12) -> Vector3:
 	var x := -long / 2.0 + t * long
 	var phase := fmod(t * swags, 1.0)
-	return Vector3(x, -0.12 * sin(phase * PI), 0.03)
+	return Vector3(x, -deep * sin(phase * PI), 0.03)
+
+
+# One ivy leaf: a flattened ball, tipped a little this way or that.
+func _leaf(at: Node3D, spot: Vector3, size: float, color: Color, rng: RandomNumberGenerator) -> void:
+	var leaf := _ball(at, spot, size, color, 0.35)
+	leaf.rotation = Vector3(PI / 2.0 + rng.randf_range(-0.5, 0.5), 0.0, rng.randf_range(-0.8, 0.8))
+	leaf.scale = Vector3(1.0, 1.0, 0.8)
+
+
+# A little lantern standing on `spot` (its base), `size` 1 about 28 cm tall:
+# an iron frame round a warm glow, with a peaked cap and a ring.
+func _lantern(at: Node3D, spot: Vector3, size: float) -> void:
+	var s := size
+	_box(at, spot + Vector3(0, 0.015, 0) * s, Vector3(0.13, 0.03, 0.13) * s, IRON)
+	_box(at, spot + Vector3(0, 0.1, 0) * s, Vector3(0.1, 0.14, 0.1) * s, LANTERN_GLOW).material_override = _paint(LANTERN_GLOW, true)
+	for cx in [-1.0, 1.0]:
+		for cz in [-1.0, 1.0]:
+			_box(at, spot + Vector3(cx * 0.055, 0.1, cz * 0.055) * s, Vector3(0.015, 0.15, 0.015) * s, IRON)
+	_box(at, spot + Vector3(0, 0.18, 0) * s, Vector3(0.13, 0.02, 0.13) * s, IRON)
+	var cap := _cyl(at, spot + Vector3(0, 0.22, 0) * s, 0.0, 0.085 * s, 0.07 * s, IRON)
+	cap.rotation.y = PI / 4.0
+	(cap.mesh as CylinderMesh).radial_segments = 4
+	var ring := _torus(at, spot + Vector3(0, 0.27, 0) * s, 0.012 * s, 0.025 * s, IRON)
+	ring.rotation.x = PI / 2.0
 
 
 func _ball(at: Node3D, spot: Vector3, radius: float, color: Color, squash := 1.0) -> MeshInstance3D:
