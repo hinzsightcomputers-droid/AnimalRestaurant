@@ -135,6 +135,9 @@ func _build() -> void:
 	_mark(shared_keys, _row_label(grid, "Keyboard"))
 	grid.add_child(shared_keys)
 	_label(grid, "", 18, TEXT)
+	_row_label(grid, "Photos")
+	_label(grid, "F12 screenshot, F10 photo mode (frozen, no UI, free camera)", 18, TEXT)
+	_label(grid, "", 18, TEXT)
 	_heading(grid, "Screen and world")
 	var hybrid := CheckButton.new()
 	hybrid.text = "Hybrid camera with two players"
