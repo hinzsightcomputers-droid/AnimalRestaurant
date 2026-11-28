@@ -8,7 +8,7 @@ extends Node
 # variable (else user://week_bot/). Args: --day=N (the clock is set N-1 days
 # ahead, like changing the console's date), --speed=2 (game speed),
 # --seconds=1500 (most game seconds for the day), --after=120 (game seconds of
-# after hours).
+# after hours), --photos (store photos, see store_photos()).
 # Light on memory: at most MAX_SHOTS screenshots, at key moments only.
 
 var OUT := ""
@@ -38,6 +38,25 @@ var players := 1          # --players=N: co-op, every chef played at once.
 var chefs_state := {}     # See _state().
 var looping: Array[int] = []
 var playing := false      # The chefs past the first keep playing while true.
+# --photos: candidate store screenshots (PhotoMode: frozen, no UI) from fixed
+# angles whenever the restaurant's busy, plus each close-up the first time it's
+# played (with its UI: that's the game). Saved as photo_*.png, not counted in MAX_SHOTS.
+var photos := false
+var photo_next := 0.0
+var photo_sets := 0
+var closeups_shot := {}
+const PHOTO_SETS := 5          # Busy moments per day...
+const PHOTO_GAP := 140.0       # ...this many game seconds apart...
+const PHOTO_BUSY := 3          # ...with at least this many customers in.
+const PHOTO_ANGLES := [
+	# [name, camera, look at, field of view]
+	["dining", Vector3(5.5, 4.3, 3.6), Vector3(-2.5, 0.3, -2.5), 55.0],
+	["dining_back", Vector3(-5.5, 2.6, 4.0), Vector3(2.0, 0.8, -4.5), 55.0],
+	["kitchen", Vector3(6.8, 2.9, -5.6), Vector3(2.2, 0.4, -9.6), 52.0],
+	["fireplace", Vector3(-3.6, 1.7, -0.8), Vector3(-6.0, 0.9, -4.6), 55.0],
+	["overhead", Vector3(8.5, 8.0, 1.0), Vector3(-1.0, 0.0, -3.0), 50.0],
+	["low_tables", Vector3(1.8, 1.25, 2.6), Vector3(-3.5, 0.8, -2.0), 50.0],
+]
 
 
 func note(text: String) -> void:
@@ -174,6 +193,8 @@ func _ready() -> void:
 			seconds = float(a.get_slice("=", 1))
 		if a.begins_with("--players="):
 			players = clampi(int(a.get_slice("=", 1)), 1, InputSetup.MAX_PLAYERS)
+		if a == "--photos":
+			photos = true
 		if a.begins_with("--after="):
 			after = float(a.get_slice("=", 1))
 	OUT = OS.get_environment("WEEK_BOT_OUT").replace("\\", "/")
@@ -216,6 +237,7 @@ func _ready() -> void:
 					_join_chefs()
 			continue
 		await play_step()
+		await _maybe_photos()
 		if t - last_progress > 90.0:
 			note("STUCK? 90s with nothing happening. Step: '%s'  phase %s  %s" % [last_hint, DayCycle.phase_name(), ArrivalPacing.debug_line(cm.status()) if DayCycle.is_open() else ""])
 			if not stuck_shot:
@@ -578,6 +600,8 @@ func after_hours() -> void:
 	_grab_nodes()
 	note("AFTER HOURS phase %s" % DayCycle.phase_name())
 	await shot("after_hours")
+	if photos:
+		await store_photos("evening")
 	var offers := {}
 	for n in find_all(main, func(n): return n is Interactable, []):
 		var p := String(n.prompt_for(0))
@@ -591,3 +615,54 @@ func after_hours() -> void:
 		await play_step()
 	note("after hours done (%s)" % DayCycle.phase_name())
 	await shot("night")
+	if photos:
+		await store_photos("night")
+
+
+# --photos: a busy moment, or a close-up not shot yet today.
+func _maybe_photos() -> void:
+	if not photos or not is_instance_valid(main) or not is_instance_valid(cm):
+		return
+	var session := find_all(main, func(n): return n is CookSession and n.player == chef, [])
+	if not session.is_empty() and session[0].recipe != null:
+		var recipe_name: String = session[0].recipe.resource_path.get_file().get_basename()
+		if not closeups_shot.has(recipe_name) and t - float(closeups_shot.get("_last", -99.0)) > 1.0:
+			closeups_shot[recipe_name] = true
+			closeups_shot["_last"] = t
+			await tick(4.0)  # Into the step, not the zoom.
+			await photo("closeup_%s_game" % recipe_name)
+			PhotoMode.set_active(true, true, false)  # Just the close-up's own screen.
+			await get_tree().process_frame
+			await photo("closeup_" + recipe_name)
+			PhotoMode.set_active(false)
+	if DayCycle.is_open() and photo_sets < PHOTO_SETS and t >= photo_next and cm.customers_left() >= PHOTO_BUSY:
+		photo_sets += 1
+		photo_next = t + PHOTO_GAP
+		await store_photos("busy%d" % photo_sets)
+
+
+# The game as it looks (HUD and all), then frozen with no UI from each of
+# PHOTO_ANGLES and from the chef's own camera.
+func store_photos(tag: String) -> void:
+	await photo(tag + "_game")
+	PhotoMode.set_active(true, false, false)
+	await get_tree().process_frame
+	var camera: Camera3D = PhotoMode._camera
+	if camera == null:
+		PhotoMode.set_active(false)
+		return
+	var fov := camera.fov
+	await photo(tag + "_clean")  # The game camera, no UI.
+	for angle in PHOTO_ANGLES:
+		camera.fov = angle[3]
+		PhotoMode.frame(angle[1], angle[2])
+		await get_tree().process_frame
+		await photo("%s_%s" % [tag, angle[0]])
+	camera.fov = fov
+	PhotoMode.set_active(false)
+	note("PHOTOS %s (%d customers in, phase %s)" % [tag, cm.customers_left() if is_instance_valid(cm) else 0, DayCycle.phase_name()])
+
+
+func photo(name: String) -> void:
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png(OUT + "%s_photo_%s.png" % [day_tag, name.validate_filename()])

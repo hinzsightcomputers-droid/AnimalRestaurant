@@ -23,9 +23,16 @@ Bot arguments: `--seconds=1800` (most game seconds for the day),
 test accounts; every chef follows their own Guide arrow at the same time, and
 the log marks their lines P2, P3, P4. Use a separate `WEEK_BOT_DIR` per player
 count, so each has its own test save).
+`--photos` (candidate store screenshots: at up to 5 busy moments a day, and
+again in the evening and at night, the game as it looks, then frozen with no UI
+(PhotoMode) from the chef's camera and six fixed angles; plus each close-up the
+first time it's played. Saved as `d8_photo_*.png`, besides the 12 screenshots).
+For store-sized pictures run it with `GODOT_ARGS="--resolution 1920x1080"`; to
+photograph a restaurant that's further along, copy a save into
+`WEEK_BOT_DIR/state` first and give the day after its date.
 Settings by environment variable: `GODOT` (the exe; default the Desktop one),
 `WEEK_BOT_DIR` (default `%TEMP%\dinner-time-week-bot`), `DAY_TIMEOUT` (real
-seconds per day, default 2400).
+seconds per day, default 2400), `GODOT_ARGS` (more Godot arguments).
 
 In `WEEK_BOT_DIR`: `out/` has each day's log (`d3_log.txt`), the raw Godot
 output (`d3_raw.txt`), up to 12 screenshots a day and `report.md`; `state/` is

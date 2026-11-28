@@ -12,6 +12,7 @@
 #   WEEK_BOT_DIR  where the test save, logs and screenshots go
 #                 (default: $TEMP/dinner-time-week-bot)
 #   DAY_TIMEOUT   most real seconds for the day (default 2400)
+#   GODOT_ARGS    more Godot arguments, e.g. "--resolution 1920x1080" for --photos
 set -u
 DAY="${1:?usage: run_day.sh <day> [bot args]}"
 shift
@@ -38,7 +39,7 @@ rm -rf "$TU" && mkdir -p "$TU"
 if [ -d "$STATE" ]; then cp "$STATE"/*.json "$TU"/ 2>/dev/null; fi
 
 APPDATA="$(cygpath -w "$FAKE")" WEEK_BOT_OUT="$(cygpath -m "$OUT")" timeout "${DAY_TIMEOUT:-2400}" \
-	"$GODOT" --path . res://tools/week_bot/bot_week.tscn -- --day="$DAY" "$@" > "$OUT/d${DAY}_raw.txt" 2>&1
+	"$GODOT" ${GODOT_ARGS:-} --path . res://tools/week_bot/bot_week.tscn -- --day="$DAY" "$@" > "$OUT/d${DAY}_raw.txt" 2>&1
 echo "day $DAY: godot exited with $?"
 
 if [ -e "$TU/save.json" ]; then

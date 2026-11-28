@@ -18,7 +18,8 @@ const MOVE_SPEED := 4.0     # Meters a second across the floor (times the zoom).
 const TURN_SPEED := 1.6     # Radians a second.
 const ZOOM_STEP := 0.9      # Each wheel notch brings it this much closer.
 const DISTANCE_RANGE := Vector2(0.8, 30.0)
-const PITCH_RANGE := Vector2(deg_to_rad(5.0), deg_to_rad(85.0))
+const SIDE_WALL_X := 7.15   # The right-hand walls (RestaurantGrounds.INDOORS).
+const PITCH_RANGE := Vector2(deg_to_rad(2.0), deg_to_rad(85.0))
 
 var active := false
 var _layer: CanvasLayer
@@ -31,7 +32,7 @@ var _hidden_3d: Array[Node3D] = []    # ...and the icons and prompts over heads.
 var _hidden_layers: Array[CanvasLayer] = []
 var _camera: Camera3D
 var _camera_start: Transform3D
-var _text_layer_was := true
+var _mask_was := 0
 var _pivot := Vector3.ZERO
 var _yaw := 0.0
 var _pitch := 0.0
@@ -127,18 +128,32 @@ func _place() -> void:
 	var offset := Vector3(sin(_yaw) * cos(_pitch), sin(_pitch), cos(_yaw) * cos(_pitch)) * _distance
 	_camera.global_position = _pivot + offset
 	_camera.look_at(_pivot, Vector3.UP)
+	_pick_walls()
 
 
-func set_active(on: bool) -> void:
+# The game leaves out the right-hand walls it looks in over: the free camera
+# can be anywhere, so they show unless it's past them. The cottage outside (its
+# roof, the front's full height) only when looking at something outdoors, as
+# in the game.
+func _pick_walls() -> void:
+	_camera.set_cull_mask_value(RestaurantGrounds.SIDE_WALL_LAYER, _camera.global_position.x < SIDE_WALL_X)
+	var tall_front := RestaurantGrounds.outdoors(_pivot)
+	_camera.set_cull_mask_value(RestaurantGrounds.TALL_FRONT_LAYER, tall_front)
+	_camera.set_cull_mask_value(RestaurantGrounds.LOW_FRONT_LAYER, not tall_front)
+
+
+# For tools: `keep_view_ui` leaves what's in the chefs' own views showing (a
+# close-up's own screen), `help` false leaves out the help line.
+func set_active(on: bool, keep_view_ui := false, help := true) -> void:
 	if on == active:
 		return
 	active = on
-	_help.visible = on
+	_help.visible = on and help
 	_dragging = false
 	if on:
 		_was_paused = get_tree().paused
 		get_tree().paused = true
-		_hide_ui()
+		_hide_ui(keep_view_ui)
 		_take_camera()
 	else:
 		_show_ui()
@@ -148,7 +163,7 @@ func set_active(on: bool) -> void:
 
 # Every CanvasLayer but the players' views, everything in a view but its
 # picture, and the icons and prompts floating over heads.
-func _hide_ui() -> void:
+func _hide_ui(keep_view_ui := false) -> void:
 	for node in get_tree().root.find_children("*", "CanvasLayer", true, false):
 		var layer := node as CanvasLayer
 		if layer == _layer or layer is ViewManager or not layer.visible:
@@ -156,6 +171,8 @@ func _hide_ui() -> void:
 		layer.visible = false
 		_hidden_layers.append(layer)
 	for view in get_tree().root.find_children("*", "PlayerView", true, false):
+		if keep_view_ui:
+			break
 		for child in view.get_children():
 			if child is CanvasItem and not child is SubViewport and child.visible:
 				child.visible = false
@@ -214,7 +231,7 @@ func _take_camera() -> void:
 		_camera = rig.camera
 		_pivot = rig.global_position
 	_camera_start = _camera.global_transform
-	_text_layer_was = _camera.get_cull_mask_value(CustomerDisplay.TEXT_LAYER)
+	_mask_was = _camera.cull_mask
 	_camera.set_cull_mask_value(CustomerDisplay.TEXT_LAYER, false)  # Table badges.
 	var offset := _camera.global_position - _pivot
 	_distance = maxf(offset.length(), 1.0)
@@ -222,10 +239,22 @@ func _take_camera() -> void:
 	_yaw = atan2(offset.x, offset.z)
 
 
+# For tools (the week bot's store photos): the free camera to `from`, looking at `at`.
+func frame(from: Vector3, at: Vector3) -> void:
+	if not active or _camera == null:
+		return
+	_pivot = at
+	var offset := from - at
+	_distance = maxf(offset.length(), DISTANCE_RANGE.x)
+	_pitch = asin(clampf(offset.y / _distance, -1.0, 1.0))
+	_yaw = atan2(offset.x, offset.z)
+	_place()
+
+
 func _give_camera_back() -> void:
 	if _camera != null and is_instance_valid(_camera):
 		_camera.global_transform = _camera_start
-		_camera.set_cull_mask_value(CustomerDisplay.TEXT_LAYER, _text_layer_was)
+		_camera.cull_mask = _mask_was
 	_camera = null
 
 
