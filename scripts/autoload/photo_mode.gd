@@ -33,6 +33,7 @@ var _hidden_layers: Array[CanvasLayer] = []
 var _camera: Camera3D
 var _camera_start: Transform3D
 var _mask_was := 0
+var _attributes_was: CameraAttributes = null  # A close-up's background blur, off while the camera roams.
 var _pivot := Vector3.ZERO
 var _yaw := 0.0
 var _pitch := 0.0
@@ -154,7 +155,8 @@ func set_active(on: bool, keep_view_ui := false, help := true) -> void:
 		_was_paused = get_tree().paused
 		get_tree().paused = true
 		_hide_ui(keep_view_ui)
-		_take_camera()
+		if not keep_view_ui:  # (A close-up's screen goes with its own camera, so that stays put.)
+			_take_camera()
 	else:
 		_show_ui()
 		_give_camera_back()
@@ -232,6 +234,8 @@ func _take_camera() -> void:
 		_pivot = rig.global_position
 	_camera_start = _camera.global_transform
 	_mask_was = _camera.cull_mask
+	_attributes_was = _camera.attributes
+	_camera.attributes = null
 	_camera.set_cull_mask_value(CustomerDisplay.TEXT_LAYER, false)  # Table badges.
 	var offset := _camera.global_position - _pivot
 	_distance = maxf(offset.length(), 1.0)
@@ -255,6 +259,8 @@ func _give_camera_back() -> void:
 	if _camera != null and is_instance_valid(_camera):
 		_camera.global_transform = _camera_start
 		_camera.cull_mask = _mask_was
+		_camera.attributes = _attributes_was
+	_attributes_was = null
 	_camera = null
 
 
