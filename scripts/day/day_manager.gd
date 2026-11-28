@@ -28,6 +28,15 @@ signal phase_started(phase: int)
 
 const DASH_TIP_DAYS := 2  # How many days the dash button's mentioned.
 const AFTER_HOURS_LIGHT_CHECK_SECONDS := 60.0
+# Indoor lights (OmniLight3Ds in this group: the pendant lamps, the kitchen
+# light, the dining room's fill lights) brighten as it gets dark outside, so
+# the inside stays well lit at sunset and at night. Each has metas
+# "day_energy" and "night_energy"; between them by how dark it is: the sun's
+# energy against DAYLIGHT_SUN (data/day.json lighting), 0 by day, 1 at night.
+const INDOOR_LIGHTS := &"indoor_lights"
+const DAYLIGHT_SUN := 0.85
+
+static var indoor_darkness := 0.0  # For indoor lights made later (PendantLamp).
 
 @export var customer_manager: CustomerManager
 @export var delivery_manager: DeliveryManager
@@ -388,6 +397,12 @@ func _put_chairs_up(light_seconds: float) -> void:
 			node.put_up(true, 0.0 if light_seconds == 0.0 else 0.6)
 
 
+# An indoor light's energy for how dark it is outside now.
+static func indoor_energy(light: Light3D) -> float:
+	var day: float = light.get_meta("day_energy", light.light_energy)
+	return lerpf(day, light.get_meta("night_energy", day), indoor_darkness)
+
+
 # Fade the sun, ambient light and sky to a meal's lighting over `seconds`
 # (-1: lighting_fade_seconds from data/day.json). Big moment scenes dim from
 # whatever this sets (see ScenePlayer).
@@ -405,6 +420,10 @@ func _light(lighting: Dictionary, seconds := -1.0) -> void:
 		sun.set_meta("base_energy", energy)
 		_lighting.tween_property(sun, "light_color", Color(lighting.get("sun_color", sun.light_color.to_html())), duration)
 		_lighting.tween_property(sun, "light_energy", energy, duration)
+	indoor_darkness = clampf(1.0 - float(lighting.get("sun_energy", DAYLIGHT_SUN)) / DAYLIGHT_SUN, 0.0, 1.0)
+	for node in get_tree().get_nodes_in_group(INDOOR_LIGHTS):
+		if node is Light3D:
+			_lighting.tween_property(node, "light_energy", indoor_energy(node), duration)
 	var environment: Environment = world_environment.environment if world_environment != null else null
 	if environment != null:
 		var ambient := float(lighting.get("ambient_energy", environment.ambient_light_energy))

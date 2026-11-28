@@ -15,6 +15,7 @@ const WIDE := [
 	["wide_kitchen_left", Vector3(6.6, 2.3, -6.0), Vector3(1.6, 0.9, -10.6)],
 	["wide_dining", Vector3(5.5, 3.2, 3.5), Vector3(-2.5, 0.6, -2.5)],
 	["wide_dining_back", Vector3(-5.5, 2.6, 4.0), Vector3(2.0, 0.8, -4.5)],
+	["fireplace", Vector3(-4.4, 1.9, -1.6), Vector3(-6.0, 1.0, -5.0)],
 ]
 
 

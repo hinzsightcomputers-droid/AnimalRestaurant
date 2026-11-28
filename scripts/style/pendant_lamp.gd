@@ -34,6 +34,7 @@ extends Node3D
 		_build()
 
 const BRASS := Color("C9A15A")
+const NIGHT_BOOST := 2.2  # Brighter once it's dark outside (see DayManager.INDOOR_LIGHTS).
 const HONEY := Color("F2B860")  # The glass: warm amber, like the concept art.
 
 var _parts: Array[Node] = []
@@ -99,6 +100,10 @@ func _build() -> void:
 	light.omni_range = light_range
 	light.omni_attenuation = 1.2
 	light.shadow_enabled = false
+	light.set_meta("day_energy", light_energy)
+	light.set_meta("night_energy", light_energy * NIGHT_BOOST)
+	light.light_energy = DayManager.indoor_energy(light) if not Engine.is_editor_hint() else light_energy
+	light.add_to_group(DayManager.INDOOR_LIGHTS)
 	light.position = Vector3(0.0, -drop - 0.25, 0.0)
 	_add(light)
 
